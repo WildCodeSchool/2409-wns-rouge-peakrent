@@ -1,0 +1,20 @@
+@import "_variables.scss";
+
+* {
+  box-sizing: border-box;
+  font-family: $font-family-main;
+}
+
+body {
+  margin: 0;
+  background-color: $main-background-color;
+}
+
+h1 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
