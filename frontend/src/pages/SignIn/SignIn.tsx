@@ -1,12 +1,12 @@
-import { useRef, useState } from "react";
-import styles from "./SignIn.module.scss";
 import { useMutation } from "@apollo/client";
-import Button from "../../UI/Button/Button";
-import { WHOAMI } from "../../GraphQL/whoami";
-import { SIGNIN } from "../../GraphQL/signin";
-import { useNavigate } from "react-router-dom";
 import classNames from "classnames";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CREATE_USER } from "../../GraphQL/createUser";
+import { SIGNIN } from "../../GraphQL/signin";
+import { WHOAMI } from "../../GraphQL/whoami";
+import Button from "../../UI/Button/Button";
+import styles from "./SignIn.module.scss";
 
 const SignInPage = () => {
   const switchCtnRef = useRef(null);
@@ -20,6 +20,9 @@ const SignInPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("test1@gmail.com");
   const [password, setPassword] = useState("SuperSecret#2025");
+  const [confirmPassword, setConfirmPassword] = useState("SuperSecret#2025");
+  const [firstname, setFirstname] = useState("Test");
+  const [lastname, setLastname] = useState("Test");
   const [signinError, setSigninError] = useState("");
   const [signupError, setSignupError] = useState("");
 
@@ -36,7 +39,6 @@ const SignInPage = () => {
           password,
         },
       });
-      console.log(data);
       if (data.signIn) {
         // connected
         console.log(data.signIn);
@@ -58,6 +60,9 @@ const SignInPage = () => {
           data: {
             email,
             password,
+            confirmPassword,
+            firstname,
+            lastname,
           },
         },
       });
@@ -69,7 +74,7 @@ const SignInPage = () => {
       } else if (e.message.includes("email must be an email")) {
         setSignupError("L'email est invalide");
       } else {
-        setSignupError("Un compte avec cette adresse email existe déjà");
+        setSignupError(e.message);
       }
     }
   }
@@ -135,6 +140,7 @@ const SignInPage = () => {
             </span>
             <input
               className={styles.form__input}
+              name="email"
               type="text"
               placeholder="Email"
               value={email}
@@ -142,10 +148,35 @@ const SignInPage = () => {
             />
             <input
               className={styles.form__input}
+              name="password"
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <input
+              className={styles.form__input}
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <input
+              className={styles.form__input}
+              name="firstname"
+              type="text"
+              placeholder="First Name"
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+            />
+            <input
+              className={styles.form__input}
+              name="lastname"
+              type="text"
+              placeholder="Last Name"
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
             />
             {signupError && <p style={{ color: "red" }}>{signupError}</p>}
             <Button onClick={doSubmitSignup}>SIGN UP</Button>

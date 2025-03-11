@@ -24,8 +24,10 @@ export type TagType = {
 export type UserType = {
   id: number;
   email: string;
-  hashedPassword: string;
-  // role: Role;
+  password: string;
+  firstname: string;
+  lastname: string;
+  role: RoleType;
 };
 
 export type ContextType = {
@@ -36,3 +38,8 @@ export type ContextType = {
 export type AuthContextType = ContextType & { user: UserType };
 
 // export type Role = "admin" | "moderator" | "user";
+
+export enum RoleType {
+  USER = "user",
+  ADMIN = "admin"
+}

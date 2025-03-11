@@ -1,15 +1,15 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
-import { User, UserCreateInput } from "../entities/user";
+import { UserInputError } from "apollo-server-errors";
 import { validate, ValidationError } from "class-validator";
+import Cookies from "cookies";
+import * as jsonwebtoken from "jsonwebtoken";
+import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { User, UserCreateInput } from "../entities/User";
 import {
   getUserFromContext,
   hashPassword,
   verifyPassword,
 } from "../helpers/helpers";
-import { UserInputError } from "apollo-server-errors";
-import * as jsonwebtoken from "jsonwebtoken";
-import Cookies from "cookies";
-import { ContextType } from "../types";
+import { ContextType, RoleType } from "../types";
 
 @Resolver(User)
 export class UserResolver {
@@ -17,6 +17,10 @@ export class UserResolver {
   async createUser(
     @Arg("data", () => UserCreateInput) data: UserCreateInput
   ): Promise<User | ValidationError[]> {
+    if (data.password !== data.confirmPassword) {
+      throw new UserInputError("Passwords don't match");
+    }
+
     const inputErrors = await validate(data);
     if (inputErrors.length > 0) {
       throw new UserInputError("Validation error", {
@@ -31,9 +35,12 @@ export class UserResolver {
     try {
       const hashedPassword = await hashPassword(data.password);
       newUser.email = data.email;
-      newUser.hashedPassword = hashedPassword;
+      newUser.password = hashedPassword;
+      newUser.firstname = data.firstname;
+      newUser.lastname = data.lastname;
+      newUser.role = RoleType.USER;
       await newUser.save();
-      // send email for validation
+      //TODO send email for validation
       return newUser;
     } catch (error) {
       console.error("Error creating user:", error);
@@ -51,7 +58,7 @@ export class UserResolver {
       const user: User | null = await User.findOneBy({ email });
 
       if (user) {
-        if (await verifyPassword(user.hashedPassword, password)) {
+        if (await verifyPassword(user.password, password)) {
           const token = jsonwebtoken.sign(
             { id: user.id },
             process.env.JWT_SECRET_KEY
@@ -62,6 +69,8 @@ export class UserResolver {
             httpOnly: true,
             maxAge: 1000 * 60 * 60 * (24 * 3),
           });
+          //TODO create user token in db
+          // const userToken = await UserToken.createUserToken(token);
           return user;
         } else {
           return null;

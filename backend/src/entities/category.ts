@@ -7,10 +7,10 @@ import {
     PrimaryGeneratedColumn, UpdateDateColumn,
 } from "typeorm";
 import {Product} from "./Product";
-import {Field, ID, InputType, Int, ObjectType} from "type-graphql";
+import {Field, ID, InputType, ObjectType} from "type-graphql";
 import {Pagination} from "./Pagination";
 import {IsNotEmpty, IsString, IsUrl, Length} from "class-validator";
-import {User} from "./user";
+import {User} from "./User";
 
 @ObjectType()
 @Entity()
