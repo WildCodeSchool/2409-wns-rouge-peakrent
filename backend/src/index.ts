@@ -28,8 +28,6 @@ const initialize = async () => {
     const {url} = await startStandaloneServer(server, {
         listen: {port: port},
         context: async ({req, res}) => {
-            // console.log("req1:", req);
-            // console.log("res1:", res);
             return {req, res};
         },
     });
