@@ -1,7 +1,6 @@
 import { IsEmail, IsNotEmpty, IsStrongPassword } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
-  AfterInsert,
   BaseEntity,
   Column,
   CreateDateColumn,
@@ -11,7 +10,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { RoleType } from "../types";
-import { Profile } from "./Profile";
 
 @ObjectType()
 @Entity({ name: "user" })
@@ -75,17 +73,6 @@ export class User extends BaseEntity {
   @Field({ nullable: true })
   @DeleteDateColumn({ type: "timestamptz", nullable: true })
   deleted_at?: Date;
-
-  @AfterInsert()
-  private async createProfile() {
-    const profile = new Profile();
-    profile.email = this.email;
-    profile.firstname = this.firstname;
-    profile.lastname = this.lastname;
-    profile.user_id = this.id;
-    profile.role = this.role;
-    await profile.save();
-  }
 }
 
 @InputType()
