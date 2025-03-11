@@ -3,7 +3,10 @@ import { validate, ValidationError } from "class-validator";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { dataSource } from "../config/db";
+import { Profile } from "../entities/Profile";
 import { User, UserCreateInput } from "../entities/User";
+import { UserToken } from "../entities/UserToken";
 import {
   getUserFromContext,
   hashPassword,
@@ -31,15 +34,27 @@ export class UserResolver {
       });
     }
 
-    const newUser = new User();
     try {
       const hashedPassword = await hashPassword(data.password);
+      const newUser = new User();
       newUser.email = data.email;
       newUser.password = hashedPassword;
       newUser.firstname = data.firstname;
       newUser.lastname = data.lastname;
       newUser.role = RoleType.USER;
-      await newUser.save();
+
+      await dataSource.manager.transaction(async () => {
+        await newUser.save();
+
+        const profile = new Profile();
+        profile.email = newUser.email;
+        profile.firstname = newUser.firstname;
+        profile.lastname = newUser.lastname;
+        profile.user_id = newUser.id;
+        profile.role = newUser.role;
+
+        await profile.save();
+      });
       //TODO send email for validation
       return newUser;
     } catch (error) {
@@ -58,19 +73,40 @@ export class UserResolver {
       const user: User | null = await User.findOneBy({ email });
 
       if (user) {
-        if (await verifyPassword(user.password, password)) {
+        const passwordMatch = await verifyPassword(user.password, password);
+        if (passwordMatch) {
+          //TODO replace 3d per 1h when refresh token is fully implemented
           const token = jsonwebtoken.sign(
             { id: user.id },
-            process.env.JWT_SECRET_KEY
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: "3d" }
           );
+
+          const refreshToken = jsonwebtoken.sign(
+            { id: user.id },
+            process.env.JWT_REFRESH_SECRET_KEY,
+            { expiresIn: "7d" }
+          );
+
+          const userToken = new UserToken();
+          userToken.token = token;
+          userToken.refresh_token = refreshToken;
+          userToken.user = user;
+          await userToken.save();
           const cookies = new Cookies(context.req, context.res);
+          //TODO remove 24 * 3 when refresh token is fully implemented
           cookies.set("token", token, {
-            secure: false,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * (24 * 3),
+            maxAge: 1000 * 60 * 60 * 24 * 3,
           });
-          //TODO create user token in db
-          // const userToken = await UserToken.createUserToken(token);
+
+          cookies.set("refresh_token", refreshToken, {
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+          });
+
           return user;
         } else {
           return null;
