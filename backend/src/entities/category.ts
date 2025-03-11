@@ -1,3 +1,5 @@
+import { Length } from "class-validator";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -8,10 +10,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Ad } from "./ad";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import { Pagination } from "./pagination";
-import { Length } from "class-validator";
-import { User } from "./user";
+import { User } from "./User";
 
 // like { createdAt user }
 // @ObjectType()

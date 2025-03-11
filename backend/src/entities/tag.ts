@@ -1,3 +1,4 @@
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -7,9 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Ad } from "./ad";
-import { Field, ID, InputType, ObjectType } from "type-graphql";
 import { Pagination } from "./pagination";
-import { User } from "./user";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()

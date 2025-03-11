@@ -1,4 +1,5 @@
 import { IsEmail, IsUrl, Length, Min } from "class-validator";
+import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   BeforeInsert,
@@ -10,11 +11,10 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Category } from "./category";
-import { Tag } from "./tag";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
-import { Pagination } from "./pagination";
 import { IdInput } from "./id";
-import { User } from "./user";
+import { Pagination } from "./pagination";
+import { Tag } from "./tag";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
