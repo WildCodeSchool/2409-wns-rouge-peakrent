@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import {Field, ID, InputType, Int, ObjectType} from "type-graphql";
 import {Product} from "./Product";
-import {User} from "./user";
+import {User} from "./User";
 import {Pagination} from "./Pagination";
 
 @ObjectType()

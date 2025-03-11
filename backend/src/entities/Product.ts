@@ -9,8 +9,8 @@ import {
 } from "typeorm";
 import {Field, ID, InputType, Int, ObjectType} from "type-graphql";
 import {Pagination} from "./Pagination";
-import {IdInput} from "./Id";
-import {User} from "./user";
+import {IdInput} from "./id";
+import {User} from "./User";
 import {Category} from "./Category";
 import {Variant} from "./Variant";
 
