@@ -9,6 +9,7 @@ import { AdResolver } from "./resolver/Ads";
 import { SearchResolver } from "./resolver/Search";
 import { UserResolver } from "./resolver/Users";
 import { authChecker } from "./auth";
+import { ProfileResolver } from "./resolver/Profiles";
 
 const port = 4000;
 
@@ -20,6 +21,7 @@ const initialize = async () => {
       TagResolver,
       AdResolver,
       SearchResolver,
+      ProfileResolver
     ],
     authChecker,
   });
