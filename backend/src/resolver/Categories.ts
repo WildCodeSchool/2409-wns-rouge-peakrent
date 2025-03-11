@@ -24,7 +24,6 @@ export class CategoryResolver {
     @Query(() => [Category])
     async getCategories(): Promise<Category[]> {
         const categories = await Category.find({relations: {products: true, parentCategory: true, children: true}});
-        console.log(categories);
         return categories;
     }
 

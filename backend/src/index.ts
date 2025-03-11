@@ -9,7 +9,7 @@ import {SearchResolver} from "./resolver/Searchs";
 import {UserResolver} from "./resolver/Users";
 import {authChecker} from "./auth";
 import {VariantResolver} from "./resolver/Variants";
-import { ProfileResolver } from "./resolver/Profiles";
+import {ProfileResolver} from "./resolver/Profiles";
 
 const port = 4000;
 
@@ -17,7 +17,7 @@ const initialize = async () => {
     const schema = await buildSchema({
         resolvers: [
             UserResolver,
-          ProfileResolver
+            ProfileResolver,
             CategoryResolver,
             ProductResolver,
             SearchResolver,
