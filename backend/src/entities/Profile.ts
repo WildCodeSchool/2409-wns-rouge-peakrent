@@ -21,7 +21,7 @@ export class Profile extends BaseEntity {
   user_id!: number;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "id" })
+  @JoinColumn({ name: "user_id" })
   user!: User;
 
   @Field()
