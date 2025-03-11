@@ -1,20 +1,24 @@
-import AdCard from "../AdCard/AdCard";
-import styles from "./AdsList.module.scss";
+import React from 'react'
+import AdCard from '../AdCard/AdCard'
+import styles from './AdsList.module.scss'
 // import LazyLoading from "../LazyLoading/LazyLoading";
 // import Pagination from "../Pagination/Pagination";
-import { AdType } from "../../types/types";
-import Button from "../../UI/Button/Button";
-import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from "react-icons/md";
+import { AdType } from '../../types/types'
+import Button from '../../UI/Button/Button'
+import {
+  MdKeyboardArrowRight,
+  MdKeyboardArrowLeft,
+} from 'react-icons/md'
 
 type PropsType = {
-  title: string;
-  items: AdType[];
-  itemsOnPage: number;
-  setItemsOnPage: (newItemsOnPage: number) => void;
-  pageIndex: number;
-  setPageIndex: (newPageIndex: number) => void;
-  maxPage: number;
-};
+  title: string
+  items: AdType[]
+  itemsOnPage: number
+  setItemsOnPage: (newItemsOnPage: number) => void
+  pageIndex: number
+  setPageIndex: (newPageIndex: number) => void
+  maxPage: number
+}
 
 const AdsList = ({
   title,
@@ -33,7 +37,9 @@ const AdsList = ({
           <p className={styles.text}>Livres par pages :</p>
           <select
             name="itemsOnPage"
-            onChange={(event) => setItemsOnPage(Number(event.target.value))}
+            onChange={(event) =>
+              setItemsOnPage(Number(event.target.value))
+            }
             value={itemsOnPage}
           >
             <option value="15">15</option>
@@ -49,23 +55,30 @@ const AdsList = ({
       </section>
       <div className={styles.paginationContainer}>
         <Button
-          children={<MdKeyboardArrowLeft size={20} />}
           design="QUATERNARY"
-          onClick={() => pageIndex > 1 && setPageIndex(pageIndex - 1)}
+          onClick={() =>
+            pageIndex > 1 && setPageIndex(pageIndex - 1)
+          }
           disabled={pageIndex <= 1}
-        />
+        >
+          <MdKeyboardArrowLeft size={20} />
+        </Button>
         <span>
           {pageIndex} / {maxPage}
         </span>
         <Button
-          children={<MdKeyboardArrowRight size={20} />}
           design="QUATERNARY"
-          onClick={() => pageIndex < maxPage && setPageIndex(pageIndex + 1)}
+          onClick={() =>
+            pageIndex < maxPage &&
+            setPageIndex(pageIndex + 1)
+          }
           disabled={pageIndex >= maxPage}
-        />
+        >
+          <MdKeyboardArrowRight size={20} />
+        </Button>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default AdsList;
+export default AdsList

@@ -1,12 +1,12 @@
-import { Field, ObjectType } from "type-graphql";
-import { Tag } from "./tag";
-import { Ad } from "./ad";
+import {Field, ObjectType} from "type-graphql";
+import {Product} from "./Product";
+import {Category} from "./Category";
 
 @ObjectType()
 export class Search {
-  @Field(() => [Tag])
-  tags!: Tag[];
+    @Field(() => [Category])
+    categories!: Category[];
 
-  @Field(() => [Ad])
-  ads!: Ad[];
+    @Field(() => [Product])
+    products!: Product[];
 }

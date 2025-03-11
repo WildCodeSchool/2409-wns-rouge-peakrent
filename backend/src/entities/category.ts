@@ -1,88 +1,99 @@
 import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity, JoinColumn, ManyToMany,
+    ManyToOne, OneToMany,
+    PrimaryGeneratedColumn, UpdateDateColumn,
 } from "typeorm";
-import { Ad } from "./ad";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
-import { Pagination } from "./pagination";
-import { Length } from "class-validator";
-import { User } from "./user";
-
-// like { createdAt user }
-// @ObjectType()
-// class CategoryLike {
-//   @Field()
-//   createdAt: Date;
-
-//   @Field()
-//   user: string;
-// }
+import {Product} from "./Product";
+import {Field, ID, InputType, Int, ObjectType} from "type-graphql";
+import {Pagination} from "./Pagination";
+import {IsNotEmpty, IsString, IsUrl, Length} from "class-validator";
+import {User} from "./user";
 
 @ObjectType()
 @Entity()
 export class Category extends BaseEntity {
-  @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @Field(() => ID)
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Field()
-  @Column()
-  @Length(2, 100, { message: "Name must be between 2 and 100 chars" })
-  name!: string;
+    @Field()
+    @Column()
+    @Length(2, 100, {message: "Name must be between 2 and 100 chars"})
+    name!: string;
 
-  @Field()
-  @Column()
-  normalizedName!: string;
+    @Field()
+    @Column()
+    normalizedName!: string;
 
-  @Field(() => [Ad])
-  @OneToMany(() => Ad, (ad) => ad.category)
-  ads!: Ad[];
+    @Field()
+    @Column()
+    @IsUrl()
+    url_image!: string;
 
-  // @Field(() => [CategoryLike])
-  // likes() {
-  //   console.log("Computed");
-  //   return [
-  //     {
-  //       createdAt: new Date(),
-  //       user: "Aurélien",
-  //     },
-  //   ];
-  // }
+    @Field()
+    @CreateDateColumn({name: "created_at"})
+    created_at: Date;
 
-  @CreateDateColumn()
-  @Field()
-  createdAt: Date;
+    @Field()
+    @UpdateDateColumn({name: "updated_at"})
+    updated_at!: Date;
 
-  @ManyToOne(() => User)
-  @Field(() => User)
-  createdBy!: User;
+    @Field(() => [Product])
+    @ManyToMany(() => Product, (product) => product.categories)
+    products!: Product[];
+
+    @ManyToOne(() => Category, (category) => category.children, {nullable: true, onDelete: 'CASCADE'})
+    @JoinColumn({name: "parent_category_id"})
+    @Field(() => Category, {nullable: true})
+    parentCategory?: Category;
+
+    @Field(() => [Category])
+    @OneToMany(() => Category, (category) => category.parentCategory)
+    children!: Category[];
+
+    @ManyToOne(() => User)
+    @JoinColumn({name: "created_by"})
+    @Field(() => User)
+    created_by!: User;
 }
 
 @ObjectType()
 export class CategoryWithCount {
-  @Field(() => Category)
-  category!: Category;
+    @Field(() => Category)
+    category!: Category;
 
-  @Field(() => [Ad])
-  ads!: Ad[];
+    @Field(() => [Product])
+    products!: Product[];
 
-  @Field()
-  pagination!: Pagination;
+    @Field()
+    pagination!: Pagination;
 }
 
 @InputType()
 export class CategoryCreateInput {
-  @Field()
-  name!: string;
+    @Field()
+    @IsString()
+    @IsNotEmpty({message: "Name is required."})
+    @Length(1, 100, {message: "Name must be between 1 and 100 chars."})
+    name!: string;
+
+    @Field()
+    @IsUrl({}, {message: "URL must be a valid URL."})
+    url_image!: string;
 }
 
 @InputType()
 export class CategoryUpdateInput {
-  @Field({ nullable: true })
-  name!: string;
+    @Field()
+    @IsString()
+    @IsNotEmpty({message: "Name is required."})
+    @Length(1, 100, {message: "Name must be between 1 and 100 chars."})
+    name!: string;
+
+    @Field()
+    @IsUrl({}, {message: "URL must be a valid URL."})
+    url_image!: string;
 }
