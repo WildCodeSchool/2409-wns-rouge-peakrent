@@ -15,7 +15,7 @@ const port = 4000;
 const initialize = async () => {
     const schema = await buildSchema({
         resolvers: [
-            // UserResolver,
+            UserResolver,
             CategoryResolver,
             ProductResolver,
             SearchResolver,
