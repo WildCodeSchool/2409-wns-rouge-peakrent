@@ -1,3 +1,4 @@
+import { validate } from "class-validator";
 import {
   Arg,
   Authorized,
@@ -7,10 +8,9 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { validate } from "class-validator";
-import { AuthContextType } from "../types";
 import { Order, OrderCreateInput, OrderUpdateInput } from "../entities/Order";
 import { Profile } from "../entities/Profile";
+import { AuthContextType } from "../types";
 
 @Resolver(Order)
 export class OrderResolver {
@@ -36,7 +36,12 @@ export class OrderResolver {
       relations: { profile_id: true },
     });
 
-    if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+    if (
+      !(
+        context.user.role === "admin" ||
+        context.user.id === order.profile_id.user_id
+      )
+    ) {
       throw new Error("Unauthorized");
     }
 
@@ -87,7 +92,12 @@ export class OrderResolver {
     });
 
     if (order !== null) {
-      if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+      if (
+        !(
+          context.user.role === "admin" ||
+          context.user.id === order.profile_id.user_id
+        )
+      ) {
         throw new Error("Unauthorized");
       }
       Object.assign(order, data);
@@ -115,7 +125,12 @@ export class OrderResolver {
       relations: { profile_id: true },
     });
     if (order !== null) {
-      if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+      if (
+        !(
+          context.user.role === "admin" ||
+          context.user.id === order.profile_id.user_id
+        )
+      ) {
         throw new Error("Unauthorized");
       }
       await order.remove();

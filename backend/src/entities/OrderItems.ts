@@ -11,9 +11,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Variant } from "./Variant";
 import { Cart } from "./Cart";
 import { Order } from "./Order";
+import { Variant } from "./Variant";
 
 @ObjectType()
 @Entity()

@@ -1,14 +1,14 @@
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { GET_AD_BY_ID } from "../../GraphQL/ads";
+import { GET_CATEGORIES } from "../../GraphQL/categories";
+import { DELETE_AD } from "../../GraphQL/deleteAd";
+import { GET_TAGS } from "../../GraphQL/tags";
+import { UPDATE_AD } from "../../GraphQL/updateAd";
 import Button from "../../UI/Button/Button";
 import { Category, Tag } from "../../types/types";
 import styles from "./AdEditForm.module.scss";
-import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
-import { GET_CATEGORIES } from "../../GraphQL/categories";
-import { GET_TAGS } from "../../GraphQL/tags";
-import { GET_AD_BY_ID } from "../../GraphQL/ads";
-import { UPDATE_AD } from "../../GraphQL/updateAd";
-import { DELETE_AD } from "../../GraphQL/deleteAd";
 
 const AdEditForm = () => {
   const navigate = useNavigate();

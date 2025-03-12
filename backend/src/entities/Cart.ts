@@ -1,11 +1,4 @@
-import {
-  IsEmail,
-  IsHash,
-  IsNotEmpty,
-  IsString,
-  IsStrongPassword,
-  Length,
-} from "class-validator";
+import { IsNotEmpty, IsString, Length } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -13,8 +6,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,

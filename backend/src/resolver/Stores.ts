@@ -1,6 +1,6 @@
-import { Store, StoreCreateInput, StoreUpdateInput } from "../entities/Store";
-import { Resolver, Query, ID, Authorized, Mutation, Arg } from "type-graphql";
 import { validate } from "class-validator";
+import { Arg, Authorized, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Store, StoreCreateInput, StoreUpdateInput } from "../entities/Store";
 
 @Resolver(Store)
 export class StoreResolver {

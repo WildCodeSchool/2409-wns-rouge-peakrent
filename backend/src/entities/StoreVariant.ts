@@ -1,8 +1,8 @@
 import { Min } from "class-validator";
-import { Entity, Column, ManyToOne, PrimaryColumn, BaseEntity } from "typeorm";
+import { Field, InputType, Int, ObjectType } from "type-graphql";
+import { BaseEntity, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Store } from "./Store";
 import { Variant } from "./Variant";
-import { Field, ObjectType, InputType, Int } from "type-graphql";
 
 @ObjectType()
 @Entity()

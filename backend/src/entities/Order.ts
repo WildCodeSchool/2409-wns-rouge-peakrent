@@ -10,8 +10,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { OrderPaymentType, OrderStatusType } from "../types";
 import { Profile } from "./Profile";
-import { orderPaymentType, OrderStatusType } from "../types";
 
 @ObjectType()
 @Entity()
@@ -32,13 +32,13 @@ export class Order extends BaseEntity {
   })
   status!: OrderStatusType;
 
-  @Field(() => orderPaymentType)
+  @Field(() => OrderPaymentType)
   @Column({
     type: "enum",
-    enum: orderPaymentType,
-    default: orderPaymentType.card,
+    enum: OrderPaymentType,
+    default: OrderPaymentType.card,
   })
-  payment_method!: orderPaymentType;
+  payment_method!: OrderPaymentType;
 
   @Field()
   @Column({ type: "timestamptz", nullable: true })
@@ -93,7 +93,7 @@ export class OrderCreateInput {
   reference!: string;
 
   @Field()
-  payment_method!: orderPaymentType;
+  payment_method!: OrderPaymentType;
 
   @Field()
   @IsString()
@@ -136,7 +136,7 @@ export class OrderUpdateInput {
   reference?: string;
 
   @Field({ nullable: true })
-  payment_method?: orderPaymentType;
+  payment_method?: OrderPaymentType;
 
   @Field({ nullable: true })
   @IsString()
@@ -167,7 +167,7 @@ export class OrderUpdateInput {
 @InputType()
 export class ValidateCartInput {
   @Field()
-  payment_method!: orderPaymentType;
+  payment_method!: OrderPaymentType;
 
   @Field()
   @IsString()

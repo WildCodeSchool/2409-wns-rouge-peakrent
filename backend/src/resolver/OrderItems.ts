@@ -1,3 +1,4 @@
+import { validate } from "class-validator";
 import {
   Arg,
   Authorized,
@@ -8,16 +9,15 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { AuthContextType } from "../types";
-import { validate } from "class-validator";
+import { Equal } from "typeorm";
+import { Cart } from "../entities/Cart";
+import { Order } from "../entities/Order";
 import {
   OrderItems,
   OrderItemsCreateInput,
   OrderItemsUpdateInput,
 } from "../entities/OrderItems";
-import { Cart } from "../entities/Cart";
-import { Equal } from "typeorm";
-import { Order } from "../entities/Order";
+import { AuthContextType } from "../types";
 
 @Resolver(OrderItems)
 export class OrderItemsResolver {

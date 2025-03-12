@@ -1,14 +1,14 @@
-import { Length, IsOptional } from "class-validator";
+import { IsOptional, Length } from "class-validator";
+import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import { StoreVariant } from "./StoreVariant";
 
 @ObjectType()

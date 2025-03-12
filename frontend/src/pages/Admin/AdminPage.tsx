@@ -1,16 +1,16 @@
-import { Category, Tag } from "../../types/types";
-import styles from "./AdminPage.module.scss";
-import EditableList from "../../components/EditableList/EditableList";
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_TAGS } from "../../GraphQL/tags";
 import { GET_CATEGORIES } from "../../GraphQL/categories";
 import { CREATE_CATEGORY } from "../../GraphQL/createCategory";
 import { CREATE_TAG } from "../../GraphQL/createTag";
-import { UPDATE_CATEGORY } from "../../GraphQL/updateCategory";
-import { UPDATE_TAG } from "../../GraphQL/updateTag";
 import { DELETE_CATEGORY } from "../../GraphQL/deleteCategory";
 import { DELETE_TAG } from "../../GraphQL/deleteTag";
+import { GET_TAGS } from "../../GraphQL/tags";
+import { UPDATE_CATEGORY } from "../../GraphQL/updateCategory";
+import { UPDATE_TAG } from "../../GraphQL/updateTag";
+import EditableList from "../../components/EditableList/EditableList";
 import Loading from "../../components/Loading/Loading";
+import { Category, Tag } from "../../types/types";
+import styles from "./AdminPage.module.scss";
 
 const AdminPage = () => {
   const {

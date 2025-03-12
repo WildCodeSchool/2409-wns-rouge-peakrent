@@ -1,3 +1,4 @@
+import { validate } from "class-validator";
 import {
   Arg,
   Authorized,
@@ -7,13 +8,12 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { AuthContextType, OrderStatusType } from "../types";
-import { validate } from "class-validator";
-import { OrderItems } from "../entities/OrderItems";
-import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
-import { Profile } from "../entities/Profile";
 import { Equal } from "typeorm";
+import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
+import { OrderItems } from "../entities/OrderItems";
+import { Profile } from "../entities/Profile";
+import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)
 export class CartResolver {
@@ -33,14 +33,18 @@ export class CartResolver {
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
-   
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
       relations: { profile_id: true },
     });
 
-    if (!(context.user.role === "admin" || context.user.id === cart.profile_id.user_id)) {
+    if (
+      !(
+        context.user.role === "admin" ||
+        context.user.id === cart.profile_id.user_id
+      )
+    ) {
       throw new Error("Unauthorized");
     }
 
@@ -90,10 +94,14 @@ export class CartResolver {
     });
 
     if (cart !== null) {
-      
-    if (!(context.user.role === "admin" || context.user.id === cart.profile_id.user_id)) {
-      throw new Error("Unauthorized");
-    }
+      if (
+        !(
+          context.user.role === "admin" ||
+          context.user.id === cart.profile_id.user_id
+        )
+      ) {
+        throw new Error("Unauthorized");
+      }
       Object.assign(cart, data);
       const errors = await validate(cart);
       if (errors.length > 0) {
@@ -118,7 +126,12 @@ export class CartResolver {
       where: { id },
     });
     if (cart !== null) {
-      if (!(context.user.role === "admin" || context.user.id === cart.profile_id.user_id)) {
+      if (
+        !(
+          context.user.role === "admin" ||
+          context.user.id === cart.profile_id.user_id
+        )
+      ) {
         throw new Error("Unauthorized");
       }
       await cart.remove();
@@ -142,7 +155,12 @@ export class CartResolver {
       relations: { profile_id: true },
     });
     if (cart !== null) {
-      if (!(context.user.role === "admin" || context.user.id === cart.profile_id.user_id)) {
+      if (
+        !(
+          context.user.role === "admin" ||
+          context.user.id === cart.profile_id.user_id
+        )
+      ) {
         throw new Error("Unauthorized");
       }
       const orderItems = await OrderItems.find({

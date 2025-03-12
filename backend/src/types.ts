@@ -1,4 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { registerEnumType } from "type-graphql";
 
 export type AdType = {
   id: number;
@@ -44,18 +45,18 @@ export enum RoleType {
   ADMIN = "admin",
 }
 
-  export enum OrderStatusType {
-    confirmed = "confirmed",
-  }
-  
-  export enum orderPaymentType {
-    card = "card",
-  }
-  
-  registerEnumType(OrderStatusType, {
-    name: "OrderStatusType",
-  });
-  
-  registerEnumType(orderPaymentType, {
-    name: "orderPaymentType",
-  });
+export enum OrderStatusType {
+  confirmed = "confirmed",
+}
+
+export enum OrderPaymentType {
+  card = "card",
+}
+
+registerEnumType(OrderStatusType, {
+  name: "OrderStatusType",
+});
+
+registerEnumType(OrderPaymentType, {
+  name: "orderPaymentType",
+});

@@ -45,7 +45,7 @@ describe("users resolver", () => {
   it("should connect to database", async () => {
     expect(testArgs.dataSource.isInitialized).toBe(true);
   });
-  
+
   it("should create an user", async () => {
     const response = await testArgs.server.executeOperation<{
       createUser: User;
