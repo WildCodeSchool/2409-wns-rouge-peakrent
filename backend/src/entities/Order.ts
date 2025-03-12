@@ -37,20 +37,21 @@ export class Order extends BaseEntity {
     type: "enum",
     enum: OrderPaymentType,
     default: OrderPaymentType.card,
+    name: "payment_method",
   })
-  payment_method!: OrderPaymentType;
+  paymentMethod!: OrderPaymentType;
 
   @Field()
-  @Column({ type: "timestamptz", nullable: true })
-  paid_at?: Date;
+  @Column({ name: "paid_at", type: "timestamptz", nullable: true })
+  paidAt?: Date;
 
   @Field()
-  @Column("varchar", { length: 255 })
-  address_1!: string;
+  @Column("varchar", { name: "address_1", length: 255 })
+  address1!: string;
 
   @Field({ nullable: true })
-  @Column("varchar", { length: 255, nullable: true })
-  address_2?: string;
+  @Column("varchar", { name: "address_2", length: 255, nullable: true })
+  address2?: string;
 
   @Field()
   @Column("varchar", { length: 100 })
@@ -61,16 +62,20 @@ export class Order extends BaseEntity {
   city!: string;
 
   @Field()
-  @Column("varchar", { length: 20 })
-  zip_code!: string;
+  @Column("varchar", { name: "zip_code", length: 20 })
+  zipCode!: string;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at!: Date;
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt!: Date;
 
   @Field()
-  @UpdateDateColumn({ type: "timestamptz" })
-  updated_at!: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 
   @Field()
   @ManyToOne(() => Profile, (profile) => profile.id, {
@@ -78,8 +83,8 @@ export class Order extends BaseEntity {
     nullable: true,
   })
   @JoinColumn({ name: "profile_id" })
-  @Column()
-  profile_id?: Profile;
+  @Column({ name: "profile_id" })
+  profileId?: Profile;
 }
 
 @InputType()
@@ -93,18 +98,18 @@ export class OrderCreateInput {
   reference!: string;
 
   @Field()
-  payment_method!: OrderPaymentType;
+  paymentMethod!: OrderPaymentType;
 
   @Field()
   @IsString()
   @IsNotEmpty({ message: "address_1 must not be empty." })
   @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
-  address_1!: string;
+  address1!: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2?: string;
+  address2?: string;
 
   @Field()
   @IsString()
@@ -122,13 +127,13 @@ export class OrderCreateInput {
   @IsString()
   @IsNotEmpty({ message: "zip_code must not be empty." })
   @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
-  zip_code!: string;
+  zipCode!: string;
 }
 
 @InputType()
 export class OrderUpdateInput {
   @Field(() => Int, { nullable: true })
-  profile_id?: number;
+  profileId?: number;
 
   @Field({ nullable: true })
   @IsString()
@@ -141,12 +146,12 @@ export class OrderUpdateInput {
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
-  address_1?: string;
+  address1?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2?: string;
+  address2?: string;
 
   @Field({ nullable: true })
   @IsString()
@@ -161,7 +166,7 @@ export class OrderUpdateInput {
   @Field({ nullable: true })
   @IsString()
   @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
-  zip_code?: string;
+  zipCode?: string;
 }
 
 @InputType()
