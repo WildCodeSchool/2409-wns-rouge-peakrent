@@ -25,7 +25,7 @@ export class Category extends BaseEntity {
 
   @Field()
   @Column()
-  @Length(2, 100, {message: "Name must be between 2 and 100 chars"})
+  @Length(2, 100, { message: "Name must be between 2 and 100 chars" })
   name!: string;
 
   @Field()
@@ -38,28 +38,31 @@ export class Category extends BaseEntity {
   url_image!: string;
 
   @Field()
-  @CreateDateColumn({name: "created_at"})
+  @CreateDateColumn({ name: "created_at" })
   created_at: Date;
 
   @Field()
-  @UpdateDateColumn({name: "updated_at"})
+  @UpdateDateColumn({ name: "updated_at" })
   updated_at!: Date;
 
-  @Field(() => [Product], {nullable: true})
+  @Field(() => [Product], { nullable: true })
   @ManyToMany(() => Product, (product) => product.categories)
   products!: Product[];
 
-  @ManyToOne(() => Category, (category) => category.children, {nullable: true, onDelete: 'CASCADE'})
-  @JoinColumn({name: "parent_category_id"})
-  @Field(() => Category, {nullable: true})
+  @ManyToOne(() => Category, (category) => category.children, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "parent_category_id" })
+  @Field(() => Category, { nullable: true })
   parentCategory?: Category;
 
-  @Field(() => [Category], {nullable: true})
+  @Field(() => [Category], { nullable: true })
   @OneToMany(() => Category, (category) => category.parentCategory)
   children!: Category[];
 
   @ManyToOne(() => User)
-  @JoinColumn({name: "created_by"})
+  @JoinColumn({ name: "created_by" })
   @Field(() => User)
   created_by!: User;
 }
