@@ -12,6 +12,7 @@ export function CategoriesResolverTest(testArgs: TestArgsType) {
         variables: {
           data: {
             name: "My first category",
+            urlImage: "https://my-first-category-image.jpg",
           },
         },
       },
@@ -36,6 +37,7 @@ export function CategoriesResolverTest(testArgs: TestArgsType) {
         variables: {
           data: {
             name: "My first category",
+            urlImage: "https://my-first-category-image.jpg",
           },
         },
       },

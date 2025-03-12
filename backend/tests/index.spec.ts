@@ -43,9 +43,9 @@ beforeAll(async () => {
   testArgs.server = testServer;
 });
 
-// describe("users resolver", () => {
-//   UsersResolverTest(testArgs);
-// });
+describe("users resolver", () => {
+  UsersResolverTest(testArgs);
+});
 
 describe("categories resolver", () => {
   CategoriesResolverTest(testArgs);
