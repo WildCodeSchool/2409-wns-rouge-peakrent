@@ -16,13 +16,16 @@ import { Profile } from "../entities/Profile";
 export class OrderResolver {
   @Query(() => [Order])
   @Authorized()
-  async getOrders(): Promise<Order[]> {
+  async getOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
     const order = await Order.find({ relations: { profile_id: true } });
+    if (!(context.user.role === "admin")) {
+      throw new Error("Unauthorized");
+    }
     return order;
   }
 
   @Query(() => Order)
-  @Authorized("user")
+  @Authorized()
   async getOrderById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -41,7 +44,7 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order)
-  @Authorized("user")
+  @Authorized()
   async createOrder(
     @Arg("data", () => OrderCreateInput) data: OrderCreateInput
   ): Promise<Order> {
@@ -63,7 +66,7 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized("user")
+  @Authorized()
   async updateOrder(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderUpdateInput) data: OrderUpdateInput,
@@ -101,7 +104,7 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized("user")
+  @Authorized()
   async deleteOrder(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType

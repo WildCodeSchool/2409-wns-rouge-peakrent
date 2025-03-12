@@ -23,15 +23,18 @@ import { Order } from "../entities/Order";
 export class OrderItemsResolver {
   @Query(() => [OrderItems])
   @Authorized()
-  async getOrderItems(): Promise<OrderItems[]> {
+  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItems[]> {
     const orderItems = await OrderItems.find({
       relations: { cart_id: true, variant_id: true, order_id: true },
     });
+    if (!(context.user.role === "admin")) {
+      throw new Error("Unauthorized");
+    }
     return orderItems;
   }
 
   @Query(() => OrderItems)
-  @Authorized("user")
+  @Authorized()
   async getOrderItemsById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -46,7 +49,7 @@ export class OrderItemsResolver {
   }
 
   @Query(() => [OrderItems])
-  @Authorized("user")
+  @Authorized()
   async getOrderItemsByCartId(
     @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
@@ -72,7 +75,7 @@ export class OrderItemsResolver {
   }
 
   @Query(() => [OrderItems])
-  @Authorized("user")
+  @Authorized()
   async getOrderItemsByOrderId(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -99,7 +102,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItems)
-  @Authorized("user")
+  @Authorized()
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput,
     @Ctx() context: AuthContextType
@@ -116,7 +119,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItems, { nullable: true })
-  @Authorized("user")
+  @Authorized()
   async updateOrderItems(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput,
@@ -152,7 +155,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItems, { nullable: true })
-  @Authorized("user")
+  @Authorized()
   async deleteOrderItems(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType

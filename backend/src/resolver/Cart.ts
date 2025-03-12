@@ -19,12 +19,15 @@ import { Order, ValidateCartInput } from "../entities/Order";
 export class CartResolver {
   @Query(() => [Cart])
   @Authorized()
-  async getCart(): Promise<Cart[]> {
+  async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
     const cart = await Cart.find({ relations: { profile_id: true } });
+    if (!(context.user.role === "admin")) {
+      throw new Error("Unauthorized");
+    }
     return cart;
   }
 
-  @Authorized("user")
+  @Authorized()
   @Query(() => Cart)
   async getCartById(
     @Arg("id", () => ID) _id: number,
@@ -44,7 +47,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized("user")
+  @Authorized()
   @Mutation(() => Cart)
   async createCart(
     @Arg("data", () => CartCreateInput) data: CartCreateInput
@@ -66,7 +69,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized("user")
+  @Authorized()
   @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("id", () => ID) _id: number,
@@ -104,7 +107,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized("user")
+  @Authorized()
   @Mutation(() => Cart, { nullable: true })
   async deleteCart(
     @Arg("id", () => ID) _id: number,
@@ -126,7 +129,7 @@ export class CartResolver {
   }
 
   // a compléter ave Stripe
-  @Authorized("user")
+  @Authorized()
   @Mutation(() => Cart, { nullable: true })
   async validateCart(
     @Arg("id", () => ID) _id: number,

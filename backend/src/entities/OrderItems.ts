@@ -74,46 +74,46 @@ export class OrderItems extends BaseEntity {
 @InputType()
 export class OrderItemsCreateInput {
   @Field(() => Int, { nullable: true })
-  order_id: Number;
+  order_id?: Number;
 
   @Field(() => Int)
   @IsNotEmpty({ message: "variant_id must not be empty." })
-  variant_id: Number;
+  variant_id!: Number;
 
   @Field(() => Int, { nullable: true })
-  cart_id: Number;
+  cart_id?: Number;
 
   @Field(() => Int)
   @Min(0, { message: "quantity should be positive" })
   @IsNotEmpty({ message: "quantity must not be empty." })
-  quantity: number;
+  quantity!: number;
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
   @IsNotEmpty({ message: "price_per_hour must not be empty." })
-  price_per_hour: number;
+  price_per_hour!: number;
 
   @Field()
   @IsDate()
   @IsNotEmpty({ message: "starts_at must not be empty." })
-  starts_at: Date;
+  starts_at!: Date;
 
   @Field()
   @IsDate()
   @IsNotEmpty({ message: "ends_at must not be empty." })
-  ends_at: Date;
+  ends_at!: Date;
 }
 
 @InputType()
 export class OrderItemsUpdateInput {
   @Field(() => Int, { nullable: true })
-  order_id: Number;
+  order_id?: Number;
 
   @Field(() => Int, { nullable: true })
-  variant_id: Number;
+  variant_id?: Number;
 
   @Field(() => Int, { nullable: true })
-  cart_id: Number;
+  cart_id?: Number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })
@@ -121,13 +121,13 @@ export class OrderItemsUpdateInput {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
-  price_per_hour: number;
+  price_per_hour?: number;
 
   @Field({ nullable: true })
   @IsDate()
-  starts_at: Date;
+  starts_at?: Date;
 
   @Field({ nullable: true })
   @IsDate()
-  ends_at: Date;
+  ends_at?: Date;
 }

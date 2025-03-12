@@ -104,7 +104,7 @@ export class OrderCreateInput {
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2!: string;
+  address_2?: string;
 
   @Field()
   @IsString()
@@ -128,40 +128,40 @@ export class OrderCreateInput {
 @InputType()
 export class OrderUpdateInput {
   @Field(() => Int, { nullable: true })
-  profile_id!: number;
+  profile_id?: number;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
-  reference!: string;
+  reference?: string;
 
   @Field({ nullable: true })
-  payment_method!: orderPaymentType;
+  payment_method?: orderPaymentType;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
-  address_1!: string;
+  address_1?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2!: string;
+  address_2?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 100, { message: "country must be between 1 and 100 chars." })
-  country!: string;
+  country?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 100, { message: "city must be between 1 and 100 chars." })
-  city!: string;
+  city?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
-  zip_code!: string;
+  zip_code?: string;
 }
 
 @InputType()
