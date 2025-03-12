@@ -1,7 +1,7 @@
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
-import { User } from "../entities/User";
+import { Profile } from "../entities/Profile";
 import { ContextType } from "../types";
 
 export const formattedDate = (date: Date): string => {
@@ -51,7 +51,7 @@ export const verifyPassword = async (
 
 export const getUserFromContext = async (
   context: ContextType
-): Promise<User | null> => {
+): Promise<Profile | null> => {
   const cookies = new Cookies(context.req, context.res);
   const token = cookies.get("token");
 
@@ -69,7 +69,8 @@ export const getUserFromContext = async (
     };
     console.log("Access authorized");
 
-    const user = await User.findOneBy({ id: payload.id });
+    const user = await Profile.findOneBy({ id: payload.id });
+    console.log("User found:", user);
 
     return user;
   } catch {

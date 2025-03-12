@@ -1,7 +1,7 @@
 import { Ctx, Query, Resolver } from "type-graphql";
 import { Profile } from "../entities/Profile";
 import { getUserFromContext } from "../helpers/helpers";
-import { ContextType } from "../types";
+import { ContextType, ProfileType } from "../types";
 
 @Resolver(Profile)
 export class ProfileResolver {
@@ -11,7 +11,7 @@ export class ProfileResolver {
     if (!user) {
       return null;
     }
-    return await Profile.findOneBy({ user_id: user.id });
+    return await Profile.findOneBy({ id: user.id });
   }
 
   // @Query(() => Profile, { nullable: true })
@@ -20,4 +20,10 @@ export class ProfileResolver {
   // ): Promise<Profile | null> {
   //   return await Profile.findOneBy({ user_id: profileId });
   // }
+
+  // Authorisez()
+  @Query(() => Profile, { nullable: true })
+  async whoami(@Ctx() context: ContextType): Promise<ProfileType | null> {
+    return context.user;
+  }
 }

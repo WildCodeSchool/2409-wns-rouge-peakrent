@@ -66,7 +66,7 @@ export class OrderItemsResolver {
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].cart_id.profile_id.user_id
+        context.user.id === orderItem[0].cart_id.profile_id.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -93,7 +93,7 @@ export class OrderItemsResolver {
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].order_id.profile_id.user_id
+        context.user.id === orderItem[0].order_id.profile_id.id
       )
     ) {
       throw new Error("Unauthorized");

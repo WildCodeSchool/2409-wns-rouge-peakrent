@@ -17,8 +17,8 @@ import { User } from "./User";
 @Entity({ name: "profile" })
 export class Profile extends BaseEntity {
   @Field(() => ID)
-  @PrimaryColumn()
-  user_id!: number;
+  @PrimaryColumn({ name: "user_id" })
+  id!: number;
 
   @OneToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
@@ -46,10 +46,10 @@ export class Profile extends BaseEntity {
   role!: RoleType;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at: Date;
+  @CreateDateColumn({ name: "created_at", type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
+  createdAt: Date;
 
   @Field({ nullable: true })
-  @UpdateDateColumn({ type: "timestamptz", nullable: true })
-  updated_at?: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz", nullable: true })
+  updatedAt?: Date;
 }

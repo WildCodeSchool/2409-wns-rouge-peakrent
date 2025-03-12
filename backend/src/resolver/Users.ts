@@ -2,13 +2,13 @@ import { UserInputError } from "apollo-server-errors";
 import { validate, ValidationError } from "class-validator";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
 import { User, UserCreateInput } from "../entities/User";
 import { UserToken } from "../entities/UserToken";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
-import { ContextType, RoleType, UserType } from "../types";
+import { ContextType, RoleType } from "../types";
 
 @Resolver(User)
 export class UserResolver {
@@ -46,7 +46,7 @@ export class UserResolver {
         profile.email = newUser.email;
         profile.firstname = newUser.firstname;
         profile.lastname = newUser.lastname;
-        profile.user_id = newUser.id;
+        profile.id = newUser.id;
         profile.role = newUser.role;
 
         await profile.save();
@@ -86,7 +86,7 @@ export class UserResolver {
 
           const userToken = new UserToken();
           userToken.token = token;
-          userToken.refresh_token = refreshToken;
+          userToken.refreshToken = refreshToken;
           userToken.user = user;
           await userToken.save();
           if (process.env.NODE_ENV !== "testing") {
@@ -123,11 +123,5 @@ export class UserResolver {
     const cookies = new Cookies(context.req, context.res);
     cookies.set("token", "", { maxAge: 0 });
     return true;
-  }
-
-  // Authorisez()
-  @Query(() => User, { nullable: true })
-  async whoami(@Ctx() context: ContextType): Promise<UserType | null> {
-    return context.user;
   }
 }

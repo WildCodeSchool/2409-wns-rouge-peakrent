@@ -38,8 +38,7 @@ export class OrderResolver {
 
     if (
       !(
-        context.user.role === "admin" ||
-        context.user.id === order.profile_id.user_id
+        context.user.role === "admin" || context.user.id === order.profile_id.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -55,7 +54,7 @@ export class OrderResolver {
   ): Promise<Order> {
     const newOrder = new Order();
     const profile = await Profile.findOne({
-      where: { user_id: data.profile_id },
+      where: { id: data.profile_id },
     });
     if (!profile) {
       throw new Error(`profile not found`);
@@ -80,7 +79,7 @@ export class OrderResolver {
     const id = Number(_id);
     if (data.profile_id) {
       const profile = await Profile.findOne({
-        where: { user_id: data.profile_id },
+        where: { id: data.profile_id },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -95,7 +94,7 @@ export class OrderResolver {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === order.profile_id.user_id
+          context.user.id === order.profile_id.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -128,7 +127,7 @@ export class OrderResolver {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === order.profile_id.user_id
+          context.user.id === order.profile_id.id
         )
       ) {
         throw new Error("Unauthorized");

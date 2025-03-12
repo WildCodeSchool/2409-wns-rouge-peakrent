@@ -24,8 +24,8 @@ export class User extends BaseEntity {
   email!: string;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  email_verified_at?: Date;
+  @Column({ name: "email_verified_at", type: "timestamptz", nullable: true })
+  emailVerifiedAt?: Date;
 
   @Field()
   @Column({ type: "varchar", length: 100 })
@@ -47,32 +47,41 @@ export class User extends BaseEntity {
   role!: RoleType;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  email_sent_at?: Date;
+  @Column({ name: "email_sent_at", type: "timestamptz", nullable: true })
+  emailSentAt?: Date;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  recover_token?: string;
+  @Column({
+    name: "recover_token",
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
+  recoverToken?: string;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  recover_sent_at?: Date;
+  @Column({ name: "recover_sent_at", type: "timestamptz", nullable: true })
+  recoverSentAt?: Date;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  email_token?: string;
+  @Column({ name: "email_token", type: "varchar", length: 255, nullable: true })
+  emailToken?: string;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at: Date;
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt: Date;
 
   @Field({ nullable: true })
-  @UpdateDateColumn({ type: "timestamptz", nullable: true })
-  updated_at?: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz", nullable: true })
+  updatedAt?: Date;
 
   @Field({ nullable: true })
-  @DeleteDateColumn({ type: "timestamptz", nullable: true })
-  deleted_at?: Date;
+  @DeleteDateColumn({ name: "deleted_at", type: "timestamptz", nullable: true })
+  deletedAt?: Date;
 }
 
 @InputType()

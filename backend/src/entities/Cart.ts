@@ -20,7 +20,7 @@ export class Cart extends BaseEntity {
   id!: number;
 
   @Field({ nullable: true })
-  @OneToOne(() => Profile, (profile) => profile.user_id, {
+  @OneToOne(() => Profile, (profile) => profile.id, {
     onDelete: "CASCADE",
     nullable: true,
   })

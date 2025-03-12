@@ -22,8 +22,13 @@ export class UserToken extends BaseEntity {
   token: string;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  refresh_token?: string;
+  @Column({
+    name: "refresh_token",
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
+  refreshToken?: string;
 
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })

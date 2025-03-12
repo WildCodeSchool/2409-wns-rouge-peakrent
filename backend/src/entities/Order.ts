@@ -73,7 +73,7 @@ export class Order extends BaseEntity {
   updated_at!: Date;
 
   @Field()
-  @ManyToOne(() => Profile, (profile) => profile.user_id, {
+  @ManyToOne(() => Profile, (profile) => profile.id, {
     onDelete: "SET NULL",
     nullable: true,
   })
