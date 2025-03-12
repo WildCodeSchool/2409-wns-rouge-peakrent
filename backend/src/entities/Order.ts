@@ -84,7 +84,7 @@ export class Order extends BaseEntity {
   })
   @JoinColumn({ name: "profile_id" })
   @Column({ name: "profile_id" })
-  profileId?: Profile;
+  profile?: Profile;
 }
 
 @InputType()
