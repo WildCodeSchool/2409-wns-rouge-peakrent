@@ -2,9 +2,8 @@ import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
 import { dataSource } from "../src/config/db";
 import { getSchema } from "../src/schema";
-
-// import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { UsersResolverTest } from "./resolvers/UsersResolver";
+import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 
 export type TestArgsType = {
   server: ApolloServer<BaseContext>;
@@ -44,13 +43,13 @@ beforeAll(async () => {
   testArgs.server = testServer;
 });
 
-describe("users resolver", () => {
-  UsersResolverTest(testArgs);
-});
-
-// describe("categories resolver", () => {
-//   CategoriesResolverTest(testArgs);
+// describe("users resolver", () => {
+//   UsersResolverTest(testArgs);
 // });
+
+describe("categories resolver", () => {
+  CategoriesResolverTest(testArgs);
+});
 
 afterAll(async () => {
   await dataSource.destroy();
