@@ -1,4 +1,4 @@
-import { Arg, Ctx, Int, Query, Resolver } from "type-graphql";
+import { Ctx, Query, Resolver } from "type-graphql";
 import { Profile } from "../entities/Profile";
 import { getUserFromContext } from "../helpers/helpers";
 import { ContextType } from "../types";
