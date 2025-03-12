@@ -11,7 +11,7 @@ export const authChecker: AuthChecker<AuthContextType> = async (
 
   const user = await getUserFromContext(context);
   context.user = user;
-  if (user /** && has user the good role? */) {
+  if(user && (user.role === "admin" || roles.includes(user.role))) {
     return true;
   } else {
     return false;

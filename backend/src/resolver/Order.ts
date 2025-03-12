@@ -1,0 +1,124 @@
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
+import { validate } from "class-validator";
+import { AuthContextType } from "../types";
+import { Order, OrderCreateInput, OrderUpdateInput } from "../entities/Order";
+import { Profile } from "../entities/Profile";
+
+@Resolver(Order)
+export class OrderResolver {
+  @Query(() => [Order])
+  @Authorized()
+  async getOrders(): Promise<Order[]> {
+    const order = await Order.find({ relations: { profile_id: true } });
+    return order;
+  }
+
+  @Query(() => Order)
+  @Authorized("user")
+  async getOrderById(
+    @Arg("id", () => ID) _id: number,
+    @Ctx() context: AuthContextType
+  ): Promise<Order | null> {
+    const id = Number(_id);
+    const order = await Order.findOne({
+      where: { id },
+      relations: { profile_id: true },
+    });
+
+    if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+      throw new Error("Unauthorized");
+    }
+
+    return order;
+  }
+
+  @Mutation(() => Order)
+  @Authorized("user")
+  async createOrder(
+    @Arg("data", () => OrderCreateInput) data: OrderCreateInput
+  ): Promise<Order> {
+    const newOrder = new Order();
+    const profile = await Profile.findOne({
+      where: { user_id: data.profile_id },
+    });
+    if (!profile) {
+      throw new Error(`profile not found`);
+    }
+    Object.assign(newOrder, data);
+    const errors = await validate(newOrder);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    } else {
+      await newOrder.save();
+      return newOrder;
+    }
+  }
+
+  @Mutation(() => Order, { nullable: true })
+  @Authorized("user")
+  async updateOrder(
+    @Arg("id", () => ID) _id: number,
+    @Arg("data", () => OrderUpdateInput) data: OrderUpdateInput,
+    @Ctx() context: AuthContextType
+  ): Promise<Order | null> {
+    const id = Number(_id);
+    if (data.profile_id) {
+      const profile = await Profile.findOne({
+        where: { user_id: data.profile_id },
+      });
+      if (!profile) {
+        throw new Error(`profile not found`);
+      }
+    }
+    const order = await Order.findOne({
+      where: { id },
+      relations: { profile_id: true },
+    });
+
+    if (order !== null) {
+      if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+        throw new Error("Unauthorized");
+      }
+      Object.assign(order, data);
+      const errors = await validate(order);
+      if (errors.length > 0) {
+        throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+      } else {
+        await order.save();
+        return order;
+      }
+    } else {
+      throw new Error("Order not found.");
+    }
+  }
+
+  @Mutation(() => Order, { nullable: true })
+  @Authorized("user")
+  async deleteOrder(
+    @Arg("id", () => ID) _id: number,
+    @Ctx() context: AuthContextType
+  ): Promise<Order | null> {
+    const id = Number(_id);
+    const order = await Order.findOne({
+      where: { id },
+      relations: { profile_id: true },
+    });
+    if (order !== null) {
+      if (!(context.user.role === "admin" || context.user.id === order.profile_id.user_id)) {
+        throw new Error("Unauthorized");
+      }
+      await order.remove();
+      return order;
+    } else {
+      throw new Error("Order not found.");
+    }
+  }
+}
