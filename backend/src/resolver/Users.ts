@@ -7,12 +7,8 @@ import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
 import { User, UserCreateInput } from "../entities/User";
 import { UserToken } from "../entities/UserToken";
-import {
-  getUserFromContext,
-  hashPassword,
-  verifyPassword,
-} from "../helpers/helpers";
-import { ContextType, RoleType } from "../types";
+import { hashPassword, verifyPassword } from "../helpers/helpers";
+import { ContextType, RoleType, UserType } from "../types";
 
 @Resolver(User)
 export class UserResolver {
@@ -93,19 +89,21 @@ export class UserResolver {
           userToken.refresh_token = refreshToken;
           userToken.user = user;
           await userToken.save();
-          const cookies = new Cookies(context.req, context.res);
-          //TODO remove 24 * 3 when refresh token is fully implemented
-          cookies.set("token", token, {
-            secure: process.env.NODE_ENV === "production",
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 3,
-          });
+          if (process.env.NODE_ENV !== "testing") {
+            const cookies = new Cookies(context.req, context.res);
+            //TODO remove 24 * 3 when refresh token is fully implemented
+            cookies.set("token", token, {
+              secure: process.env.NODE_ENV === "production",
+              httpOnly: true,
+              maxAge: 1000 * 60 * 60 * 24 * 3,
+            });
 
-          cookies.set("refresh_token", refreshToken, {
-            secure: process.env.NODE_ENV === "production",
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-          });
+            cookies.set("refresh_token", refreshToken, {
+              secure: process.env.NODE_ENV === "production",
+              httpOnly: true,
+              maxAge: 1000 * 60 * 60 * 24 * 7,
+            });
+          }
 
           return user;
         } else {
@@ -129,7 +127,7 @@ export class UserResolver {
 
   // Authorisez()
   @Query(() => User, { nullable: true })
-  async whoami(@Ctx() context: ContextType): Promise<User | null> {
-    return await getUserFromContext(context);
+  async whoami(@Ctx() context: ContextType): Promise<UserType | null> {
+    return context.user;
   }
 }

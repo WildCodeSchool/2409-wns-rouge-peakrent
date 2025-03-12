@@ -34,6 +34,7 @@ export type UserType = {
 export type ContextType = {
   req: IncomingMessage;
   res: ServerResponse<IncomingMessage>;
+  user: UserType | null | undefined;
 };
 
 export type AuthContextType = ContextType & { user: UserType };

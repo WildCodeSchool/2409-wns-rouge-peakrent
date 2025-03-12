@@ -1,19 +1,26 @@
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
 import { dataSource } from "../src/config/db";
-import { User } from "../src/entities/User";
 import { getSchema } from "../src/schema";
-import { mutationCreateUser } from "./api/createUser";
 
-const testArgs: {
+// import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
+import { UsersResolverTest } from "./resolvers/UsersResolver";
+
+export type TestArgsType = {
   server: ApolloServer<BaseContext>;
   dataSource: DataSource;
   data: any;
-} = {
+};
+
+const testArgs: TestArgsType = {
   server: null,
   dataSource: null,
   data: {},
 };
+
+export function assert(expr: unknown, msg?: string): asserts expr {
+  if (!expr) throw new Error(msg);
+}
 
 beforeAll(async () => {
   await dataSource.initialize();
@@ -37,53 +44,14 @@ beforeAll(async () => {
   testArgs.server = testServer;
 });
 
-afterAll(async () => {
-  await dataSource.destroy();
+describe("users resolver", () => {
+  UsersResolverTest(testArgs);
 });
 
-describe("users resolver", () => {
-  it("should connect to database", async () => {
-    expect(testArgs.dataSource.isInitialized).toBe(true);
-  });
+// describe("categories resolver", () => {
+//   CategoriesResolverTest(testArgs);
+// });
 
-  it("should create an user", async () => {
-    const response = await testArgs.server.executeOperation<{
-      createUser: User;
-    }>({
-      query: mutationCreateUser,
-      variables: {
-        data: {
-          email: "test2222@gmail.com",
-          password: "SuperSecret!2025",
-          firstname: "test",
-          lastname: "test",
-          confirmPassword: "SuperSecret!2025",
-        },
-      },
-    });
-
-    expect(response.body.kind === "single");
-    if (response.body.kind === "single") {
-      expect(response.body.singleResult.errors).toBeUndefined();
-      expect(response.body.singleResult.data?.createUser?.id).toBeDefined();
-
-      const userFromDb = await User.findOneBy({
-        id: response.body.singleResult.data?.createUser?.id,
-      });
-      expect(userFromDb).toBeDefined();
-      expect(userFromDb.email).toBe("test2222@gmail.com");
-      expect(userFromDb.password).not.toBe("SuperSecret!2025");
-      testArgs.data.userId = response.body.singleResult.data?.createUser?.id;
-      testArgs.data.userEmail = userFromDb.email;
-    }
-  });
-
-  // test signin resolver
-  /*
-      testArgs.data.userEmail = userFromDb.email;
-  */
-
-  // test whoami resolver
-
-  // test signout
+afterAll(async () => {
+  await dataSource.destroy();
 });

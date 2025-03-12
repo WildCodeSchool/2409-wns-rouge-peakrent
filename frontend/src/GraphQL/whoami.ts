@@ -4,6 +4,8 @@ export const WHOAMI = gql`
   query Whoami {
     whoami {
       id
+      email
+      role
     }
   }
 `;
