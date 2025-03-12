@@ -40,7 +40,7 @@ export class Product extends BaseEntity {
   name!: string;
 
   @Field()
-  @Column({ length: 100 })
+  @Column({ length: 100, name: "normalized_name" })
   @Length(1, 100, { message: "Name must be between 1 and 100 chars." })
   normalizedName!: string;
 
@@ -51,13 +51,13 @@ export class Product extends BaseEntity {
   description?: string;
 
   @Field()
-  @Column()
+  @Column({ name: "url_image" })
   @IsUrl()
-  url_image!: string;
+  urlImage!: string;
 
   @Field()
-  @Column({ default: false })
-  is_published!: boolean;
+  @Column({ default: false, name: "is_published" })
+  isPublished!: boolean;
 
   @Field(() => Int)
   @Column({ length: 100, unique: true })
@@ -65,15 +65,15 @@ export class Product extends BaseEntity {
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
-  created_at!: Date;
+  createdAt!: Date;
 
   @Field()
   @UpdateDateColumn({ name: "updated_at" })
-  updated_at!: Date;
+  updatedAt!: Date;
 
   @Field(() => [Category], { nullable: true })
   @ManyToMany(() => Category, (category) => category.products)
-  @JoinTable()
+  @JoinTable({ name: "products_categories" })
   categories!: Category[];
 
   @Field(() => [Variant], { nullable: true })
@@ -83,7 +83,7 @@ export class Product extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
   @Field(() => User)
-  created_by!: User;
+  createdBy!: User;
 }
 
 @ObjectType()
@@ -111,11 +111,11 @@ export class ProductCreateInput {
 
   @Field()
   @IsUrl({}, { message: "URL must be a valid URL." })
-  url_image!: string;
+  urlImage!: string;
 
   @Field()
   @IsBoolean({ message: "is_published must be a boolean value." })
-  is_published!: boolean;
+  isPublished!: boolean;
 
   @Field()
   @IsString({ message: "SKU must be an string." })
@@ -145,12 +145,12 @@ export class ProductUpdateInput {
   @Field()
   @IsOptional()
   @IsUrl({}, { message: "URL must be a valid URL." })
-  url_image?: string;
+  urlImage?: string;
 
   @Field()
   @IsOptional()
   @IsBoolean({ message: "is_published must be a boolean value." })
-  is_published?: boolean;
+  isPublished?: boolean;
 
   @Field()
   @IsOptional()

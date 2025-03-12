@@ -13,7 +13,7 @@ export class VariantResolver {
   @Query(() => [Variant])
   async getVariants(): Promise<Variant[]> {
     return await Variant.find({
-      relations: { product: true, created_by: true },
+      relations: { product: true, createdBy: true },
     });
   }
 
@@ -23,7 +23,7 @@ export class VariantResolver {
   ): Promise<Variant | null> {
     return await Variant.findOne({
       where: { id },
-      relations: { product: true, created_by: true },
+      relations: { product: true, createdBy: true },
     });
   }
 
@@ -41,7 +41,7 @@ export class VariantResolver {
     const variant = Variant.create({
       ...data,
       product,
-      created_by: context.user,
+      createdBy: context.user,
     });
 
     const errors = await validate(variant);
@@ -62,14 +62,14 @@ export class VariantResolver {
   ): Promise<Variant | null> {
     const variant = await Variant.findOne({
       where: { id },
-      relations: { created_by: true },
+      relations: { createdBy: true },
     });
 
     if (!variant) {
       throw new Error("Variant not found.");
     }
 
-    if (variant.created_by.id !== context.user.id) {
+    if (variant.createdBy.id !== context.user.id) {
       throw new Error("Unauthorized: You can only update your own variants.");
     }
 
@@ -92,14 +92,14 @@ export class VariantResolver {
   ): Promise<Variant | null> {
     const variant = await Variant.findOne({
       where: { id },
-      relations: { created_by: true },
+      relations: { createdBy: true },
     });
 
     if (!variant) {
       return null;
     }
 
-    if (variant.created_by.id !== context.user.id) {
+    if (variant.createdBy.id !== context.user.id) {
       throw new Error("Unauthorized: You can only delete your own variants.");
     }
 

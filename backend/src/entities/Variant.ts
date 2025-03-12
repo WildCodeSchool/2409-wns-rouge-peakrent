@@ -38,18 +38,18 @@ export class Variant extends BaseEntity {
   color?: string;
 
   @Field(() => Int)
-  @Column()
+  @Column({ name: "price_per_hour" })
   @IsInt()
   @Min(0, { message: "Price per hour must be a positive number." })
-  price_per_hour!: number;
+  pricePerHour!: number;
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
-  created_at!: Date;
+  createdAt!: Date;
 
   @Field()
   @UpdateDateColumn({ name: "updated_at" })
-  updated_at!: Date;
+  updatedAt!: Date;
 
   @Field(() => Product)
   @ManyToOne(() => Product, (product) => product.variants, {
@@ -61,7 +61,7 @@ export class Variant extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
-  created_by!: User;
+  createdBy!: User;
 
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.variant)
   storeVariants!: StoreVariant[];
@@ -93,7 +93,7 @@ export class VariantCreateInput {
   @Field(() => Int)
   @IsInt()
   @Min(0, { message: "Price per hour must be a positive number." })
-  price_per_hour!: number;
+  pricePerHour!: number;
 
   @Field(() => Int)
   productId!: number;
@@ -117,5 +117,8 @@ export class VariantUpdateInput {
   @IsOptional()
   @IsInt()
   @Min(0, { message: "Price per hour must be a positive number." })
-  price_per_hour?: number;
+  pricePerHour?: number;
+
+  @Field(() => Int)
+  productId!: number;
 }
