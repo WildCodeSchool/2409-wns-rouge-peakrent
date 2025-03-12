@@ -17,7 +17,7 @@ export class OrderResolver {
   @Query(() => [Order])
   @Authorized()
   async getOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
-    const order = await Order.find({ relations: { profile_id: true } });
+    const order = await Order.find({ relations: { profileId: true } });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
     }
@@ -33,13 +33,11 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profileId: true },
     });
 
     if (
-      !(
-        context.user.role === "admin" || context.user.id === order.profile_id.id
-      )
+      !(context.user.role === "admin" || context.user.id === order.profileId.id)
     ) {
       throw new Error("Unauthorized");
     }
@@ -77,9 +75,9 @@ export class OrderResolver {
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
-    if (data.profile_id) {
+    if (data.profileId) {
       const profile = await Profile.findOne({
-        where: { id: data.profile_id },
+        where: { id: data.profileId },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -87,14 +85,14 @@ export class OrderResolver {
     }
     const order = await Order.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profileId: true },
     });
 
     if (order !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === order.profile_id.id
+          context.user.id === order.profileId.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -121,13 +119,13 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profileId: true },
     });
     if (order !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === order.profile_id.id
+          context.user.id === order.profileId.id
         )
       ) {
         throw new Error("Unauthorized");

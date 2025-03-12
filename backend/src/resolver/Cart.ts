@@ -20,7 +20,7 @@ export class CartResolver {
   @Query(() => [Cart])
   @Authorized()
   async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
-    const cart = await Cart.find({ relations: { profile_id: true } });
+    const cart = await Cart.find({ relations: { profileId: true } });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
     }
@@ -36,14 +36,11 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profileId: true },
     });
 
     if (
-      !(
-        context.user.role === "admin" ||
-        context.user.id === cart.profile_id.id
-      )
+      !(context.user.role === "admin" || context.user.id === cart.profileId.id)
     ) {
       throw new Error("Unauthorized");
     }
@@ -81,9 +78,9 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
     const id = Number(_id);
-    if (data.profile_id) {
+    if (data.profileId) {
       const profile = await Profile.findOne({
-        where: { id: data.profile_id },
+        where: { id: data.profileId },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -96,8 +93,7 @@ export class CartResolver {
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.id
+          context.user.role === "admin" || context.user.id === cart.profileId.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -128,8 +124,7 @@ export class CartResolver {
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.id
+          context.user.role === "admin" || context.user.id === cart.profileId.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -152,20 +147,19 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profileId: true },
     });
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.id
+          context.user.role === "admin" || context.user.id === cart.profileId.id
         )
       ) {
         throw new Error("Unauthorized");
       }
       const orderItems = await OrderItems.find({
-        where: { cart_id: Equal(id) },
-        relations: { variant_id: true },
+        where: { cartId: Equal(id) },
+        relations: { variantId: true },
       });
       if (orderItems !== null) {
         const errors = await validate(orderItems);
@@ -174,25 +168,25 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile_id: cart.profile_id,
+          profile_id: cart.profileId,
           status: OrderStatusType.confirmed,
           payment_method: data.payment_method,
           reference: data.reference,
           paid_at: new Date(),
-          address_1: cart.address_1,
-          address_2: cart.address_2,
+          address_1: cart.address1,
+          address_2: cart.address2,
           country: cart.country,
           city: cart.city,
-          zip_code: cart.zip_code,
+          zip_code: cart.zipCode,
         };
 
         // A Verifier
         const totalPrice = orderItems.reduce((sum, item) => {
-          const start = new Date(item.starts_at);
-          const end = new Date(item.ends_at);
+          const start = new Date(item.startsAt);
+          const end = new Date(item.endsAt);
           const durationHours =
             (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          return sum + item.variant_id?.price_per_hour * durationHours;
+          return sum + item.variantId?.price_per_hour * durationHours;
         }, 0);
 
         Object.assign(order, orderData);
@@ -200,8 +194,8 @@ export class CartResolver {
 
         await Promise.all(
           orderItems.map(async (item) => {
-            item.cart_id = null;
-            item.order_id = order;
+            item.cartId = null;
+            item.orderId = order;
             await item.save();
           })
         );

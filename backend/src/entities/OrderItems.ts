@@ -32,56 +32,60 @@ export class OrderItems extends BaseEntity {
   })
   @JoinColumn({ name: "cart_id" })
   @Column({ nullable: true })
-  cart_id?: Cart;
+  cartId?: Cart;
 
   @Field({ nullable: true })
   @ManyToOne(() => Order, (order) => order.id, { nullable: true })
   @JoinColumn({ name: "order_id" })
   @Column({ nullable: true })
-  order_id?: Order;
+  orderId?: Order;
 
   @Field({ nullable: true })
   @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
   @JoinColumn({ name: "variant_id" })
   @Column({ nullable: true })
-  variant_id?: Variant;
+  variantId?: Variant;
 
   @Field()
   @Column()
   quantity!: number;
 
   @Field()
-  @Column()
-  price_per_hour!: number;
+  @Column({ name: "price_per_hour" })
+  pricePerHour!: number;
 
   @Field()
-  @Column({ type: "timestamptz" })
-  starts_at!: Date;
+  @Column({ name: "starts_at", type: "timestamptz" })
+  startsAt!: Date;
 
   @Field()
-  @Column({ type: "timestamptz" })
-  ends_at!: Date;
+  @Column({ name: "ends_at", type: "timestamptz" })
+  endsAt!: Date;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at!: Date;
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt!: Date;
 
   @Field()
-  @UpdateDateColumn({ type: "timestamptz" })
-  updated_at!: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 }
 
 @InputType()
 export class OrderItemsCreateInput {
   @Field(() => Int, { nullable: true })
-  order_id?: Number;
+  orderId?: Number;
 
   @Field(() => Int)
   @IsNotEmpty({ message: "variant_id must not be empty." })
-  variant_id!: Number;
+  variantId!: Number;
 
   @Field(() => Int, { nullable: true })
-  cart_id?: Number;
+  cartId?: Number;
 
   @Field(() => Int)
   @Min(0, { message: "quantity should be positive" })
@@ -91,29 +95,29 @@ export class OrderItemsCreateInput {
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
   @IsNotEmpty({ message: "price_per_hour must not be empty." })
-  price_per_hour!: number;
+  pricePerHour!: number;
 
   @Field()
   @IsDate()
   @IsNotEmpty({ message: "starts_at must not be empty." })
-  starts_at!: Date;
+  startsAt!: Date;
 
   @Field()
   @IsDate()
   @IsNotEmpty({ message: "ends_at must not be empty." })
-  ends_at!: Date;
+  endsAt!: Date;
 }
 
 @InputType()
 export class OrderItemsUpdateInput {
   @Field(() => Int, { nullable: true })
-  order_id?: Number;
+  orderId?: Number;
 
   @Field(() => Int, { nullable: true })
-  variant_id?: Number;
+  variantId?: Number;
 
   @Field(() => Int, { nullable: true })
-  cart_id?: Number;
+  cartId?: Number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })
@@ -121,13 +125,13 @@ export class OrderItemsUpdateInput {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
-  price_per_hour?: number;
+  pricePerHour?: number;
 
   @Field({ nullable: true })
   @IsDate()
-  starts_at?: Date;
+  startsAt?: Date;
 
   @Field({ nullable: true })
   @IsDate()
-  ends_at?: Date;
+  endsAt?: Date;
 }

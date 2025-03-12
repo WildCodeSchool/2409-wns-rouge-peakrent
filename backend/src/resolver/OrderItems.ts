@@ -25,7 +25,7 @@ export class OrderItemsResolver {
   @Authorized()
   async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItems[]> {
     const orderItems = await OrderItems.find({
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cartId: true, variantId: true, orderId: true },
     });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
@@ -42,7 +42,7 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cartId: true, variantId: true, orderId: true },
     });
 
     return orderItem;
@@ -60,13 +60,13 @@ export class OrderItemsResolver {
       throw new Error("Cart not found.");
     }
     const orderItem = await OrderItems.find({
-      where: { cart_id: Equal(id) },
-      relations: { cart_id: true, variant_id: true },
+      where: { cartId: Equal(id) },
+      relations: { cartId: true, variantId: true },
     });
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].cart_id.profile_id.id
+        context.user.id === orderItem[0].cartId.profileId.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -86,14 +86,14 @@ export class OrderItemsResolver {
       throw new Error("Order not found.");
     }
     const orderItem = await OrderItems.find({
-      where: { order_id: Equal(id) },
-      relations: { variant_id: true, order_id: true },
+      where: { orderId: Equal(id) },
+      relations: { variantId: true, orderId: true },
     });
 
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].order_id.profile_id.id
+        context.user.id === orderItem[0].orderId.profileId.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -128,14 +128,14 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cartId: true, variantId: true, orderId: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cart_id.profile_id.user_id ||
-          context.user.id === orderItem[0].order_id.profile_id.user_id
+          context.user.id === orderItem[0].cartId.profileId.userId ||
+          context.user.id === orderItem[0].orderId.profileId.userId
         )
       ) {
         throw new Error("Unauthorized");
@@ -163,14 +163,14 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cartId: true, variantId: true, orderId: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cart_id.profile_id.user_id ||
-          context.user.id === orderItem[0].order_id.profile_id.user_id
+          context.user.id === orderItem[0].cartId.profileId.userId ||
+          context.user.id === orderItem[0].orderId.profileId.userId
         )
       ) {
         throw new Error("Unauthorized");
