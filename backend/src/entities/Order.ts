@@ -90,7 +90,7 @@ export class Order extends BaseEntity {
 @InputType()
 export class OrderCreateInput {
   @Field(() => Int)
-  profile_id!: number;
+  profileId!: number;
 
   @Field()
   @IsString()
@@ -141,7 +141,7 @@ export class OrderUpdateInput {
   reference?: string;
 
   @Field({ nullable: true })
-  payment_method?: OrderPaymentType;
+  paymentMethod?: OrderPaymentType;
 
   @Field({ nullable: true })
   @IsString()
@@ -172,7 +172,7 @@ export class OrderUpdateInput {
 @InputType()
 export class ValidateCartInput {
   @Field()
-  payment_method!: OrderPaymentType;
+  paymentMethod!: OrderPaymentType;
 
   @Field()
   @IsString()

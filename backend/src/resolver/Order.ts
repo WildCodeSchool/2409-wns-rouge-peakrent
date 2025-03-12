@@ -52,7 +52,7 @@ export class OrderResolver {
   ): Promise<Order> {
     const newOrder = new Order();
     const profile = await Profile.findOne({
-      where: { id: data.profile_id },
+      where: { id: data.profileId },
     });
     if (!profile) {
       throw new Error(`profile not found`);
