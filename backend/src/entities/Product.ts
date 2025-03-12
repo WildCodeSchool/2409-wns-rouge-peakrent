@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Min} from "class-validator";
+import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Length, MaxLength, Min} from "class-validator";
 import {
     BaseEntity,
     Column, CreateDateColumn,
@@ -33,8 +33,9 @@ export class Product extends BaseEntity {
 
     @Field({nullable: true})
     @Column({nullable: true, length: 500})
-    @Length(0, 500, {message: "Description must be at most 500 characters."})
-    description!: string;
+    @IsOptional()
+    @MaxLength(500, {message: "Description must be at most 500 characters."})
+    description?: string;
 
     @Field()
     @Column()
@@ -57,12 +58,12 @@ export class Product extends BaseEntity {
     @UpdateDateColumn({name: "updated_at"})
     updated_at!: Date;
 
-    @Field(() => [Category])
+    @Field(() => [Category], {nullable: true})
     @ManyToMany(() => Category, (category) => category.products)
     @JoinTable()
     categories!: Category[];
 
-    @Field(() => [Variant])
+    @Field(() => [Variant], {nullable: true})
     @OneToMany(() => Variant, (variant) => variant.product, {cascade: true})
     variants!: Variant[];
 
@@ -93,7 +94,7 @@ export class ProductCreateInput {
     @Field({nullable: true})
     @IsOptional()
     @IsString()
-    @Length(0, 500, {message: "Description must be at most 500 chars."})
+    @MaxLength(500, {message: "Description must be at most 500 chars."})
     description?: string;
 
     @Field()
@@ -126,7 +127,7 @@ export class ProductUpdateInput {
     @Field({nullable: true})
     @IsOptional()
     @IsString()
-    @Length(0, 500, {message: "Description must be at most 500 chars."})
+    @MaxLength(500, {message: "Description must be at most 500 chars."})
     description?: string;
 
     @Field()

@@ -30,6 +30,7 @@ export class ProductResolver {
             relations: {
                 categories: true,
                 created_by: true,
+                variants: true,
             },
         });
 
@@ -77,10 +78,20 @@ export class ProductResolver {
         Object.assign(newProduct, data, {createdBy: user});
         newProduct.normalizedName = normalizeString(newProduct.name);
 
+        if (data.categories && data.categories.length > 0) {
+            const categoryIds = data.categories.map((category) => category.id);
+            const fullCategories = await Category.find({
+                where: {id: In(categoryIds)},
+                relations: ["products"]
+            });
+            if (fullCategories.length === 0) {
+                throw new Error(`No categories found for IDs: ${categoryIds.join(", ")}`);
+            }
+            newProduct.categories = fullCategories;
+        }
+
         const validationErrors = await validate(newProduct);
         if (validationErrors.length > 0) {
-            // travailler le renvoie d'erreur - fonction générique a réutiliser a chaque renvoie
-            // class-validator
             throw new Error(`Errors : ${JSON.stringify(validationErrors)}`);
         } else {
             await newProduct.save();

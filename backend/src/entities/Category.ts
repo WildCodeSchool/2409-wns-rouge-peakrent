@@ -41,7 +41,7 @@ export class Category extends BaseEntity {
     @UpdateDateColumn({name: "updated_at"})
     updated_at!: Date;
 
-    @Field(() => [Product])
+    @Field(() => [Product], {nullable: true})
     @ManyToMany(() => Product, (product) => product.categories)
     products!: Product[];
 
@@ -50,7 +50,7 @@ export class Category extends BaseEntity {
     @Field(() => Category, {nullable: true})
     parentCategory?: Category;
 
-    @Field(() => [Category])
+    @Field(() => [Category], {nullable: true})
     @OneToMany(() => Category, (category) => category.parentCategory)
     children!: Category[];
 
