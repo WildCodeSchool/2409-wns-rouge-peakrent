@@ -8,5 +8,6 @@
     "source.addMissingImports": "always",
     "source.organizeImports": "always"
   },
+  "trailingComma": "es5",
   "importOrderMergeDuplicateImports": true
 }
