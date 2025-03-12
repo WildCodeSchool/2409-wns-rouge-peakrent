@@ -54,7 +54,7 @@ export class CartResolver {
     @Arg("data", () => CartCreateInput) data: CartCreateInput
   ): Promise<Cart> {
     const profile = await Profile.findOne({
-      where: { id: data.profile_id },
+      where: { id: data.profileId },
     });
     if (!profile) {
       throw new Error(`profile not found`);
@@ -170,7 +170,7 @@ export class CartResolver {
         const orderData = {
           profile_id: cart.profileId,
           status: OrderStatusType.confirmed,
-          payment_method: data.payment_method,
+          payment_method: data.paymentMethod,
           reference: data.reference,
           paid_at: new Date(),
           address_1: cart.address1,
@@ -186,7 +186,7 @@ export class CartResolver {
           const end = new Date(item.endsAt);
           const durationHours =
             (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          return sum + item.variantId?.price_per_hour * durationHours;
+          return sum + item.variantId?.pricePerHour * durationHours;
         }, 0);
 
         Object.assign(order, orderData);
