@@ -20,7 +20,7 @@ export class CartResolver {
   @Query(() => [Cart])
   @Authorized()
   async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
-    const cart = await Cart.find({ relations: { profileId: true } });
+    const cart = await Cart.find({ relations: { profile: true } });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
     }
@@ -36,11 +36,11 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profileId: true },
+      relations: { profile: true },
     });
 
     if (
-      !(context.user.role === "admin" || context.user.id === cart.profileId.id)
+      !(context.user.role === "admin" || context.user.id === cart.profile.id)
     ) {
       throw new Error("Unauthorized");
     }
@@ -93,7 +93,7 @@ export class CartResolver {
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" || context.user.id === cart.profileId.id
+          context.user.role === "admin" || context.user.id === cart.profile.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -124,7 +124,7 @@ export class CartResolver {
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" || context.user.id === cart.profileId.id
+          context.user.role === "admin" || context.user.id === cart.profile.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -147,12 +147,12 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profileId: true },
+      relations: { profile: true },
     });
     if (cart !== null) {
       if (
         !(
-          context.user.role === "admin" || context.user.id === cart.profileId.id
+          context.user.role === "admin" || context.user.id === cart.profile.id
         )
       ) {
         throw new Error("Unauthorized");
@@ -168,7 +168,7 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile_id: cart.profileId,
+          profile_id: cart.profile.id,
           status: OrderStatusType.confirmed,
           payment_method: data.paymentMethod,
           reference: data.reference,

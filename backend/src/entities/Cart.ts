@@ -26,7 +26,7 @@ export class Cart extends BaseEntity {
   })
   @JoinColumn({ name: "profile_id" })
   @Column({ name: "profile_id" })
-  profileId?: Profile;
+  profile?: Profile;
 
   @Field()
   @Column("varchar", { name: "address_1", length: 255 })
@@ -68,13 +68,13 @@ export class CartCreateInput {
 
   @Field()
   @IsString()
-  @IsNotEmpty({ message: "address_1 must not be empty." })
-  @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
+  @IsNotEmpty({ message: "address1 must not be empty." })
+  @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
   address1!: string;
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
+  @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
   address2?: string;
 
   @Field()
@@ -92,7 +92,7 @@ export class CartCreateInput {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "zip_code must not be empty." })
-  @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
+  @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
   zipCode!: string;
 }
 
@@ -103,12 +103,12 @@ export class CartUpdateInput {
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
+  @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
   address1?: string;
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
+  @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
   address2?: string;
 
   @Field({ nullable: true })
@@ -123,6 +123,6 @@ export class CartUpdateInput {
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 20, { message: "zip_code must be between 1 and 20 chars." })
+  @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
   zipCode?: string;
 }
