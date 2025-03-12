@@ -43,3 +43,19 @@ export enum RoleType {
   USER = "user",
   ADMIN = "admin",
 }
+
+  export enum OrderStatusType {
+    confirmed = "confirmed",
+  }
+  
+  export enum orderPaymentType {
+    card = "card",
+  }
+  
+  registerEnumType(OrderStatusType, {
+    name: "OrderStatusType",
+  });
+  
+  registerEnumType(orderPaymentType, {
+    name: "orderPaymentType",
+  });
