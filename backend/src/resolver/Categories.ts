@@ -34,7 +34,7 @@ export class CategoryResolver {
       where: whereCondition,
       relations: {
         products: true,
-        created_by: true,
+        createdBy: true,
         parentCategory: true,
         children: true,
       },
@@ -46,7 +46,7 @@ export class CategoryResolver {
 
     const [products, total] = await Product.findAndCount({
       where: { categories: { id: category.id } },
-      relations: { categories: true, created_by: true },
+      relations: { categories: true, createdBy: true },
       skip,
       take: onPage,
     });
@@ -93,7 +93,7 @@ export class CategoryResolver {
     const id = Number(_id);
 
     const category = await Category.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
     });
     if (category !== null) {
       Object.assign(category, data);
@@ -118,7 +118,7 @@ export class CategoryResolver {
   ): Promise<Category | null> {
     const id = Number(_id);
     const category = await Category.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
     });
     if (category !== null) {
       await category.remove();

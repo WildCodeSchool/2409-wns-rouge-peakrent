@@ -25,7 +25,7 @@ export class ProductResolver {
       take: onPage,
       relations: {
         categories: true,
-        created_by: true,
+        createdBy: true,
       },
     });
 
@@ -49,12 +49,12 @@ export class ProductResolver {
       const id = Number(param);
       product = await Product.findOne({
         where: { id },
-        relations: { categories: true, created_by: true },
+        relations: { categories: true, createdBy: true },
       });
     } else {
       product = await Product.findOne({
         where: { name: param },
-        relations: { categories: true, created_by: true },
+        relations: { categories: true, createdBy: true },
       });
     }
 
@@ -94,7 +94,7 @@ export class ProductResolver {
     const id = Number(_id);
 
     const product = await Product.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
       relations: { categories: true },
     });
 
@@ -136,7 +136,7 @@ export class ProductResolver {
     const id = Number(_id);
     const product = await Product.findOneBy({
       id,
-      created_by: { id: context.user.id },
+      createdBy: { id: context.user.id },
     });
     if (product !== null) {
       await product.remove();
