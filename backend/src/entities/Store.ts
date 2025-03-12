@@ -24,19 +24,19 @@ export class Store extends BaseEntity {
   name!: string;
 
   @Field()
-  @Column({ length: 20 })
+  @Column({ name: "phone_number", length: 20 })
   @Length(1, 20, { message: "Phone number must be between 1 and 100 chars." })
-  phone_number!: string;
+  phoneNumber!: string;
 
   @Field()
-  @Column({ length: 255 })
+  @Column({ name: "address_1", length: 255 })
   @Length(1, 255, { message: "Address must be between 1 and 255 chars." })
-  address_1!: string;
+  address1!: string;
 
   @Field({ nullable: true })
-  @Column({ length: 255, nullable: true })
+  @Column({ name: "address_2", length: 255, nullable: true })
   @Length(0, 255, { message: "Address must be between 0 and 255 chars." })
-  address_2?: string;
+  address2?: string;
 
   @Field()
   @Column({ length: 100 })
@@ -44,9 +44,9 @@ export class Store extends BaseEntity {
   city!: string;
 
   @Field()
-  @Column({ length: 20 })
+  @Column({ name: "zip_code", length: 20 })
   @Length(1, 20, { message: "Zip code must be between 1 and 20 chars." })
-  zip_code!: string;
+  zipCode!: string;
 
   @Field()
   @Column({ length: 100 })
@@ -59,12 +59,12 @@ export class Store extends BaseEntity {
   reference!: string;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz" })
-  created_at!: Date;
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
+  createdAt!: Date;
 
   @Field()
-  @UpdateDateColumn({ type: "timestamptz" })
-  updated_at!: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.store)
   storeVariants!: StoreVariant[];
@@ -80,15 +80,15 @@ export class StoreCreateInput {
   @Length(1, 20, {
     message: "Phone number must be between 1 and 20 characters.",
   })
-  phone_number!: string;
+  phoneNumber!: string;
 
   @Field()
   @Length(1, 255, { message: "Address must be between 1 and 255 characters." })
-  address_1!: string;
+  address1!: string;
 
   @Field({ nullable: true })
   @Length(0, 255, { message: "Address must be between 0 and 255 characters." })
-  address_2?: string;
+  address2?: string;
 
   @Field()
   @Length(1, 100, { message: "City must be between 1 and 100 characters." })
@@ -96,7 +96,7 @@ export class StoreCreateInput {
 
   @Field()
   @Length(1, 20, { message: "Zip code must be between 1 and 20 characters." })
-  zip_code!: string;
+  zipCode!: string;
 
   @Field()
   @Length(1, 100, { message: "Country must be between 1 and 100 characters." })
@@ -124,17 +124,17 @@ export class StoreUpdateInput {
   @Length(1, 20, {
     message: "Phone number must be between 1 and 20 characters.",
   })
-  phone_number?: string;
+  phoneNumber?: string;
 
   @Field()
   @IsOptional()
   @Length(1, 255, { message: "Address must be between 1 and 255 characters." })
-  address_1?: string;
+  address1?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @Length(0, 255, { message: "Address must be between 0 and 255 characters." })
-  address_2?: string;
+  address2?: string;
 
   @Field()
   @IsOptional()
@@ -144,7 +144,7 @@ export class StoreUpdateInput {
   @Field()
   @IsOptional()
   @Length(1, 20, { message: "Zip code must be between 1 and 20 characters." })
-  zip_code?: string;
+  zipCode?: string;
 
   @Field()
   @IsOptional()
