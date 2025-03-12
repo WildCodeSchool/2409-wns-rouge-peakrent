@@ -17,7 +17,7 @@ export class OrderResolver {
   @Query(() => [Order])
   @Authorized()
   async getOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
-    const order = await Order.find({ relations: { profileId: true } });
+    const order = await Order.find({ relations: { profile: true } });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
     }
@@ -33,11 +33,11 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profileId: true },
+      relations: { profile: true },
     });
 
     if (
-      !(context.user.role === "admin" || context.user.id === order.profileId.id)
+      !(context.user.role === "admin" || context.user.id === order.profile.id)
     ) {
       throw new Error("Unauthorized");
     }
@@ -85,15 +85,12 @@ export class OrderResolver {
     }
     const order = await Order.findOne({
       where: { id },
-      relations: { profileId: true },
+      relations: { profile: true },
     });
 
     if (order !== null) {
       if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === order.profileId.id
-        )
+        !(context.user.role === "admin" || context.user.id === order.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
@@ -119,14 +116,11 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profileId: true },
+      relations: { profile: true },
     });
     if (order !== null) {
       if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === order.profileId.id
-        )
+        !(context.user.role === "admin" || context.user.id === order.profile.id)
       ) {
         throw new Error("Unauthorized");
       }

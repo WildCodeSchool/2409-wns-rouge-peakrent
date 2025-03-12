@@ -92,9 +92,7 @@ export class CartResolver {
 
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" || context.user.id === cart.profile.id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
@@ -123,9 +121,7 @@ export class CartResolver {
     });
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" || context.user.id === cart.profile.id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
@@ -151,15 +147,13 @@ export class CartResolver {
     });
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" || context.user.id === cart.profile.id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
       const orderItems = await OrderItems.find({
-        where: { cartId: Equal(id) },
-        relations: { variantId: true },
+        where: { cart: Equal(id) },
+        relations: { variant: true },
       });
       if (orderItems !== null) {
         const errors = await validate(orderItems);
@@ -186,7 +180,7 @@ export class CartResolver {
           const end = new Date(item.endsAt);
           const durationHours =
             (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          return sum + item.variantId?.pricePerHour * durationHours;
+          return sum + item.variant?.pricePerHour * durationHours;
         }, 0);
 
         Object.assign(order, orderData);
@@ -194,8 +188,8 @@ export class CartResolver {
 
         await Promise.all(
           orderItems.map(async (item) => {
-            item.cartId = null;
-            item.orderId = order;
+            item.cart = null;
+            item.order = order;
             await item.save();
           })
         );

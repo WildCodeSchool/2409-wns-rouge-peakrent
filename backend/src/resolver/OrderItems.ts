@@ -25,7 +25,7 @@ export class OrderItemsResolver {
   @Authorized()
   async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItems[]> {
     const orderItems = await OrderItems.find({
-      relations: { cartId: true, variantId: true, orderId: true },
+      relations: { cart: true, variant: true, order: true },
     });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
@@ -42,7 +42,7 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cartId: true, variantId: true, orderId: true },
+      relations: { cart: true, variant: true, order: true },
     });
 
     return orderItem;
@@ -60,13 +60,13 @@ export class OrderItemsResolver {
       throw new Error("Cart not found.");
     }
     const orderItem = await OrderItems.find({
-      where: { cartId: Equal(id) },
-      relations: { cartId: true, variantId: true },
+      where: { cart: Equal(id) },
+      relations: { cart: true, variant: true },
     });
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].cartId.profileId.id
+        context.user.id === orderItem[0].cart.profile.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -86,14 +86,14 @@ export class OrderItemsResolver {
       throw new Error("Order not found.");
     }
     const orderItem = await OrderItems.find({
-      where: { orderId: Equal(id) },
-      relations: { variantId: true, orderId: true },
+      where: { order: Equal(id) },
+      relations: { variant: true, order: true },
     });
 
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].orderId.profileId.id
+        context.user.id === orderItem[0].order.profile.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -128,14 +128,14 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cartId: true, variantId: true, orderId: true },
+      relations: { cart: true, variant: true, order: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cartId.profileId.userId ||
-          context.user.id === orderItem[0].orderId.profileId.userId
+          context.user.id === orderItem[0].cart.profile.userId ||
+          context.user.id === orderItem[0].order.profile.userId
         )
       ) {
         throw new Error("Unauthorized");
@@ -146,7 +146,6 @@ export class OrderItemsResolver {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
       } else {
         await orderItem.save();
-
         return orderItem;
       }
     } else {
@@ -163,20 +162,19 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItems.findOne({
       where: { id },
-      relations: { cartId: true, variantId: true, orderId: true },
+      relations: { cart: true, variant: true, order: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cartId.profileId.userId ||
-          context.user.id === orderItem[0].orderId.profileId.userId
+          context.user.id === orderItem[0].cart.profile.userId ||
+          context.user.id === orderItem[0].order.profile.userId
         )
       ) {
         throw new Error("Unauthorized");
       }
       await orderItem.remove();
-
       return orderItem;
     } else {
       throw new Error("orderItems not found.");
