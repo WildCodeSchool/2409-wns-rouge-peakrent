@@ -10,6 +10,8 @@ import {UserResolver} from "./resolver/Users";
 import {authChecker} from "./auth";
 import {VariantResolver} from "./resolver/Variants";
 import {ProfileResolver} from "./resolver/Profiles";
+import { StoreVariantResolver } from "./resolver/StoresVariants";
+import { StoreResolver } from "./resolver/Stores";
 
 const port = 4000;
 
@@ -21,7 +23,9 @@ const initialize = async () => {
             CategoryResolver,
             ProductResolver,
             SearchResolver,
-            VariantResolver
+            VariantResolver,
+            StoreResolver,
+            StoreVariantResolver,
         ],
         authChecker,
     });
