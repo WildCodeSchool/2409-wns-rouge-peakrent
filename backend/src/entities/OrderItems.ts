@@ -31,19 +31,19 @@ export class OrderItems extends BaseEntity {
     nullable: true,
   })
   @JoinColumn({ name: "cart_id" })
-  @Column({ nullable: true })
+  @Column({ name: "cart_id", nullable: true })
   cartId?: Cart;
 
   @Field({ nullable: true })
   @ManyToOne(() => Order, (order) => order.id, { nullable: true })
   @JoinColumn({ name: "order_id" })
-  @Column({ nullable: true })
+  @Column({ name: "order_id", nullable: true })
   orderId?: Order;
 
   @Field({ nullable: true })
   @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
   @JoinColumn({ name: "variant_id" })
-  @Column({ nullable: true })
+  @Column({ name: "variant_id", nullable: true })
   variantId?: Variant;
 
   @Field()
