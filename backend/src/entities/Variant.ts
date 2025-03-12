@@ -6,6 +6,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
@@ -13,6 +14,7 @@ import {Field, ID, InputType, Int, ObjectType} from "type-graphql";
 import {Product} from "./Product";
 import {User} from "./User";
 import {Pagination} from "./Pagination";
+import {StoreVariant} from "./StoreVariant";
 
 @ObjectType()
 @Entity()
@@ -58,6 +60,9 @@ export class Variant extends BaseEntity {
     @ManyToOne(() => User)
     @JoinColumn({name: "created_by"})
     created_by!: User;
+
+    @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.variant)
+    storeVariants!: StoreVariant[];
 }
 
 @ObjectType()
