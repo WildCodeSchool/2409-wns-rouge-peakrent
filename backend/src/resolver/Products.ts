@@ -13,49 +13,31 @@ import { AuthContextType } from "../types";
 
 @Resolver(Product)
 export class ProductResolver {
-  @Query(() => ProductWithCount)
-  async getProducts(
-    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number
-  ): Promise<ProductWithCount> {
-    const itemsToSkip = (page - 1) * onPage;
+    @Query(() => ProductWithCount)
+    async getProducts(
+        @Arg("page", () => Int, {defaultValue: 1}) page: number,
+        @Arg("onPage", () => Int, {defaultValue: 15}) onPage: number
+    ): Promise<ProductWithCount> {
+        const itemsToSkip = (page - 1) * onPage;
 
-    const [products, total] = await Product.findAndCount({
-      skip: itemsToSkip,
-      take: onPage,
-      relations: {
-        categories: true,
-        created_by: true,
-      },
-    });
+        const [products, total] = await Product.findAndCount({
+            skip: itemsToSkip,
+            take: onPage,
+            relations: {
+                categories: true,
+                created_by: true,
+                variants: true,
+            },
+        });
 
-    return {
-      products,
-      pagination: {
-        total,
-        currentPage: page,
-        totalPages: Math.ceil(total / onPage),
-      },
-    };
-  }
-
-  @Query(() => Product, { nullable: true })
-  async getProductById(
-    @Arg("param", () => String) param: string
-  ): Promise<Product | null> {
-    let product: Product | null = null;
-
-    if (!isNaN(Number(param))) {
-      const id = Number(param);
-      product = await Product.findOne({
-        where: { id },
-        relations: { categories: true, created_by: true },
-      });
-    } else {
-      product = await Product.findOne({
-        where: { name: param },
-        relations: { categories: true, created_by: true },
-      });
+        return {
+            products,
+            pagination: {
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / onPage),
+            },
+        };
     }
 
     return product;
@@ -82,24 +64,38 @@ export class ProductResolver {
       await newProduct.save();
       return newProduct;
     }
-  }
 
-  // @Authorized()
-  @Mutation(() => Product)
-  async updateProduct(
-    @Arg("id", () => String) _id: string,
-    @Arg("data", () => ProductUpdateInput) data: ProductUpdateInput,
-    @Ctx() context: AuthContextType
-  ) {
-    const id = Number(_id);
+    // @Authorized()
+    @Mutation(() => Product)
+    async createProduct(
+        @Arg("data", () => ProductCreateInput) data: ProductCreateInput,
+        @Ctx() context: AuthContextType
+    ): Promise<Product | null | ValidationError[]> {
+        const newProduct = new Product();
+        const user = context.user;
 
-    const product = await Product.findOne({
-      where: { id, created_by: { id: context.user.id } },
-      relations: { categories: true },
-    });
+        Object.assign(newProduct, data, {createdBy: user});
+        newProduct.normalizedName = normalizeString(newProduct.name);
 
-    if (!product) {
-      return null;
+        if (data.categories && data.categories.length > 0) {
+            const categoryIds = data.categories.map((category) => category.id);
+            const fullCategories = await Category.find({
+                where: {id: In(categoryIds)},
+                relations: ["products"]
+            });
+            if (fullCategories.length === 0) {
+                throw new Error(`No categories found for IDs: ${categoryIds.join(", ")}`);
+            }
+            newProduct.categories = fullCategories;
+        }
+
+        const validationErrors = await validate(newProduct);
+        if (validationErrors.length > 0) {
+            throw new Error(`Errors : ${JSON.stringify(validationErrors)}`);
+        } else {
+            await newProduct.save();
+            return newProduct;
+        }
     }
 
     Object.assign(product, data);
