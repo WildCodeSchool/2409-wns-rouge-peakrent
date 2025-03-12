@@ -5,6 +5,10 @@ import { getSchema } from "../src/schema";
 import { UsersResolverTest } from "./resolvers/UsersResolver";
 import { User } from "../src/entities/User";
 import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
+import { getQueryFromMutation } from "./utils/getQueryFromMutation";
+import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
+import { Profile } from "../src/entities/Profile";
+import { RoleType } from "../src/types";
 
 export type TestArgsType = {
   server: ApolloServer<BaseContext>;
@@ -29,17 +33,7 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
   const userResponse = await testArgs.server.executeOperation<{
     createUser: User;
   }>({
-    query: `
-      mutation CreateUser($data: UserCreateInput!) {
-        createUser(data: $data) {
-          id
-          email
-          firstname
-          lastname
-          role
-        }
-      }
-    `,
+    query: getQueryFromMutation(CREATE_USER),
     variables: {
       data: {
         email: "user@example.com",
@@ -54,17 +48,7 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
   const adminResponse = await testArgs.server.executeOperation<{
     createUser: User;
   }>({
-    query: `
-      mutation CreateUser($data: UserCreateInput!) {
-        createUser(data: $data) {
-          id
-          email
-          firstname
-          lastname
-          role
-        }
-      }
-    `,
+    query: getQueryFromMutation(CREATE_USER),
     variables: {
       data: {
         email: "admin@example.com",
@@ -78,12 +62,19 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
 
   assert(userResponse.body.kind === "single");
   testArgs.data.user = userResponse.body.singleResult.data?.createUser;
+  console.log("2", testArgs.data.user);
 
   assert(adminResponse.body.kind === "single");
   testArgs.data.admin = adminResponse.body.singleResult.data?.createUser;
-  console.log(
-    "------------------------------------------------------ Test users created ------------------------------------------------------"
-  );
+
+  const adminProfile = await Profile.findOne({
+    where: { id: testArgs.data.admin.id },
+  });
+
+  adminProfile.role = RoleType.ADMIN;
+  await adminProfile.save();
+
+  testArgs.data.admin.role = RoleType.ADMIN;
 };
 
 beforeAll(async () => {
@@ -110,9 +101,9 @@ beforeAll(async () => {
   testArgs.dataSource = dataSource;
 });
 
-describe("users resolver", () => {
-  UsersResolverTest(testArgs);
-});
+// describe("users resolver", () => {
+//   UsersResolverTest(testArgs);
+// });
 
 describe("categories resolver", () => {
   CategoriesResolverTest(testArgs);

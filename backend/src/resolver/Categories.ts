@@ -71,7 +71,7 @@ export class CategoryResolver {
     };
   }
 
-  @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category)
   async createCategory(
     @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
