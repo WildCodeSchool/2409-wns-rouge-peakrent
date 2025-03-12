@@ -14,10 +14,10 @@ export class StoreVariantResolver {
 
   @Query(() => StoreVariant, { nullable: true })
   async storeVariant(
-    @Arg("store_id") store_id: number,
-    @Arg("variant_id") variant_id: number
+    @Arg("storeId") storeId: number,
+    @Arg("variantId") variantId: number
   ): Promise<StoreVariant | null> {
-    return await StoreVariant.findOneBy({ store_id, variant_id });
+    return await StoreVariant.findOneBy({ storeId, variantId });
   }
 
   @Mutation(() => StoreVariant)
@@ -35,8 +35,8 @@ export class StoreVariantResolver {
     @Arg("data") data: StoreVariantUpdateInput
   ): Promise<StoreVariant> {
     const storeVariant = await StoreVariant.findOneBy({
-      store_id: data.store_id,
-      variant_id: data.variant_id,
+      storeId: data.storeId,
+      variantId: data.variantId,
     });
 
     if (!storeVariant) throw new Error("StoreVariant not found");
@@ -48,10 +48,10 @@ export class StoreVariantResolver {
 
   @Mutation(() => Boolean)
   async deleteStoreVariant(
-    @Arg("store_id") store_id: number,
-    @Arg("variant_id") variant_id: number
+    @Arg("storeId") storeId: number,
+    @Arg("variantId") variantId: number
   ): Promise<boolean> {
-    const storeVariant = await StoreVariant.findOneBy({ store_id, variant_id });
+    const storeVariant = await StoreVariant.findOneBy({ storeId, variantId });
     if (!storeVariant) return false;
 
     await storeVariant.remove();
