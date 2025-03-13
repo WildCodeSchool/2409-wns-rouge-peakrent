@@ -4,10 +4,10 @@ import { assert, TestArgsType } from "../index.spec";
 
 export const datas = {
   name: "Super Store",
-  phone_number: "0123456789",
-  address_1: "123 Main Street",
+  phoneNumber: "0123456789",
+  address1: "123 Main Street",
   city: "Paris",
-  zip_code: "75000",
+  zipCode: "75000",
   country: "France",
   reference: "STORE123",
 };
@@ -21,15 +21,7 @@ export function StoresResolverTest(testArgs: TestArgsType) {
       {
         query: mutationCreateStore,
         variables: {
-          data: {
-            name: datas.name,
-            phoneNumber: datas.phone_number,
-            address1: datas.address_1,
-            city: datas.city,
-            zipCode: datas.zip_code,
-            country: datas.country,
-            reference: datas.reference,
-          },
+          data: datas,
         },
       },
       {
@@ -54,15 +46,7 @@ export function StoresResolverTest(testArgs: TestArgsType) {
       {
         query: mutationCreateStore,
         variables: {
-          data: {
-            name: datas.name,
-            phoneNumber: datas.phone_number,
-            address1: datas.address_1,
-            city: datas.city,
-            zipCode: datas.zip_code,
-            country: datas.country,
-            reference: datas.reference,
-          },
+          data: datas,
         },
       },
       {
@@ -88,15 +72,7 @@ export function StoresResolverTest(testArgs: TestArgsType) {
       {
         query: mutationCreateStore,
         variables: {
-          data: {
-            name: datas.name,
-            phoneNumber: datas.phone_number,
-            address1: datas.address_1,
-            city: datas.city,
-            zipCode: datas.zip_code,
-            country: datas.country,
-            reference: datas.reference,
-          },
+          data: datas,
         },
       },
       {
