@@ -1,13 +1,15 @@
 import { UserInputError } from "apollo-server-errors";
-import { validate, ValidationError } from "class-validator";
+import { ValidationError } from "class-validator";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
-import { User, UserCreateInput } from "../entities/User";
+import { SignInInput, User, UserCreateInput } from "../entities/User";
 import { UserToken } from "../entities/UserToken";
+import { CustomError } from "../errors/CustomError";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
+import { validateInput } from "../helpers/validateInput";
 import { ContextType, RoleType } from "../types";
 
 @Resolver(User)
@@ -17,17 +19,18 @@ export class UserResolver {
     @Arg("data", () => UserCreateInput) data: UserCreateInput
   ): Promise<User | ValidationError[]> {
     if (data.password !== data.confirmPassword) {
-      throw new UserInputError("Passwords don't match");
+      throw new CustomError("Passwords don't match", "PASSWORDS_DONT_MATCH");
     }
 
-    const inputErrors = await validate(data);
-    if (inputErrors.length > 0) {
-      throw new UserInputError("Validation error", {
-        validationErrors: inputErrors.map((error) => ({
-          property: error.property,
-          constraints: error.constraints,
-        })),
-      });
+    await validateInput(data);
+
+    const existingUser = await User.findOne({ where: { email: data.email } });
+
+    if (existingUser) {
+      throw new CustomError(
+        "User with this email already exists",
+        "EMAIL_ALREADY_EXIST"
+      );
     }
 
     try {
@@ -61,60 +64,71 @@ export class UserResolver {
 
   @Mutation(() => User, { nullable: true })
   async signIn(
-    @Arg("email", () => String) email: string,
-    @Arg("password", () => String) password: string,
+    @Arg("datas") datas: SignInInput,
     @Ctx() context: ContextType
   ): Promise<User | null> {
     try {
+      await validateInput(datas);
+
+      const { email, password } = datas;
       const user: User | null = await User.findOneBy({ email });
 
-      if (user) {
-        const passwordMatch = await verifyPassword(user.password, password);
-        if (passwordMatch) {
-          //TODO replace 3d per 1h when refresh token is fully implemented
-          const token = jsonwebtoken.sign(
-            { id: user.id },
-            process.env.JWT_SECRET_KEY,
-            { expiresIn: "3d" }
-          );
-
-          const refreshToken = jsonwebtoken.sign(
-            { id: user.id },
-            process.env.JWT_REFRESH_SECRET_KEY,
-            { expiresIn: "7d" }
-          );
-
-          const userToken = new UserToken();
-          userToken.token = token;
-          userToken.refreshToken = refreshToken;
-          userToken.user = user;
-          await userToken.save();
-          if (process.env.NODE_ENV !== "testing") {
-            const cookies = new Cookies(context.req, context.res);
-            //TODO remove 24 * 3 when refresh token is fully implemented
-            cookies.set("token", token, {
-              secure: process.env.NODE_ENV === "production",
-              httpOnly: true,
-              maxAge: 1000 * 60 * 60 * 24 * 3,
-            });
-
-            cookies.set("refresh_token", refreshToken, {
-              secure: process.env.NODE_ENV === "production",
-              httpOnly: true,
-              maxAge: 1000 * 60 * 60 * 24 * 7,
-            });
-          }
-
-          return user;
-        } else {
-          return null;
-        }
-      } else {
-        return null;
+      if (!user) {
+        throw new CustomError(
+          "Invalid email or password",
+          "INVALID_CREDENTIALS"
+        );
       }
+
+      const passwordMatch = await verifyPassword(user.password, password);
+
+      if (!passwordMatch) {
+        throw new CustomError(
+          "Invalid email or password",
+          "INVALID_CREDENTIALS"
+        );
+      }
+      //TODO replace 3d per 1h when refresh token is fully implemented
+      const token = jsonwebtoken.sign(
+        { id: user.id },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "3d" }
+      );
+
+      const refreshToken = jsonwebtoken.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET_KEY,
+        { expiresIn: "7d" }
+      );
+
+      const userToken = new UserToken();
+      userToken.token = token;
+      userToken.refreshToken = refreshToken;
+      userToken.user = user;
+      await userToken.save();
+      if (process.env.NODE_ENV !== "testing") {
+        const cookies = new Cookies(context.req, context.res);
+        //TODO remove 24 * 3 when refresh token is fully implemented
+        cookies.set("token", token, {
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 3,
+        });
+
+        cookies.set("refresh_token", refreshToken, {
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+        });
+      }
+
+      return user;
     } catch (err) {
+      if (err instanceof CustomError || err instanceof UserInputError) {
+        throw err;
+      }
       console.error("Sign-in error:", err);
-      return null;
+      throw new Error("Unable to sign in. Please try again.");
     }
   }
 
