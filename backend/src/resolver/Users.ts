@@ -1,13 +1,13 @@
 import { UserInputError } from "apollo-server-errors";
 import { ValidationError } from "class-validator";
 import Cookies from "cookies";
+import { GraphQLError } from "graphql";
 import * as jsonwebtoken from "jsonwebtoken";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
 import { SignInInput, User, UserCreateInput } from "../entities/User";
 import { UserToken } from "../entities/UserToken";
-import { CustomError } from "../errors/CustomError";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
 import { validateInput } from "../helpers/validateInput";
 import { ContextType, RoleType } from "../types";
@@ -19,7 +19,12 @@ export class UserResolver {
     @Arg("data", () => UserCreateInput) data: UserCreateInput
   ): Promise<User | ValidationError[]> {
     if (data.password !== data.confirmPassword) {
-      throw new CustomError("Passwords don't match", "PASSWORDS_DONT_MATCH");
+      throw new GraphQLError("Passwords don't match", {
+        extensions: {
+          code: "PASSWORDS_DONT_MATCH",
+          http: { status: 400 },
+        },
+      });
     }
 
     await validateInput(data);
@@ -27,10 +32,12 @@ export class UserResolver {
     const existingUser = await User.findOne({ where: { email: data.email } });
 
     if (existingUser) {
-      throw new CustomError(
-        "User with this email already exists",
-        "EMAIL_ALREADY_EXIST"
-      );
+      throw new GraphQLError("User with this email already exists", {
+        extensions: {
+          code: "EMAIL_ALREADY_EXIST",
+          http: { status: 409 },
+        },
+      });
     }
 
     try {
@@ -74,19 +81,23 @@ export class UserResolver {
       const user: User | null = await User.findOneBy({ email });
 
       if (!user) {
-        throw new CustomError(
-          "Invalid email or password",
-          "INVALID_CREDENTIALS"
-        );
+        throw new GraphQLError("Invalid email or password", {
+          extensions: {
+            code: "INVALID_CREDENTIALS",
+            http: { status: 401 },
+          },
+        });
       }
 
       const passwordMatch = await verifyPassword(user.password, password);
 
       if (!passwordMatch) {
-        throw new CustomError(
-          "Invalid email or password",
-          "INVALID_CREDENTIALS"
-        );
+        throw new GraphQLError("Invalid email or password", {
+          extensions: {
+            code: "INVALID_CREDENTIALS",
+            http: { status: 401 },
+          },
+        });
       }
       //TODO replace 3d per 1h when refresh token is fully implemented
       const token = jsonwebtoken.sign(
@@ -124,7 +135,7 @@ export class UserResolver {
 
       return user;
     } catch (err) {
-      if (err instanceof CustomError || err instanceof UserInputError) {
+      if (err instanceof GraphQLError || err instanceof UserInputError) {
         throw err;
       }
       console.error("Sign-in error:", err);
