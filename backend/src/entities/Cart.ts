@@ -64,7 +64,7 @@ export class Cart extends BaseEntity {
 @InputType()
 export class CartCreateInput {
   @Field(() => Int)
-  profile!: number;
+  profileId!: number;
 
   @Field()
   @IsString()
@@ -99,7 +99,7 @@ export class CartCreateInput {
 @InputType()
 export class CartUpdateInput {
   @Field(() => Int, { nullable: true })
-  profile?: number;
+  profileId?: number;
 
   @Field({ nullable: true })
   @IsString()

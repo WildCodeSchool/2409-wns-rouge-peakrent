@@ -1,15 +1,14 @@
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
-import { dataSource } from "../src/config/db";
-import { getSchema } from "../src/schema";
-
-// import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
-import { UsersResolverTest } from "./resolvers/UsersResolver";
-import { User } from "../src/entities/User";
-import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
+import { dataSource } from "../src/config/db";
 import { Profile } from "../src/entities/Profile";
+import { User } from "../src/entities/User";
+import { getSchema } from "../src/schema";
 import { RoleType } from "../src/types";
+import { OrderResolverTest } from "./resolvers/OrderResolver";
+import { UsersResolverTest } from "./resolvers/UsersResolver";
+import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 
 export type TestArgsType = {
   server: ApolloServer<BaseContext>;
@@ -106,9 +105,9 @@ describe("users resolver", () => {
   UsersResolverTest(testArgs);
 });
 
-// describe("categories resolver", () => {
-//   CategoriesResolverTest(testArgs);
-// });
+describe("order resolver", () => {
+  OrderResolverTest(testArgs);
+});
 
 afterAll(async () => {
   await dataSource.destroy();

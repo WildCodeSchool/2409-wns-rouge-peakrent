@@ -30,7 +30,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
           city: datas.city,
           country: datas.country,
           paymentMethod: datas.paymentMethod,
-          profile: testArgs.data.user?.id,
+          profileId: testArgs.data.user?.id,
           reference: datas.reference,
           zipCode: datas.zipCode,
           paidAt: datas.paidAt,
@@ -55,7 +55,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             city: datas.city,
             country: datas.country,
             paymentMethod: datas.paymentMethod,
-            profile: testArgs.data.user?.id,
+            profileId: testArgs.data.user?.id,
             reference: "Ref122",
             zipCode: datas.zipCode,
             paidAt: datas.paidAt,
@@ -69,7 +69,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       }
     );
     assert(response.body.kind === "single");
-    console.log(response.body.singleResult.errors);
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(response.body.singleResult.data?.createOrder?.id).toBeDefined();
 
@@ -94,7 +93,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             city: datas.city,
             country: datas.country,
             paymentMethod: datas.paymentMethod,
-            profile: testArgs.data.user?.id,
+            profileId: testArgs.data.user?.id,
             reference: datas.reference,
             zipCode: datas.zipCode,
             paidAt: datas.paidAt,
@@ -124,7 +123,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             city: datas.city,
             country: datas.country,
             paymentMethod: datas.paymentMethod,
-            profile: testArgs.data.user?.id,
+            profileId: testArgs.data.user?.id,
             reference: "Ref152",
             zipCode: datas.zipCode,
           },
@@ -137,7 +136,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       }
     );
     assert(response.body.kind === "single");
-    console.log(response.body.singleResult.errors);
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(response.body.singleResult.data?.createOrder?.id).toBeDefined();
   });
@@ -159,7 +157,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       }
     );
     assert(response.body.kind === "single");
-    console.log(response.body.singleResult.errors);
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(response.body.singleResult.data?.getOrderById?.id).toBeDefined();
   });
@@ -202,7 +199,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       }
     );
     assert(response.body.kind === "single");
-    console.log(response.body.singleResult.errors);
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(response.body.singleResult.data?.getOrderById?.id).toBeDefined();
   });

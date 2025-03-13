@@ -18,7 +18,7 @@ import { AuthContextType, OrderStatusType } from "../types";
 @Resolver(Cart)
 export class CartResolver {
   @Query(() => [Cart])
-  @Authorized()
+  @Authorized("admin")
   async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
     const cart = await Cart.find({ relations: { profile: true } });
     if (!(context.user.role === "admin")) {
@@ -27,7 +27,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized("admin")
+  @Authorized("admin", "user")
   @Query(() => Cart)
   async getCartById(
     @Arg("id", () => ID) _id: number,
@@ -54,13 +54,13 @@ export class CartResolver {
     @Arg("data", () => CartCreateInput) data: CartCreateInput
   ): Promise<Cart> {
     const profile = await Profile.findOne({
-      where: { id: data.profile },
+      where: { id: data.profileId },
     });
     if (!profile) {
       throw new Error(`profile not found`);
     }
     const newCart = new Cart();
-    Object.assign(newCart, data);
+    Object.assign(newCart, data, { profile: data.profileId });
     const errors = await validate(newCart);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -78,9 +78,9 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
     const id = Number(_id);
-    if (data.profile) {
+    if (data.profileId) {
       const profile = await Profile.findOne({
-        where: { id: data.profile },
+        where: { id: data.profileId },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -96,7 +96,7 @@ export class CartResolver {
       ) {
         throw new Error("Unauthorized");
       }
-      Object.assign(cart, data);
+      Object.assign(cart, data, { profile: data.profileId });
       const errors = await validate(cart);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);

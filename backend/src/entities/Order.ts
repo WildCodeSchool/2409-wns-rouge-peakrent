@@ -90,7 +90,7 @@ export class Order extends BaseEntity {
 @InputType()
 export class OrderCreateInput {
   @Field(() => Int)
-  profile!: number;
+  profileId!: number;
 
   @Field()
   @IsString()
@@ -138,7 +138,7 @@ export class OrderCreateInput {
 @InputType()
 export class OrderUpdateInput {
   @Field(() => Int, { nullable: true })
-  profile?: number;
+  profileId?: number;
 
   @Field({ nullable: true })
   @IsString()

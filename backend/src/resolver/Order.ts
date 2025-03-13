@@ -16,7 +16,7 @@ import { AuthContextType } from "../types";
 export class OrderResolver {
   @Query(() => [Order])
   @Authorized("admin")
-  async getOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
+  async getOrders(): Promise<Order[]> {
     const order = await Order.find({ relations: { profile: true } });
     return order;
   }
@@ -50,12 +50,12 @@ export class OrderResolver {
   ): Promise<Order> {
     const newOrder = new Order();
     const profile = await Profile.findOne({
-      where: { id: data.profile },
+      where: { id: data.profileId },
     });
     if (!profile) {
       throw new Error(`profile not found`);
     }
-    Object.assign(newOrder, data);
+    Object.assign(newOrder, data, { profile: data.profileId });
     const errors = await validate(newOrder);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -73,9 +73,9 @@ export class OrderResolver {
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
-    if (data.profile) {
+    if (data.profileId) {
       const profile = await Profile.findOne({
-        where: { id: data.profile },
+        where: { id: data.profileId },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -87,7 +87,7 @@ export class OrderResolver {
     });
 
     if (order !== null) {
-      Object.assign(order, data);
+      Object.assign(order, data, { profile: data.profileId });
       const errors = await validate(order);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
