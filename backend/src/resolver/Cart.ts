@@ -18,7 +18,7 @@ import { AuthContextType, OrderStatusType } from "../types";
 @Resolver(Cart)
 export class CartResolver {
   @Query(() => [Cart])
-  @Authorized()
+  @Authorized("admin")
   async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
     const cart = await Cart.find({ relations: { profile: true } });
     if (!(context.user.role === "admin")) {
@@ -27,7 +27,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Query(() => Cart)
   async getCartById(
     @Arg("id", () => ID) _id: number,
@@ -48,7 +48,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart)
   async createCart(
     @Arg("data", () => CartCreateInput) data: CartCreateInput
@@ -60,7 +60,7 @@ export class CartResolver {
       throw new Error(`profile not found`);
     }
     const newCart = new Cart();
-    Object.assign(newCart, data);
+    Object.assign(newCart, data, { profile: data.profileId });
     const errors = await validate(newCart);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -70,7 +70,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("id", () => ID) _id: number,
@@ -96,7 +96,7 @@ export class CartResolver {
       ) {
         throw new Error("Unauthorized");
       }
-      Object.assign(cart, data);
+      Object.assign(cart, data, { profile: data.profileId });
       const errors = await validate(cart);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -109,7 +109,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async deleteCart(
     @Arg("id", () => ID) _id: number,
@@ -133,7 +133,7 @@ export class CartResolver {
   }
 
   // a compléter ave Stripe
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async validateCart(
     @Arg("id", () => ID) _id: number,
@@ -162,16 +162,16 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile_id: cart.profile.id,
+          profileId: cart.profile.id,
           status: OrderStatusType.confirmed,
-          payment_method: data.paymentMethod,
+          paymentMethod: data.paymentMethod,
           reference: data.reference,
-          paid_at: new Date(),
-          address_1: cart.address1,
-          address_2: cart.address2,
+          paidAt: new Date(),
+          address1: cart.address1,
+          address2: cart.address2,
           country: cart.country,
           city: cart.city,
-          zip_code: cart.zipCode,
+          zipCode: cart.zipCode,
         };
 
         // A Verifier
@@ -183,7 +183,7 @@ export class CartResolver {
           return sum + item.variant?.pricePerHour * durationHours;
         }, 0);
 
-        Object.assign(order, orderData);
+        Object.assign(order, orderData, { profile: orderData.profileId });
         await order.save();
 
         await Promise.all(
