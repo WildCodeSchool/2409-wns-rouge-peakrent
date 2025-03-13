@@ -162,7 +162,7 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile: cart.profile.id,
+          profileId: cart.profile.id,
           status: OrderStatusType.confirmed,
           paymentMethod: data.paymentMethod,
           reference: data.reference,
@@ -183,7 +183,7 @@ export class CartResolver {
           return sum + item.variant?.pricePerHour * durationHours;
         }, 0);
 
-        Object.assign(order, orderData);
+        Object.assign(order, orderData, { profile: orderData.profileId });
         await order.save();
 
         await Promise.all(
