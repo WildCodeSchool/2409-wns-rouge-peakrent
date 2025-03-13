@@ -4,8 +4,8 @@ import { dataSource } from "../src/config/db";
 import { getSchema } from "../src/schema";
 
 // import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
-import { UsersResolverTest } from "./resolvers/UsersResolver";
 import { User } from "../src/entities/User";
+import { UsersResolverTest } from "./resolvers/UsersResolver";
 
 export type TestArgsType = {
   server: ApolloServer<BaseContext>;
@@ -111,13 +111,9 @@ beforeAll(async () => {
   testArgs.dataSource = dataSource;
 });
 
-describe("users resolver", () => {
+describe("Users resolvers", () => {
   UsersResolverTest(testArgs);
 });
-
-// describe("categories resolver", () => {
-//   CategoriesResolverTest(testArgs);
-// });
 
 afterAll(async () => {
   await dataSource.destroy();
