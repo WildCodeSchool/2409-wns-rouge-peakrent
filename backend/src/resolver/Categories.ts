@@ -1,5 +1,14 @@
 import { validate } from "class-validator";
-import { Arg, Ctx, ID, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import {
   Category,
   CategoryCreateInput,
@@ -62,7 +71,7 @@ export class CategoryResolver {
     };
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category)
   async createCategory(
     @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
@@ -83,7 +92,7 @@ export class CategoryResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async updateCategory(
     @Arg("id", () => ID) _id: number,
@@ -110,7 +119,7 @@ export class CategoryResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async deleteCategory(
     @Arg("id", () => ID) _id: number,

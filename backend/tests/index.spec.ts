@@ -8,6 +8,7 @@ import { getSchema } from "../src/schema";
 import { RoleType } from "../src/types";
 import { OrderResolverTest } from "./resolvers/OrderResolver";
 import { UsersResolverTest } from "./resolvers/UsersResolver";
+import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 
 export type TestArgsType = {
@@ -27,9 +28,6 @@ export function assert(expr: unknown, msg?: string): asserts expr {
 }
 
 export const setupTestUsers = async (testArgs: TestArgsType) => {
-  console.log(
-    "------------------------------------------------------ Setting up test users ------------------------------------------------------"
-  );
   const userResponse = await testArgs.server.executeOperation<{
     createUser: User;
   }>({
@@ -101,12 +99,16 @@ beforeAll(async () => {
   testArgs.dataSource = dataSource;
 });
 
-describe("users resolver", () => {
+describe("Users resolvers", () => {
   UsersResolverTest(testArgs);
 });
 
 describe("order resolver", () => {
   OrderResolverTest(testArgs);
+});
+
+describe("categories resolver", () => {
+  CategoriesResolverTest(testArgs);
 });
 
 afterAll(async () => {

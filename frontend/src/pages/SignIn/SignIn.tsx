@@ -9,13 +9,13 @@ import Button from "../../UI/Button/Button";
 import styles from "./SignIn.module.scss";
 
 const SignInPage = () => {
-  const switchCtnRef = useRef(null);
-  const switchC1Ref = useRef(null);
-  const switchC2Ref = useRef(null);
-  const switchCircle0Ref = useRef(null);
-  const switchCircle1Ref = useRef(null);
-  const aContainerRef = useRef(null);
-  const bContainerRef = useRef(null);
+  const switchCtnRef = useRef<HTMLDivElement | null>(null);
+  const switchC1Ref = useRef<HTMLDivElement | null>(null);
+  const switchC2Ref = useRef<HTMLDivElement | null>(null);
+  const switchCircle0Ref = useRef<HTMLDivElement | null>(null);
+  const switchCircle1Ref = useRef<HTMLDivElement | null>(null);
+  const aContainerRef = useRef<HTMLDivElement | null>(null);
+  const bContainerRef = useRef<HTMLDivElement | null>(null);
 
   const navigate = useNavigate();
   const [email, setEmail] = useState("test1@gmail.com");
@@ -35,8 +35,10 @@ const SignInPage = () => {
     try {
       const { data } = await doSignin({
         variables: {
-          email,
-          password,
+          datas: {
+            email,
+            password,
+          },
         },
       });
       if (data.signIn) {
@@ -105,15 +107,15 @@ const SignInPage = () => {
     }, 1500);
 
     switchCtn.classList.toggle(styles.isTxr);
-    switchCircle0.classList.toggle(styles.isTxr);
-    switchCircle1.classList.toggle(styles.isTxr);
+    switchCircle0?.classList.toggle(styles.isTxr);
+    switchCircle1?.classList.toggle(styles.isTxr);
 
     switchC1.classList.toggle(styles.isHidden);
     switchC2.classList.toggle(styles.isHidden);
 
-    aContainer.classList.toggle(styles.isTxl);
-    bContainer.classList.toggle(styles.isTxl);
-    bContainer.classList.toggle(styles.isZ200);
+    aContainer?.classList.toggle(styles.isTxl);
+    bContainer?.classList.toggle(styles.isTxl);
+    bContainer?.classList.toggle(styles.isZ200);
   };
 
   return (
