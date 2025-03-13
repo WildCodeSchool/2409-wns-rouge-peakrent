@@ -98,7 +98,7 @@ beforeAll(async () => {
   testArgs.dataSource = dataSource;
 });
 
-describe("users resolver", () => {
+describe("Users resolvers", () => {
   UsersResolverTest(testArgs);
 });
 

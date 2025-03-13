@@ -35,8 +35,10 @@ const SignInPage = () => {
     try {
       const { data } = await doSignin({
         variables: {
-          email,
-          password,
+          datas: {
+            email,
+            password,
+          },
         },
       });
       if (data.signIn) {

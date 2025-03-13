@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsStrongPassword } from "class-validator";
+import { IsEmail, IsNotEmpty, IsStrongPassword, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -20,7 +20,7 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ length: 320, unique: true })
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email." })
   email!: string;
 
   @Field({ nullable: true })
@@ -29,10 +29,12 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ type: "varchar", length: 100 })
+  @Length(2, 100, { message: "First name must be between 2 and 100 chars." })
   firstname!: string;
 
   @Field()
   @Column({ type: "varchar", length: 100 })
+  @Length(2, 100, { message: "Last name must be between 2 and 100 chars." })
   lastname!: string;
 
   @Column({ type: "varchar", length: 255 })
@@ -87,7 +89,35 @@ export class User extends BaseEntity {
 @InputType()
 export class UserCreateInput {
   @Field()
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  email: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  password!: string;
+  @Field()
+  @IsNotEmpty({ message: "First name is missing or empty" })
+  firstname!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Last name is missing or empty" })
+  lastname!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Confirm password is missing or empty" })
+  confirmPassword!: string;
+}
+
+@InputType()
+export class SignInInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
   email!: string;
 
   @Field()
@@ -99,14 +129,4 @@ export class UserCreateInput {
     }
   )
   password!: string;
-
-  @Field()
-  firstname!: string;
-
-  @Field()
-  lastname!: string;
-
-  @Field()
-  @IsNotEmpty()
-  confirmPassword!: string;
 }
