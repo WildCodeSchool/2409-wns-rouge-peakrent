@@ -1,5 +1,14 @@
 import { validate, ValidationError } from "class-validator";
-import { Arg, Ctx, ID, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { In } from "typeorm";
 import { Category } from "../entities/Category";
 import {
@@ -61,7 +70,7 @@ export class ProductResolver {
     return product;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product)
   async createProduct(
     @Arg("data", () => ProductCreateInput) data: ProductCreateInput,
@@ -84,7 +93,7 @@ export class ProductResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product)
   async updateProduct(
     @Arg("id", () => String) _id: string,
@@ -127,7 +136,7 @@ export class ProductResolver {
     return product;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product, { nullable: true })
   async deleteProduct(
     @Arg("id", () => ID) _id: number,

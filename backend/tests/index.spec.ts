@@ -2,10 +2,9 @@ import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
 import { dataSource } from "../src/config/db";
 import { getSchema } from "../src/schema";
-
-// import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { UsersResolverTest } from "./resolvers/UsersResolver";
 import { User } from "../src/entities/User";
+import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
 import { Profile } from "../src/entities/Profile";
@@ -28,9 +27,6 @@ export function assert(expr: unknown, msg?: string): asserts expr {
 }
 
 export const setupTestUsers = async (testArgs: TestArgsType) => {
-  console.log(
-    "------------------------------------------------------ Setting up test users ------------------------------------------------------"
-  );
   const userResponse = await testArgs.server.executeOperation<{
     createUser: User;
   }>({
@@ -106,9 +102,9 @@ describe("users resolver", () => {
   UsersResolverTest(testArgs);
 });
 
-// describe("categories resolver", () => {
-//   CategoriesResolverTest(testArgs);
-// });
+describe("categories resolver", () => {
+  CategoriesResolverTest(testArgs);
+});
 
 afterAll(async () => {
   await dataSource.destroy();
