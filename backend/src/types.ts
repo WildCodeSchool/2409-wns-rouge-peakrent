@@ -12,6 +12,19 @@ export type AdType = {
   createdAt: string;
 };
 
+export type OrderItemType = {
+  id: number;
+  order: number | null;
+  cart: number | null;
+  variant: number | null;
+  quantity: number;
+  pricePerHour: number;
+  startsAt: Date;
+  endsAt: Date;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export type Category = {
   id: number;
   name: string;
