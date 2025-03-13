@@ -1,7 +1,6 @@
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
-import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
 import { ContextType } from "../types";
 
@@ -78,15 +77,6 @@ export const getUserFromContext = async (
     console.log("Invalid token");
     return null;
   }
-};
-
-export const getTotalOrderPrice = (orderItems: OrderItem[]) => {
-  return orderItems.reduce((sum, item) => {
-    const start = new Date(item.startsAt);
-    const end = new Date(item.endsAt);
-    const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    return sum + item.variant?.pricePerHour * durationHours * item.quantity;
-  }, 0);
 };
 
 // export const hasRole = (

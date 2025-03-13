@@ -13,7 +13,7 @@ import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
-import { getTotalOrderPrice } from "../helpers/helpers";
+import { getTotalOrderPrice } from "../helpers/getTotalOrderPrice";
 import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)

@@ -1,5 +1,5 @@
-import { validate, ValidationError } from "class-validator";
 import { UserInputError } from "apollo-server-errors";
+import { validate, ValidationError } from "class-validator";
 
 /**
  * Utility function to validate an object using `class-validator`.
@@ -8,14 +8,16 @@ import { UserInputError } from "apollo-server-errors";
  *
  * @param input The object to validate, of generic type `T`. This type must extend `object`.
  * @throws {UserInputError} If validation errors are detected, an exception is thrown with the details of the errors.
- * 
+ *
  * @example
  * // Example usage in a mutation
  * await validateInput(datas);
- * 
+ *
  * @template T The type of the object to validate. For example, `SignInInput` or `UserCreateInput`.
  */
-export const validateInput = async <T extends object>(input: T): Promise<void> => {
+export const validateInput = async <T extends object>(
+  input: T
+): Promise<void> => {
   // Perform the validation of the object
   const inputErrors: ValidationError[] = await validate(input);
 
