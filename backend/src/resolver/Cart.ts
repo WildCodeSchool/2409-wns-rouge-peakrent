@@ -13,6 +13,7 @@ import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItems } from "../entities/OrderItems";
 import { Profile } from "../entities/Profile";
+import { getTotalOrderPrice } from "../helpers/helpers";
 import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)
@@ -175,13 +176,7 @@ export class CartResolver {
         };
 
         // A Verifier
-        const totalPrice = orderItems.reduce((sum, item) => {
-          const start = new Date(item.startsAt);
-          const end = new Date(item.endsAt);
-          const durationHours =
-            (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          return sum + item.variant?.pricePerHour * durationHours;
-        }, 0);
+        const totalPrice = getTotalOrderPrice(orderItems);
 
         Object.assign(order, orderData, { profile: orderData.profileId });
         await order.save();
