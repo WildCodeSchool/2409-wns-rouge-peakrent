@@ -1,7 +1,7 @@
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
-import { OrderItems } from "../entities/OrderItems";
+import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
 import { ContextType } from "../types";
 
@@ -80,7 +80,7 @@ export const getUserFromContext = async (
   }
 };
 
-export const getTotalOrderPrice = (orderItems: OrderItems[]) => {
+export const getTotalOrderPrice = (orderItems: OrderItem[]) => {
   return orderItems.reduce((sum, item) => {
     const start = new Date(item.startsAt);
     const end = new Date(item.endsAt);

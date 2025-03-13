@@ -13,18 +13,18 @@ import { Equal } from "typeorm";
 import { Cart } from "../entities/Cart";
 import { Order } from "../entities/Order";
 import {
-  OrderItems,
+  OrderItem,
   OrderItemsCreateInput,
   OrderItemsUpdateInput,
-} from "../entities/OrderItems";
+} from "../entities/OrderItem";
 import { AuthContextType } from "../types";
 
-@Resolver(OrderItems)
+@Resolver(OrderItem)
 export class OrderItemsResolver {
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
-  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItems[]> {
-    const orderItems = await OrderItems.find({
+  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItem[]> {
+    const orderItems = await OrderItem.find({
       relations: { cart: true, variant: true, order: true },
     });
     if (!(context.user.role === "admin")) {
@@ -33,14 +33,14 @@ export class OrderItemsResolver {
     return orderItems;
   }
 
-  @Query(() => OrderItems)
+  @Query(() => OrderItem)
   @Authorized()
   async getOrderItemsById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
       relations: { cart: true, variant: true, order: true },
     });
@@ -48,18 +48,18 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
   async getOrderItemsByCartId(
     @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems[] | null> {
+  ): Promise<OrderItem[] | null> {
     const id = Number(_id);
     const cart = await Cart.findOne({ where: { id } });
     if (!cart) {
       throw new Error("Cart not found.");
     }
-    const orderItem = await OrderItems.find({
+    const orderItem = await OrderItem.find({
       where: { cart: Equal(id) },
       relations: { cart: true, variant: true },
     });
@@ -74,18 +74,18 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
   async getOrderItemsByOrderId(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems[] | null> {
+  ): Promise<OrderItem[] | null> {
     const id = Number(_id);
     const order = await Order.findOne({ where: { id } });
     if (!order) {
       throw new Error("Order not found.");
     }
-    const orderItem = await OrderItems.find({
+    const orderItem = await OrderItem.find({
       where: { order: Equal(id) },
       relations: { variant: true, order: true },
     });
@@ -101,13 +101,13 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Mutation(() => OrderItems)
+  @Mutation(() => OrderItem)
   @Authorized()
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems> {
-    const newOrderItems = new OrderItems();
+  ): Promise<OrderItem> {
+    const newOrderItems = new OrderItem();
     Object.assign(newOrderItems, data);
     const errors = await validate(newOrderItems);
     if (errors.length > 0) {
@@ -118,15 +118,15 @@ export class OrderItemsResolver {
     }
   }
 
-  @Mutation(() => OrderItems, { nullable: true })
+  @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
   async updateOrderItems(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
       relations: { cart: true, variant: true, order: true },
     });
@@ -153,14 +153,14 @@ export class OrderItemsResolver {
     }
   }
 
-  @Mutation(() => OrderItems, { nullable: true })
+  @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
   async deleteOrderItems(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
       relations: { cart: true, variant: true, order: true },
     });

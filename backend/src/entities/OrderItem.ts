@@ -20,7 +20,7 @@ import { Variant } from "./Variant";
 @Check(
   `(order_id IS NOT NULL AND cart_id IS NULL) OR (order_id IS NULL AND cart_id IS NOT NULL)`
 )
-export class OrderItems extends BaseEntity {
+export class OrderItem extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
