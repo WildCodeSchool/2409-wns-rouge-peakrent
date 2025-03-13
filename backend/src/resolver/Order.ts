@@ -15,17 +15,14 @@ import { AuthContextType } from "../types";
 @Resolver(Order)
 export class OrderResolver {
   @Query(() => [Order])
-  @Authorized()
+  @Authorized("admin")
   async getOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
     const order = await Order.find({ relations: { profile: true } });
-    if (!(context.user.role === "admin")) {
-      throw new Error("Unauthorized");
-    }
     return order;
   }
 
   @Query(() => Order)
-  @Authorized()
+  @Authorized("admin", "user")
   async getOrderById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -35,24 +32,25 @@ export class OrderResolver {
       where: { id },
       relations: { profile: true },
     });
-
-    if (
-      !(context.user.role === "admin" || context.user.id === order.profile.id)
-    ) {
-      throw new Error("Unauthorized");
+    if (order) {
+      if (
+        !(context.user.role === "admin" || context.user.id === order.profile.id)
+      ) {
+        throw new Error("Unauthorized");
+      }
+      return order;
     }
-
-    return order;
+    throw new Error("order not found");
   }
 
   @Mutation(() => Order)
-  @Authorized()
+  @Authorized("admin")
   async createOrder(
     @Arg("data", () => OrderCreateInput) data: OrderCreateInput
   ): Promise<Order> {
     const newOrder = new Order();
     const profile = await Profile.findOne({
-      where: { id: data.profileId },
+      where: { id: data.profile },
     });
     if (!profile) {
       throw new Error(`profile not found`);
@@ -68,16 +66,16 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized()
+  @Authorized("admin")
   async updateOrder(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderUpdateInput) data: OrderUpdateInput,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
-    if (data.profileId) {
+    if (data.profile) {
       const profile = await Profile.findOne({
-        where: { id: data.profileId },
+        where: { id: data.profile },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -89,11 +87,6 @@ export class OrderResolver {
     });
 
     if (order !== null) {
-      if (
-        !(context.user.role === "admin" || context.user.id === order.profile.id)
-      ) {
-        throw new Error("Unauthorized");
-      }
       Object.assign(order, data);
       const errors = await validate(order);
       if (errors.length > 0) {
@@ -108,7 +101,7 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized()
+  @Authorized("admin")
   async deleteOrder(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -119,11 +112,6 @@ export class OrderResolver {
       relations: { profile: true },
     });
     if (order !== null) {
-      if (
-        !(context.user.role === "admin" || context.user.id === order.profile.id)
-      ) {
-        throw new Error("Unauthorized");
-      }
       await order.remove();
       return order;
     } else {

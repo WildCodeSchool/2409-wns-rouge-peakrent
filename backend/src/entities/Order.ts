@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsString, Length } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -41,7 +41,7 @@ export class Order extends BaseEntity {
   })
   paymentMethod!: OrderPaymentType;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ name: "paid_at", type: "timestamptz", nullable: true })
   paidAt?: Date;
 
@@ -90,7 +90,7 @@ export class Order extends BaseEntity {
 @InputType()
 export class OrderCreateInput {
   @Field(() => Int)
-  profileId!: number;
+  profile!: number;
 
   @Field()
   @IsString()
@@ -98,6 +98,7 @@ export class OrderCreateInput {
   reference!: string;
 
   @Field()
+  @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod!: OrderPaymentType;
 
   @Field()
@@ -128,12 +129,16 @@ export class OrderCreateInput {
   @IsNotEmpty({ message: "zip_code must not be empty." })
   @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
   zipCode!: string;
+
+  @Field({ nullable: true })
+  @IsDate()
+  paidAt!: Date;
 }
 
 @InputType()
 export class OrderUpdateInput {
   @Field(() => Int, { nullable: true })
-  profileId?: number;
+  profile?: number;
 
   @Field({ nullable: true })
   @IsString()
@@ -141,6 +146,7 @@ export class OrderUpdateInput {
   reference?: string;
 
   @Field({ nullable: true })
+  @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod?: OrderPaymentType;
 
   @Field({ nullable: true })
@@ -167,11 +173,16 @@ export class OrderUpdateInput {
   @IsString()
   @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
   zipCode?: string;
+
+  @Field({ nullable: true })
+  @IsDate()
+  paidAt!: Date;
 }
 
 @InputType()
 export class ValidateCartInput {
   @Field()
+  @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod!: OrderPaymentType;
 
   @Field()

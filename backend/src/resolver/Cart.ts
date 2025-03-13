@@ -27,7 +27,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Query(() => Cart)
   async getCartById(
     @Arg("id", () => ID) _id: number,
@@ -48,13 +48,13 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart)
   async createCart(
     @Arg("data", () => CartCreateInput) data: CartCreateInput
   ): Promise<Cart> {
     const profile = await Profile.findOne({
-      where: { id: data.profileId },
+      where: { id: data.profile },
     });
     if (!profile) {
       throw new Error(`profile not found`);
@@ -70,7 +70,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("id", () => ID) _id: number,
@@ -78,9 +78,9 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
     const id = Number(_id);
-    if (data.profileId) {
+    if (data.profile) {
       const profile = await Profile.findOne({
-        where: { id: data.profileId },
+        where: { id: data.profile },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -109,7 +109,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async deleteCart(
     @Arg("id", () => ID) _id: number,
@@ -133,7 +133,7 @@ export class CartResolver {
   }
 
   // a compléter ave Stripe
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async validateCart(
     @Arg("id", () => ID) _id: number,
@@ -162,16 +162,16 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile_id: cart.profile.id,
+          profile: cart.profile.id,
           status: OrderStatusType.confirmed,
-          payment_method: data.paymentMethod,
+          paymentMethod: data.paymentMethod,
           reference: data.reference,
-          paid_at: new Date(),
-          address_1: cart.address1,
-          address_2: cart.address2,
+          paidAt: new Date(),
+          address1: cart.address1,
+          address2: cart.address2,
           country: cart.country,
           city: cart.city,
-          zip_code: cart.zipCode,
+          zipCode: cart.zipCode,
         };
 
         // A Verifier
