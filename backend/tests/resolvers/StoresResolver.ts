@@ -1,0 +1,113 @@
+import { Store } from "../../src/entities/Store";
+import { mutationCreateStore } from "../api/createStore";
+import { assert, TestArgsType } from "../index.spec";
+
+export const datas = {
+  name: "Super Store",
+  phone_number: "0123456789",
+  address_1: "123 Main Street",
+  city: "Paris",
+  zip_code: "75000",
+  country: "France",
+  reference: "STORE123",
+};
+
+export function StoresResolverTest(testArgs: TestArgsType) {
+  // pentest create store
+  it("should not create a store from a regular user", async () => {
+    const response = await testArgs.server.executeOperation<{
+      createStore: Store;
+    }>(
+      {
+        query: mutationCreateStore,
+        variables: {
+          data: {
+            name: datas.name,
+            phoneNumber: datas.phone_number,
+            address1: datas.address_1,
+            city: datas.city,
+            zipCode: datas.zip_code,
+            country: datas.country,
+            reference: datas.reference,
+          },
+        },
+      },
+      {
+        contextValue: {
+          user: testArgs.data.user,
+        },
+      }
+    );
+
+    assert(response.body.kind === "single");
+    expect(response.body.singleResult.errors).toBeDefined();
+    expect(response.body.singleResult.errors[0].extensions.code).toBe(
+      "UNAUTHORIZED"
+    );
+    expect(response.body.singleResult.data?.createStore).toBeUndefined();
+  });
+
+  it("should not create a store from an admin", async () => {
+    const response = await testArgs.server.executeOperation<{
+      createStore: Store;
+    }>(
+      {
+        query: mutationCreateStore,
+        variables: {
+          data: {
+            name: datas.name,
+            phoneNumber: datas.phone_number,
+            address1: datas.address_1,
+            city: datas.city,
+            zipCode: datas.zip_code,
+            country: datas.country,
+            reference: datas.reference,
+          },
+        },
+      },
+      {
+        contextValue: {
+          user: testArgs.data.admin,
+        },
+      }
+    );
+
+    assert(response.body.kind === "single");
+    expect(response.body.singleResult.errors).toBeDefined();
+    expect(response.body.singleResult.errors[0].extensions.code).toBe(
+      "UNAUTHORIZED"
+    );
+    expect(response.body.singleResult.data?.createStore).toBeUndefined();
+  });
+
+  //TODO add super admin role
+  it("should create a store from a super admin", async () => {
+    const response = await testArgs.server.executeOperation<{
+      createStore: Store;
+    }>(
+      {
+        query: mutationCreateStore,
+        variables: {
+          data: {
+            name: datas.name,
+            phoneNumber: datas.phone_number,
+            address1: datas.address_1,
+            city: datas.city,
+            zipCode: datas.zip_code,
+            country: datas.country,
+            reference: datas.reference,
+          },
+        },
+      },
+      {
+        contextValue: {
+          user: { user: testArgs.data.user, role: "super_admin" },
+        },
+      }
+    );
+
+    assert(response.body.kind === "single");
+    expect(response.body.singleResult.errors).toBeUndefined();
+    expect(response.body.singleResult.data?.createStore?.id).toBeDefined();
+  });
+}

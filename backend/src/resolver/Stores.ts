@@ -20,6 +20,7 @@ export class StoreResolver {
     });
   }
 
+  @Authorized("super_admin") //TODO add super admin role
   @Mutation(() => Store)
   async createStore(
     @Arg("data", () => StoreCreateInput) data: StoreCreateInput
@@ -37,7 +38,7 @@ export class StoreResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => Store)
   async updateStore(
     @Arg("id", () => ID) id: number,
@@ -59,7 +60,7 @@ export class StoreResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin")
   @Mutation(() => Store, { nullable: true })
   async deleteStore(@Arg("id", () => ID) id: number): Promise<Store | null> {
     const store = await Store.findOneBy({ id });
