@@ -31,13 +31,7 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         }>({
           query: getQueryFromMutation(CREATE_USER),
           variables: {
-            data: {
-              email: datas.email,
-              password: datas.password,
-              firstname: datas.firstname,
-              lastname: datas.lastname,
-              confirmPassword: datas.confirmPassword,
-            },
+            data: datas,
           },
         });
 

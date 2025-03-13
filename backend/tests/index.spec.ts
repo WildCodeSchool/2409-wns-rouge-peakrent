@@ -6,9 +6,10 @@ import { Profile } from "../src/entities/Profile";
 import { User } from "../src/entities/User";
 import { getSchema } from "../src/schema";
 import { RoleType } from "../src/types";
-import { OrderResolverTest } from "./resolvers/OrderResolver";
-import { UsersResolverTest } from "./resolvers/UsersResolver";
 import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
+import { OrderResolverTest } from "./resolvers/OrderResolver";
+import { StoresResolverTest } from "./resolvers/StoresResolver";
+import { UsersResolverTest } from "./resolvers/UsersResolver";
 import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 
 export type TestArgsType = {
@@ -109,6 +110,10 @@ describe("order resolver", () => {
 
 describe("categories resolver", () => {
   CategoriesResolverTest(testArgs);
+});
+
+describe("stores resolver", () => {
+  StoresResolverTest(testArgs);
 });
 
 afterAll(async () => {
