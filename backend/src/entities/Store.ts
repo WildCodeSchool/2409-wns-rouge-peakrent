@@ -35,6 +35,7 @@ export class Store extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ name: "address_2", length: 255, nullable: true })
+  @IsOptional()
   @Length(0, 255, { message: "Address must be between 0 and 255 chars." })
   address2?: string;
 
