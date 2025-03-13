@@ -1,5 +1,13 @@
 import { validate } from "class-validator";
-import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { Product } from "../entities/Product";
 import {
   Variant,
@@ -27,7 +35,7 @@ export class VariantResolver {
     });
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Variant)
   async createVariant(
     @Arg("data", () => VariantCreateInput) data: VariantCreateInput,
@@ -53,7 +61,7 @@ export class VariantResolver {
     return variant;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Variant, { nullable: true })
   async updateVariant(
     @Arg("id", () => ID) id: number,
@@ -84,7 +92,7 @@ export class VariantResolver {
     return variant;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Variant, { nullable: true })
   async deleteVariant(
     @Arg("id", () => ID) id: number,

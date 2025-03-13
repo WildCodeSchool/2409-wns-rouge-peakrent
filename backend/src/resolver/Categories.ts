@@ -92,7 +92,7 @@ export class CategoryResolver {
     }
   }
 
-  @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async updateCategory(
     @Arg("id", () => ID) _id: number,
@@ -119,7 +119,7 @@ export class CategoryResolver {
     }
   }
 
-  @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async deleteCategory(
     @Arg("id", () => ID) _id: number,

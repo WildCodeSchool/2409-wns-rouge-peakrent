@@ -44,7 +44,6 @@ export function CategoriesResolverTest(testArgs: TestArgsType) {
       {
         contextValue: {
           user: testArgs.data.admin,
-          // token: testArgs.data.adminToken,
         },
       }
     );

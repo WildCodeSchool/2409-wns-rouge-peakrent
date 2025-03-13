@@ -27,9 +27,6 @@ export function assert(expr: unknown, msg?: string): asserts expr {
 }
 
 export const setupTestUsers = async (testArgs: TestArgsType) => {
-  console.log(
-    "------------------------------------------------------ Setting up test users ------------------------------------------------------"
-  );
   const userResponse = await testArgs.server.executeOperation<{
     createUser: User;
   }>({
@@ -101,9 +98,9 @@ beforeAll(async () => {
   testArgs.dataSource = dataSource;
 });
 
-// describe("users resolver", () => {
-//   UsersResolverTest(testArgs);
-// });
+describe("users resolver", () => {
+  UsersResolverTest(testArgs);
+});
 
 describe("categories resolver", () => {
   CategoriesResolverTest(testArgs);
