@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
@@ -18,14 +17,12 @@ export class UserToken extends BaseEntity {
   id!: number;
 
   @Field()
-  @PrimaryColumn({ type: "varchar", length: 255 })
+  @Column({ unique: true })
   token: string;
 
   @Field({ nullable: true })
   @Column({
     name: "refresh_token",
-    type: "varchar",
-    length: 255,
     nullable: true,
   })
   refreshToken?: string;
