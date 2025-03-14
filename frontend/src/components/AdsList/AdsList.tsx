@@ -1,4 +1,3 @@
-import React from "react";
 import AdCard from "../AdCard/AdCard";
 import styles from "./AdsList.module.scss";
 // import LazyLoading from "../LazyLoading/LazyLoading";
