@@ -6,7 +6,7 @@ import { WHOAMI } from "../../GraphQL/whoami";
 import Button from "../../UI/Button/Button";
 import styles from "./SignIn.module.scss";
 
-export const SignInPage = () => {
+export function SignInPage() {
   const [email, setEmail] = useState("test1@gmail.com");
   const [password, setPassword] = useState("SuperSecret#2025");
   const [signinError, setSigninError] = useState("");
@@ -51,6 +51,7 @@ export const SignInPage = () => {
         <input
           className={styles.form__input}
           type="email"
+          name="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -58,6 +59,7 @@ export const SignInPage = () => {
         <input
           className={styles.form__input}
           type="password"
+          name="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -67,4 +69,4 @@ export const SignInPage = () => {
       </form>
     </div>
   );
-};
+}

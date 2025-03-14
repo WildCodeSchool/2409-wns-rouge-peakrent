@@ -1,7 +1,9 @@
 /// <reference types="vitest" />
+/// <reference types="vite/client" />
+
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from 'vitest/config';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -18,7 +20,6 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"],
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/tests/setup.ts",

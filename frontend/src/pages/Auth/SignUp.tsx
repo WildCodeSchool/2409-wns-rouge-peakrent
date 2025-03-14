@@ -4,7 +4,7 @@ import { CREATE_USER } from "../../GraphQL/createUser";
 import Button from "../../UI/Button/Button";
 import styles from "./SignIn.module.scss";
 
-const SignUpPage = () => {
+export function SignUpPage() {
   const [email, setEmail] = useState("test1@gmail.com");
   const [password, setPassword] = useState("SuperSecret#2025");
   const [confirmPassword, setConfirmPassword] = useState("SuperSecret#2025");
@@ -99,6 +99,4 @@ const SignUpPage = () => {
       </form>
     </div>
   );
-};
-
-export default SignUpPage;
+}

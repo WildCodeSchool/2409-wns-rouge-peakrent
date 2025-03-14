@@ -36,7 +36,7 @@ export function SignUpTests(testArgs: TestArgsType) {
     "password",
     "firstname",
     "lastname",
-    "confirmPassword",
+    "confirmPassword"
   ];
 
   return describe("With Fail", () => {
