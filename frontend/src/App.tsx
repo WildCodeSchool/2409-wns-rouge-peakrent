@@ -1,27 +1,28 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import {
   ApolloClient,
-  InMemoryCache,
   ApolloProvider,
+  InMemoryCache,
   useQuery,
 } from "@apollo/client";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Styles
 import "./styles/App.scss";
 
 // Components
-import RecentAds from "./components/RecentAds/RecentAds";
-import PageLayout from "./pages/Layout/PageLayout";
-import PageNotFound from "./pages/NotFound/PageNotFound";
 import About from "./components/About/About";
 import AdDetail from "./components/AdDetail/AdDetail";
 import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
-import Form from "./pages/Form/Form";
+import RecentAds from "./components/RecentAds/RecentAds";
+import TagDetail from "./components/TagDetail/TagDetail";
+import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
 import AdminPage from "./pages/Admin/AdminPage";
-import TagDetail from "./components/TagDetail/TagDetail";
-import SignInPage from "./pages/SignIn/SignIn";
-import { WHOAMI } from "./GraphQL/whoami";
+import { SignInPage } from "./pages/Auth/SignIn";
+import SignUpPage from "./pages/Auth/SignUp";
+import Form from "./pages/Form/Form";
+import PageLayout from "./pages/Layout/PageLayout";
+import PageNotFound from "./pages/NotFound/PageNotFound";
 
 const client = new ApolloClient({
   // uri: "http://localhost:5050/",
@@ -40,7 +41,7 @@ const checkAuth = (
   authStates: AuthStates[],
   redirectTo: string = "/"
 ) => {
-  return function () {
+  return function renderComponent() {
     const { data: whoamiData } = useQuery(WHOAMI);
     const me = whoamiData?.whoami;
 
@@ -67,6 +68,10 @@ function App() {
             <Route
               path="/signin"
               Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+            />
+            <Route
+              path="/signup"
+              Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
             />
             <Route path="about" Component={About} />
             <Route
