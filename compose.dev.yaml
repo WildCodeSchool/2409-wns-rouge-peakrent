@@ -9,21 +9,18 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
-    command: npm start
-    # command: [
-    #     "/bin/bash",
-    #     "-c",
-    #     "
-    #     echo 'Waiting for Postgres to be ready...';
-    #     sleep 10;
-
-    #     echo 'Running seed script...';
-    #     npx ts-node src/seed.ts;
-
-    #     echo 'Starting the backend...';
-    #     npm start
-    #     ",
-    #   ]
+    depends_on:
+      - db
+    command: >
+      /bin/sh -c "
+        ./wait-for-db.sh db:5432 -- \
+        sh -c '
+          echo Seeding the DB... &&
+          npx ts-node ./seed/seed.ts &&
+          echo Starting the backend... &&
+          npm start
+        '
+      "
 
   frontend:
     build: ./frontend
