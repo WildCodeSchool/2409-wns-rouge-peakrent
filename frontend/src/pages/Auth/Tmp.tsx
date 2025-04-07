@@ -48,7 +48,6 @@ const SignInPage = () => {
       } else {
         setSigninError("Impossible de vous connecter");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       setSigninError("Identification échouée");
@@ -68,7 +67,6 @@ const SignInPage = () => {
           },
         },
       });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       console.error(e);
       if (e.message.includes("password is not strong enough")) {
