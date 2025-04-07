@@ -2,8 +2,8 @@ import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHead
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { ImageHandler } from "./components/ImageHandler";
-import { getNestedValueFunction } from "./utils/getNestedValue";
+import { ImageHandler } from "../components/ImageHandler";
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface CustomColumnProps {
   id: string;

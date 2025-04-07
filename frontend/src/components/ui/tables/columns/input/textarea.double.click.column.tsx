@@ -1,11 +1,10 @@
-import { useRef } from "react";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { useModal } from "@/context/modalProvider";
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 import { PlusCircle } from "lucide-react";
-
-import { getNestedValueFunction } from "./utils/getNestedValue";
+import { useRef } from "react";
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface StringColumnProps {
   id: string;
@@ -49,7 +48,7 @@ export function CreateStringTableWithModalColumn({
 
       const handleDoubleClick = () => {
         setTitle("Commentaire");
-        openModal(<>To dynamize</>);
+        openModal(<div>Content</div>);
       };
 
       const handleClickWithDoubleClickDetection = (e: React.MouseEvent) => {

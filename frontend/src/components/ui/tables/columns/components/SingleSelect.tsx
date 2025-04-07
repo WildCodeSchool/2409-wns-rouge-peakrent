@@ -1,14 +1,14 @@
+import { SingleSelectorInput } from "@/components/forms/formField/select/SingleSelectorInputForm";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useDoubleClick } from "@/hooks/useDoubleClick";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { VariantProps } from "class-variance-authority";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { SingleSelectorInput } from "@/components/forms/formField/select/SingleSelectorTemplateInputForm";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Form } from "@/components/ui/form";
 
@@ -57,7 +57,11 @@ export default function SingleSelect({
             : z.number().default(currentValue),
     });
 
-  const formSchema = selectSchemaForm();
+  const formSchema = useMemo(
+    () => selectSchemaForm(),
+    [typeofValue, currentValue]
+  );
+
   const defaultValues = getFormDefaultValues(formSchema);
 
   const form = useForm<{

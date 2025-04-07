@@ -1,12 +1,10 @@
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
-import truncateTextWithEllipsisMiddle from "@/utils/truncateTextWithEllipsisMiddle";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
-import CopyButton from "@/components/buttons/CopyButton";
-import { getNestedValueFunction } from "./utils/getNestedValue";
-
-interface StringColumnProps {
+interface BadgeColumnProps {
   id: string;
   title: string;
   accessorKey: string;
@@ -15,37 +13,37 @@ interface StringColumnProps {
   enableSorting?: boolean;
   enableHiding?: boolean;
   filterFn?: FilterFn<any>;
-  textClassName?: string;
-  numberEllipsis?: number;
+  variantFn: (row: any) => BadgeVariantType;
+  labelFn?: (row: any) => string;
 }
 
 /**
- * Creates a string column for a table.
+ * Creates a Badge column for a table.
  *
- * @param {Object} params - The parameters to configure the string column.
+ * @param {Object} params - The parameters to configure the VAT column.
  * @param {string} params.id - Unique identifier for the column.
  * @param {string} params.title - Title to display in the column header.
- * @param {string} params.accessorKey - Accessor key to retrieve the string value.
+ * @param {string} params.accessorKey - Accessor key to retrieve the VAT value.
  * @param {string} [params.className] - Additional CSS classes for the cell.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
- * @param {boolean} [params.textClassName] - Additional CSS classes for the text.
- * @param {boolean} [params.numberEllipsis] - Number of characters to truncate the text.
  * @param {boolean} [params.enableSorting=false] - Indicates if the column can be sorted.
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
+ * @param {(row: any) => BadgeVariantType} params.variantFn - Function to determine the badge variant.
+ * @param {(row: any) => string} [params.labelFn] - Function to determine the badge label.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
- * const nameColumn = createStringColumn({
- *   id: "name",
- *   title: "Name",
- *   accessorKey: "name",
+ * const vatColumn = createVATColumn({
+ *   id: "vat",
+ *   title: "VAT",
+ *   accessorKey: "vat",
  *   className: "text-md font-medium",
- *   headerClassName: "text-center",
+ *   headerClassName: "max-w-[60px]",
  *   enableSorting: true,
  * });
  */
-export function createStringWithCopyButonColumn({
+export function createBadgeColumn({
   id,
   title,
   accessorKey,
@@ -54,9 +52,9 @@ export function createStringWithCopyButonColumn({
   enableSorting = false,
   enableHiding = false,
   filterFn,
-  textClassName,
-  numberEllipsis,
-}: StringColumnProps): ColumnDef<any> {
+  variantFn,
+  labelFn,
+}: BadgeColumnProps): ColumnDef<any> {
   return {
     id,
     accessorKey,
@@ -64,32 +62,22 @@ export function createStringWithCopyButonColumn({
       <DataTableColumnHeader
         column={column}
         title={title}
-        className={cn("mx-auto max-w-[120px]", headerClassName)}
+        className={cn("mx-auto", headerClassName)}
       />
     ),
     cell: ({ row }) => {
-      const datas = row.original;
+      const datas: any = row.original;
       const stringText = getNestedValueFunction(datas, accessorKey);
       return (
-        <div
+        <Badge
+          variant={variantFn(row)}
           className={cn(
-            "text-md flex items-center justify-center gap-2 text-center",
+            "text-md mx-auto flex w-fit	 rounded-lg px-1 capitalize",
             className
           )}
         >
-          {stringText ? (
-            <span className={cn("", textClassName)} title={stringText}>
-              {numberEllipsis
-                ? truncateTextWithEllipsisMiddle(stringText, numberEllipsis)
-                : stringText}
-            </span>
-          ) : (
-            <span className={cn("text-muted-foreground", textClassName)}>
-              ---
-            </span>
-          )}
-          <CopyButton toCopy={stringText ?? ""} />
-        </div>
+          {labelFn ? labelFn(row) : stringText}
+        </Badge>
       );
     },
     enableSorting,

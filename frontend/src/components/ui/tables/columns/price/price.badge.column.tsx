@@ -2,7 +2,9 @@ import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHead
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
-import { getNestedValueFunction } from "./utils/getNestedValue";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
+
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface PriceColumnProps {
   id: string;
@@ -13,8 +15,9 @@ interface PriceColumnProps {
   enableSorting?: boolean;
   enableHiding?: boolean;
   filterFn?: FilterFn<any>;
-  devise?: string; // Optional devise symbol, defaults to "€"
-  priceFn?: (row: any) => string | number;
+  devise?: string; // Optional devise symbol, defaults to "€",
+  variantFn: (row: any) => BadgeVariantType;
+  customPrice?: (data: any) => number | null;
 }
 
 /**
@@ -30,7 +33,8 @@ interface PriceColumnProps {
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
  * @param {string} [params.devise="€"] - devise symbol to display.
- * @param {(raw: any) => number} [params.priceFn] - Custom function to calculate the price.
+ * @param {function} params.variantFn - Function to get the badge variant.
+ * @param {function} [params.customPrice] - Custom function to get the price.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
@@ -44,7 +48,7 @@ interface PriceColumnProps {
  *   devise: "$", // Optional, defaults to "€"
  * });
  */
-export function createPriceColumn({
+export function createPriceWithBadgeColumn({
   id,
   title,
   accessorKey,
@@ -54,7 +58,8 @@ export function createPriceColumn({
   enableHiding = false,
   filterFn,
   devise = "€",
-  priceFn,
+  variantFn,
+  customPrice,
 }: PriceColumnProps): ColumnDef<any> {
   return {
     id,
@@ -68,16 +73,18 @@ export function createPriceColumn({
     ),
     cell: ({ row }) => {
       const datas = row.original;
-      const price = getNestedValueFunction(datas, accessorKey);
+      const price = customPrice
+        ? customPrice(datas)
+        : getNestedValueFunction(datas, accessorKey);
+      const formattedPrice = price !== null ? Number(price).toFixed(2) : "--";
       return (
-        <div
-          className={cn(
-            "ml-auto flex max-w-[85px] justify-end text-end font-bold",
-            className
-          )}
-        >
-          {priceFn ? priceFn(row) : (price?.toFixed(2) ?? "-- ")}
-          {` ${devise}`}
+        <div className="flex items-center justify-center">
+          <Badge
+            variant={variantFn(row)}
+            className={cn("text-md w-[90px] rounded-lg px-1", className)}
+          >
+            {formattedPrice} {devise}
+          </Badge>
         </div>
       );
     },

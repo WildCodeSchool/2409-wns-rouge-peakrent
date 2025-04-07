@@ -1,10 +1,10 @@
-import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
-import { getNestedValueFunction } from "./utils/getNestedValue";
 
-interface BadgeColumnProps {
+import { defaultPriceFn } from "../utils/defaultPriceFn";
+
+interface PriceColumnProps {
   id: string;
   title: string;
   accessorKey: string;
@@ -13,37 +13,38 @@ interface BadgeColumnProps {
   enableSorting?: boolean;
   enableHiding?: boolean;
   filterFn?: FilterFn<any>;
-  variantFn: (row: any) => BadgeVariantType;
-  labelFn?: (row: any) => string;
+  devise?: string; // Optional devise symbol, defaults to "€"
+  priceFn?: (row: any) => string | number;
 }
 
 /**
- * Creates a Badge column for a table.
+ * Creates a price column for a table.
  *
- * @param {Object} params - The parameters to configure the VAT column.
+ * @param {Object} params - The parameters to configure the price column.
  * @param {string} params.id - Unique identifier for the column.
  * @param {string} params.title - Title to display in the column header.
- * @param {string} params.accessorKey - Accessor key to retrieve the VAT value.
+ * @param {string} params.accessorKey - Accessor key to retrieve the price value.
  * @param {string} [params.className] - Additional CSS classes for the cell.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
  * @param {boolean} [params.enableSorting=false] - Indicates if the column can be sorted.
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
- * @param {(row: any) => BadgeVariantType} params.variantFn - Function to determine the badge variant.
- * @param {(row: any) => string} [params.labelFn] - Function to determine the badge label.
+ * @param {string} [params.devise="€"] - devise symbol to display.
+ * @param {(raw: any) => string | number} [params.priceFn] - Custom function to calculate the price.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
- * const vatColumn = createVATColumn({
- *   id: "vat",
- *   title: "VAT",
- *   accessorKey: "vat",
- *   className: "text-md font-medium",
- *   headerClassName: "max-w-[60px]",
+ * const bestPriceColumn = createPriceColumn({
+ *   id: "bestPrice",
+ *   title: "Best",
+ *   accessorKey: "best_price",
+ *   className: "font-medium",
+ *   headerClassName: "max-w-[50px]",
  *   enableSorting: true,
+ *   devise: "$", // Optional, defaults to "€"
  * });
  */
-export function createBadgeColumn({
+export function createPriceColumn({
   id,
   title,
   accessorKey,
@@ -52,9 +53,9 @@ export function createBadgeColumn({
   enableSorting = false,
   enableHiding = false,
   filterFn,
-  variantFn,
-  labelFn,
-}: BadgeColumnProps): ColumnDef<any> {
+  devise = "€",
+  priceFn = (row) => defaultPriceFn(row, accessorKey),
+}: PriceColumnProps): ColumnDef<any> {
   return {
     id,
     accessorKey,
@@ -62,22 +63,19 @@ export function createBadgeColumn({
       <DataTableColumnHeader
         column={column}
         title={title}
-        className={cn("mx-auto", headerClassName)}
+        className={cn("ml-auto max-w-[85px]", headerClassName)}
       />
     ),
     cell: ({ row }) => {
-      const datas: any = row.original;
-      const stringText = getNestedValueFunction(datas, accessorKey);
       return (
-        <Badge
-          variant={variantFn(row)}
+        <div
           className={cn(
-            "text-md mx-auto flex w-fit	 rounded-lg px-1 capitalize",
+            "ml-auto flex max-w-[85px] justify-end text-end font-bold",
             className
           )}
         >
-          {labelFn ? labelFn(row) : stringText}
-        </Badge>
+          {priceFn(row)} {devise}
+        </div>
       );
     },
     enableSorting,

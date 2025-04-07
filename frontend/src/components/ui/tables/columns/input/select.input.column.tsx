@@ -1,12 +1,12 @@
+import React from "react";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 import { VariantProps } from "class-variance-authority";
-import React from "react";
 
 import { badgeVariants } from "@/components/ui/badge";
 
-import SingleSelect from "./components/SingleSelect";
+import SingleSelect from "../components/SingleSelect";
 
 interface StringColumnProps {
   id: string;

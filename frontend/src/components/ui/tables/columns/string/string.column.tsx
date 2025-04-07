@@ -1,15 +1,18 @@
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
+import { formatSize } from "@/utils/formatSize";
 import truncateTextWithEllipsisMiddle from "@/utils/truncateTextWithEllipsisMiddle";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
 import CopyButton from "@/components/buttons/CopyButton";
-import { getNestedValueFunction } from "./utils/getNestedValue";
+
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface StringColumnProps {
   id: string;
   title: string;
   accessorKey: string;
+  accessorKey2?: string;
   className?: string;
   headerClassName?: string;
   enableSorting?: boolean;
@@ -19,6 +22,7 @@ interface StringColumnProps {
   numberEllipsis?: number;
   withCopy?: boolean;
   extraText?: string;
+  labelFn?: (row: string) => string;
 }
 
 /**
@@ -28,15 +32,17 @@ interface StringColumnProps {
  * @param {string} params.id - Unique identifier for the column.
  * @param {string} params.title - Title to display in the column header.
  * @param {string} params.accessorKey - Accessor key to retrieve the string value.
+ * @param {string} [params.accessorKey2] - Accessor key to retrieve an optional second string value.
  * @param {string} [params.className] - Additional CSS classes for the cell.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
- * @param {string} [params.extraText] - Additional text to display in the cell.
- * @param {boolean} [params.textClassName] - Additional CSS classes for the text.
- * @param {boolean} [params.numberEllipsis] - Number of characters to truncate the text.
  * @param {boolean} [params.enableSorting=false] - Indicates if the column can be sorted.
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
- * @param {boolean} [params.withCopy=true] - Indicates if the column has a copy button.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
+ * @param {boolean} [params.textClassName] - Additional CSS classes for the text.
+ * @param {number} [params.numberEllipsis] - Number of characters to truncate the text.
+ * @param {boolean} [params.withCopy=false] - Indicates if the column has a copy button.
+ * @param {string} [params.extraText] - Additional text to display in the cell.
+ * @param {Function} [params.labelFn] - Function to format the string value.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
@@ -49,10 +55,11 @@ interface StringColumnProps {
  *   enableSorting: true,
  * });
  */
-export function createStringTableWithCopyButtonColumn({
+export function createStringColumn({
   id,
   title,
   accessorKey,
+  accessorKey2,
   className,
   headerClassName,
   enableSorting = false,
@@ -60,8 +67,9 @@ export function createStringTableWithCopyButtonColumn({
   filterFn,
   textClassName,
   numberEllipsis,
-  withCopy = true,
+  withCopy = false,
   extraText,
+  labelFn,
 }: StringColumnProps): ColumnDef<any> {
   return {
     id,
@@ -75,37 +83,34 @@ export function createStringTableWithCopyButtonColumn({
     ),
     cell: ({ row }) => {
       const datas = row.original;
-      const strings = getNestedValueFunction(datas, accessorKey);
-      if (!Array.isArray(strings)) {
-        return;
+      let stringText = getNestedValueFunction(datas, accessorKey);
+      if (accessorKey2) {
+        stringText += " " + getNestedValueFunction(datas, accessorKey2);
       }
+      if (id === "size") {
+        stringText = formatSize(stringText);
+      }
+      stringText = labelFn ? labelFn(stringText) : stringText;
       return (
         <div
           className={cn(
-            "text-md flex flex-col items-center justify-center gap-2 text-center",
+            "text-md flex items-center justify-center gap-2 text-center",
             className
           )}
         >
-          {strings.map((stringText) =>
-            stringText ? (
-              <div key={stringText} className="flex items-center gap-2">
-                <span className={cn("", textClassName)} title={stringText}>
-                  {numberEllipsis
-                    ? truncateTextWithEllipsisMiddle(stringText, numberEllipsis)
-                    : stringText}
-                  {extraText}
-                </span>
-                {withCopy && <CopyButton toCopy={stringText} />}
-              </div>
-            ) : (
-              <span
-                key={`empty-${Math.random()}`}
-                className={cn("text-muted-foreground", textClassName)}
-              >
-                ---
-              </span>
-            )
+          {stringText ? (
+            <span className={cn("", textClassName)} title={stringText}>
+              {numberEllipsis
+                ? truncateTextWithEllipsisMiddle(stringText, numberEllipsis)
+                : stringText}
+              {extraText ? ` ${extraText}` : ""}
+            </span>
+          ) : (
+            <span className={cn("text-muted-foreground", textClassName)}>
+              ---
+            </span>
           )}
+          {withCopy && <CopyButton toCopy={stringText ?? ""} />}
         </div>
       );
     },

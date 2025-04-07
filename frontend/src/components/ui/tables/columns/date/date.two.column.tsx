@@ -2,21 +2,23 @@ import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHead
 import { cn } from "@/lib/utils";
 import { formatLocaleDate } from "@/utils/getLocaleDateAndTime";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
 
-import { getNestedValueFunction } from "./utils/getNestedValue";
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface DateColumnProps {
   id: string;
   title: string;
   accessorKey: string;
+  secondAccessorKey: string;
   showTime?: boolean;
   divClassName?: string;
   headerClassName?: string;
   dateClassName?: string;
   timeClassName?: string;
   filterFn?: FilterFn<any>;
-  enableSorting?: boolean; // Added enableSorting
-  enableHiding?: boolean; // Added enableHiding
+  enableSorting?: boolean;
+  enableHiding?: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ interface DateColumnProps {
  * @param {string} params.id - Unique identifier for the column.
  * @param {string} params.title - Title to display in the column header.
  * @param {string} params.accessorKey - Accessor key to retrieve the date.
+ * @param {string} params.secondAccessorKey - Second accessor key to retrieve the date.
  * @param {boolean} [params.showTime=false] - Indicates if the time should be displayed.
  * @param {string} [params.divClassName] - Additional CSS classes for the div container.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
@@ -42,6 +45,7 @@ interface DateColumnProps {
  *   id: "date",
  *   title: "Date",
  *   accessorKey: "created_at",
+ *   secondAccessorKey: "updated_at",
  *   showTime: true,
  *   divClassName: "flex items-center justify-center",
  *   headerClassName: "text-left",
@@ -51,10 +55,11 @@ interface DateColumnProps {
  *   enableHiding: true,   // Enable hiding for this column
  * });
  */
-export function createDateColumn({
+export function createTwoDateColumn({
   id,
   title,
   accessorKey,
+  secondAccessorKey,
   showTime = false,
   divClassName,
   headerClassName,
@@ -80,6 +85,10 @@ export function createDateColumn({
         getNestedValueFunction(datas, accessorKey)
       );
 
+      const { date: secondDate, time: secondTime } = formatLocaleDate(
+        getNestedValueFunction(datas, secondAccessorKey)
+      );
+
       return (
         <div
           className={cn(
@@ -87,14 +96,29 @@ export function createDateColumn({
             divClassName
           )}
         >
-          <span className={cn("font-medium ", dateClassName)}>{date}</span>
-          {showTime && (
-            <span
-              className={cn("text-muted-foreground text-sm", timeClassName)}
-            >
-              {time}
+          <div className="flex flex-col items-center justify-center">
+            <span className={cn("font-medium ", dateClassName)}>{date}</span>
+            {showTime && (
+              <span
+                className={cn("text-muted-foreground text-sm", timeClassName)}
+              >
+                {time}
+              </span>
+            )}
+          </div>
+          <ChevronDown size={12} />
+          <div className="flex flex-col items-center justify-center">
+            <span className={cn("font-medium ", dateClassName)}>
+              {secondDate}
             </span>
-          )}
+            {showTime && (
+              <span
+                className={cn("text-muted-foreground text-sm", timeClassName)}
+              >
+                {secondTime}
+              </span>
+            )}
+          </div>
         </div>
       );
     },

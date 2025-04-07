@@ -1,26 +1,23 @@
-import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
-import { getNestedValueFunction } from "./utils/getNestedValue";
+import CopyButton from "@/components/buttons/CopyButton";
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface NameColumnProps {
   id: string;
   title: string;
-  accessorKey: string;
-  skuKey: string;
-  statusKey: string;
+  emailKey: string;
+  lastnameKey: string;
+  firstnameKey: string;
   enableHiding?: boolean;
   enableSorting?: boolean;
   filterFn?: FilterFn<any>;
   headerClassName?: string;
   cellClassName?: string;
-  skuClassName?: string;
-  badgeClassName?: string;
-  nameClassName?: string;
-  variantFn?: (row: any) => BadgeVariantType;
-  labelFn?: (row: any) => string;
+  emailClassName?: string;
+  fullnameClassName?: string;
 }
 
 /**
@@ -29,19 +26,16 @@ interface NameColumnProps {
  * @param {Object} params - The parameters to configure the name column.
  * @param {string} params.id - Unique identifier for the column.
  * @param {string} params.title - Title to display in the column header.
- * @param {string} params.accessorKey - Accessor key to retrieve the name.
- * @param {string} params.skuKey - Accessor key to retrieve the SKU.
- * @param {string} params.statusKey - Accessor key to retrieve the status.
+ * @param {string} params.firstnameKey - Accessor key to retrieve the firstname.
+ * @param {string} params.lastnameKey - Accessor key to retrieve the lastname.
+ * @param {string} params.emailKey - Accessor key to retrieve the email.
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
  * @param {boolean} [params.enableSorting=false] - Indicates if the column can be sorted.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
  * @param {string} [params.cellClassName] - Additional CSS classes for the cell.
- * @param {string} [params.skuClassName] - Additional CSS classes for the SKU.
- * @param {string} [params.badgeClassName] - Additional CSS classes for the badge.
- * @param {string} [params.nameClassName] - Additional CSS classes for the name.
- * @param {(row: any) => BadgeVariantType} params.variantFn - Function to determine the badge variant.
- * @param {(row: any) => string} [params.labelFn] - Function to determine the badge label.
+ * @param {string} [params.emailClassName] - Additional CSS classes for the email.
+ * @param {string} [params.fullnameClassName] - Additional CSS classes for the fullname.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  *
@@ -54,26 +48,23 @@ interface NameColumnProps {
  *   statusKey: "status",
  * });
  */
-export function createNameWithSkuAndStatusColumn({
+export function createFullNameWithEmailColumn({
   id,
   title,
-  accessorKey,
-  skuKey,
-  statusKey,
+  firstnameKey,
+  lastnameKey,
+  emailKey,
   enableHiding = false,
   enableSorting = false,
   filterFn,
   headerClassName,
   cellClassName,
-  skuClassName,
-  badgeClassName,
-  nameClassName,
-  variantFn,
-  labelFn,
+  emailClassName,
+  fullnameClassName,
 }: NameColumnProps): ColumnDef<any> {
   return {
     id,
-    accessorKey,
+    accessorKey: emailKey,
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -86,9 +77,9 @@ export function createNameWithSkuAndStatusColumn({
     ),
     cell: ({ row }) => {
       const datas: any = row.original;
-      const name = getNestedValueFunction(datas, accessorKey);
-      const sku = getNestedValueFunction(datas, skuKey);
-      const status = getNestedValueFunction(datas, statusKey);
+      const firstname = getNestedValueFunction(datas, firstnameKey);
+      const lastname = getNestedValueFunction(datas, lastnameKey);
+      const email = getNestedValueFunction(datas, emailKey);
 
       return (
         <div
@@ -98,22 +89,20 @@ export function createNameWithSkuAndStatusColumn({
           )}
         >
           <span
-            className={cn("truncate font-bold", nameClassName)}
-            title={name}
+            className={cn("truncate font-bold", fullnameClassName)}
+            title={firstname + " " + lastname}
           >
-            {name}
+            {firstname + " " + lastname}
           </span>
-          <span className={cn("text-muted-foreground", skuClassName)}>
-            {sku}
-          </span>
-          <Badge
-            variant={
-              variantFn ? variantFn(row) : ("primary" as BadgeVariantType)
-            }
-            className={cn("mt-1 w-fit rounded-lg px-1 text-xs", badgeClassName)}
-          >
-            {labelFn ? labelFn(row) : status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <span
+              className={cn("text-muted-foreground truncate", emailClassName)}
+              title={email}
+            >
+              {email}
+            </span>
+            <CopyButton toCopy={email} />
+          </div>
         </div>
       );
     },

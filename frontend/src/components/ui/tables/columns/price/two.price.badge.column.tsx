@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
 import { Badge, BadgeVariantType } from "@/components/ui/badge";
-import { getNestedValueFunction } from "./utils/getNestedValue";
+
+import { getNestedValueFunction } from "../utils/getNestedValue";
 
 interface PriceColumnProps {
   id: string;
@@ -53,17 +54,18 @@ interface PriceColumnProps {
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
- * const bestPriceColumn = createPriceColumn({
+ * const bestPriceColumn = createTwoPriceWithBadgeColumn({
  *   id: "bestPrice",
  *   title: "Best",
  *   accessorKey: "best_price",
+ *   accessorKey2: "best_price2",
  *   className: "font-medium",
  *   headerClassName: "max-w-[50px]",
  *   enableSorting: true,
  *   devise: "$", // Optional, defaults to "€"
  * });
  */
-export function createTwoRoundedPriceWithBadgeColumn({
+export function createTwoPriceWithBadgeColumn({
   id,
   title,
   accessorKey,

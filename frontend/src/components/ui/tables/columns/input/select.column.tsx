@@ -26,6 +26,10 @@ export function createSelectColumn(
         row.getIsSelected()
       ).length;
 
+      const firstNSelected = selectableRows
+        .slice(0, maxSelections ?? Infinity)
+        .every((row) => row.getIsSelected());
+
       const allNonDisabledRowsSelected = table
         .getRowModel()
         .rows.every((row) => isDisabled(row) || row.getIsSelected());

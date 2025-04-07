@@ -1,10 +1,10 @@
-import * as React from "react";
 import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, ChevronsUpDown, XCircle, XIcon } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +22,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { LabelSection } from "@/components/forms/layout/LabelSection";
-
-import { productTypeOptions } from "./options/productTypes";
+import { cn } from "@/lib/utils";
 
 /**
  * Variants for the single-select component to handle different styles.
@@ -46,26 +44,32 @@ const singleSelectVariants = cva("m-1", {
   },
 });
 
+type Option = {
+  /** The text to display for the option. */
+  label: string;
+  /** The unique value associated with the option. */
+  value: string;
+  /** Optional icon component to display alongside the option. */
+  icon?: React.ComponentType<{ className?: string }>;
+  renderLabel?: () => React.ReactNode;
+};
+
+type Group = {
+  /** The label of the group. */
+  label: string;
+  /** The options in this group. */
+  options: Option[];
+};
+
 /**
  * Props for SingleSelect component
  */
-interface SingleSelectProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof singleSelectVariants> {
+type BaseSingleSelectProps = {
   /**
-   * An array of option objects to be displayed in the single-select component.
-   * Each option object has a label, value, an optional icon, and optional render component.
+   * Number of columns to display the options in.
+   * Optional, defaults to 1, max is 10.
    */
-  options?: {
-    /** The text to display for the option. */
-    label: string;
-    /** The unique value associated with the option. */
-    value: string;
-    /** Optional icon component to display alongside the option. */
-    icon?: React.ComponentType<{ className?: string }>;
-    /** Optionnal component to customize the label */
-    renderLabel?: () => React.ReactNode;
-  }[];
+  columns?: number;
 
   /** The default selected values when the component mounts. */
   defaultValue?: string;
@@ -121,9 +125,30 @@ interface SingleSelectProps
   isPending?: boolean;
 
   form: any;
-  name?: string;
-  label?: string;
-}
+  name: string;
+  label: string;
+  onBlur?: (event: React.FocusEvent<HTMLButtonElement>) => void;
+} & VariantProps<typeof singleSelectVariants>;
+
+type SingleSelectWithGroups = BaseSingleSelectProps & {
+  /**
+   * Groups of options to display in the multi-select component.
+   * Each group has a label and an array of options.
+   */
+  groups: Group[];
+  options?: never;
+};
+
+type SingleSelectWithOptions = BaseSingleSelectProps & {
+  /**
+   * An array of option objects to be displayed in the multi-select component.
+   * Each option object has a label, value, and an optional icon.
+   */
+  options: Option[];
+  groups?: never;
+};
+
+type SingleSelectProps = SingleSelectWithGroups | SingleSelectWithOptions;
 
 export const SingleSelectorInput = React.forwardRef<
   HTMLButtonElement,
@@ -131,7 +156,9 @@ export const SingleSelectorInput = React.forwardRef<
 >(
   (
     {
-      options = productTypeOptions,
+      options,
+      groups,
+      columns = 1,
       variant,
       defaultValue = "",
       placeholder = "Select options",
@@ -142,8 +169,8 @@ export const SingleSelectorInput = React.forwardRef<
       handleChange,
       handleResetField,
       form,
-      name = "singleSelector",
-      label = "Single Selector",
+      name,
+      label,
       required = true,
       isPending = false,
       onBlur,
@@ -192,6 +219,59 @@ export const SingleSelectorInput = React.forwardRef<
       setIsPopoverOpen((prev) => !prev);
     };
 
+    const renderOptions = (optionsToRender: Option[]) => {
+      return (
+        <div
+          className={cn("grid gap-[0.15rem]", {
+            "grid-cols-1": columns === 1 || !columns,
+            "grid-cols-2": columns === 2,
+            "grid-cols-3": columns === 3,
+            "grid-cols-4": columns === 4,
+            "grid-cols-5": columns === 5,
+            "grid-cols-6": columns === 6,
+            "grid-cols-7": columns === 7,
+            "grid-cols-8": columns === 8,
+            "grid-cols-9": columns === 9,
+            "grid-cols-10": columns === 10,
+          })}
+        >
+          {optionsToRender.map((option) => {
+            const isSelected = form.getValues(name) === option.value;
+
+            return (
+              <CommandItem
+                key={option.value}
+                onSelect={() => toggleOption(option.value)}
+                className={cn(
+                  "cursor-pointer",
+                  isSelected && "bg-accent rounded-md border pr-2"
+                )}
+              >
+                <div
+                  className={cn(
+                    "mr-6 flex items-center justify-center",
+                    isSelected ? "text-primary mr-2" : "text-muted-foreground"
+                  )}
+                >
+                  {isSelected && <CheckIcon className="size-4" />}
+                </div>
+                {option.icon && <option.icon className={cn("mr-2 size-4")} />}
+                {option.renderLabel ? (
+                  typeof option.renderLabel === "function" ? (
+                    option.renderLabel()
+                  ) : (
+                    option.renderLabel
+                  )
+                ) : (
+                  <span>{option.label}</span>
+                )}
+              </CommandItem>
+            );
+          })}
+        </div>
+      );
+    };
+
     return (
       <FormField
         control={form.control}
@@ -219,11 +299,13 @@ export const SingleSelectorInput = React.forwardRef<
                     <div className="flex w-full items-center justify-between">
                       <div className="flex flex-wrap items-center gap-1">
                         {(() => {
-                          const option = options?.find(
+                          const allOptions = groups
+                            ? groups.flatMap((group) => group.options)
+                            : options;
+                          const option = allOptions.find(
                             (o) => o.value === field.value
                           );
-                          const IconComponent =
-                            option && "icon" in option ? option.icon : null;
+                          const IconComponent = option?.icon;
                           return (
                             <React.Fragment>
                               {option?.renderLabel ? (
@@ -287,7 +369,7 @@ export const SingleSelectorInput = React.forwardRef<
                 <Command>
                   <div className="relative">
                     <CommandInput
-                      placeholder={"search" + "..."}
+                      placeholder="search..."
                       value={searchQuery}
                       onValueChange={(value) => setSearchQuery(value)}
                       onKeyDown={handleInputKeyDown}
@@ -303,45 +385,21 @@ export const SingleSelectorInput = React.forwardRef<
                       </Button>
                     )}
                   </div>
-                  <CommandEmpty>{"noResult"}</CommandEmpty>
+                  <CommandEmpty>no result</CommandEmpty>
                   <CommandList>
                     <ScrollArea className="max-h-48 overflow-y-auto">
-                      <CommandGroup>
-                        {options?.map((option) => {
-                          const isSelected = field.value === option.value;
-
-                          return (
-                            <CommandItem
-                              key={option.value}
-                              onSelect={() => toggleOption(option.value)}
-                              className="cursor-pointer"
-                            >
-                              <div
-                                className={cn(
-                                  "mr-6 flex items-center justify-center",
-                                  isSelected
-                                    ? "text-primary mr-2"
-                                    : "text-muted-foreground"
-                                )}
-                              >
-                                {isSelected && <CheckIcon className="size-4" />}
-                              </div>
-                              {"icon" in option && option.icon && (
-                                <option.icon className="text-muted-foreground mr-2 size-4" />
-                              )}
-                              {option.renderLabel ? (
-                                typeof option.renderLabel === "function" ? (
-                                  option.renderLabel()
-                                ) : (
-                                  option.renderLabel
-                                )
-                              ) : (
-                                <span>{option.label}</span>
-                              )}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
+                      {groups ? (
+                        groups.map((group, index) => (
+                          <React.Fragment key={group.label}>
+                            <CommandGroup heading={group.label}>
+                              {renderOptions(group.options)}
+                            </CommandGroup>
+                            {index < groups.length - 1 && <CommandSeparator />}
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <CommandGroup>{renderOptions(options)}</CommandGroup>
+                      )}
                     </ScrollArea>
                     <CommandSeparator />
                     <CommandGroup>
@@ -352,7 +410,7 @@ export const SingleSelectorInput = React.forwardRef<
                               onSelect={handleClear}
                               className="flex-1 cursor-pointer justify-center"
                             >
-                              {"clear"}
+                              clear
                             </CommandItem>
                             <Separator
                               orientation="vertical"
@@ -364,7 +422,7 @@ export const SingleSelectorInput = React.forwardRef<
                           onSelect={() => setIsPopoverOpen(false)}
                           className="max-w-full flex-1 cursor-pointer justify-center"
                         >
-                          {"close"}
+                          close
                         </CommandItem>
                       </div>
                     </CommandGroup>

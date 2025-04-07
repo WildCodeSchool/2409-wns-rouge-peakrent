@@ -1,3 +1,4 @@
+import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
   CheckIcon,
@@ -6,8 +7,8 @@ import {
   XCircle,
   XIcon,
 } from "lucide-react";
-import * as React from "react";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 /**
  * Variants for the multi-select component to handle different styles.
@@ -68,6 +68,28 @@ interface MultiSelectProps
   }[];
 
   /**
+   * Groups of options to display in the multi-select component.
+   * Each group has a label and an array of options.
+   */
+  groups?: {
+    /** The label of the group. */
+    label: string;
+    /** The options in this group. */
+    options: {
+      label: string;
+      value: string;
+      icon?: React.ComponentType<{ className?: string }>;
+      renderLabel?: () => React.ReactNode;
+    }[];
+  }[];
+
+  /**
+   * Number of columns to display the options in.
+   * Optional, defaults to 1.
+   */
+  columns?: number;
+
+  /**
    * Callback function triggered when the selected values change.
    * Receives an array of the new selected values.
    */
@@ -102,6 +124,12 @@ interface MultiSelectProps
   modalPopover?: boolean;
 
   /**
+   * If true, renders the multi-select component as a child of another component.
+   * Optional, defaults to false.
+   */
+  asChild?: boolean;
+
+  /**
    * Additional class names to apply custom styles to the multi-select component.
    * Optional, can be used to add custom styles.
    */
@@ -128,6 +156,8 @@ export const MultiSelect = React.forwardRef<
   (
     {
       options,
+      groups,
+      columns = 1,
       onValueChange,
       variant,
       defaultValue = [],
@@ -135,6 +165,7 @@ export const MultiSelect = React.forwardRef<
       animation = 0,
       maxCount = 3,
       modalPopover = false,
+      asChild = false,
       className,
       maxSelections,
       enableSelectAll = true,
@@ -206,6 +237,65 @@ export const MultiSelect = React.forwardRef<
         setSelectedValues(allValues);
         onValueChange(allValues);
       }
+    };
+
+    const renderOptions = (optionsToRender: typeof options) => {
+      return (
+        <div
+          className={cn("grid gap-2", {
+            "grid-cols-1": columns === 1,
+            "grid-cols-2": columns === 2,
+            "grid-cols-3": columns === 3,
+            "grid-cols-4": columns === 4,
+          })}
+        >
+          {optionsToRender.map((option) => {
+            const isSelected = selectedValues.includes(option.value);
+
+            return (
+              <CommandItem
+                key={option.value}
+                onSelect={() => toggleOption(option.value)}
+                className="cursor-pointer"
+              >
+                {maxSelections === 1 ? (
+                  <div
+                    className={cn(
+                      "mr-6 flex items-center justify-center",
+                      isSelected ? "text-primary mr-2" : "text-muted-foreground"
+                    )}
+                  >
+                    {isSelected && <CheckIcon className="size-4" />}
+                  </div>
+                ) : (
+                  <div
+                    className={cn(
+                      "border-primary mr-2 flex size-4 items-center justify-center rounded-sm border",
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "opacity-50 [&_svg]:invisible"
+                    )}
+                  >
+                    <CheckIcon className="size-4" />
+                  </div>
+                )}
+                {option.icon && (
+                  <option.icon className="text-muted-foreground mr-2 size-4" />
+                )}
+                {option.renderLabel ? (
+                  typeof option.renderLabel === "function" ? (
+                    option.renderLabel()
+                  ) : (
+                    option.renderLabel
+                  )
+                ) : (
+                  <span>{option.label}</span>
+                )}
+              </CommandItem>
+            );
+          })}
+        </div>
+      );
     };
 
     return (
@@ -306,7 +396,7 @@ export const MultiSelect = React.forwardRef<
           <Command>
             <div className="relative">
               <CommandInput
-                placeholder={"search..."}
+                placeholder="search..."
                 value={searchQuery}
                 onValueChange={(value) => setSearchQuery(value)}
                 onKeyDown={handleInputKeyDown}
@@ -323,9 +413,9 @@ export const MultiSelect = React.forwardRef<
               )}
             </div>
             <CommandList>
-              <CommandEmpty>{"noResult"}</CommandEmpty>
-              <CommandGroup>
-                {enableSelectAll && (
+              <CommandEmpty>no result</CommandEmpty>
+              {enableSelectAll && (
+                <CommandGroup>
                   <CommandItem
                     key="all"
                     onSelect={toggleAll}
@@ -341,57 +431,22 @@ export const MultiSelect = React.forwardRef<
                     >
                       <CheckIcon className="size-4" />
                     </div>
-                    <span>({"selectAll"})</span>
+                    <span>(select all)</span>
                   </CommandItem>
-                )}
-                {options.map((option) => {
-                  const isSelected = selectedValues.includes(option.value);
-
-                  return (
-                    <CommandItem
-                      key={option.value}
-                      onSelect={() => toggleOption(option.value)}
-                      className="cursor-pointer"
-                    >
-                      {maxSelections === 1 ? (
-                        <div
-                          className={cn(
-                            "mr-6 flex items-center justify-center",
-                            isSelected
-                              ? "text-primary mr-2"
-                              : "text-muted-foreground"
-                          )}
-                        >
-                          {isSelected && <CheckIcon className="size-4" />}
-                        </div>
-                      ) : (
-                        <div
-                          className={cn(
-                            "border-primary mr-2 flex size-4 items-center justify-center rounded-sm border",
-                            isSelected
-                              ? "bg-primary text-primary-foreground"
-                              : "opacity-50 [&_svg]:invisible"
-                          )}
-                        >
-                          <CheckIcon className="size-4" />
-                        </div>
-                      )}
-                      {option.icon && (
-                        <option.icon className="text-muted-foreground mr-2 size-4" />
-                      )}
-                      {option.renderLabel ? (
-                        typeof option.renderLabel === "function" ? (
-                          option.renderLabel()
-                        ) : (
-                          option.renderLabel
-                        )
-                      ) : (
-                        <span>{option.label}</span>
-                      )}
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
+                </CommandGroup>
+              )}
+              {groups ? (
+                groups.map((group, index) => (
+                  <React.Fragment key={group.label}>
+                    <CommandGroup heading={group.label}>
+                      {renderOptions(group.options)}
+                    </CommandGroup>
+                    {index < groups.length - 1 && <CommandSeparator />}
+                  </React.Fragment>
+                ))
+              ) : (
+                <CommandGroup>{renderOptions(options)}</CommandGroup>
+              )}
               <CommandSeparator />
               <CommandGroup>
                 <div className="flex items-center justify-between">
@@ -401,7 +456,7 @@ export const MultiSelect = React.forwardRef<
                         onSelect={handleClear}
                         className="flex-1 cursor-pointer justify-center"
                       >
-                        {"clear"}
+                        clear
                       </CommandItem>
                       <Separator
                         orientation="vertical"
@@ -413,7 +468,7 @@ export const MultiSelect = React.forwardRef<
                     onSelect={() => setIsPopoverOpen(false)}
                     className="max-w-full flex-1 cursor-pointer justify-center"
                   >
-                    {"close"}
+                    close
                   </CommandItem>
                 </div>
                 {maxSelections &&
@@ -425,7 +480,7 @@ export const MultiSelect = React.forwardRef<
                         onClick={() => setIsPopoverOpen(false)}
                         className="text-destructive flex max-w-full flex-1 cursor-pointer justify-center p-1 capitalize"
                       >
-                        {"maxSelectionReached"}
+                        max Selection Reached
                       </div>
                     </>
                   )}

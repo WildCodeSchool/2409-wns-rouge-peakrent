@@ -79,7 +79,9 @@ export function AsyncComboboxInput<T extends Identifiable>({
     handleChange(item);
     setSelected(item);
     form.setValue(name, item.id.toString()); // Store reference id
-    setIsOpen && setIsOpen(false);
+    if (isOpen) {
+      setIsOpen(false);
+    }
   };
 
   return (
