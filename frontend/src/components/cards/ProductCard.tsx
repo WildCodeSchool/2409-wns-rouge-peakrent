@@ -13,14 +13,14 @@ import { ImageHandler } from "../ui/tables/columns/components/ImageHandler";
 
 export function ProductCard({ product }: { product: any }) {
   const discountVariant =
-    (product.discount > 0 && product.discount <= 10 && "bg-green-600") ||
+    (product.discount > 0 && product.discount <= 10 && "bg-primary") ||
     (product.discount > 10 && product.discount <= 20 && "bg-yellow-600") ||
     (product.discount > 20 && product.discount <= 30 && "bg-orange-600") ||
     (product.discount > 30 && "bg-red-600");
 
   const borderCard =
-    (product.discount > 0 && product.discount <= 10 && "border-green-400") ||
-    (product.discount > 10 && product.discount <= 20 && "border-yellow-400") ||
+    (product.discount > 0 && product.discount <= 10 && "border-primary") ||
+    (product.discount > 10 && product.discount <= 20 && "border-yellow-500") ||
     (product.discount > 20 && product.discount <= 30 && "border-orange-400") ||
     (product.discount > 30 && "border-red-400");
 
@@ -39,11 +39,11 @@ export function ProductCard({ product }: { product: any }) {
         {product.discount > 0 && (
           <div
             className={cn(
-              "absolute right-2 top-2 z-10 rounded-lg text-white py-1 text-xs font-bold px-2",
+              "absolute right-2 top-2 z-10 rounded-lg text-white py-1 text-xs md:text-sm font-bold px-2",
               style.discountVariant
             )}
           >
-            {product.discount} %
+            - {product.discount} %
           </div>
         )}
         <ImageHandler
@@ -52,8 +52,8 @@ export function ProductCard({ product }: { product: any }) {
           className="w-full object-cover border-b"
         />
       </CardHeader>
-      <CardContent className="s:px-4 p-2 pb-0">
-        <div className="flex items-center gap-2 capitalize">
+      <CardContent className="sm:px-4 py-0 px-2">
+        <div className="flex items-center gap-2 capitalize mb-1">
           {product.tags.map((tag: string) => (
             <a
               href={`/products?tag=${tag}`}
@@ -87,8 +87,9 @@ export function ProductCard({ product }: { product: any }) {
           </p>
         </div>
       </CardContent>
-      <CardFooter className="s:p-4 p-2">
+      <CardFooter className="sm:p-4 p-2 sm:pt-2">
         <Button
+          size="lg"
           className="w-full text-sm text-white md:text-base rounded-lg"
           variant="primary"
         >

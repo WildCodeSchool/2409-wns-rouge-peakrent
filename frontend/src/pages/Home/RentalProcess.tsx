@@ -48,7 +48,7 @@ const SvgDrawVertical = () => (
 
 export default function RentalProcessFlow() {
   return (
-    <section className="relative w-full max-w-screen-xl mx-auto py-12 px-4">
+    <section className="relative w-full max-w-screen-xl mx-auto py-12 sm:px-4 mt-8">
       {/* Desktop */}
       <div className="hidden lg:block absolute top-1/2 left-0 w-full h-40 -translate-y-1/2 z-0">
         <SvgDraw />

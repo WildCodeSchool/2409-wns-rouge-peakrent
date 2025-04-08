@@ -7,7 +7,7 @@ export default function ActivitiesBentoGrid() {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
   return (
-    <section className="container mx-auto px-4 max-w-screen-xl">
+    <section className="container mx-auto sm:px-4 max-w-screen-xl">
       <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
         Activités
       </h2>
@@ -16,7 +16,7 @@ export default function ActivitiesBentoGrid() {
           <div
             key={activity.id}
             className={cn(
-              "relative overflow-hidden rounded-xl border",
+              "relative overflow-hidden rounded-xl border hover:cursor-pointer",
               activity.span || ""
             )}
             onMouseEnter={() => setHoveredItem(activity.id)}

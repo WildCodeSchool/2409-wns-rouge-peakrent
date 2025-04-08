@@ -15,20 +15,19 @@ export default function ForwardProducts() {
   }, []);
 
   const getProductCount = () => {
-    if (windowWidth >= 1280) return 10;
     if (windowWidth >= 1024) return 8;
     return 6;
   };
   return (
-    <section className="container mx-auto px-4">
+    <section className="container mx-auto sm:px-4 max-w-screen-xl">
       <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
         Produits en avant
       </h2>
-      <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {forwardProducts.length ? (
           forwardProducts.slice(0, getProductCount()).map((product) => (
             <a
-              className="col-span-1 rounded-[5px]"
+              className="col-span-1 rounded-[5px] w-full"
               href={product.slug}
               key={product.id}
             >
@@ -45,7 +44,8 @@ export default function ForwardProducts() {
       <a href="/products">
         <Button
           variant="primary"
-          className="px-4 mx-auto block mt-4 rounded-lg"
+          size="lg"
+          className="px-4 mx-auto block mt-6 rounded-lg w-full max-w-[300px]"
         >
           Voir Plus
         </Button>

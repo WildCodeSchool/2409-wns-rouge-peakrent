@@ -18,7 +18,7 @@ export default function ActivitiesSection() {
     return 5;
   };
   return (
-    <section className="container mx-auto px-4 max-w-screen-xl">
+    <section className="container mx-auto sm:px-4 max-w-screen-xl">
       <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:py-6 text-center">
         Activités
       </h2>
