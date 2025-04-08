@@ -179,24 +179,24 @@ export const homeActivities = [
 
 export const rentalProcessSteps = [
   {
-    icon: <Calendar className="size-6 text-red-500" />,
+    icon: <Calendar className="size-6 text-destructive" />,
     title: "Reservez",
     description: "Réservez vos équipements dans le magasin de votre choix.",
   },
   {
-    icon: <Wallet className="size-6 text-red-500" />,
+    icon: <Wallet className="size-6 text-destructive" />,
     title: "Payez",
     description:
       "Que ce soit seul ou à plusieurs, payez en ligne ou directement en magasin.",
   },
   {
-    icon: <Heart className="size-6 text-red-500" />,
+    icon: <Heart className="size-6 text-destructive" />,
     title: "Profitez",
     description:
       "Profitez de nos équipement de qualité sans vous soucier du reste !",
   },
   {
-    icon: <Store className="size-6 text-red-500" />,
+    icon: <Store className="size-6 text-destructive" />,
     title: "Retournez",
     description: "Retournez les équipements dans le magasin de votre choix.",
   },
