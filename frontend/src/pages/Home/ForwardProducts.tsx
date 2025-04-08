@@ -20,9 +20,11 @@ export default function ForwardProducts() {
     return 6;
   };
   return (
-    <section className="py-4 px-4 max-w-6xl mx-auto">
-      <h2 className="text-lg font-bold text-center mb-4">Produits en avant</h2>
-      <div className="mt-4 grid w-full max-w-screen-2xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <section className="container mx-auto px-4">
+      <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
+        Produits en avant
+      </h2>
+      <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {forwardProducts.length ? (
           forwardProducts.slice(0, getProductCount()).map((product) => (
             <a

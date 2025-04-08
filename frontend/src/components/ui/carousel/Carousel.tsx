@@ -104,18 +104,18 @@ export function Carousel({
         {showControls && (
           <>
             <Button
-              variant="default"
+              variant="outline"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100"
               onClick={prevSlide}
             >
               <ChevronLeftIcon className="w-4 h-4" />
               <span className="sr-only">Previous</span>
             </Button>
             <Button
-              variant="default"
+              variant="outline"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100"
               onClick={nextSlide}
             >
               <ChevronRightIcon className="w-4 h-4" />

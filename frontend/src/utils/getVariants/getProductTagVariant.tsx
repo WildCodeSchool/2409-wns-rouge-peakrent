@@ -10,7 +10,7 @@ export const getProductTagVariant = (name: string): BadgeVariantType => {
   switch (name) {
     case "débutant":
       return "green";
-    case "intermédiaire":
+    case "medium":
       return "blue";
     case "confirmé":
       return "red";

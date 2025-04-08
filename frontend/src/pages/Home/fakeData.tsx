@@ -1,3 +1,5 @@
+import { Calendar, Heart, Store, Wallet } from "lucide-react";
+
 export const forwardProducts = [
   {
     id: 1,
@@ -23,7 +25,7 @@ export const forwardProducts = [
     id: 3,
     name: "Ski freestyle rossignol tres long long long long titre",
     price: 3000,
-    tags: ["ski", "débutant"],
+    tags: ["ski", "confirmé"],
     image: "/product.png",
     discount: 20,
     color: "yellow",
@@ -33,7 +35,7 @@ export const forwardProducts = [
     id: 4,
     name: "Ski freestyle rossignol",
     price: 3000,
-    tags: ["ski", "débutant"],
+    tags: ["ski", "medium"],
     image: "/product.png",
     discount: 50,
     color: "blue",
@@ -111,48 +113,91 @@ export const carousselImages = [
 
 export const homeActivities = [
   {
+    id: 1,
     title: "Activité 1",
     description: "Description de l'activité 1",
     image: "/image-1.png",
+    span: "row-span-2 col-span-3",
   },
   {
+    id: 2,
     title: "Activité 2",
     description: "Description de l'activité 2",
     image: "/image-2.png",
+    span: "col-span-3",
   },
   {
+    id: 3,
     title: "Activité 3",
     description: "Description de l'activité 3",
     image: "/image-3.png",
+    span: "col-span-2",
   },
   {
+    id: 4,
     title: "Activité 4",
     description: "Description de l'activité 4",
     image: "/image-1.png",
+    span: "col-span-2",
   },
   {
+    id: 5,
     title: "Activité 5",
     description: "Description de l'activité 5",
     image: "/image-2.png",
+    span: "col-span-2",
   },
   {
+    id: 6,
     title: "Activité 6",
     description: "Description de l'activité 6",
     image: "/image-3.png",
+    span: "col-span-2",
   },
   {
+    id: 7,
     title: "Activité 7",
     description: "Description de l'activité 7",
     image: "/image-3.png",
+    span: "col-span-3",
   },
   {
+    id: 8,
     title: "Activité 8",
     description: "Description de l'activité 8",
     image: "/image-3.png",
+    span: "col-span-2",
   },
   {
+    id: 9,
     title: "Activité 9",
     description: "Description de l'activité 9",
     image: "/image-3.png",
+    span: "col-span-3",
+  },
+];
+
+export const rentalProcessSteps = [
+  {
+    icon: <Calendar className="size-6 text-red-500" />,
+    title: "Reservez",
+    description: "Réservez vos équipements dans le magasin de votre choix.",
+  },
+  {
+    icon: <Wallet className="size-6 text-red-500" />,
+    title: "Payez",
+    description:
+      "Que ce soit seul ou à plusieurs, payez en ligne ou directement en magasin.",
+  },
+  {
+    icon: <Heart className="size-6 text-red-500" />,
+    title: "Profitez",
+    description:
+      "Profitez de nos équipement de qualité sans vous soucier du reste !",
+  },
+  {
+    icon: <Store className="size-6 text-red-500" />,
+    title: "Retournez",
+    description: "Retournez les équipements dans le magasin de votre choix.",
   },
 ];

@@ -18,8 +18,10 @@ export default function ActivitiesSection() {
     return 5;
   };
   return (
-    <section className="py-4 px-4 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-4">Activités</h2>
+    <section className="container mx-auto px-4 max-w-screen-xl">
+      <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:py-6 text-center">
+        Activités
+      </h2>
 
       <div className="relative space-y-8">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
