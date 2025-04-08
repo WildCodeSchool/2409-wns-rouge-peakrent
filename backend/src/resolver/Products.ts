@@ -35,6 +35,7 @@ export class ProductResolver {
       relations: {
         categories: true,
         createdBy: true,
+        variants: true,
       },
     });
 

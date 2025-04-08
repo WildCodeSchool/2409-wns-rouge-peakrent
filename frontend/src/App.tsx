@@ -13,10 +13,11 @@ import TagDetail from "./components/TagDetail/TagDetail";
 import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
 import AdminPage from "./pages/Admin/AdminPage";
+import { SignInPage } from "./pages/Auth/SignIn";
+import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
-import SignInPage from "./pages/SignIn/SignIn";
 
 enum AuthStates {
   authenticated,
@@ -54,6 +55,10 @@ function App() {
           <Route
             path="/signin"
             Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+          />
+          <Route
+            path="/signup"
+            Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
           />
           <Route path="about" Component={About} />
           <Route
