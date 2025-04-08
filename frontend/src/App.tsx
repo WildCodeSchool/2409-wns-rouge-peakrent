@@ -6,7 +6,7 @@ import "./styles/App.scss";
 
 // Components
 import About from "./components/About/About";
-import AdDetail from "./components/AdDetail/AdDetail";
+import ProductDetail from "./components/AdDetail/ProductDetail";
 import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
 import RecentAds from "./components/RecentAds/RecentAds";
 import TagDetail from "./components/TagDetail/TagDetail";
@@ -60,7 +60,7 @@ function App() {
             path="post-ad"
             Component={checkAuth(Form, [AuthStates.authenticated])}
           />
-          <Route path="ads/:id" Component={AdDetail} />
+          <Route path="products/:id" Component={ProductDetail} />
           <Route
             path="ads/:id/edit"
             Component={checkAuth(AdEditForm, [AuthStates.authenticated])}

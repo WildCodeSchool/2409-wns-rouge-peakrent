@@ -58,12 +58,12 @@ export class ProductResolver {
       const id = Number(param);
       product = await Product.findOne({
         where: { id },
-        relations: { categories: true, createdBy: true },
+        relations: { categories: true, createdBy: true, variants: true },
       });
     } else {
       product = await Product.findOne({
         where: { name: param },
-        relations: { categories: true, createdBy: true },
+        relations: { categories: true, createdBy: true, variants: true },
       });
     }
 

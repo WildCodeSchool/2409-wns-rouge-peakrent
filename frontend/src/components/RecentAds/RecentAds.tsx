@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import AdsList from "../AdsList/AdsList";
 import Loading from "../Loading/Loading";
 import { useQuery } from "@apollo/client";
-import { GET_MINIMAL_ADS_WITH_PAGING } from "../../GraphQL/ads";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "../../GraphQL/products";
 import { useLocation } from "react-router-dom";
 import Modal from "../Modal/Modal";
 
@@ -15,7 +15,7 @@ const RecentAds = () => {
   const [maxPage, setMaxPage] = useState<number>();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, loading, error } = useQuery(GET_MINIMAL_ADS_WITH_PAGING, {
+  const { data, loading, error } = useQuery(GET_MINIMAL_PRODUCTS_WITH_PAGING, {
     variables: { onPage: itemsOnPage, page: pageIndex },
   });
 

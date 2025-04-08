@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { GET_AD_BY_ID } from "../../GraphQL/ads";
+import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 import { GET_CATEGORIES } from "../../GraphQL/categories";
 import { DELETE_AD } from "../../GraphQL/deleteAd";
 import { GET_TAGS } from "../../GraphQL/tags";
@@ -25,7 +25,7 @@ const AdEditForm = () => {
   const [price, setPrice] = useState<number>(0);
   const [description, setDescription] = useState("");
 
-  const { data: adResult } = useQuery(GET_AD_BY_ID, {
+  const { data: adResult } = useQuery(GET_PRODUCT_BY_ID, {
     variables: { param: paramId },
   });
   const { data: categoriesResult } = useQuery<{ getCategories: Category[] }>(
