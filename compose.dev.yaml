@@ -9,6 +9,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
+    command: npm start
     depends_on:
       - db
 
