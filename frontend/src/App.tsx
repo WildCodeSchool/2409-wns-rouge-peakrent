@@ -1,9 +1,4 @@
-import {
-  ApolloClient,
-  ApolloProvider,
-  InMemoryCache,
-  useQuery,
-} from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Styles
@@ -23,13 +18,6 @@ import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
-
-const client = new ApolloClient({
-  // uri: "http://localhost:5050/",
-  uri: "/api",
-  cache: new InMemoryCache(),
-  credentials: "same-origin",
-});
 
 enum AuthStates {
   authenticated,
@@ -60,40 +48,38 @@ const checkAuth = (
 
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" Component={PageLayout}>
-            <Route index Component={RecentAds} />
-            <Route
-              path="/signin"
-              Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
-            />
-            <Route
-              path="/signup"
-              Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
-            />
-            <Route path="about" Component={About} />
-            <Route
-              path="post-ad"
-              Component={checkAuth(Form, [AuthStates.authenticated])}
-            />
-            <Route path="ads/:id" Component={AdDetail} />
-            <Route
-              path="ads/:id/edit"
-              Component={checkAuth(AdEditForm, [AuthStates.authenticated])}
-            />
-            <Route path="categories/:id" Component={CategoryDetail} />
-            <Route path="tags/:id" Component={TagDetail} />
-            <Route
-              path="admin"
-              Component={checkAuth(AdminPage, [AuthStates.authenticated])}
-            />
-          </Route>
-          <Route path="*" Component={PageNotFound} />
-        </Routes>
-      </BrowserRouter>
-    </ApolloProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" Component={PageLayout}>
+          <Route index Component={RecentAds} />
+          <Route
+            path="/signin"
+            Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+          />
+          <Route
+            path="/signup"
+            Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
+          />
+          <Route path="about" Component={About} />
+          <Route
+            path="post-ad"
+            Component={checkAuth(Form, [AuthStates.authenticated])}
+          />
+          <Route path="ads/:id" Component={AdDetail} />
+          <Route
+            path="ads/:id/edit"
+            Component={checkAuth(AdEditForm, [AuthStates.authenticated])}
+          />
+          <Route path="categories/:id" Component={CategoryDetail} />
+          <Route path="tags/:id" Component={TagDetail} />
+          <Route
+            path="admin"
+            Component={checkAuth(AdminPage, [AuthStates.authenticated])}
+          />
+        </Route>
+        <Route path="*" Component={PageNotFound} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
