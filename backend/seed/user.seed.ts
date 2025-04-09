@@ -10,7 +10,7 @@ export const seedUsers = async () => {
   const users = [
     {
       email: "admin@peakrent.com",
-      password: "Admin123!",
+      password: "Admin123!!",
       firstname: "Admin",
       lastname: "User",
       role: RoleType.ADMIN,
