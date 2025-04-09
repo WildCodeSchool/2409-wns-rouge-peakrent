@@ -1,13 +1,11 @@
 import { Outlet } from "react-router-dom";
-import Header from "../../components/Header/Header";
-
-import styles from "./PageLayout.module.scss";
+import Header from "@/components/Header/Header";
 
 const PageLayout = () => {
   return (
     <>
-      <Header />
-      <main className={styles.mainContent}>
+      {/* <Header /> */}
+      <main>
         <Outlet />
       </main>
     </>

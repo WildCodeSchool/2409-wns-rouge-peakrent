@@ -42,3 +42,31 @@ export const GET_ORDER_BY_ID = gql`
     }
   }
 `;
+
+export const GET_ORDERS = gql`
+  query getOrders {
+    getOrders {
+      id
+      reference
+      status
+      paymentMethod
+      paidAt
+      address1
+      address2
+      country
+      city
+      zipCode
+      createdAt
+      updatedAt
+      profile {
+        email
+        firstname
+        lastname
+        id
+        role
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
