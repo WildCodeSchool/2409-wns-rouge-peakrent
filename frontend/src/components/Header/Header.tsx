@@ -35,20 +35,20 @@ const Header = () => {
           </NavLink>
           <NavLink
             to={"/activities"}
-            aria-label={"Navigation vers la page activités"}
+            aria-label={"Navigation vers la page activité"}
             className="relative after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
           >
             Activités
           </NavLink>
           <NavLink
-            to={""}
+            to={"/products"}
             aria-label={"Navigation vers la page produit"}
             className="relative after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
           >
             Produits
           </NavLink>
           <NavLink
-            to={"/pack"}
+            to={"/packs"}
             aria-label={"Navigation vers la liste des packs"}
             className="relative after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
           >

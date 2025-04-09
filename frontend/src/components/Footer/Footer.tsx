@@ -54,7 +54,7 @@ const Footer = () => {
           <span className="text-xs">Accueil</span>
         </NavLink>
         <NavLink
-          to="/product"
+          to="/products"
           aria-label="Navigation vers la page produit"
           className={({ isActive }) =>
             `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3  text-sm ${
@@ -79,7 +79,7 @@ const Footer = () => {
         </NavLink>
         <NavLink
           to="/activities"
-          aria-label="Navigation vers la page activités"
+          aria-label="Navigation vers la page activité"
           className={({ isActive }) =>
             `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3  text-sm ${
               isActive && "bg-black translate-y-[-20px] text-white"
