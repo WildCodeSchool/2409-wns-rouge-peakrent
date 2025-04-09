@@ -41,3 +41,25 @@ export enum RoleType {
   ADMIN = "admin",
   SUPER_ADMIN = "super_admin",
 }
+
+export type ProfileType = {
+  id: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CartType = {
+  id: number;
+  profile?: ProfileType;
+  address1: string;
+  address2: string;
+  country: string;
+  city: string;
+  zipCode: string;
+  createdAt: Date;
+  updatedAt: Date;
+};

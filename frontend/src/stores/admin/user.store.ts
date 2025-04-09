@@ -1,27 +1,18 @@
+import { ProfileType } from "@/types/types";
 import { create } from "zustand";
 
-export interface User {
-  id: number;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface UserStoreState {
-  users: User[];
+  users: ProfileType[];
   usersFetched: boolean;
 
-  setUsers: (users: User[]) => void;
+  setUsers: (users: ProfileType[]) => void;
   setUsersFetched: (fetched: boolean) => void;
 
   deleteUser: (id: number) => void;
   deleteMultipleUsers: (ids: number[]) => void;
 
-  updateUser: (id: number, user: Partial<User>) => void;
-  addUser: (user: User) => void;
+  updateUser: (id: number, user: Partial<ProfileType>) => void;
+  addUser: (user: ProfileType) => void;
 }
 
 export const useUserStore = create<UserStoreState>((set, get) => ({
@@ -65,12 +56,12 @@ export const deleteMultipleUsers = (ids: (string | number)[]) => {
   deleteMultipleUsers(ids as number[]);
 };
 
-export const updateUser = (id: number, updatedUser: Partial<User>) => {
+export const updateUser = (id: number, updatedUser: Partial<ProfileType>) => {
   const { updateUser } = useUserStore.getState();
   updateUser(id, updatedUser);
 };
 
-export const addUser = (newUser: User) => {
+export const addUser = (newUser: ProfileType) => {
   const { addUser } = useUserStore.getState();
   addUser(newUser);
 };
