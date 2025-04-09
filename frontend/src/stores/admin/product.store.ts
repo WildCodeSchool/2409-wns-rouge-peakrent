@@ -1,7 +1,4 @@
-import { GET_PRODUCTS } from "@/GraphQL/products";
 import { ProductType } from "@/types/types";
-import { useQuery } from "@apollo/client";
-import { toast } from "sonner";
 import { create } from "zustand";
 
 export interface ProductStoreState {
@@ -13,6 +10,8 @@ export interface ProductStoreState {
   addProduct: (newReference: ProductType) => void;
   deleteProduct: (id: number) => void;
   deleteMultipleProducts: (ids: number[]) => void;
+
+  updateProduct: (id: number, product: Partial<ProductType>) => void;
 }
 
 // Define the store
@@ -39,6 +38,13 @@ export const useProductStore = create<ProductStoreState>((set, get) => ({
     set((state) => ({
       products: state.products.filter((product) => !ids.includes(product.id)),
     })),
+
+  updateProduct: (id, updatedProduct) =>
+    set((state) => ({
+      products: state.products.map((product) =>
+        product.id === id ? { ...product, ...updatedProduct } : product
+      ),
+    })),
 }));
 
 export const addProduct = (newProduct: ProductType) => {
@@ -56,4 +62,9 @@ export const deleteMultipleProducts = (ids: (string | number)[]) => {
   const numericIds = ids.map((id) => Number(id));
   const { deleteMultipleProducts } = useProductStore.getState();
   deleteMultipleProducts(numericIds);
+};
+
+export const updateProduct = (id: number, product: Partial<ProductType>) => {
+  const { updateProduct } = useProductStore.getState();
+  updateProduct(id, product);
 };
