@@ -2,7 +2,7 @@ import { CiFacebook, CiInstagram, CiMail } from "react-icons/ci";
 
 const Footer = () => {
   return (
-    <footer className="hidden md:flex bg-white gap-5 border-t border-light-gray fixed bottom-0 w-full min-h-36 p-4 text-sm">
+    <footer className="hidden md:flex bg-white gap-5 border-t border-light-gray w-full min-h-36 p-4 text-sm">
       <div className="w-1/5">
         <ul className="flex gap-2">
           <li className="btn">

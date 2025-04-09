@@ -25,7 +25,7 @@ const NavBarMobile = () => {
         }
       >
         <CiHome size={20} />
-        <span className="text-xs">Accueil</span>
+        Accueil
       </NavLink>
       <NavLink
         to="/products"

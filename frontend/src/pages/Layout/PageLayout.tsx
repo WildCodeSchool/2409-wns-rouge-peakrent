@@ -7,7 +7,7 @@ const PageLayout = () => {
   return (
     <>
       <NavBar />
-      <main className="mt-20">
+      <main className="mt-20 mb-10">
         <Outlet />
       </main>
       <Footer />
