@@ -30,7 +30,7 @@ const SearchBar = () => {
 
   return (
     <>
-      <form className="flex justify-center md:justify-normal grow-1">
+      <form className="flex justify-center md:justify-normal grow-1 m-1">
         <div className="relative w-50 md:w-80">
           <input
             aria-label="Search for a book or tag"
@@ -44,7 +44,7 @@ const SearchBar = () => {
           {searchTerm && searchResults && (
             <ul
               className={classNames(
-                "w-full absolute left-0 top-full mt-1 max-h-[400px] bg-white border-2 overflow-y-auto p-3 z-10 text-sm",
+                "w-full absolute left-0 top-full mt-1 bg-white border-2 overflow-y-auto p-3 z-10 text-sm",
                 {
                   hidden: !searchResults,
                 }
