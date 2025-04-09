@@ -24,8 +24,8 @@ const RecentAds = () => {
       setIsModalOpen(true);
       console.log(location.state.title);
     }
-    if (data?.getAds.pagination.totalPages) {
-      setMaxPage(data.getAds.pagination.totalPages);
+    if (data?.getProducts.pagination.totalPages) {
+      setMaxPage(data.getProducts.pagination.totalPages);
     }
   }, [data, location.state?.title]);
 
@@ -33,6 +33,7 @@ const RecentAds = () => {
     console.log(error);
     return <div>Impossible de charger les annonces récentes.</div>;
   }
+  console.log(data?.getProducts);
 
   return loading ? (
     <Loading />
@@ -44,7 +45,7 @@ const RecentAds = () => {
         )}
         <AdsList
           title="Annonce Récentes"
-          items={data?.getAds.ads}
+          items={data?.getProducts.products}
           itemsOnPage={itemsOnPage}
           setItemsOnPage={setItemsOnPage}
           pageIndex={pageIndex}

@@ -15,28 +15,42 @@ const ProductDetail = () => {
 
   const product = data?.getProductById;
   console.log(product);
+  // query GetProductById($param: String!) {
   //   getProductById(param: $param) {
-  //     id
   //     name
   //     description
   //     urlImage
   //     isPublished
   //     sku
+  //     categories {
+  //       name
+  //       urlImage
+  //       parentCategory {
+  //         name
+  //         urlImage
+  //         parentCategory {
+  //           name
+  //           urlImage
+  //           children {
+  //             name
+  //             urlImage
+  //           }
+  //         }
+  //       }
+  //       children {
+  //         name
+  //         urlImage
+  //         children {
+  //           name
+  //           urlImage
+  //         }
+  //       }
+  //     }
   //     variants {
   //       id
   //       size
   //       color
   //       pricePerHour
-  //     }
-  //     categories {
-  //       id
-  //       name
-  //       urlImage
-  //       parentCategory {
-  //         id
-  //         name
-  //         urlImage
-  //       }
   //     }
   //   }
   // }
