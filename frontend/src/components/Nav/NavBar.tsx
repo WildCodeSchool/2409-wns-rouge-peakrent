@@ -116,18 +116,18 @@ const NavBar = () => {
               {dropDownItems.map((item) => (
                 <div key={item.path}>
                   <Link to={item.path} aria-label={item.ariaLabel}>
-                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center">
+                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-(--primary) hover:text-white">
                       {item.name}
                     </DropdownMenuItem>
                   </Link>
-                  <div className="border-t border-gray-300 my-1"></div>
+                  <div className="border-t border-gray-300"></div>
                 </div>
               ))}
 
               <DropdownMenuItem
                 onClick={onSignout}
                 aria-label="déconnexion"
-                className="py-2 px-4 cursor-pointer text-center"
+                className="py-2 px-4 cursor-pointer text-center hover:bg-(--primary) hover:text-white"
               >
                 Déconnexion
               </DropdownMenuItem>
