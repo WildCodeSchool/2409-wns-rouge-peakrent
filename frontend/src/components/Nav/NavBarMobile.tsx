@@ -82,7 +82,7 @@ const NavBarMobile = () => {
           }
         >
           <CiLogin size={20} />
-          Connection
+          Connexion
         </NavLink>
       )}
     </nav>

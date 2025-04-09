@@ -46,7 +46,7 @@ const NavBar = () => {
       ariaLabel: "Navigation vers la page profile",
     },
     {
-      name: " Mes commandes",
+      name: "Mes commandes",
       path: "/orders",
       ariaLabel: "Navigation vers la page mes commandes",
     },
