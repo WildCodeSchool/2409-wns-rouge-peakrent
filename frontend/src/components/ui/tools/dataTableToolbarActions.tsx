@@ -17,12 +17,19 @@ export function DataTableToolbarActions({
   multipleSelectFunctions = [], // default empty array
   hideExport = false,
 }: DataTableToolbarActionsProps) {
-  const { openModal } = useDeleteModal();
+  const { openModal, setTitle, setDescription } = useDeleteModal();
   const { pathname } = useLocation();
   const time = new Date().getTime();
 
   const handleDeleteMultiple = async (selectedRows: any[]) => {
     const idsToDelete = selectedRows.map((row) => row.original.id);
+    if (idsToDelete.length > 1) {
+      setTitle("Supprimer");
+      setDescription("Voulez-vous vraiment supprimer ces éléments ?");
+    } else {
+      setTitle("Supprimer");
+      setDescription("Voulez-vous vraiment supprimer cet élément ?");
+    }
     if (onDeleteMultipleFunction) {
       openModal(
         idsToDelete as string[] | number[],

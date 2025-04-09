@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { type Table } from "@tanstack/react-table";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 import DeleteModal from "@/components/modals/DeleteModal";
 
@@ -32,7 +32,7 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 /**
  * useDeleteModal
  *
- * A custom hook that provides access to the delete modal context. It allows you to manage the modal's state, 
+ * A custom hook that provides access to the delete modal context. It allows you to manage the modal's state,
  * content, and behavior (e.g., confirming deletion, setting titles, etc.).
  * This hook must be used within a `DeleteModalProvider` component to function correctly.
  *
@@ -147,12 +147,14 @@ export function DeleteModalProvider({
 
   useEffect(() => {
     if (isOpen) {
-      setTitle(title.length > 0 ? title : "ModalTitleDelete");
+      setTitle(title.length > 0 ? title : "Supprimer");
       setDescription(
-        description.length > 0 ? description : "ModalDeleteDescription"
+        description.length > 0
+          ? description
+          : "Voulez-vous vraiment supprimer ?"
       );
-      setCancelButtonValue(cancelButtonValue || "cancel");
-      setConfirmButtonValue(confirmButtonValue || "delete");
+      setCancelButtonValue(cancelButtonValue || "Annuler");
+      setConfirmButtonValue(confirmButtonValue || "Supprimer");
     }
   }, [isOpen]);
 
