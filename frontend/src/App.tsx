@@ -15,6 +15,7 @@ import AdEditForm from "./pages/AdEditForm/AdEditForm";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
+import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
@@ -99,6 +100,7 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="stores" element={<AdminStoresPage />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Route>
