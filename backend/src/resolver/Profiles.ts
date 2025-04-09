@@ -1,4 +1,4 @@
-import { Ctx, Query, Resolver } from "type-graphql";
+import { Authorized, Ctx, Query, Resolver } from "type-graphql";
 import { Profile } from "../entities/Profile";
 import { getUserFromContext } from "../helpers/helpers";
 import { ContextType, ProfileType } from "../types";
@@ -12,6 +12,12 @@ export class ProfileResolver {
       return null;
     }
     return await Profile.findOneBy({ id: user.id });
+  }
+
+  @Authorized(["admin"])
+  @Query(() => [Profile], { nullable: true })
+  async getProfiles(): Promise<Profile[] | null> {
+    return await Profile.find();
   }
 
   // @Query(() => Profile, { nullable: true })
