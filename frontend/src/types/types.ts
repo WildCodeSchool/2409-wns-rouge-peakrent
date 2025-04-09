@@ -35,3 +35,9 @@ export type ProductType = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export enum RoleType {
+  USER = "user",
+  ADMIN = "admin",
+  SUPER_ADMIN = "super_admin",
+}

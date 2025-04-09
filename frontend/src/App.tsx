@@ -17,6 +17,7 @@ import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPag
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
+import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
@@ -103,6 +104,7 @@ function App() {
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="stores" element={<AdminStoresPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Route>

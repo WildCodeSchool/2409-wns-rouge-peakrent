@@ -177,7 +177,7 @@ export function DeleteModalProvider({
     setIsOpen(false);
     setDescription("");
     setTitle("");
-    setConfirmButtonValue("delete");
+    setConfirmButtonValue(confirmButtonValue || "Supprimer");
     setElementId(null);
     setOnDelete(null);
     setTable(undefined);
