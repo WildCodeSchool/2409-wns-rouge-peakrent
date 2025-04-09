@@ -31,7 +31,7 @@ const SearchBar = () => {
   return (
     <>
       <form className="flex justify-center md:justify-normal grow-1">
-        <div className="w-50 md:w-80">
+        <div className="relative w-50 md:w-80">
           <input
             aria-label="Search for a book or tag"
             type="search"
@@ -39,12 +39,12 @@ const SearchBar = () => {
             onChange={(event) => {
               onInputChange(event);
             }}
-            className="p-2 border-1 rounded-s border-black text-xs font-inherit w-50 md:w-80"
+            className="h-10 p-5 border-1 rounded-s border-black font-inherit w-50 md:w-80"
           />
           {searchTerm && searchResults && (
             <ul
               className={classNames(
-                "w-full absolute top-6 right-0 max-h-[400px] bg-white border-2 rounded-b-lg overflow-y-auto p-0",
+                "w-full absolute left-0 top-full mt-1 max-h-[400px] bg-white border-2 overflow-y-auto p-3 z-10 text-sm",
                 {
                   hidden: !searchResults,
                 }
@@ -65,7 +65,7 @@ const SearchBar = () => {
             </ul>
           )}
         </div>
-        <div className="border-1 border-black text-xs font-inherit border-l-0">
+        <div className="border-1 border-black text-xs font-inherit border-l-0 h-10 flex justify-center items-center py-5">
           <CiSearch size={30} />
         </div>
       </form>
