@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { WHOAMI } from "../../GraphQL/whoami";
 import SearchBar from "../SearchBar/SearchBar";
 
-const Header = () => {
+const NavBar = () => {
   const { data: whoamiData } = useQuery(WHOAMI);
   const me = whoamiData?.whoami;
 
@@ -19,9 +19,9 @@ const Header = () => {
           src="LogoPeakrent.png"
           className="h-auto w-20 sm:w-12 md:w-16 lg:w-20 object-contain"
         />
-        <h1 className="hidden lg:block text-white logo text-[2.3vw]">
+        <p className="hidden lg:block text-white font-logo text-[2.3vw]">
           PeakRent
-        </h1>
+        </p>
       </NavLink>
 
       <div className="flex items-center justify-between grow gap-20">
@@ -90,4 +90,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default NavBar;
