@@ -1,6 +1,7 @@
 export * from "./badge/badge.column";
 export * from "./badge/bool.badge.column";
 export * from "./block/fullname.email.column";
+export * from "./block/name.sku.column";
 export * from "./date/date.column";
 export * from "./date/date.two.column";
 export * from "./hidden.column";

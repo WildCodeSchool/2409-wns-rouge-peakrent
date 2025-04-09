@@ -23,3 +23,15 @@ export type Tag = {
   name: string;
   ads?: AdType[];
 };
+
+export type ProductType = {
+  id: number;
+  name: string;
+  description: string;
+  urlImage: string;
+  isPublished: boolean;
+  sku: string;
+  categories: Category[];
+  createdAt: Date;
+  updatedAt: Date;
+};
