@@ -22,6 +22,15 @@ export const createColumns: ColumnDef<any>[] = [
     enableHiding: true,
   }),
 
+  column.createDateColumn({
+    id: "createdAt",
+    accessorKey: "createdAt",
+    title: "Crée le",
+    enableSorting: true,
+    enableHiding: true,
+    showTime: true,
+  }),
+
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowOrdersActions row={row} />,

@@ -1,4 +1,3 @@
-import { useModal } from "@/context/modalProvider";
 import { Row } from "@tanstack/react-table";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
@@ -12,7 +11,6 @@ export function DataTableRowOrdersActions<TData>({
   row,
 }: DataTableRowOrdersActionsProps<TData>) {
   const order = row.original as any;
-  const { openModal, setTitle } = useModal();
 
   const handleDelete = async (ids: string[] | number[]) => {
     return true;
@@ -26,11 +24,15 @@ export function DataTableRowOrdersActions<TData>({
         modalContent={formContent}
         ariaLabel={"editOrderAriaLabel"}
         variant="primary"
+        modalTitle="Modifier la commande"
+        modalDescription={"Réf: " + order.reference}
       />
       <DeleteButton
         onDeleteFunction={() => handleDelete([order.id])}
         elementIds={[order.id]}
         ariaLabel={"deleteOrderAriaLabel"}
+        modalTitle="Supprimer la commande"
+        modalDescription="Voulez-vous vraiment supprimer cette commande ?"
       />
     </div>
   );

@@ -13,6 +13,7 @@ import TagDetail from "./components/TagDetail/TagDetail";
 import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
+import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPage";
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
@@ -101,6 +102,7 @@ function App() {
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="stores" element={<AdminStoresPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Route>

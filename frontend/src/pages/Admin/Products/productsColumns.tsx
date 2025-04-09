@@ -137,6 +137,15 @@ export const createColumns: ColumnDef<any>[] = [
     },
   },
 
+  column.createDateColumn({
+    id: "createdAt",
+    accessorKey: "createdAt",
+    title: "Crée le",
+    enableSorting: true,
+    enableHiding: true,
+    showTime: true,
+  }),
+
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowProductsActions row={row} />,
