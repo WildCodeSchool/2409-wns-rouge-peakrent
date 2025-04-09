@@ -59,7 +59,7 @@ export class Product extends BaseEntity {
   @Column({ default: false, name: "is_published" })
   isPublished!: boolean;
 
-  @Field(() => Int)
+  @Field(() => String)
   @Column({ length: 100, unique: true })
   sku!: string;
 

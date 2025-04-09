@@ -1,6 +1,7 @@
 FROM node:20-alpine3.21
 
 RUN mkdir /app
+
 WORKDIR /app
 
 COPY package.json package.json
@@ -10,7 +11,6 @@ RUN npm install
 
 COPY tsconfig.json tsconfig.json
 COPY src src
-# COPY seed.sql /docker-entryoint-initdb.d/
+COPY seed seed
 
-# ENTRYPOINT ["/bin/bash", "-c"]
 CMD ["npm", "start"]
