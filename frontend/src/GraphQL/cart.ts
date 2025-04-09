@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_CART_BY_PROFILE_ID = gql`
-  query GetCartByProfile($id: ID!) {
-    getCartByProfile(profileId: $id) {
+  query GetCartByProfile($profileId: ID!) {
+    getCartByProfile(profileId: $profileId) {
       id
     }
   }

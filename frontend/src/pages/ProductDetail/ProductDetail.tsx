@@ -30,16 +30,12 @@ const ProductDetail = () => {
     },
   });
 
+  console.log("éééééééééééééé", useUserProfile?.id);
+
   const params = useParams();
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([]);
 
-  const {
-    loading: getCartLoading,
-    error: getCartError,
-    data: getCartData,
-  } = useQuery(GET_CART_BY_PROFILE_ID, {
-    variables: { profileId: Number(useUserData?.id) },
-  });
+  const [getCartByProfile] = useLazyQuery(GET_CART_BY_PROFILE_ID);
 
   const [createOrderItem] = useMutation(CREATE_ORDER_ITEM);
   const [createCart] = useMutation(CREATE_CART);
@@ -54,8 +50,6 @@ const ProductDetail = () => {
 
   const product = getProductData?.getProductById;
 
-  console.log(useUserData);
-
   if (getProductError) {
     console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
@@ -63,8 +57,21 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     try {
-      let cartId = getCartData?.getCartByProfile?.id;
-      console.log(cartId);
+      const {
+        data: getCartData,
+        loading: getCartLoading,
+        error: getCartError,
+      } = await getCartByProfile({
+        variables: { profileId: useUserProfile?.id },
+      });
+
+      let cartId = getCartData?.id;
+
+      console.log({
+        data: getCartData,
+        loading: getCartLoading,
+        error: getCartError,
+      });
 
       if (!cartId) {
         const newCart = await createCart({
