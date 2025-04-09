@@ -15,6 +15,7 @@ interface CustomColumnProps {
   renderCell?: (data: any) => React.ReactNode;
   size?: number;
   headerClassName?: string;
+  imageClassName?: string;
 }
 
 /**
@@ -30,6 +31,7 @@ interface CustomColumnProps {
  * @param {function} [params.renderCell] - Custom render function for the cell. If not provided, defaults to rendering an image.
  * @param {number} [params.size=50] - Size of the image in pixels.
  * @param {string} [params.headerClassName] - Additional CSS classes for the header.
+ * @param {string} [params.imageClassName] - Additional CSS classes for the image.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  *
@@ -51,6 +53,7 @@ export function createImageColumn({
   renderCell,
   size = 50,
   headerClassName,
+  imageClassName,
 }: CustomColumnProps): ColumnDef<any> {
   return {
     id,
@@ -76,7 +79,7 @@ export function createImageColumn({
           alt={altText}
           width={size}
           height={size}
-          className={`border-foreground rounded-lg border`}
+          className={cn(`border-foreground rounded-lg border`, imageClassName)}
         />
       );
     },

@@ -1,16 +1,15 @@
 import { exportTableToCSV } from "@/components/ui/tools/export";
 import { useDeleteModal } from "@/context/deleteModalProvider";
 import { cn } from "@/lib/utils";
+import { DownloadIcon, TrashIcon } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { DownloadIcon } from "@radix-ui/react-icons";
-import { TrashIcon } from "lucide-react";
 
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
 import {
   DataTableToolbarActionsProps,
   SelectFunction,
 } from "@/types/datasTable";
-import { Button } from "@/components/ui/button";
-import { LoadIcon } from "@/components/icons/LoadIcon";
 
 export function DataTableToolbarActions({
   table,
