@@ -51,12 +51,12 @@ const SearchBar = () => {
               )}
             >
               {searchResults?.products.map((product: Product) => (
-                <li key={product.id}>
+                <li key={product.id} className="hover:text-(--primary)">
                   <Link to={`/products/${product.id}`}>{product.name}</Link>
                 </li>
               ))}
               {searchResults?.categories.map((categorie: Category) => (
-                <li key={categorie.id}>
+                <li key={categorie.id} className="hover:text-(--primary)">
                   <Link to={`/categories/${categorie.id}`}>
                     {categorie.name}
                   </Link>
