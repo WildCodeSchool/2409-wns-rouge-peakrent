@@ -12,16 +12,20 @@ import RecentAds from "./components/RecentAds/RecentAds";
 import TagDetail from "./components/TagDetail/TagDetail";
 import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
-import AdminPage from "./pages/Admin/AdminPage";
+import { AdminDashboard } from "./pages/Admin/AdminDashboard";
+import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
+import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
+import AdminLayout from "./pages/Layout/Admin/AdminLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 
 enum AuthStates {
   authenticated,
   unauthenticated,
+  isAdmin,
 }
 
 const checkAuth = (
@@ -30,18 +34,34 @@ const checkAuth = (
   redirectTo: string = "/"
 ) => {
   return function renderComponent() {
-    const { data: whoamiData } = useQuery(WHOAMI);
+    const { data: whoamiData, loading } = useQuery(WHOAMI);
     const me = whoamiData?.whoami;
 
-    if (me === undefined) {
+    if (loading) {
       return null;
     }
-    if (
-      (me === null && authStates.includes(AuthStates.unauthenticated)) ||
-      (me && authStates.includes(AuthStates.authenticated))
-    ) {
+
+    const isAdmin = me?.role === "admin";
+    const isSuperAdmin = me?.role === "superadmin";
+    const isAuthenticated = !!me;
+
+    const hasRequiredAuth = authStates.some((state) => {
+      switch (state) {
+        case AuthStates.authenticated:
+          return isAuthenticated;
+        case AuthStates.unauthenticated:
+          return !isAuthenticated;
+        case AuthStates.isAdmin:
+          return isAdmin || isSuperAdmin;
+        default:
+          return false;
+      }
+    });
+
+    if (hasRequiredAuth) {
       return <Component />;
     }
+
     return <Navigate to={redirectTo} replace />;
   };
 };
@@ -50,34 +70,40 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" Component={PageLayout}>
-          <Route index Component={RecentAds} />
+        <Route path="/" element={<PageLayout />}>
+          <Route index element={<RecentAds />} />
+          <Route path="about" element={<About />} />
+          <Route
+            path="post-ad"
+            element={checkAuth(Form, [AuthStates.authenticated])()}
+          />
+          <Route path="ads/:id" element={<AdDetail />} />
+          <Route
+            path="ads/:id/edit"
+            element={checkAuth(AdEditForm, [AuthStates.authenticated])()}
+          />
+          <Route path="categories/:id" element={<CategoryDetail />} />
+          <Route path="tags/:id" element={<TagDetail />} />
           <Route
             path="/signin"
-            Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+            element={checkAuth(SignInPage, [AuthStates.unauthenticated])()}
           />
           <Route
             path="/signup"
-            Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
+            element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
           />
-          <Route path="about" Component={About} />
           <Route
-            path="post-ad"
-            Component={checkAuth(Form, [AuthStates.authenticated])}
-          />
-          <Route path="ads/:id" Component={AdDetail} />
-          <Route
-            path="ads/:id/edit"
-            Component={checkAuth(AdEditForm, [AuthStates.authenticated])}
-          />
-          <Route path="categories/:id" Component={CategoryDetail} />
-          <Route path="tags/:id" Component={TagDetail} />
-          <Route
-            path="admin"
-            Component={checkAuth(AdminPage, [AuthStates.authenticated])}
-          />
+            path="/admin"
+            element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Route>
         </Route>
-        <Route path="*" Component={PageNotFound} />
+
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
   );
