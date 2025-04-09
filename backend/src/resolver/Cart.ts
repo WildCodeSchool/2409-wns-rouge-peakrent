@@ -49,6 +49,17 @@ export class CartResolver {
     return cart;
   }
 
+  @Authorized("user", "admin")
+  @Query(() => Cart, { nullable: true })
+  async getCartByProfile(
+    @Arg("profileId", () => ID) profileId: number
+  ): Promise<Cart | null> {
+    return await Cart.findOne({
+      where: { profile: { id: profileId } },
+      relations: { profile: true },
+    });
+  }
+
   @Authorized("admin", "user")
   @Mutation(() => Cart)
   async createCart(

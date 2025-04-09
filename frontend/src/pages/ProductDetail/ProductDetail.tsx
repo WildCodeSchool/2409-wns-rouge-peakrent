@@ -1,27 +1,123 @@
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Loading from "../../components/Loading/Loading";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 import { useState } from "react";
+import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
+import { CREATE_CART, GET_CART_BY_PROFILE_ID } from "../../GraphQL/cart";
+import { useUser } from "@/context/userContext";
+
+interface Variant {
+  id: number;
+  pricePerHour: number;
+}
 
 const ProductDetail = () => {
-  const params = useParams();
-  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+  const {
+    user: useUserData,
+    profile: useUserProfile,
+    loading: useUserLoading,
+    error: useUserError,
+  } = useUser();
 
-  const { data, loading, error } = useQuery(GET_PRODUCT_BY_ID, {
+  console.log({
+    context: {
+      user: useUserData,
+      profile: useUserProfile,
+      loading: useUserLoading,
+      error: useUserError,
+    },
+  });
+
+  const params = useParams();
+  const [selectedVariants, setSelectedVariants] = useState<Variant[]>([]);
+
+  const {
+    loading: getCartLoading,
+    error: getCartError,
+    data: getCartData,
+  } = useQuery(GET_CART_BY_PROFILE_ID, {
+    variables: { profileId: Number(useUserData?.id) },
+  });
+
+  const [createOrderItem] = useMutation(CREATE_ORDER_ITEM);
+  const [createCart] = useMutation(CREATE_CART);
+
+  const {
+    data: getProductData,
+    loading: getProductLoading,
+    error: getProductError,
+  } = useQuery(GET_PRODUCT_BY_ID, {
     variables: { param: params.id },
   });
 
-  const product = data?.getProductById;
-  console.log(selectedVariants);
+  const product = getProductData?.getProductById;
 
-  if (error) {
-    console.log(error);
+  console.log(useUserData);
+
+  if (getProductError) {
+    console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
   }
 
-  return loading ? (
+  const handleAddToCart = async () => {
+    try {
+      let cartId = getCartData?.getCartByProfile?.id;
+      console.log(cartId);
+
+      if (!cartId) {
+        const newCart = await createCart({
+          variables: {
+            data: {
+              profileId: Number(useUserData?.id),
+            },
+          },
+        });
+
+        cartId = newCart?.data?.createCart?.id;
+
+        if (!cartId) {
+          throw new Error("Impossible de créer un panier.");
+        }
+      }
+
+      for (const variant of selectedVariants) {
+        await createOrderItem({
+          variables: {
+            data: {
+              cartId: Number(cartId),
+              variantId: Number(variant.id),
+              quantity: 1,
+              pricePerHour: Number(variant.pricePerHour),
+              startsAt: new Date(),
+              endsAt: new Date(),
+            },
+          },
+        });
+      }
+
+      console.log("Produits ajoutés au panier !");
+    } catch (err) {
+      console.error("Erreur ajout panier :", err);
+    }
+  };
+
+  const handleCheckboxAction = (variant: Variant) => {
+    setSelectedVariants((prev) => {
+      const isSelected = prev.some((v) => v.id === variant.id);
+      if (isSelected) {
+        return prev.filter((v) => v.id !== variant.id);
+      } else {
+        return [
+          ...prev,
+          { id: variant.id, pricePerHour: variant.pricePerHour },
+        ];
+      }
+    });
+  };
+
+  return getProductLoading || useUserLoading ? (
     <Loading />
   ) : (
     <article className="space-y-6 p-4 md:p-6 bg-[rgba(107,114,128,0.1)]">
@@ -65,14 +161,8 @@ const ProductDetail = () => {
                 type="checkbox"
                 name="variant"
                 value={variant.id}
-                checked={selectedVariants.includes(variant.id)}
-                onChange={() =>
-                  setSelectedVariants((prev) =>
-                    prev.includes(variant.id)
-                      ? prev.filter((item) => item !== variant.id)
-                      : [...prev, variant.id]
-                  )
-                }
+                checked={selectedVariants.some((v) => v.id === variant.id)}
+                onChange={() => handleCheckboxAction(variant)}
                 id={variant.id}
                 className="accent-primary w-5 h-5"
               />
@@ -93,15 +183,11 @@ const ProductDetail = () => {
         variant="primary"
         size="lg"
         className="px-4 mx-auto block mt-6 rounded-lg w-full max-w-[600px]"
-        onClick={() =>
-          console.log({
-            productId: product.id,
-            productName: product.name,
-            variants: selectedVariants,
-          })
-        }
+        onClick={handleAddToCart}
       >
-        Ajouter au panier
+        {!useUserData?.id
+          ? "Se connecter pour ajouter au panier"
+          : "Ajouter au panier"}
       </Button>
     </article>
   );
