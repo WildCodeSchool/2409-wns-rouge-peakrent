@@ -1,5 +1,3 @@
-"use client";
-
 import { useModal } from "@/context/modalProvider";
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
