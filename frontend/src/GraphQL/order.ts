@@ -70,3 +70,32 @@ export const GET_ORDERS = gql`
     }
   }
 `;
+
+export const UPDATE_ORDER = gql`
+  mutation UpdateOrder($id: Int!, $input: UpdateOrderInput!) {
+    updateOrder(id: $id, input: $input) {
+      id
+      status
+      total
+      createdAt
+      updatedAt
+      user {
+        id
+        email
+      }
+      store {
+        id
+        name
+      }
+      order_items {
+        id
+        quantity
+        price
+        product {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
