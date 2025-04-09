@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Table,
   TableBody,
@@ -11,7 +10,6 @@ import { DataTablePagination } from "@/components/ui/tools/dataTablePagination";
 import { DataTableToolbar } from "@/components/ui/tools/dataTableToolbar";
 import useBreakpoints from "@/hooks/useBreakpoint";
 import { cn } from "@/lib/utils";
-import { columnBreakpoints } from "./columnBreakpoints";
 import {
   ColumnFiltersState,
   flexRender,
@@ -26,6 +24,8 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { Meh } from "lucide-react";
+import * as React from "react";
+import { columnBreakpoints } from "./columnBreakpoints";
 
 import { DataTableProps, RowLink } from "@/types/datasTable";
 import { useNavigate } from "react-router-dom";
@@ -123,7 +123,8 @@ export function DataTable<TData, TValue>({
           navigate(`${rowLink.customPath}/${datas[rowLink.rowLink]}`);
         } else {
           // Otherwise, treat it as a string and append to the current pathname
-          navigate(`/${datas[rowLink]}`);
+          const currentPath = window.location.pathname;
+          navigate(`${currentPath}/${datas[rowLink]}`);
         }
       }
     }
