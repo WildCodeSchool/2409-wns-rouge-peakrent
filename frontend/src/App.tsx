@@ -6,7 +6,7 @@ import "./styles/App.scss";
 
 // Components
 import About from "./components/About/About";
-import ProductDetail from "./components/AdDetail/ProductDetail";
+import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
 import RecentAds from "./components/RecentAds/RecentAds";
 import TagDetail from "./components/TagDetail/TagDetail";
