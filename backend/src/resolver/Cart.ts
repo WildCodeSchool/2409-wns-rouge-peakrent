@@ -29,6 +29,16 @@ export class CartResolver {
     return cart;
   }
 
+  @Authorized(["admin"])
+  @Query(() => [Cart])
+  async getCarts(): Promise<Cart[]> {
+    return await Cart.find({
+      relations: {
+        profile: true,
+      },
+    });
+  }
+
   @Authorized("admin", "user")
   @Query(() => Cart)
   async getCartById(

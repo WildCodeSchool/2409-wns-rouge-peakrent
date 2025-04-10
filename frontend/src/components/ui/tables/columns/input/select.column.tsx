@@ -80,7 +80,7 @@ export function createSelectColumn(
           }}
           aria-label="Select row"
           disabled={isDisabled(row) || isMaxReached}
-          className="translate-y-0.5 rounded-lg disabled:bg-red-600 group-[.select-black]:border-black"
+          className="translate-y-0.5 rounded-lg disabled:bg-red-600 group-[.select-black]:border-black border-black"
           onClick={(e) => e.stopPropagation()}
         />
       );

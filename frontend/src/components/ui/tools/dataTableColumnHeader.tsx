@@ -21,7 +21,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return (
-      <div className={cn(className)} role={role}>
+      <div className={cn("capitalize text-base", className)} role={role}>
         {title}
       </div>
     );

@@ -21,6 +21,7 @@
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.56 0.1512 22.42);
+  --destructive-foreground: oklch(0.982 0.018 155.826);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.47 0.0784 148.94);
@@ -48,6 +49,7 @@
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.527 0.154 150.069);
@@ -96,6 +98,8 @@
   --color-accent-foreground: var(--accent-foreground);
 
   --color-destructive: var(--destructive);
+
+  --color-destructive-foreground: var(--destructive-foreground);
 
   --color-border: var(--border);
 
@@ -183,4 +187,33 @@ h2 {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
+/* fond de la scrollbar */
+::-webkit-scrollbar-track {
+  background: var(--primary);
+}
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+.table-scrollbar::-webkit-scrollbar {
+  height: 5px;
+}
+/* poigné de la scrollbar */
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 20px;
 }

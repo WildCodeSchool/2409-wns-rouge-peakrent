@@ -18,6 +18,7 @@ interface StringColumnProps {
   numberEllipsis?: number;
   withCopy?: boolean;
   extraText?: string;
+  valueKey?: string;
 }
 
 /**
@@ -36,7 +37,7 @@ interface StringColumnProps {
  * @param {boolean} [params.enableHiding=false] - Indicates if the column can be hidden.
  * @param {boolean} [params.withCopy=false] - Indicates if the column has a copy button.
  * @param {FilterFn<any>} [params.filterFn] - Custom filter function for the column.
- * @param {string} [params.extraText] - Additional text to display in the cell.
+ * @param {string} [params.valueKey] - Key to use for extracting the value from an object.
  *
  * @returns {ColumnDef<any>} Column definition object for Tanstack Table.
  * @example
@@ -62,6 +63,7 @@ export function createStringTableColumn({
   numberEllipsis,
   withCopy = false,
   extraText,
+  valueKey,
 }: StringColumnProps): ColumnDef<any> {
   return {
     id,
@@ -75,8 +77,8 @@ export function createStringTableColumn({
     ),
     cell: ({ row }) => {
       const datas = row.original;
-      const strings = getNestedValueFunction(datas, accessorKey);
-      if (!Array.isArray(strings)) {
+      const tables = getNestedValueFunction(datas, accessorKey);
+      if (!Array.isArray(tables)) {
         return;
       }
       return (
@@ -86,16 +88,29 @@ export function createStringTableColumn({
             className
           )}
         >
-          {strings.map((stringText) =>
-            stringText ? (
-              <div key={stringText} className="flex items-center gap-2">
-                <span className={cn("", textClassName)} title={stringText}>
+          {tables.map((value) =>
+            value ? (
+              <div
+                key={valueKey ? value[valueKey] : value}
+                className="flex items-center gap-2"
+              >
+                <span
+                  className={cn("", textClassName)}
+                  title={valueKey ? value[valueKey] : value}
+                >
                   {numberEllipsis
-                    ? truncateTextWithEllipsisMiddle(stringText, numberEllipsis)
-                    : stringText}
+                    ? truncateTextWithEllipsisMiddle(
+                        valueKey ? value[valueKey] : value,
+                        numberEllipsis
+                      )
+                    : valueKey
+                      ? value[valueKey]
+                      : value}
                   {extraText}
                 </span>
-                {withCopy && <CopyButton toCopy={stringText} />}
+                {withCopy && (
+                  <CopyButton toCopy={valueKey ? value[valueKey] : value} />
+                )}
               </div>
             ) : (
               <span

@@ -1,16 +1,15 @@
 import { exportTableToCSV } from "@/components/ui/tools/export";
 import { useDeleteModal } from "@/context/deleteModalProvider";
 import { cn } from "@/lib/utils";
+import { DownloadIcon, TrashIcon } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { DownloadIcon } from "@radix-ui/react-icons";
-import { TrashIcon } from "lucide-react";
 
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
 import {
   DataTableToolbarActionsProps,
   SelectFunction,
 } from "@/types/datasTable";
-import { Button } from "@/components/ui/button";
-import { LoadIcon } from "@/components/icons/LoadIcon";
 
 export function DataTableToolbarActions({
   table,
@@ -18,12 +17,19 @@ export function DataTableToolbarActions({
   multipleSelectFunctions = [], // default empty array
   hideExport = false,
 }: DataTableToolbarActionsProps) {
-  const { openModal } = useDeleteModal();
+  const { openModal, setTitle, setDescription } = useDeleteModal();
   const { pathname } = useLocation();
   const time = new Date().getTime();
 
   const handleDeleteMultiple = async (selectedRows: any[]) => {
     const idsToDelete = selectedRows.map((row) => row.original.id);
+    if (idsToDelete.length > 1) {
+      setTitle("Supprimer");
+      setDescription("Voulez-vous vraiment supprimer ces éléments ?");
+    } else {
+      setTitle("Supprimer");
+      setDescription("Voulez-vous vraiment supprimer cet élément ?");
+    }
     if (onDeleteMultipleFunction) {
       openModal(
         idsToDelete as string[] | number[],
