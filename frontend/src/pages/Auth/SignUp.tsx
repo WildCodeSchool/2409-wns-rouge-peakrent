@@ -221,7 +221,7 @@ export function SignUpPage() {
                     )}
                   </button>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flexitems-center space-x-2 z-10">
                   <Checkbox
                     id="policy"
                     checked={agreeToPolicy}
@@ -229,7 +229,7 @@ export function SignUpPage() {
                       setAgreeToPolicy(checked as boolean)
                     }
                   />
-                  <label htmlFor="remember" className="text-sm text-gray-600">
+                  <label htmlFor="policy" className="text-sm text-gray-600">
                     J&apos;accepte les conditions d&apos;utilisation
                   </label>
                 </div>

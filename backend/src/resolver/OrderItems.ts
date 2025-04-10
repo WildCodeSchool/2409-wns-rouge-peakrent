@@ -18,6 +18,7 @@ import {
   OrderItemsUpdateInput,
 } from "../entities/OrderItem";
 import { AuthContextType } from "../types";
+import { Variant } from "../entities/Variant";
 
 @Resolver(OrderItem)
 export class OrderItemsResolver {
@@ -107,15 +108,36 @@ export class OrderItemsResolver {
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput,
     @Ctx() context: AuthContextType
   ): Promise<OrderItem> {
-    const newOrderItems = new OrderItem();
-    Object.assign(newOrderItems, data);
-    const errors = await validate(newOrderItems);
+    const { profileId, variantId, quantity, pricePerHour, startsAt, endsAt } =
+      data;
+
+    let cart = await Cart.findOne({
+      where: { profile: profileId as any },
+      relations: ["profile"],
+    });
+
+    if (!cart) {
+      cart = Cart.create({ profile: profileId as any });
+      await cart.save();
+    }
+
+    const newOrderItem = new OrderItem();
+    Object.assign(newOrderItem, {
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+      cart,
+    });
+    newOrderItem.variant = { id: variantId } as Variant;
+
+    const errors = await validate(newOrderItem);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-    } else {
-      await newOrderItems.save();
-      return newOrderItems;
     }
+
+    await newOrderItem.save();
+    return newOrderItem;
   }
 
   @Mutation(() => OrderItem, { nullable: true })

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { Tabs, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
 import { Grid2X2, LayoutGrid } from "lucide-react";
 
 import { DataTableToolbarProps } from "@/types/datasTable";

@@ -1,13 +1,13 @@
 /**
  * Formats a size string by converting decimal values to their corresponding fractional notation.
- * 
+ *
  * The function takes a string representing a size, and if the string contains a decimal number, it replaces specific decimals
- * (such as 0.3, 0.7, 0.25, 0.75) with their equivalent fraction symbols (⅓, ⅔, ¼, ¾). If the string doesn't contain a decimal number, 
+ * (such as 0.3, 0.7, 0.25, 0.75) with their equivalent fraction symbols (⅓, ⅔, ¼, ¾). If the string doesn't contain a decimal number,
  * or if the decimal doesn't match any of the predefined values, the function returns the size as-is.
- * 
+ *
  * @param size - The string representing the size, which may contain decimals to be converted to fractions.
  * @returns A string where decimal values are replaced by corresponding fractions, or the original size if no conversion is needed.
- * 
+ *
  * Example:
  * ```ts
  * formatSize("5.3"); // Returns "5 ⅓"
@@ -19,7 +19,7 @@
  */
 
 export function formatSize(size: string) {
-  if(!size) return size;
+  if (!size) return size;
   const fractionMap = {
     0.3: "⅓",
     0.7: "⅔",

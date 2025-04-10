@@ -52,8 +52,7 @@ const RadioGroupItemSize = React.forwardRef<
         className
       )}
       {...props}
-    >
-    </RadioGroupPrimitive.Item>
+    ></RadioGroupPrimitive.Item>
   );
 });
 RadioGroupItemSize.displayName = RadioGroupPrimitive.Item.displayName;

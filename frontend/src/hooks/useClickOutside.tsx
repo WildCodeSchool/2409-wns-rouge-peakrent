@@ -34,7 +34,8 @@ export function useClickOutside<T extends HTMLElement>(
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      const isOutsideMain = ref.current && !ref.current.contains(e.target as Node);
+      const isOutsideMain =
+        ref.current && !ref.current.contains(e.target as Node);
 
       const isOutsideExcluded = excludedRefs.every(
         (excludedRef) =>

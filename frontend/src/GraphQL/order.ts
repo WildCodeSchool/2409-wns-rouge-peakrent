@@ -42,3 +42,60 @@ export const GET_ORDER_BY_ID = gql`
     }
   }
 `;
+
+export const GET_ORDERS = gql`
+  query getOrders {
+    getOrders {
+      id
+      reference
+      status
+      paymentMethod
+      paidAt
+      address1
+      address2
+      country
+      city
+      zipCode
+      createdAt
+      updatedAt
+      profile {
+        email
+        firstname
+        lastname
+        id
+        role
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const UPDATE_ORDER = gql`
+  mutation UpdateOrder($id: Int!, $input: UpdateOrderInput!) {
+    updateOrder(id: $id, input: $input) {
+      id
+      status
+      total
+      createdAt
+      updatedAt
+      user {
+        id
+        email
+      }
+      store {
+        id
+        name
+      }
+      order_items {
+        id
+        quantity
+        price
+        product {
+          id
+          name
+        }
+      }
+    }
+  }
+`;

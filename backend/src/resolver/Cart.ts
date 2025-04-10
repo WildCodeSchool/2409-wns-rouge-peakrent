@@ -4,6 +4,7 @@ import {
   Authorized,
   Ctx,
   ID,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -28,6 +29,16 @@ export class CartResolver {
     return cart;
   }
 
+  @Authorized(["admin"])
+  @Query(() => [Cart])
+  async getCarts(): Promise<Cart[]> {
+    return await Cart.find({
+      relations: {
+        profile: true,
+      },
+    });
+  }
+
   @Authorized("admin", "user")
   @Query(() => Cart)
   async getCartById(
@@ -47,6 +58,17 @@ export class CartResolver {
     }
 
     return cart;
+  }
+
+  @Authorized("user", "admin")
+  @Query(() => Cart, { nullable: true })
+  async getCartByProfile(
+    @Arg("profileId", () => Int) profileId: number
+  ): Promise<Cart | null> {
+    return await Cart.findOne({
+      where: { profile: Number(profileId) as any },
+      relations: { profile: true },
+    });
   }
 
   @Authorized("admin", "user")

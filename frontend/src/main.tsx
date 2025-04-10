@@ -2,6 +2,9 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import { AdminProvider } from "./context/adminProvider.tsx";
+import { DeleteModalProvider } from "./context/deleteModalProvider.tsx";
+import { ModalProvider } from "./context/modalProvider.tsx";
 import "./styles/global.css";
 import { TailwindIndicator } from "./utils/TailwindIndicator.tsx";
 
@@ -15,7 +18,13 @@ const client = new ApolloClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ApolloProvider client={client}>
-      <App />
+      <ModalProvider>
+        <DeleteModalProvider>
+          <AdminProvider>
+            <App />
+          </AdminProvider>
+        </DeleteModalProvider>
+      </ModalProvider>
       <TailwindIndicator />
     </ApolloProvider>
   </StrictMode>
