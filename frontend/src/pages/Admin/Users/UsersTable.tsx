@@ -6,7 +6,7 @@ import { GET_PROFILES } from "@/GraphQL/profiles";
 import { useUserStore } from "@/stores/admin/user.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import { ShieldUser } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ export default function UsersTable() {
   const setUsers = useUserStore((state) => state.setUsers);
   const setUsersFetched = useUserStore((state) => state.setUsersFetched);
 
-  const { data, error, loading } = useQuery(GET_PROFILES);
+  const { data, error, loading } = useQuery(gql(GET_PROFILES));
 
   const columnConfigs: ColumnConfig[] = [
     {

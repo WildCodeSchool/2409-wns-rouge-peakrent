@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import { GET_CARTS } from "@/GraphQL/carts";
 import { useCartStore } from "@/stores/admin/cart.store";
 import { ColumnConfig, SelectFunction } from "@/types/datasTable";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { createColumns } from "./storesColumns";
@@ -16,7 +16,7 @@ export function CartsTable() {
   const setCarts = useCartStore((state) => state.setCarts);
   const setCartsFetched = useCartStore((state) => state.setCartsFetched);
 
-  const { data, error, loading } = useQuery(GET_CARTS);
+  const { data, error, loading } = useQuery(gql(GET_CARTS));
 
   const columnConfigs: ColumnConfig[] = [];
 

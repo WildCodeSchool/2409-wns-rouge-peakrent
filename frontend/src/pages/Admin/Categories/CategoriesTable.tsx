@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import { GET_CATEGORIES } from "@/GraphQL/categories";
 import { useCategoryStore } from "@/stores/admin/category.store";
 import { ColumnConfig } from "@/types/datasTable";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { createColumns } from "./categoriesColumns";
 
@@ -19,7 +19,7 @@ export default function CategoriesTable() {
     (state) => state.setCategoriesFetched
   );
 
-  const { data, error, loading } = useQuery(GET_CATEGORIES);
+  const { data, error, loading } = useQuery(gql(GET_CATEGORIES));
 
   const columnConfigs: ColumnConfig[] = [];
 
