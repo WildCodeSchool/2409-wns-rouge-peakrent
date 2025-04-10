@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import AdsList from "../AdsList/AdsList";
 import Loading from "../Loading/Loading";
 import { useQuery } from "@apollo/client";
-import { GET_MINIMAL_ADS_WITH_PAGING } from "../../GraphQL/ads";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "../../GraphQL/products";
 import { useLocation } from "react-router-dom";
 import Modal from "../Modal/Modal";
 
@@ -15,7 +15,7 @@ const RecentAds = () => {
   const [maxPage, setMaxPage] = useState<number>();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, loading, error } = useQuery(GET_MINIMAL_ADS_WITH_PAGING, {
+  const { data, loading, error } = useQuery(GET_MINIMAL_PRODUCTS_WITH_PAGING, {
     variables: { onPage: itemsOnPage, page: pageIndex },
   });
 
@@ -24,8 +24,8 @@ const RecentAds = () => {
       setIsModalOpen(true);
       console.log(location.state.title);
     }
-    if (data?.getAds.pagination.totalPages) {
-      setMaxPage(data.getAds.pagination.totalPages);
+    if (data?.getProducts.pagination.totalPages) {
+      setMaxPage(data.getProducts.pagination.totalPages);
     }
   }, [data, location.state?.title]);
 
@@ -33,6 +33,7 @@ const RecentAds = () => {
     console.log(error);
     return <div>Impossible de charger les annonces récentes.</div>;
   }
+  console.log(data?.getProducts);
 
   return loading ? (
     <Loading />
@@ -44,7 +45,7 @@ const RecentAds = () => {
         )}
         <AdsList
           title="Annonce Récentes"
-          items={data?.getAds.ads}
+          items={data?.getProducts.products}
           itemsOnPage={itemsOnPage}
           setItemsOnPage={setItemsOnPage}
           pageIndex={pageIndex}

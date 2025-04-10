@@ -24,13 +24,13 @@ export class Cart extends BaseEntity {
     onDelete: "CASCADE",
     nullable: true,
   })
-  @JoinColumn({ name: "profile_id" })
-  @Column({ name: "profile_id" })
+  @JoinColumn({ name: "user_id" })
+  @Column({ name: "user_id" })
   profile?: Profile;
 
-  @Field()
-  @Column("varchar", { name: "address_1", length: 255 })
-  address1!: string;
+  @Field({ nullable: true })
+  @Column("varchar", { name: "address_1", length: 255, nullable: true })
+  address1?: string;
 
   @Field({ nullable: true })
   @Column("varchar", { name: "address_2", length: 255, nullable: true })
@@ -38,15 +38,15 @@ export class Cart extends BaseEntity {
 
   @Field({ nullable: true })
   @Column("varchar", { length: 100, nullable: true })
-  country!: string;
+  country?: string;
 
   @Field({ nullable: true })
   @Column("varchar", { length: 100, nullable: true })
-  city!: string;
+  city?: string;
 
   @Field({ nullable: true })
   @Column("varchar", { name: "zip_code", length: 20, nullable: true })
-  zipCode!: string;
+  zipCode?: string;
 
   @Field()
   @CreateDateColumn({
@@ -66,34 +66,30 @@ export class CartCreateInput {
   @Field(() => Int)
   profileId!: number;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty({ message: "address1 must not be empty." })
   @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
-  address1!: string;
+  address1?: string;
 
   @Field({ nullable: true })
   @IsString()
   @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
   address2?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty({ message: "country must not be empty." })
   @Length(1, 100, { message: "country must be between 1 and 100 chars." })
-  country!: string;
+  country?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty({ message: "city must not be empty." })
   @Length(1, 100, { message: "city must be between 1 and 100 chars." })
-  city!: string;
+  city?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty({ message: "zip_code must not be empty." })
   @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
-  zipCode!: string;
+  zipCode?: string;
 }
 
 @InputType()
