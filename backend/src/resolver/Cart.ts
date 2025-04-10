@@ -55,7 +55,6 @@ export class CartResolver {
   async getCartByProfile(
     @Arg("profileId", () => Int) profileId: number
   ): Promise<Cart | null> {
-    console.log("------------------------", profileId);
     return await Cart.findOne({
       where: { profile: Number(profileId) as any },
       relations: { profile: true },

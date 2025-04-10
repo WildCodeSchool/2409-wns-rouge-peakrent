@@ -1,11 +1,10 @@
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Loading from "../../components/Loading/Loading";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 import { useState } from "react";
 import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
-import { CREATE_CART, GET_CART_BY_PROFILE_ID } from "../../GraphQL/cart";
 import { useUser } from "@/context/userContext";
 
 interface Variant {
@@ -21,24 +20,10 @@ const ProductDetail = () => {
     error: useUserError,
   } = useUser();
 
-  console.log({
-    context: {
-      user: useUserData,
-      profile: useUserProfile,
-      loading: useUserLoading,
-      error: useUserError,
-    },
-  });
-
-  console.log("11111111111111", useUserProfile?.id);
-
   const params = useParams();
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([]);
 
-  const [getCartByProfile] = useLazyQuery(GET_CART_BY_PROFILE_ID);
-
   const [createOrderItem] = useMutation(CREATE_ORDER_ITEM);
-  const [createCart] = useMutation(CREATE_CART);
 
   const {
     data: getProductData,
@@ -50,8 +35,6 @@ const ProductDetail = () => {
 
   const product = getProductData?.getProductById;
 
-  console.log("33333333333333333", selectedVariants);
-
   if (getProductError) {
     console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
@@ -60,7 +43,6 @@ const ProductDetail = () => {
   const handleAddToCart = async () => {
     try {
       for (const variant of selectedVariants) {
-        console.log("22222222222222222222", variant);
         await createOrderItem({
           variables: {
             data: {

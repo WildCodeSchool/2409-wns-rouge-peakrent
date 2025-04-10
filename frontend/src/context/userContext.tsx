@@ -51,8 +51,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [whoamiData, getProfileByUserId]);
 
-  // console.log(whoamiData.whoami.id)
-
   const value: UserContextType = {
     user: whoamiData?.whoami || null,
     profile: profileData?.getProfileByUserId,
