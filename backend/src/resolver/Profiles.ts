@@ -1,4 +1,4 @@
-import { Ctx, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Query, Resolver } from "type-graphql";
 import { Profile } from "../entities/Profile";
 import { getUserFromContext } from "../helpers/helpers";
 import { ContextType, ProfileType } from "../types";
@@ -14,12 +14,12 @@ export class ProfileResolver {
     return await Profile.findOneBy({ id: user.id });
   }
 
-  // @Query(() => Profile, { nullable: true })
-  // async getProfileById(
-  //   @Arg("id", () => Int, { defaultValue: 1 }) profileId: number
-  // ): Promise<Profile | null> {
-  //   return await Profile.findOneBy({ user_id: profileId });
-  // }
+  @Query(() => Profile, { nullable: true })
+  async getProfileByUserId(
+    @Arg("userId", () => ID) userId: number
+  ): Promise<Profile | null> {
+    return await Profile.findOne({ where: { id: userId } });
+  }
 
   // Authorisez()
   @Query(() => Profile, { nullable: true })

@@ -4,6 +4,7 @@ import {
   Authorized,
   Ctx,
   ID,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -47,6 +48,17 @@ export class CartResolver {
     }
 
     return cart;
+  }
+
+  @Authorized("user", "admin")
+  @Query(() => Cart, { nullable: true })
+  async getCartByProfile(
+    @Arg("profileId", () => Int) profileId: number
+  ): Promise<Cart | null> {
+    return await Cart.findOne({
+      where: { profile: Number(profileId) as any },
+      relations: { profile: true },
+    });
   }
 
   @Authorized("admin", "user")
