@@ -1,15 +1,15 @@
 import { gql } from "@apollo/client";
 
-export const GET_ADS_AND_TAGS = gql`
-  query getAdsAndTags($searchTerm: String!) {
-    getAdsAndTags(searchTerm: $searchTerm) {
-      tags {
+export const GET_PRODUCTS_AND_CATEGORIES = gql`
+  query GetProductsAndCategories($searchTerm: String!) {
+    getProductsAndCategories(searchTerm: $searchTerm) {
+      categories {
         id
         name
       }
-      ads {
+      products {
         id
-        title
+        name
       }
     }
   }

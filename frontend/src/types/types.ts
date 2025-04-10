@@ -23,3 +23,8 @@ export type Tag = {
   name: string;
   ads?: AdType[];
 };
+
+export type Product = {
+  id: number;
+  name: string;
+};

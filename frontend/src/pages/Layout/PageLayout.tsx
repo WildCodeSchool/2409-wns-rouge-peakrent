@@ -1,13 +1,18 @@
+import Footer from "@/components/Footer/Footer";
+import NavBar from "@/components/Nav/NavBar";
+import NavBarMobile from "@/components/Nav/NavBarMobile";
 import { Outlet } from "react-router-dom";
-import Header from "../../components/Header/Header";
+import Header from "@/components/Header/Header";
 
 const PageLayout = () => {
   return (
     <>
-      {/* <Header /> */}
-      <main className="mx-auto">
+      <NavBar />
+      <main className="mb-10 mx-auto min-h-[calc(100vh-240px)]">
         <Outlet />
       </main>
+      <Footer />
+      <NavBarMobile />
     </>
   );
 };
