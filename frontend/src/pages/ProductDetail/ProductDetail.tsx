@@ -30,7 +30,7 @@ const ProductDetail = () => {
     },
   });
 
-  console.log("éééééééééééééé", useUserProfile?.id);
+  console.log("11111111111111", useUserProfile?.id);
 
   const params = useParams();
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([]);
@@ -50,6 +50,8 @@ const ProductDetail = () => {
 
   const product = getProductData?.getProductById;
 
+  console.log("33333333333333333", selectedVariants);
+
   if (getProductError) {
     console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
@@ -57,43 +59,12 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     try {
-      const {
-        data: getCartData,
-        loading: getCartLoading,
-        error: getCartError,
-      } = await getCartByProfile({
-        variables: { profileId: useUserProfile?.id },
-      });
-
-      let cartId = getCartData?.id;
-
-      console.log({
-        data: getCartData,
-        loading: getCartLoading,
-        error: getCartError,
-      });
-
-      if (!cartId) {
-        const newCart = await createCart({
-          variables: {
-            data: {
-              profileId: Number(useUserData?.id),
-            },
-          },
-        });
-
-        cartId = newCart?.data?.createCart?.id;
-
-        if (!cartId) {
-          throw new Error("Impossible de créer un panier.");
-        }
-      }
-
       for (const variant of selectedVariants) {
+        console.log("22222222222222222222", variant);
         await createOrderItem({
           variables: {
             data: {
-              cartId: Number(cartId),
+              profileId: Number(useUserProfile?.id),
               variantId: Number(variant.id),
               quantity: 1,
               pricePerHour: Number(variant.pricePerHour),

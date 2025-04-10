@@ -24,8 +24,8 @@ export class Cart extends BaseEntity {
     onDelete: "CASCADE",
     nullable: true,
   })
-  @JoinColumn({ name: "profile_id" })
-  @Column({ name: "profile_id" })
+  @JoinColumn({ name: "user_id" })
+  @Column({ name: "user_id" })
   profile?: Profile;
 
   @Field({ nullable: true })

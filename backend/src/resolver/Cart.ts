@@ -4,6 +4,7 @@ import {
   Authorized,
   Ctx,
   ID,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -52,10 +53,11 @@ export class CartResolver {
   @Authorized("user", "admin")
   @Query(() => Cart, { nullable: true })
   async getCartByProfile(
-    @Arg("profileId", () => ID) profileId: number
+    @Arg("profileId", () => Int) profileId: number
   ): Promise<Cart | null> {
+    console.log("------------------------", profileId);
     return await Cart.findOne({
-      where: { profile: { id: profileId } },
+      where: { profile: Number(profileId) as any },
       relations: { profile: true },
     });
   }
