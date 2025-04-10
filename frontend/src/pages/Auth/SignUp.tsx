@@ -221,7 +221,7 @@ export function SignUpPage() {
                     )}
                   </button>
                 </div>
-                <div className="flexitems-center space-x-2 z-10">
+                <div className="flex items-center space-x-2">
                   <Checkbox
                     id="policy"
                     checked={agreeToPolicy}
