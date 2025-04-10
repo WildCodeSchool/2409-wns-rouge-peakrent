@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client/core";
-
-export const GET_PRODUCTS = gql`
+export const GET_PRODUCTS = `
   query getProducts($page: Int, $onPage: Int) {
     getProducts(page: $page, onPage: $onPage) {
       products {
@@ -25,7 +23,7 @@ export const GET_PRODUCTS = gql`
   }
 `;
 
-export const GET_MINIMAL_PRODUCTS_WITH_PAGING = gql`
+export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
   query GetProducts($onPage: Int!, $page: Int!) {
     getProducts(onPage: $onPage, page: $page) {
       products {
@@ -43,7 +41,7 @@ export const GET_MINIMAL_PRODUCTS_WITH_PAGING = gql`
   }
 `;
 
-export const GET_PRODUCT_BY_ID = gql`
+export const GET_PRODUCT_BY_ID = `
   query Query($param: String!) {
     getProductById(param: $param) {
       id

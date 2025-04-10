@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useState } from "react";
 import { CREATE_USER } from "../../GraphQL/createUser";
 
@@ -11,7 +11,7 @@ export function SignUpPage() {
   const [lastname, setLastname] = useState("Test");
   const [signupError, setSignupError] = useState("");
 
-  const [doCreateUser, { data }] = useMutation(CREATE_USER);
+  const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
 
   async function doSubmitSignup() {
     try {
