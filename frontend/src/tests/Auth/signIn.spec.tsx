@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 import { MockedProvider } from "@apollo/client/testing";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -9,7 +10,7 @@ import { SignInPage } from "../../pages/Auth/SignIn";
 const mocks = [
   {
     request: {
-      query: SIGNIN,
+      query: gql(SIGNIN),
       variables: {
         datas: {
           email: "test@example.com",
@@ -27,7 +28,7 @@ const mocks = [
   },
   {
     request: {
-      query: WHOAMI,
+      query: gql(WHOAMI),
     },
     result: {
       data: {
@@ -44,7 +45,7 @@ const mocks = [
 const unauthaurizedMock = [
   {
     request: {
-      query: SIGNIN,
+      query: gql(SIGNIN),
       variables: {
         datas: {
           email: "test@example.com",

@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_CATEGORIES = gql`
+export const GET_CATEGORIES = `
   query GetCategories {
     getCategories {
       id
@@ -21,7 +19,7 @@ export const GET_CATEGORIES = gql`
   }
 `;
 
-export const GET_CATEGORY = gql`
+export const GET_CATEGORY = `
   query GetCategory($id: ID!) {
     category(id: $id) {
       id
@@ -34,7 +32,7 @@ export const GET_CATEGORY = gql`
   }
 `;
 
-export const CREATE_CATEGORY = gql`
+export const CREATE_CATEGORY = `
   mutation CreateCategory($input: CategoryInput!) {
     createCategory(input: $input) {
       id
@@ -47,7 +45,7 @@ export const CREATE_CATEGORY = gql`
   }
 `;
 
-export const UPDATE_CATEGORY = gql`
+export const UPDATE_CATEGORY = `
   mutation UpdateCategory($id: ID!, $input: CategoryInput!) {
     updateCategory(id: $id, input: $input) {
       id
@@ -60,7 +58,7 @@ export const UPDATE_CATEGORY = gql`
   }
 `;
 
-export const DELETE_CATEGORY = gql`
+export const DELETE_CATEGORY = `
   mutation DeleteCategory($id: ID!) {
     deleteCategory(id: $id) {
       id
@@ -68,7 +66,7 @@ export const DELETE_CATEGORY = gql`
   }
 `;
 
-export const DELETE_MULTIPLE_CATEGORIES = gql`
+export const DELETE_MULTIPLE_CATEGORIES = `
   mutation DeleteMultipleCategories($ids: [ID!]!) {
     deleteMultipleCategories(ids: $ids) {
       id
@@ -76,7 +74,7 @@ export const DELETE_MULTIPLE_CATEGORIES = gql`
   }
 `;
 
-export const GET_ALL_ADS_IN_A_CATEGORY = gql`
+export const GET_ALL_ADS_IN_A_CATEGORY = `
   query getAllAdsInACategory($param: String!) {
     getCategoryById(param: $param) {
       category {

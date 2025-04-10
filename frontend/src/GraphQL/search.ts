@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_PRODUCTS_AND_CATEGORIES = gql`
+export const GET_PRODUCTS_AND_CATEGORIES = `
   query GetProductsAndCategories($searchTerm: String!) {
     getProductsAndCategories(searchTerm: $searchTerm) {
       categories {

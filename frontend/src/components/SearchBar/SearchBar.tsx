@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import { debounce } from "lodash";
 import { useState } from "react";
@@ -21,7 +21,7 @@ const SearchBar = () => {
     handleSearchTermChange(event.target.value);
   };
 
-  const { data } = useQuery(GET_PRODUCTS_AND_CATEGORIES, {
+  const { data } = useQuery(gql(GET_PRODUCTS_AND_CATEGORIES), {
     variables: { searchTerm },
     skip: debouncedSearchTerm === "",
   });

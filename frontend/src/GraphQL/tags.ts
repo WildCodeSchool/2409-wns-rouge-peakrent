@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_TAGS = gql`
+export const GET_TAGS = `
   query getTags {
     getTags {
       id
@@ -9,7 +7,7 @@ export const GET_TAGS = gql`
   }
 `;
 
-export const GET_ALL_ADS_THAT_HAVE_TAG = gql`
+export const GET_ALL_ADS_THAT_HAVE_TAG = `
   query Query($param: String!, $onPage: Int!, $page: Int!) {
     getTagById(param: $param, onPage: $onPage, page: $page) {
       tag {

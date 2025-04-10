@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const CREATE_ORDER = gql`
+export const CREATE_ORDER = `
   mutation Mutation($data: OrderCreateInput!) {
     createOrder(data: $data) {
       address1
@@ -19,7 +17,7 @@ export const CREATE_ORDER = gql`
   }
 `;
 
-export const GET_ORDER_BY_ID = gql`
+export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {
       address1
@@ -43,7 +41,7 @@ export const GET_ORDER_BY_ID = gql`
   }
 `;
 
-export const GET_ORDERS = gql`
+export const GET_ORDERS = `
   query getOrders {
     getOrders {
       id
@@ -71,7 +69,7 @@ export const GET_ORDERS = gql`
   }
 `;
 
-export const UPDATE_ORDER = gql`
+export const UPDATE_ORDER = `
   mutation UpdateOrder($id: Int!, $input: UpdateOrderInput!) {
     updateOrder(id: $id, input: $input) {
       id

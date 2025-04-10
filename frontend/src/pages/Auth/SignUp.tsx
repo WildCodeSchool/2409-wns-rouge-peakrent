@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { useMutation } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -19,7 +19,7 @@ export function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToPolicy, setAgreeToPolicy] = useState(false);
-  const [doCreateUser, { data }] = useMutation(CREATE_USER);
+  const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
 
   async function doSubmitSignup() {
     if (!agreeToPolicy) {

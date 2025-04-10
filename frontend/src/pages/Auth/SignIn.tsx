@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { useMutation } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,8 +18,8 @@ export function SignInPage() {
   const [signinError, setSigninError] = useState("");
   const navigate = useNavigate();
 
-  const [doSignin] = useMutation(SIGNIN, {
-    refetchQueries: [WHOAMI],
+  const [doSignin] = useMutation(gql(SIGNIN), {
+    refetchQueries: [gql(WHOAMI)],
   });
 
   async function doSubmitSignin() {

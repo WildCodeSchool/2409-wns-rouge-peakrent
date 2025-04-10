@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_CART_BY_PROFILE_ID = gql`
+export const GET_CART_BY_PROFILE_ID = `
   query GetCartByProfile($profileId: Int!) {
     getCartByProfile(profileId: $profileId) {
       id
@@ -8,7 +6,7 @@ export const GET_CART_BY_PROFILE_ID = gql`
   }
 `;
 
-export const CREATE_CART = gql`
+export const CREATE_CART = `
   mutation CreateCart($data: CartCreateInput!) {
     createCart(data: $data) {
       id
