@@ -8,7 +8,6 @@ import "./styles/App.scss";
 import About from "./components/About/About";
 import AdDetail from "./components/AdDetail/AdDetail";
 import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
-import RecentAds from "./components/RecentAds/RecentAds";
 import TagDetail from "./components/TagDetail/TagDetail";
 import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
@@ -16,6 +15,7 @@ import AdminPage from "./pages/Admin/AdminPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
+import { HomePage } from "./pages/Home/HomePage";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 
@@ -51,7 +51,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" Component={PageLayout}>
-          <Route index Component={RecentAds} />
+          <Route index Component={HomePage} />
           <Route
             path="/signin"
             Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
