@@ -43,7 +43,9 @@ export function DataTableRowActions<TData>({
           <Button
             variant="ghost"
             className="h-fit w-full p-0"
-            onClick={() => {openModal(formContent)}}
+            onClick={() => {
+              openModal(formContent);
+            }}
           >
             Edit
             <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
@@ -53,7 +55,9 @@ export function DataTableRowActions<TData>({
           <Button
             variant="ghost"
             className="h-fit w-full p-0"
-            onClick={() => {openModal(formContent)}}
+            onClick={() => {
+              openModal(formContent);
+            }}
           >
             Delete
             <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>

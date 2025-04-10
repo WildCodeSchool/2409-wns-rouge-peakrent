@@ -26,7 +26,6 @@ export default function RowSkeleton({
                 minWidth: minWidth,
                 maxWidth: maxWidth,
               }}
-
             >
               <Skeleton className="h-7 w-full" />
             </TableCell>

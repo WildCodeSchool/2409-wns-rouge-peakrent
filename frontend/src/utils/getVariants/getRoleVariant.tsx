@@ -27,7 +27,7 @@ export const getColorForRole = (role: RoleType): BadgeVariantType => {
 
 export const getRoleOptionsLabels = () => {
   const BadgeRole = ({ value, text }: { value: RoleType; text: string }) => {
-    return (  
+    return (
       <Badge
         variant={getColorForRole(value)}
         className="text-md mx-auto flex w-fit rounded-lg px-1 capitalize"

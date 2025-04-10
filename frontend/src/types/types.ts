@@ -60,7 +60,7 @@ export type StoreType = {
   createdAt: Date;
   updatedAt: Date;
   storeVariants: any[];
-}
+};
 
 export type OrderType = any;
 export type OrderItemType = any;

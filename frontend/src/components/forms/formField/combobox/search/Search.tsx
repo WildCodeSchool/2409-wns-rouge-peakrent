@@ -56,8 +56,7 @@ export function Search<T extends { id: string | number }>({
       setIsError(false);
 
       try {
-        const { data } =
-          await fetchResults(debouncedSearchQuery);
+        const { data } = await fetchResults(debouncedSearchQuery);
         setData(data);
       } catch (error) {
         setIsError(true);

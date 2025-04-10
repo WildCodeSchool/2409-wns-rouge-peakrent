@@ -36,9 +36,8 @@ export function SignInPage() {
   }
 
   return (
-    <div >
+    <div>
       <form
-        
         onSubmit={(e) => {
           e.preventDefault();
           doSubmitSignin();
@@ -46,7 +45,6 @@ export function SignInPage() {
       >
         <h2>Sign in to Website</h2>
         <input
-          
           type="email"
           name="email"
           placeholder="Email"
@@ -54,7 +52,6 @@ export function SignInPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          
           type="password"
           name="password"
           placeholder="Password"

@@ -92,9 +92,7 @@ export function DataTablePagination<TData>({
       <div className="flex items-center space-x-2 lg:space-x-6">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium max-sm:hidden lg:hidden xl:block">
-            {viewMode === "card"
-              ? "elementPerPage"
-              : "rowPerPage"}
+            {viewMode === "card" ? "elementPerPage" : "rowPerPage"}
           </p>
           <Select
             value={`${pageSize}`}
