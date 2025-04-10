@@ -1,27 +1,10 @@
-export type AdType = {
-  category: Category;
-  created_at: Date;
+export type CategoryType = {
   id: number;
-  location: string;
-  owner: string;
-  picture: string;
-  price: number;
-  tags: Tag[];
+  name: string;
   description?: string;
-  title: string;
-  author: string;
-};
-
-export type Category = {
-  id: number;
-  name: string;
-  ads?: AdType[];
-};
-
-export type Tag = {
-  id: number;
-  name: string;
-  ads?: AdType[];
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type ProductType = {
@@ -31,7 +14,7 @@ export type ProductType = {
   urlImage: string;
   isPublished: boolean;
   sku: string;
-  categories: Category[];
+  categories: CategoryType[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -63,3 +46,21 @@ export type CartType = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type StoreType = {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  zipCode: string;
+  country: string;
+  reference: string;
+  createdAt: Date;
+  updatedAt: Date;
+  storeVariants: any[];
+};
+
+export type OrderType = any;
+export type OrderItemType = any;

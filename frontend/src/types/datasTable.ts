@@ -24,7 +24,7 @@ export interface SelectFunction {
   onTrigger: (selectedRows: any[]) => Promise<boolean> | boolean;
   condition?: (selectedRows: any[]) => boolean;
   isPending?: boolean;
-  className?: string; 
+  className?: string;
   variant?: VariantProps<typeof buttonVariants>["variant"];
 }
 

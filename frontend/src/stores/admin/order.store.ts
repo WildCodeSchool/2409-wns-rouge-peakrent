@@ -1,7 +1,5 @@
+import { OrderItemType, OrderType } from "@/types/types";
 import { create } from "zustand";
-
-type OrderType = any;
-type OrderItemType = any;
 
 export interface OrderStoreState {
   orders: NonNullable<OrderType>[];

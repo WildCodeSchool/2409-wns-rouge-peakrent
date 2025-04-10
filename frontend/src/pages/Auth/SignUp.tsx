@@ -1,8 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { useMutation } from "@apollo/client";
 import { useState } from "react";
 import { CREATE_USER } from "../../GraphQL/createUser";
-import Button from "../../UI/Button/Button";
-import styles from "./SignIn.module.scss";
 
 export function SignUpPage() {
   const [email, setEmail] = useState("test1@gmail.com");
@@ -49,9 +48,8 @@ export function SignUpPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div>
       <form
-        className={styles.form}
         onSubmit={(e) => {
           e.preventDefault();
           doSubmitSignup();
@@ -59,35 +57,30 @@ export function SignUpPage() {
       >
         <h2>Create Account</h2>
         <input
-          className={styles.form__input}
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          className={styles.form__input}
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <input
-          className={styles.form__input}
           type="password"
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <input
-          className={styles.form__input}
           type="text"
           placeholder="First Name"
           value={firstname}
           onChange={(e) => setFirstname(e.target.value)}
         />
         <input
-          className={styles.form__input}
           type="text"
           placeholder="Last Name"
           value={lastname}

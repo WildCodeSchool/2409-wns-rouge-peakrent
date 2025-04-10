@@ -62,10 +62,10 @@ const NavBar = () => {
         className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2"
       >
         <img
-          src="LogoPeakrent.png"
+          src="/LogoPeakrent.png"
           className="w-[50px] md:w-[60px] lg:w-[70px] max-w-svw"
         />
-        <p className="hidden lg:block text-white font-logo text-[2.3vw]">
+        <p className="hidden lg:block text-white font-logo text-[2.3vw] ml-1">
           PeakRent
         </p>
       </NavLink>
@@ -77,10 +77,10 @@ const NavBar = () => {
             aria-label={"Navigation vers la page d'accueil"}
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
-              "py-2 px-4 cursor-pointer text-center"
+              "py-2 px-4 cursor-pointer text-center ml-2"
             )}
           >
-            <CiHome size={30} />
+            <CiHome size={30} className="flex-none" />
           </NavLink>
           {navItems.map((item) => (
             <NavLink
@@ -106,7 +106,7 @@ const NavBar = () => {
             "py-2 px-4 cursor-pointer text-center"
           )}
         >
-          <CiShoppingCart size={30} />
+          <CiShoppingCart size={30} className="flex-none" />
         </NavLink>
 
         {me ? (
@@ -118,7 +118,7 @@ const NavBar = () => {
                   "py-2 px-4 cursor-pointer text-center"
                 )}
               >
-                <CiUser size={20} />
+                <CiUser size={20} className="flex-none" />
               </span>
             </DropdownMenuTrigger>
 

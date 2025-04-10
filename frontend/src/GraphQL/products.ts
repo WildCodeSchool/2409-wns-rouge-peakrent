@@ -66,7 +66,6 @@ export const GET_PRODUCT_BY_ID = gql`
           id
           name
           urlImage
-       
         }
       }
     }

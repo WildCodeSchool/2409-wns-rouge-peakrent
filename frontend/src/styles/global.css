@@ -30,7 +30,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --font-logo: 'Gajraj One', sans-serif;
+  --font-logo: "Gajraj One", sans-serif;
 }
 
 .dark {
@@ -135,8 +135,7 @@
 
   --font-sans: "Agdasima", sans-serif;
 
-  --font-logo: 'Gajraj One', 'sans-serif';
-
+  --font-logo: "Gajraj One", "sans-serif";
 }
 
 h1,
@@ -147,7 +146,7 @@ h2 {
 }
 
 .logo {
-  font-family: 'Gajraj One', sans-serif;
+  font-family: "Gajraj One", sans-serif;
 }
 
 .btn-primary,
@@ -156,12 +155,13 @@ h2 {
   font-weight: bold;
   color: var(--primary);
   cursor: pointer;
-  background: linear-gradient(90deg, var(--primary) 50%, #FFFFFF 0) var(--_p, 100%) / 250% no-repeat;
+  background: linear-gradient(90deg, var(--primary) 50%, #ffffff 0)
+    var(--_p, 100%) / 250% no-repeat;
 }
 
 .btn-primary:hover,
 .btn-secondary:hover {
-  >* {
+  > * {
     transition: 0.3s;
     transform: scale(1.5);
   }
@@ -203,7 +203,7 @@ h2 {
 
 /* fond de la scrollbar */
 ::-webkit-scrollbar-track {
-  background: var(--primary);
+  background: var(--primary-foreground);
 }
 /* scrollbar */
 ::-webkit-scrollbar {

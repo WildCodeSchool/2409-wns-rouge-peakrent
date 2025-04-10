@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SIGNIN } from "../../GraphQL/signin";
 import { WHOAMI } from "../../GraphQL/whoami";
-import styles from "./SignIn.module.scss";
 
 export function SignInPage() {
   const [email, setEmail] = useState("");
@@ -37,9 +36,8 @@ export function SignInPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div>
       <form
-        className={styles.form}
         onSubmit={(e) => {
           e.preventDefault();
           doSubmitSignin();
@@ -47,7 +45,6 @@ export function SignInPage() {
       >
         <h2>Sign in to Website</h2>
         <input
-          className={styles.form__input}
           type="email"
           name="email"
           placeholder="Email"
@@ -55,7 +52,6 @@ export function SignInPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          className={styles.form__input}
           type="password"
           name="password"
           placeholder="Password"

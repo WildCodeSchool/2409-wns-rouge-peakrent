@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import { GET_PROFILES } from "@/GraphQL/profiles";
 import { useUserStore } from "@/stores/admin/user.store";
 import { ColumnConfig } from "@/types/datasTable";
-import { getRoleOptionsLabels } from "@/utils/getRoleVariant";
+import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";
 import { useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import { ShieldUser } from "lucide-react";

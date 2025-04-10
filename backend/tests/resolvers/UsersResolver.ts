@@ -97,7 +97,7 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         const user = testArgs?.data?.user;
         // check tokens in database
         const tokensFromDb = await UserToken.findOneBy({
-          user: { id: user.id }
+          user: { id: user.id },
         });
         expect(tokensFromDb).toBeDefined();
         expect(tokensFromDb.token).toBeDefined();

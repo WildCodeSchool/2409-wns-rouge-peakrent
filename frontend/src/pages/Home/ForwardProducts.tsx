@@ -2,6 +2,7 @@ import { ProductCard } from "@/components/cards/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Meh } from "lucide-react";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { forwardProducts } from "./fakeData";
 
 export default function ForwardProducts() {
@@ -25,15 +26,11 @@ export default function ForwardProducts() {
       </h2>
       <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {forwardProducts.length ? (
-          forwardProducts.slice(0, getProductCount()).map((product) => (
-            <a
-              className="col-span-1 rounded-[5px] w-full"
-              href={product.slug}
-              key={product.id}
-            >
-              <ProductCard product={product} />
-            </a>
-          ))
+          forwardProducts
+            .slice(0, getProductCount())
+            .map((product) => (
+              <ProductCard product={product} key={product.id} />
+            ))
         ) : (
           <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
             <Meh size={48} />
@@ -41,7 +38,7 @@ export default function ForwardProducts() {
           </div>
         )}
       </div>
-      <a href="/products">
+      <NavLink to="/products">
         <Button
           variant="primary"
           size="lg"
@@ -49,7 +46,7 @@ export default function ForwardProducts() {
         >
           Voir Plus
         </Button>
-      </a>
+      </NavLink>
     </section>
   );
 }

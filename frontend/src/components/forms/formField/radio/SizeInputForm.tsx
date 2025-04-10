@@ -31,7 +31,6 @@ export function Size({
   setBestPrice?: Dispatch<SetStateAction<number | null | undefined>>;
   setLastPurchase?: Dispatch<SetStateAction<number | null | undefined>>;
 }) {
-
   const sortedVariants = reference?.variant?.sort((a: any, b: any) => {
     return a.size.localeCompare(b.size, undefined, { numeric: true });
   });

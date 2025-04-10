@@ -2,7 +2,6 @@ import Footer from "@/components/Footer/Footer";
 import NavBar from "@/components/Nav/NavBar";
 import NavBarMobile from "@/components/Nav/NavBarMobile";
 import { Outlet } from "react-router-dom";
-import Header from "@/components/Header/Header";
 
 const PageLayout = () => {
   return (

@@ -43,7 +43,6 @@ export function Price({
   required?: boolean;
   withCents?: boolean;
 }) {
-
   const handleIncrease = (field: any, amount: number = 1) => {
     const currentValue = withCents
       ? parseFloat(field.value) || 0
@@ -121,10 +120,7 @@ export function Price({
               containerClassName
             )}
           >
-            <LabelSection
-              label={label || "price"}
-              required={required}
-            />
+            <LabelSection label={label || "price"} required={required} />
             <div
               className={cn(
                 "flex w-full justify-center gap-1 rounded-lg",
