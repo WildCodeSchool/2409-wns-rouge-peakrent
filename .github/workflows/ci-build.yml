@@ -2,11 +2,12 @@ name: ci-build
 
 on:
   push:
-    branch:
+    branches:
       - main
 
 jobs:
   build-frontend:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -28,6 +29,7 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   build-backend:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
