@@ -1,7 +1,5 @@
-import styles from "./PageNotFound.module.scss";
-
 const PageNotFound = () => {
-  return <div className={styles.me}>PageNotFound</div>;
+  return <div>PageNotFound</div>;
 };
 
 export default PageNotFound;

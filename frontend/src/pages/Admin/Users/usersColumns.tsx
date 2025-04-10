@@ -1,7 +1,7 @@
 import * as column from "@/components/ui/tables/columns";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
-import { getColorForRole } from "@/utils/getRoleVariant";
+import { getColorForRole } from "@/utils/getVariants/getRoleVariant";
 import { DataTableRowUsersActions } from "./UserActions";
 
 const multiColumnFilter: FilterFn<any> = (row, columnId, filterValue) => {

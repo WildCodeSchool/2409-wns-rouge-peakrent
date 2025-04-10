@@ -1,32 +1,18 @@
+import { StoreType } from "@/types/types";
 import { create } from "zustand";
 
-export interface Store {
-  id: number;
-  name: string;
-  phoneNumber: string;
-  address1: string;
-  address2?: string;
-  city: string;
-  zipCode: string;
-  country: string;
-  reference: string;
-  createdAt: Date;
-  updatedAt: Date;
-  storeVariants: any[];
-}
-
 export interface StoreStoreState {
-  stores: Store[];
+  stores: StoreType[];
   storesFetched: boolean;
 
-  setStores: (stores: Store[]) => void;
+  setStores: (stores: StoreType[]) => void;
   setStoresFetched: (fetched: boolean) => void;
 
   deleteStore: (id: number) => void;
   deleteMultipleStores: (ids: number[]) => void;
 
-  updateStore: (id: number, store: Partial<Store>) => void;
-  addStore: (newStore: Store) => void;
+  updateStore: (id: number, store: Partial<StoreType>) => void;
+  addStore: (newStore: StoreType) => void;
 }
 
 export const useStoreStore = create<StoreStoreState>((set, get) => ({
@@ -69,12 +55,12 @@ export const deleteMultipleStores = (ids: (string | number)[]) => {
   deleteMultipleStores(ids as number[]);
 };
 
-export const updateStore = (id: number, store: Partial<Store>) => {
+export const updateStore = (id: number, store: Partial<StoreType>) => {
   const { updateStore } = useStoreStore.getState();
   updateStore(id, store);
 };
 
-export const addStore = (newStore: Store) => {
+export const addStore = (newStore: StoreType) => {
   const { addStore } = useStoreStore.getState();
   addStore(newStore);
 };

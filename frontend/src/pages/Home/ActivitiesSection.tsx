@@ -1,6 +1,7 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { homeActivities } from "./fakeData";
 
 const ActivityItem = ({
@@ -11,14 +12,14 @@ const ActivityItem = ({
   index?: number;
 }) => {
   return (
-    <a
+    <NavLink
       key={activity.title}
-      href={`/activities/${activity.title}`}
+      to={`/activities/${activity.title}`}
       className={cn(
         "aspect-square relative hover:cursor-pointer group overflow-hidden col-span-1",
         index !== undefined &&
           index !== null &&
-          `col-start-[${index + 2}] col-span-2`
+          `col-start-${index + 2} col-span-2`
       )}
     >
       <div className="w-full h-full overflow-hidden rounded-full border">
@@ -33,7 +34,7 @@ const ActivityItem = ({
           </p>
         </div>
       </div>
-    </a>
+    </NavLink>
   );
 };
 

@@ -106,19 +106,19 @@ export function Carousel({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100 border-none hover:ring-0"
               onClick={prevSlide}
             >
-              <ChevronLeftIcon className="w-4 h-4" />
+              <ChevronLeftIcon className="size-4 flex-none lg:size-5 text-primary" />
               <span className="sr-only">Previous</span>
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 hidden md:flex items-center justify-center rounded-full px-4 cursor-pointer opacity-50 hover:opacity-100 hover:ring-0"
               onClick={nextSlide}
             >
-              <ChevronRightIcon className="w-4 h-4" />
+              <ChevronRightIcon className="size-4 flex-none lg:size-5 text-primary" />
               <span className="sr-only">Next</span>
             </Button>
           </>

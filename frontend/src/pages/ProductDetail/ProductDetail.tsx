@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import Loading from "../../components/Loading/Loading";
-import { useMutation, useQuery } from "@apollo/client";
-import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
-import { useState } from "react";
 import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
-import { useUser } from "@/context/userContext";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/context/userProvider";
+import { useMutation, useQuery } from "@apollo/client";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 
 interface Variant {
   id: number;
@@ -78,7 +78,9 @@ const ProductDetail = () => {
   };
 
   return getProductLoading || useUserLoading ? (
-    <Loading />
+    <div className="flex items-center justify-center h-screen">
+      <LoadIcon size={60} />
+    </div>
   ) : (
     <article className="space-y-6 p-4 md:p-6 bg-[rgba(107,114,128,0.1)]">
       <div className="flex flex-row items-center justify-between">
