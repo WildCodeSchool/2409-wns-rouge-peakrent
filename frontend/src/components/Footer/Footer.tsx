@@ -1,5 +1,7 @@
+import { cn } from "@/lib/utils";
 import { CiFacebook, CiInstagram, CiMail } from "react-icons/ci";
 import { Link } from "react-router-dom";
+import { buttonVariants } from "../ui/button";
 
 const Footer = () => {
   return (
@@ -8,17 +10,30 @@ const Footer = () => {
         <div className="flex gap-2">
           <Link
             to=""
-            className="btn-secondary"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
             aria-label="Navigation page FaceBook"
           >
             <CiFacebook size={25} />
           </Link>
-          <Link to="" className="btn-secondary" aria-label="Contact par mail">
+          <Link
+            to=""
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
+            aria-label="Contact par mail"
+          >
             <CiMail size={25} />
           </Link>
           <Link
             to=""
-            className="btn-secondary"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "sm" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
             aria-label="Navigation page Instagram"
           >
             <CiInstagram size={25} />

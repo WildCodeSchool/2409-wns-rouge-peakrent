@@ -1,4 +1,5 @@
 import { SIGNOUT } from "@/GraphQL/signout";
+import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import { CiHome, CiLogin, CiShoppingCart, CiUser } from "react-icons/ci";
 import { Link, NavLink } from "react-router-dom";
 import { WHOAMI } from "../../GraphQL/whoami";
 import SearchBar from "../SearchBar/SearchBar";
+import { buttonVariants } from "../ui/button";
 
 const NavBar = () => {
   const { data: whoamiData } = useQuery(WHOAMI);
@@ -57,7 +59,7 @@ const NavBar = () => {
       <NavLink
         to="/"
         aria-label="Navigation vers la page d'accueil"
-        className="flex items-center justify-center lg:justify-start bg-(--primary) lg:pr-2"
+        className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2"
       >
         <img
           src="LogoPeakrent.png"
@@ -73,7 +75,10 @@ const NavBar = () => {
           <NavLink
             to={"/"}
             aria-label={"Navigation vers la page d'accueil"}
-            className="btn-secondary"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
           >
             <CiHome size={30} />
           </NavLink>
@@ -96,7 +101,10 @@ const NavBar = () => {
         <NavLink
           to="/cart"
           aria-label="Navigation vers la page panier"
-          className="btn-secondary"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon" }),
+            "py-2 px-4 cursor-pointer text-center"
+          )}
         >
           <CiShoppingCart size={30} />
         </NavLink>
@@ -104,7 +112,12 @@ const NavBar = () => {
         {me ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <span className="btn-primary">
+              <span
+                className={cn(
+                  buttonVariants({ variant: "primary", size: "icon" }),
+                  "py-2 px-4 cursor-pointer text-center"
+                )}
+              >
                 <CiUser size={20} />
               </span>
             </DropdownMenuTrigger>
@@ -116,7 +129,7 @@ const NavBar = () => {
               {dropDownItems.map((item) => (
                 <div key={item.path}>
                   <Link to={item.path} aria-label={item.ariaLabel}>
-                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-(--primary) hover:text-white">
+                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white">
                       {item.name}
                     </DropdownMenuItem>
                   </Link>
@@ -127,7 +140,7 @@ const NavBar = () => {
               <DropdownMenuItem
                 onClick={onSignout}
                 aria-label="déconnexion"
-                className="py-2 px-4 cursor-pointer text-center hover:bg-(--primary) hover:text-white"
+                className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white"
               >
                 Déconnexion
               </DropdownMenuItem>
@@ -137,9 +150,12 @@ const NavBar = () => {
           <NavLink
             to="/signin"
             aria-label="Navigation vers la page de connexion"
-            className="btn-primary"
+            className={cn(
+              buttonVariants({ variant: "primary", size: "icon" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
           >
-            <CiLogin size={20} />
+            <CiLogin size={50} />
           </NavLink>
         )}
       </div>
