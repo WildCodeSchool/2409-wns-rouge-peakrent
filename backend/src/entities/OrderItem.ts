@@ -77,6 +77,10 @@ export class OrderItem extends BaseEntity {
 
 @InputType()
 export class OrderItemsCreateInput {
+  @Field(() => Int)
+  @IsNotEmpty({ message: "profileId must not be empty." })
+  profileId!: number;
+
   @Field(() => Int, { nullable: true })
   orderId?: Number;
 

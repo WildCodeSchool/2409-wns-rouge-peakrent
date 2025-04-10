@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { ApolloProvider, useQuery } from "@apollo/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Styles
@@ -6,9 +6,8 @@ import "./styles/App.scss";
 
 // Components
 import About from "./components/About/About";
-import AdDetail from "./components/AdDetail/AdDetail";
+import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import CategoryDetail from "./components/CategoryDetail/CategoryDetail";
-import RecentAds from "./components/RecentAds/RecentAds";
 import TagDetail from "./components/TagDetail/TagDetail";
 import { WHOAMI } from "./GraphQL/whoami";
 import AdEditForm from "./pages/AdEditForm/AdEditForm";
@@ -23,8 +22,10 @@ import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import Form from "./pages/Form/Form";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
+import { HomePage } from "./pages/Home/HomePage";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
+import { UserProvider } from "./context/userContext";
 
 enum AuthStates {
   authenticated,
@@ -72,34 +73,36 @@ const checkAuth = (
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<PageLayout />}>
-          <Route index element={<RecentAds />} />
-          <Route path="about" element={<About />} />
-          <Route
-            path="post-ad"
-            element={checkAuth(Form, [AuthStates.authenticated])()}
-          />
-          <Route path="ads/:id" element={<AdDetail />} />
-          <Route
-            path="ads/:id/edit"
-            element={checkAuth(AdEditForm, [AuthStates.authenticated])()}
-          />
-          <Route path="categories/:id" element={<CategoryDetail />} />
-          <Route path="tags/:id" element={<TagDetail />} />
-          <Route
-            path="/signin"
-            element={checkAuth(SignInPage, [AuthStates.unauthenticated])()}
-          />
-          <Route
-            path="/signup"
-            element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
-          />
-          <Route
-            path="/admin"
-            element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
-          >
+    <UserProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" Component={PageLayout}>
+            <Route index Component={HomePage} />
+            <Route
+              path="/signin"
+              Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+            />
+            <Route
+              path="/signup"
+              Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
+            />
+            <Route path="about" Component={About} />
+            <Route
+              path="post-ad"
+              Component={checkAuth(Form, [AuthStates.authenticated])}
+            />
+            <Route path="products/:id" Component={ProductDetail} />
+            <Route path="ads/:id" Component={AdDetail} />
+            <Route
+              path="ads/:id/edit"
+              Component={checkAuth(AdEditForm, [AuthStates.authenticated])}
+            />
+            <Route path="categories/:id" Component={CategoryDetail} />
+            <Route path="tags/:id" Component={TagDetail} />
+            <Route
+              path="/admin"
+              element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
+            >
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
@@ -109,11 +112,11 @@ function App() {
             <Route path="carts" element={<AdminCartsPage />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>
-        </Route>
-
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </BrowserRouter>
+          </Route>
+          <Route path="*" Component={PageNotFound} />
+        </Routes>
+      </BrowserRouter>
+    </UserProvider>
   );
 }
 
