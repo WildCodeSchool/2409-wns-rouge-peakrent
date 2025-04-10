@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SIGNIN } from "../../GraphQL/signin";
@@ -10,8 +10,8 @@ export function SignInPage() {
   const [signinError, setSigninError] = useState("");
   const navigate = useNavigate();
 
-  const [doSignin] = useMutation(SIGNIN, {
-    refetchQueries: [WHOAMI],
+  const [doSignin] = useMutation(gql(SIGNIN), {
+    refetchQueries: [gql(WHOAMI)],
   });
 
   async function doSubmitSignin() {

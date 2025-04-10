@@ -2,11 +2,10 @@ import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/userProvider";
-import { useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
-
 interface Variant {
   id: number;
   pricePerHour: number;
@@ -23,13 +22,13 @@ const ProductDetail = () => {
   const params = useParams();
   const [selectedVariants, setSelectedVariants] = useState<Variant[]>([]);
 
-  const [createOrderItem] = useMutation(CREATE_ORDER_ITEM);
+  const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM));
 
   const {
     data: getProductData,
     loading: getProductLoading,
     error: getProductError,
-  } = useQuery(GET_PRODUCT_BY_ID, {
+  } = useQuery(gql(GET_PRODUCT_BY_ID), {
     variables: { param: params.id },
   });
 

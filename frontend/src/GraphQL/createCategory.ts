@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const CREATE_CATEGORY = gql`
+export const CREATE_CATEGORY = `
   mutation Mutation($data: CategoryCreateInput!) {
     createCategory(data: $data) {
       id

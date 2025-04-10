@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const DELETE_TAG = gql`
+export const DELETE_TAG = `
   mutation Mutation($id: ID!) {
     deleteTag(id: $id) {
       name

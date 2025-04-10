@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const CREATE_ORDER_ITEM = gql`
+export const CREATE_ORDER_ITEM = `
   mutation CreateOrderItem($data: OrderItemsCreateInput!) {
     createOrderItems(data: $data) {
       id

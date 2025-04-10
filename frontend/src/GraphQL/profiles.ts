@@ -1,6 +1,4 @@
-import { gql } from "@apollo/client";
-
-export const GET_PROFILES = gql`
+export const GET_PROFILES = `
   query GetProfiles {
     getProfiles {
       id
@@ -14,7 +12,7 @@ export const GET_PROFILES = gql`
   }
 `;
 
-export const GET_PROFILE = gql`
+export const GET_PROFILE = `
   query GetProfile {
     getProfile {
       id
@@ -28,7 +26,7 @@ export const GET_PROFILE = gql`
   }
 `;
 
-// export const CREATE_PROFILE = gql`
+// export const CREATE_PROFILE = `
 //   mutation CreateProfile($input: ProfileInput!) {
 //     createProfile(input: $input) {
 //       id
@@ -42,7 +40,7 @@ export const GET_PROFILE = gql`
 //   }
 // `;
 
-// export const UPDATE_PROFILE = gql`
+// export const UPDATE_PROFILE = `
 //   mutation UpdateProfile($id: ID!, $input: ProfileInput!) {
 //     updateProfile(id: $id, input: $input) {
 //       id
@@ -56,7 +54,7 @@ export const GET_PROFILE = gql`
 //   }
 // `;
 
-// export const DELETE_PROFILE = gql`
+// export const DELETE_PROFILE = `
 //   mutation DeleteProfile($id: ID!) {
 //     deleteProfile(id: $id) {
 //       id
@@ -64,7 +62,7 @@ export const GET_PROFILE = gql`
 //   }
 // `;
 
-// export const DELETE_MULTIPLE_USERS = gql`
+// export const DELETE_MULTIPLE_USERS = `
 //   mutation DeleteMultipleProfiles($ids: [ID!]!) {
 //     deleteMultipleProfiles(ids: $ids) {
 //       id

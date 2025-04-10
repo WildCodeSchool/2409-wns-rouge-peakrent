@@ -1,6 +1,6 @@
 import { SIGNOUT } from "@/GraphQL/signout";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,10 +14,10 @@ import SearchBar from "../SearchBar/SearchBar";
 import { buttonVariants } from "../ui/button";
 
 const NavBar = () => {
-  const { data: whoamiData } = useQuery(WHOAMI);
+  const { data: whoamiData } = useQuery(gql(WHOAMI));
   const me = whoamiData?.whoami;
 
-  const [doSignout] = useMutation(SIGNOUT, { refetchQueries: [WHOAMI] });
+  const [doSignout] = useMutation(gql(SIGNOUT), { refetchQueries: [WHOAMI] });
 
   const onSignout = async () => {
     doSignout();
