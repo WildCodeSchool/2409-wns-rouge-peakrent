@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Components
@@ -31,7 +31,7 @@ const checkAuth = (
   redirectTo: string = "/"
 ) => {
   return function renderComponent() {
-    const { data: whoamiData, loading } = useQuery(WHOAMI);
+    const { data: whoamiData, loading } = useQuery(gql(WHOAMI));
     const me = whoamiData?.whoami;
 
     if (loading) {

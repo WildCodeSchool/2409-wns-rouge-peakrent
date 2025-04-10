@@ -1,7 +1,7 @@
-import { createContext, useContext, ReactNode, useEffect } from "react";
-import { useLazyQuery, useQuery } from "@apollo/client";
-import { WHOAMI } from "@/GraphQL/whoami";
 import { GET_PROFILE_BY_USER_ID } from "@/GraphQL/profile";
+import { WHOAMI } from "@/GraphQL/whoami";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 type UserType = {
   id: number;
@@ -36,12 +36,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     data: whoamiData,
     loading: whoamiLoading,
     error: whoamiError,
-  } = useQuery(WHOAMI);
+  } = useQuery(gql(WHOAMI));
 
   const [
     getProfileByUserId,
     { data: profileData, loading: profileLoading, error: profileError },
-  ] = useLazyQuery(GET_PROFILE_BY_USER_ID);
+  ] = useLazyQuery(gql(GET_PROFILE_BY_USER_ID));
 
   useEffect(() => {
     if (whoamiData?.whoami?.id) {

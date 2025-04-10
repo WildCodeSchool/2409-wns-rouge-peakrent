@@ -1,5 +1,5 @@
 import { WHOAMI } from "@/GraphQL/whoami";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import {
   CiBoxList,
   CiHome,
@@ -11,7 +11,7 @@ import {
 import { NavLink } from "react-router-dom";
 
 const NavBarMobile = () => {
-  const { data: whoamiData } = useQuery(WHOAMI);
+  const { data: whoamiData } = useQuery(gql(WHOAMI));
   const me = whoamiData?.whoami;
 
   const navItems = [
