@@ -5,7 +5,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
@@ -18,12 +17,15 @@ export class UserToken extends BaseEntity {
   id!: number;
 
   @Field()
-  @PrimaryColumn({ type: "varchar", length: 255 })
+  @Column({ unique: true })
   token: string;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  refresh_token?: string;
+  @Column({
+    name: "refresh_token",
+    nullable: true,
+  })
+  refreshToken?: string;
 
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })

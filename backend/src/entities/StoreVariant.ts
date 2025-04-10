@@ -8,12 +8,12 @@ import { Variant } from "./Variant";
 @Entity()
 export class StoreVariant extends BaseEntity {
   @Field(() => Int)
-  @PrimaryColumn()
-  variant_id!: number;
+  @PrimaryColumn({ name: "variant_id" })
+  variantId!: number;
 
   @Field(() => Int)
-  @PrimaryColumn()
-  store_id!: number;
+  @PrimaryColumn({ name: "store_id" })
+  storeId!: number;
 
   @Field(() => Int)
   @Min(0, { message: "Quantity must be at least 0" })
@@ -33,10 +33,10 @@ export class StoreVariant extends BaseEntity {
 @InputType()
 export class StoreVariantCreateInput {
   @Field(() => Int)
-  store_id!: number;
+  storeId!: number;
 
   @Field(() => Int)
-  variant_id!: number;
+  variantId!: number;
 
   @Field(() => Int, { defaultValue: 0 })
   @Min(0, { message: "Quantity must be at least 0" })
@@ -46,10 +46,10 @@ export class StoreVariantCreateInput {
 @InputType()
 export class StoreVariantUpdateInput {
   @Field(() => Int)
-  store_id!: number;
+  storeId!: number;
 
   @Field(() => Int)
-  variant_id!: number;
+  variantId!: number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Quantity must be at least 0" })

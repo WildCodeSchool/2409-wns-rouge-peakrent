@@ -20,92 +20,61 @@ export class Cart extends BaseEntity {
   id!: number;
 
   @Field({ nullable: true })
-  @OneToOne(() => Profile, (profile) => profile.user_id, {
+  @OneToOne(() => Profile, (profile) => profile.id, {
     onDelete: "CASCADE",
     nullable: true,
   })
-  @JoinColumn({ name: "profile_id" })
-  @Column()
-  profile_id?: Profile;
-
-  @Field()
-  @Column("varchar", { length: 255 })
-  address_1!: string;
+  @JoinColumn({ name: "user_id" })
+  @Column({ name: "user_id" })
+  profile?: Profile;
 
   @Field({ nullable: true })
-  @Column("varchar", { length: 255, nullable: true })
-  address_2?: string;
+  @Column("varchar", { name: "address_1", length: 255, nullable: true })
+  address1?: string;
 
   @Field({ nullable: true })
-  @Column("varchar", { length: 100, nullable: true })
-  country!: string;
+  @Column("varchar", { name: "address_2", length: 255, nullable: true })
+  address2?: string;
 
   @Field({ nullable: true })
   @Column("varchar", { length: 100, nullable: true })
-  city!: string;
+  country?: string;
 
   @Field({ nullable: true })
-  @Column("varchar", { length: 20, nullable: true })
-  zip_code!: string;
+  @Column("varchar", { length: 100, nullable: true })
+  city?: string;
+
+  @Field({ nullable: true })
+  @Column("varchar", { name: "zip_code", length: 20, nullable: true })
+  zipCode?: string;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at!: Date;
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt!: Date;
 
   @Field()
-  @UpdateDateColumn({ type: "timestamptz" })
-  updated_at!: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  updatedAt!: Date;
 }
 
 @InputType()
 export class CartCreateInput {
   @Field(() => Int)
-  profile_id!: number;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "address_1 must not be empty." })
-  @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
-  address_1!: string;
+  profileId!: number;
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2?: string;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "country must not be empty." })
-  @Length(1, 100, { message: "country must be between 1 and 100 chars." })
-  country!: string;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "city must not be empty." })
-  @Length(1, 100, { message: "city must be between 1 and 100 chars." })
-  city!: string;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "zip_code must not be empty." })
-  @Length(1, 20, { message: " zip_code must be between 1 and 20 chars." })
-  zip_code!: string;
-}
-
-@InputType()
-export class CartUpdateInput {
-  @Field(() => Int, { nullable: true })
-  profile_id?: number;
+  @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
+  address1?: string;
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 255, { message: "address_1 must be between 1 and 255 chars." })
-  address_1?: string;
-
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
-  address_2?: string;
+  @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
+  address2?: string;
 
   @Field({ nullable: true })
   @IsString()
@@ -119,6 +88,37 @@ export class CartUpdateInput {
 
   @Field({ nullable: true })
   @IsString()
-  @Length(1, 20, { message: "zip_code must be between 1 and 20 chars." })
-  zip_code?: string;
+  @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
+  zipCode?: string;
+}
+
+@InputType()
+export class CartUpdateInput {
+  @Field(() => Int, { nullable: true })
+  profileId?: number;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
+  address1?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
+  address2?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(1, 100, { message: "country must be between 1 and 100 chars." })
+  country?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(1, 100, { message: "city must be between 1 and 100 chars." })
+  city?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
+  zipCode?: string;
 }

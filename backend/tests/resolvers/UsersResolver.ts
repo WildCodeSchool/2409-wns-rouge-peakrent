@@ -1,114 +1,231 @@
 import { CREATE_USER } from "../../../frontend/src/GraphQL/createUser";
 import { SIGNIN } from "../../../frontend/src/GraphQL/signin";
 import { WHOAMI } from "../../../frontend/src/GraphQL/whoami";
+import { Profile } from "../../src/entities/Profile";
 import { User } from "../../src/entities/User";
+import { UserToken } from "../../src/entities/UserToken";
 import { assert, TestArgsType } from "../index.spec";
 import { getQueryFromMutation } from "../utils/getQueryFromMutation";
+import { SignUpTests } from "./SignUpTests";
+
+export const datas = {
+  email: "test2222@gmail.com",
+  password: "SuperSecret!2025",
+  firstname: "test",
+  lastname: "test",
+  confirmPassword: "SuperSecret!2025",
+};
 
 export function UsersResolverTest(testArgs: TestArgsType) {
-  const datas = {
-    email: "test2222@gmail.com",
-    password: "SuperSecret!2025",
-    firstname: "test",
-    lastname: "test",
-    confirmPassword: "SuperSecret!2025",
-  };
-
+  // check if database is connected
   it("should connect to database", async () => {
     expect(testArgs.dataSource.isInitialized).toBe(true);
   });
 
-  it("should create an user", async () => {
-    const response = await testArgs.server.executeOperation<{
-      createUser: User;
-    }>({
-      query: getQueryFromMutation(CREATE_USER),
-      variables: {
-        data: {
-          email: datas.email,
-          password: datas.password,
-          firstname: datas.firstname,
-          lastname: datas.lastname,
-          confirmPassword: datas.confirmPassword,
-        },
-      },
-    });
+  describe("SignUp", () => {
+    describe("With Success", () => {
+      // test createUser resolver
+      it("should create an user", async () => {
+        const response = await testArgs.server.executeOperation<{
+          createUser: User;
+        }>({
+          query: getQueryFromMutation(CREATE_USER),
+          variables: {
+            data: datas,
+          },
+        });
 
-    // check API response
-    assert(response.body.kind === "single");
-    expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.createUser?.id).toBeDefined();
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeUndefined();
+        expect(response.body.singleResult.data?.createUser?.id).toBeDefined();
 
-    // check user in database
-    const userFromDb = await User.findOneBy({
-      id: response.body.singleResult.data?.createUser?.id,
+        // check user in database
+        const userFromDb = await User.findOneBy({
+          id: response.body.singleResult.data?.createUser?.id,
+        });
+        expect(userFromDb).toBeDefined();
+        expect(userFromDb.email).toBe(datas.email);
+        expect(userFromDb.password).not.toBe(datas.password);
+        expect(userFromDb.firstname).toBe(datas.firstname);
+        expect(userFromDb.lastname).toBe(datas.lastname);
+        expect(userFromDb.role).toBe("user");
+        testArgs.data.user = userFromDb;
+      });
+
+      it("should profile exists for new user", async () => {
+        const user = testArgs?.data?.user;
+        // check profile in database
+        const profileFromDb = await Profile.findOneBy({
+          id: user?.id,
+        });
+        expect(profileFromDb).toBeDefined();
+        expect(profileFromDb.email).toBe(user?.email);
+        expect(profileFromDb.firstname).toBe(user?.firstname);
+        expect(profileFromDb.lastname).toBe(user?.lastname);
+        expect(profileFromDb.role).toBe(user?.role);
+      });
     });
-    expect(userFromDb).toBeDefined();
-    expect(userFromDb.email).toBe(datas.email);
-    expect(userFromDb.password).not.toBe(datas.password);
-    expect(userFromDb.firstname).toBe(datas.firstname);
-    expect(userFromDb.lastname).toBe(datas.lastname);
-    expect(userFromDb.role).toBe("user");
-    testArgs.data.user = userFromDb;
+    SignUpTests(testArgs);
   });
 
-  // test whoami resolver (without token)
-  it("should not find my profile", async () => {
-    const response = await testArgs.server.executeOperation<{
-      whoami: User;
-    }>({
-      query: getQueryFromMutation(WHOAMI),
-    });
+  describe("SignIn", () => {
+    describe("With Success", () => {
+      // test signin resolver
+      it("should sign me in", async () => {
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: testArgs.data.user?.email,
+              password: datas.password,
+            },
+          },
+        });
 
-    // check API response
-    assert(response.body.kind === "single");
-    expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.whoami).toBeNull();
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeUndefined();
+        expect(response.body.singleResult.data?.signIn?.id).toBeDefined();
+        expect(+response.body.singleResult.data?.signIn?.id).toBe(
+          +testArgs.data.user?.id
+        );
+      });
+
+      // test for tokens in db
+      it("tokens should exist in db", async () => {
+        const user = testArgs?.data?.user;
+        // check tokens in database
+        const tokensFromDb = await UserToken.findOneBy({
+          user: { id: user.id },
+        });
+        expect(tokensFromDb).toBeDefined();
+        expect(tokensFromDb.token).toBeDefined();
+        expect(tokensFromDb.refreshToken).toBeDefined();
+      });
+    });
+    describe("With Fail", () => {
+      it("should not sign me in with wrong password", async () => {
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: testArgs.data.user?.email,
+              password: "WrongPassword123!",
+            },
+          },
+        });
+
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeDefined();
+        expect(response.body.singleResult.errors[0].extensions.code).toBe(
+          "INVALID_CREDENTIALS"
+        );
+        expect(response.body.singleResult.data?.signIn).toBeNull();
+      });
+
+      it("should not sign me in with unknown email", async () => {
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: "emailnotfound@gmail.com",
+              password: datas.password,
+            },
+          },
+        });
+
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeDefined();
+        expect(response.body.singleResult.errors[0].extensions.code).toBe(
+          "INVALID_CREDENTIALS"
+        );
+        expect(response.body.singleResult.data?.signIn).toBeNull();
+      });
+
+      it("should return BAD_USER_INPUT with bad email input", async () => {
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: "bad-email-com",
+              password: datas.password,
+            },
+          },
+        });
+
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeDefined();
+        expect(response.body.singleResult.errors[0].extensions.code).toBe(
+          "BAD_USER_INPUT"
+        );
+        expect(response.body.singleResult.data?.signIn).toBeNull();
+      });
+
+      it("should return BAD_USER_INPUT with bad password input", async () => {
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: datas.email,
+              password: "badpassword",
+            },
+          },
+        });
+
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeDefined();
+        expect(response.body.singleResult.errors[0].extensions.code).toBe(
+          "BAD_USER_INPUT"
+        );
+        expect(response.body.singleResult.data?.signIn).toBeNull();
+      });
+    });
   });
 
-  // test signin resolver
-  it("should sign me in", async () => {
-    const response = await testArgs.server.executeOperation<{
-      signIn: User;
-    }>({
-      query: getQueryFromMutation(SIGNIN),
-      variables: {
-        email: testArgs.data.user?.email,
-        password: datas.password,
-      },
-    });
-
-    // check API response
-    assert(response.body.kind === "single");
-    console.log(response.body.singleResult.data?.signIn);
-    expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.signIn?.id).toBeDefined();
-    expect(+response.body.singleResult.data?.signIn?.id).toBe(
-      +testArgs.data.user?.id
-    );
-  });
-
-  // test whoami resolver
-  it("should find my profile", async () => {
-    const response = await testArgs.server.executeOperation<{
-      whoami: User;
-    }>(
-      {
+  describe("WhoAmI", () => {
+    // test whoami resolver (without token)
+    it("should not find my profile", async () => {
+      const response = await testArgs.server.executeOperation<{
+        whoami: Profile;
+      }>({
         query: getQueryFromMutation(WHOAMI),
-      },
-      {
-        contextValue: {
-          user: testArgs.data.user,
-        },
-      }
-    );
+      });
 
-    // check API response
-    assert(response.body.kind === "single");
-    expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.whoami?.id).toBeDefined();
-    expect(+response.body.singleResult.data?.whoami?.id).toBe(
-      +testArgs.data.user?.id
-    );
+      assert(response.body.kind === "single");
+      expect(response.body.singleResult.errors).toBeUndefined();
+      expect(response.body.singleResult.data?.whoami).toBeNull();
+    });
+
+    // test whoami resolver (with token)
+    it("should find my profile", async () => {
+      const response = await testArgs.server.executeOperation<{
+        whoami: Profile;
+      }>(
+        {
+          query: getQueryFromMutation(WHOAMI),
+        },
+        {
+          contextValue: {
+            user: testArgs.data.user,
+          },
+        }
+      );
+
+      assert(response.body.kind === "single");
+      expect(response.body.singleResult.errors).toBeUndefined();
+      expect(response.body.singleResult.data?.whoami?.id).toBeDefined();
+      expect(+response.body.singleResult.data?.whoami?.id).toBe(
+        +testArgs.data.user?.id
+      );
+    });
   });
 }

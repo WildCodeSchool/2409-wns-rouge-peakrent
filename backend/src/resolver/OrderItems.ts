@@ -13,19 +13,20 @@ import { Equal } from "typeorm";
 import { Cart } from "../entities/Cart";
 import { Order } from "../entities/Order";
 import {
-  OrderItems,
+  OrderItem,
   OrderItemsCreateInput,
   OrderItemsUpdateInput,
-} from "../entities/OrderItems";
+} from "../entities/OrderItem";
 import { AuthContextType } from "../types";
+import { Variant } from "../entities/Variant";
 
-@Resolver(OrderItems)
+@Resolver(OrderItem)
 export class OrderItemsResolver {
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
-  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItems[]> {
-    const orderItems = await OrderItems.find({
-      relations: { cart_id: true, variant_id: true, order_id: true },
+  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItem[]> {
+    const orderItems = await OrderItem.find({
+      relations: { cart: true, variant: true, order: true },
     });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
@@ -33,40 +34,40 @@ export class OrderItemsResolver {
     return orderItems;
   }
 
-  @Query(() => OrderItems)
+  @Query(() => OrderItem)
   @Authorized()
   async getOrderItemsById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cart: true, variant: true, order: true },
     });
 
     return orderItem;
   }
 
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
   async getOrderItemsByCartId(
     @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems[] | null> {
+  ): Promise<OrderItem[] | null> {
     const id = Number(_id);
     const cart = await Cart.findOne({ where: { id } });
     if (!cart) {
       throw new Error("Cart not found.");
     }
-    const orderItem = await OrderItems.find({
-      where: { cart_id: Equal(id) },
-      relations: { cart_id: true, variant_id: true },
+    const orderItem = await OrderItem.find({
+      where: { cart: Equal(id) },
+      relations: { cart: true, variant: true },
     });
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].cart_id.profile_id.user_id
+        context.user.id === orderItem[0].cart.profile.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -74,26 +75,26 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Query(() => [OrderItems])
+  @Query(() => [OrderItem])
   @Authorized()
   async getOrderItemsByOrderId(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems[] | null> {
+  ): Promise<OrderItem[] | null> {
     const id = Number(_id);
     const order = await Order.findOne({ where: { id } });
     if (!order) {
       throw new Error("Order not found.");
     }
-    const orderItem = await OrderItems.find({
-      where: { order_id: Equal(id) },
-      relations: { variant_id: true, order_id: true },
+    const orderItem = await OrderItem.find({
+      where: { order: Equal(id) },
+      relations: { variant: true, order: true },
     });
 
     if (
       !(
         context.user.role === "admin" ||
-        context.user.id === orderItem[0].order_id.profile_id.user_id
+        context.user.id === orderItem[0].order.profile.id
       )
     ) {
       throw new Error("Unauthorized");
@@ -101,41 +102,62 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Mutation(() => OrderItems)
+  @Mutation(() => OrderItem)
   @Authorized()
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems> {
-    const newOrderItems = new OrderItems();
-    Object.assign(newOrderItems, data);
-    const errors = await validate(newOrderItems);
+  ): Promise<OrderItem> {
+    const { profileId, variantId, quantity, pricePerHour, startsAt, endsAt } =
+      data;
+
+    let cart = await Cart.findOne({
+      where: { profile: profileId as any },
+      relations: ["profile"],
+    });
+
+    if (!cart) {
+      cart = Cart.create({ profile: profileId as any });
+      await cart.save();
+    }
+
+    const newOrderItem = new OrderItem();
+    Object.assign(newOrderItem, {
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+      cart,
+    });
+    newOrderItem.variant = { id: variantId } as Variant;
+
+    const errors = await validate(newOrderItem);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-    } else {
-      await newOrderItems.save();
-      return newOrderItems;
     }
+
+    await newOrderItem.save();
+    return newOrderItem;
   }
 
-  @Mutation(() => OrderItems, { nullable: true })
+  @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
   async updateOrderItems(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cart: true, variant: true, order: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cart_id.profile_id.user_id ||
-          context.user.id === orderItem[0].order_id.profile_id.user_id
+          context.user.id === orderItem[0].cart.profile.userId ||
+          context.user.id === orderItem[0].order.profile.userId
         )
       ) {
         throw new Error("Unauthorized");
@@ -146,7 +168,6 @@ export class OrderItemsResolver {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
       } else {
         await orderItem.save();
-
         return orderItem;
       }
     } else {
@@ -154,29 +175,28 @@ export class OrderItemsResolver {
     }
   }
 
-  @Mutation(() => OrderItems, { nullable: true })
+  @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
   async deleteOrderItems(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItems | null> {
+  ): Promise<OrderItem | null> {
     const id = Number(_id);
-    const orderItem = await OrderItems.findOne({
+    const orderItem = await OrderItem.findOne({
       where: { id },
-      relations: { cart_id: true, variant_id: true, order_id: true },
+      relations: { cart: true, variant: true, order: true },
     });
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem[0].cart_id.profile_id.user_id ||
-          context.user.id === orderItem[0].order_id.profile_id.user_id
+          context.user.id === orderItem[0].cart.profile.userId ||
+          context.user.id === orderItem[0].order.profile.userId
         )
       ) {
         throw new Error("Unauthorized");
       }
       await orderItem.remove();
-
       return orderItem;
     } else {
       throw new Error("orderItems not found.");

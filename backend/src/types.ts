@@ -12,6 +12,19 @@ export type AdType = {
   createdAt: string;
 };
 
+export type OrderItemType = {
+  id: number;
+  order: number | null;
+  cart: number | null;
+  variant: number | null;
+  quantity: number;
+  pricePerHour: number;
+  startsAt: Date;
+  endsAt: Date;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export type Category = {
   id: number;
   name: string;
@@ -31,13 +44,23 @@ export type UserType = {
   role: RoleType;
 };
 
+export type ProfileType = {
+  id: number;
+  email: string;
+  firstname: string;
+  lastname: string;
+  role: RoleType;
+  createdAt: Date;
+  updatedAt?: Date | null;
+};
+
 export type ContextType = {
   req: IncomingMessage;
   res: ServerResponse<IncomingMessage>;
-  user: UserType | null | undefined;
+  user: ProfileType | null | undefined;
 };
 
-export type AuthContextType = ContextType & { user: UserType };
+export type AuthContextType = ContextType & { user: ProfileType };
 
 // export type Role = "admin" | "moderator" | "user";
 

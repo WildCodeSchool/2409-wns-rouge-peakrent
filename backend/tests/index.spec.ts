@@ -1,10 +1,16 @@
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
+import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
 import { dataSource } from "../src/config/db";
+import { Profile } from "../src/entities/Profile";
+import { User } from "../src/entities/User";
 import { getSchema } from "../src/schema";
-
-// import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
+import { RoleType } from "../src/types";
+import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
+import { OrderResolverTest } from "./resolvers/OrderResolver";
+import { StoresResolverTest } from "./resolvers/StoresResolver";
 import { UsersResolverTest } from "./resolvers/UsersResolver";
+import { getQueryFromMutation } from "./utils/getQueryFromMutation";
 
 export type TestArgsType = {
   server: ApolloServer<BaseContext>;
@@ -21,6 +27,54 @@ const testArgs: TestArgsType = {
 export function assert(expr: unknown, msg?: string): asserts expr {
   if (!expr) throw new Error(msg);
 }
+
+export const setupTestUsers = async (testArgs: TestArgsType) => {
+  const userResponse = await testArgs.server.executeOperation<{
+    createUser: User;
+  }>({
+    query: getQueryFromMutation(CREATE_USER),
+    variables: {
+      data: {
+        email: "user@example.com",
+        password: "SuperSecret!2025",
+        confirmPassword: "SuperSecret!2025",
+        firstname: "Regular",
+        lastname: "User",
+      },
+    },
+  });
+
+  const adminResponse = await testArgs.server.executeOperation<{
+    createUser: User;
+  }>({
+    query: getQueryFromMutation(CREATE_USER),
+    variables: {
+      data: {
+        email: "admin@example.com",
+        password: "SuperSecret!2025",
+        confirmPassword: "SuperSecret!2025",
+        firstname: "Admin",
+        lastname: "User",
+      },
+    },
+  });
+
+  assert(userResponse.body.kind === "single");
+  testArgs.data.user = userResponse.body.singleResult.data?.createUser;
+  console.log("2", testArgs.data.user);
+
+  assert(adminResponse.body.kind === "single");
+  testArgs.data.admin = adminResponse.body.singleResult.data?.createUser;
+
+  const adminProfile = await Profile.findOne({
+    where: { id: testArgs.data.admin.id },
+  });
+
+  adminProfile.role = RoleType.ADMIN;
+  await adminProfile.save();
+
+  testArgs.data.admin.role = RoleType.ADMIN;
+};
 
 beforeAll(async () => {
   await dataSource.initialize();
@@ -39,18 +93,28 @@ beforeAll(async () => {
   const testServer = new ApolloServer({
     schema,
   });
+  testArgs.server = testServer;
+
+  await setupTestUsers(testArgs);
 
   testArgs.dataSource = dataSource;
-  testArgs.server = testServer;
 });
 
-describe("users resolver", () => {
+describe("Users resolvers", () => {
   UsersResolverTest(testArgs);
 });
 
-// describe("categories resolver", () => {
-//   CategoriesResolverTest(testArgs);
-// });
+describe("order resolver", () => {
+  OrderResolverTest(testArgs);
+});
+
+describe("categories resolver", () => {
+  CategoriesResolverTest(testArgs);
+});
+
+describe("stores resolver", () => {
+  StoresResolverTest(testArgs);
+});
 
 afterAll(async () => {
   await dataSource.destroy();

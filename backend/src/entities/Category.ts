@@ -29,21 +29,21 @@ export class Category extends BaseEntity {
   name!: string;
 
   @Field()
-  @Column()
+  @Column({ name: "normalized_name" })
   normalizedName!: string;
 
   @Field()
-  @Column()
+  @Column({ name: "url_image" })
   @IsUrl()
-  url_image!: string;
+  urlImage!: string;
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
-  created_at: Date;
+  createdAt!: Date;
 
   @Field()
   @UpdateDateColumn({ name: "updated_at" })
-  updated_at!: Date;
+  updatedAt!: Date;
 
   @Field(() => [Product], { nullable: true })
   @ManyToMany(() => Product, (product) => product.categories)
@@ -64,7 +64,7 @@ export class Category extends BaseEntity {
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
   @Field(() => User)
-  created_by!: User;
+  createdBy!: User;
 }
 
 @ObjectType()
@@ -89,7 +89,7 @@ export class CategoryCreateInput {
 
   @Field()
   @IsUrl({}, { message: "URL must be a valid URL." })
-  url_image!: string;
+  urlImage!: string;
 }
 
 @InputType()
@@ -102,5 +102,5 @@ export class CategoryUpdateInput {
 
   @Field()
   @IsUrl({}, { message: "URL must be a valid URL." })
-  url_image!: string;
+  urlImage!: string;
 }

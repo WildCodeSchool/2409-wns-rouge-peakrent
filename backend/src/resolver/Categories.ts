@@ -1,5 +1,14 @@
 import { validate } from "class-validator";
-import { Arg, Ctx, ID, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import {
   Category,
   CategoryCreateInput,
@@ -34,7 +43,7 @@ export class CategoryResolver {
       where: whereCondition,
       relations: {
         products: true,
-        created_by: true,
+        createdBy: true,
         parentCategory: true,
         children: true,
       },
@@ -46,7 +55,7 @@ export class CategoryResolver {
 
     const [products, total] = await Product.findAndCount({
       where: { categories: { id: category.id } },
-      relations: { categories: true, created_by: true },
+      relations: { categories: true, createdBy: true },
       skip,
       take: onPage,
     });
@@ -62,7 +71,7 @@ export class CategoryResolver {
     };
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category)
   async createCategory(
     @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
@@ -83,7 +92,7 @@ export class CategoryResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async updateCategory(
     @Arg("id", () => ID) _id: number,
@@ -93,7 +102,7 @@ export class CategoryResolver {
     const id = Number(_id);
 
     const category = await Category.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
     });
     if (category !== null) {
       Object.assign(category, data);
@@ -110,7 +119,7 @@ export class CategoryResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Category, { nullable: true })
   async deleteCategory(
     @Arg("id", () => ID) _id: number,
@@ -118,7 +127,7 @@ export class CategoryResolver {
   ): Promise<Category | null> {
     const id = Number(_id);
     const category = await Category.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
     });
     if (category !== null) {
       await category.remove();

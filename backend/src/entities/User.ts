@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsStrongPassword } from "class-validator";
+import { IsEmail, IsNotEmpty, IsStrongPassword, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -20,19 +20,21 @@ export class User extends BaseEntity {
 
   @Field()
   @Column({ length: 320, unique: true })
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email." })
   email!: string;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  email_verified_at?: Date;
+  @Column({ name: "email_verified_at", type: "timestamptz", nullable: true })
+  emailVerifiedAt?: Date;
 
   @Field()
   @Column({ type: "varchar", length: 100 })
+  @Length(2, 100, { message: "First name must be between 2 and 100 chars." })
   firstname!: string;
 
   @Field()
   @Column({ type: "varchar", length: 100 })
+  @Length(2, 100, { message: "Last name must be between 2 and 100 chars." })
   lastname!: string;
 
   @Column({ type: "varchar", length: 255 })
@@ -47,38 +49,75 @@ export class User extends BaseEntity {
   role!: RoleType;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  email_sent_at?: Date;
+  @Column({ name: "email_sent_at", type: "timestamptz", nullable: true })
+  emailSentAt?: Date;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  recover_token?: string;
+  @Column({
+    name: "recover_token",
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
+  recoverToken?: string;
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz", nullable: true })
-  recover_sent_at?: Date;
+  @Column({ name: "recover_sent_at", type: "timestamptz", nullable: true })
+  recoverSentAt?: Date;
 
   @Field({ nullable: true })
-  @Column({ type: "varchar", length: 255, nullable: true })
-  email_token?: string;
+  @Column({ name: "email_token", type: "varchar", length: 255, nullable: true })
+  emailToken?: string;
 
   @Field()
-  @CreateDateColumn({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
-  created_at: Date;
+  @CreateDateColumn({
+    name: "created_at",
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+  })
+  createdAt: Date;
 
   @Field({ nullable: true })
-  @UpdateDateColumn({ type: "timestamptz", nullable: true })
-  updated_at?: Date;
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz", nullable: true })
+  updatedAt?: Date;
 
   @Field({ nullable: true })
-  @DeleteDateColumn({ type: "timestamptz", nullable: true })
-  deleted_at?: Date;
+  @DeleteDateColumn({ name: "deleted_at", type: "timestamptz", nullable: true })
+  deletedAt?: Date;
 }
 
 @InputType()
 export class UserCreateInput {
   @Field()
-  @IsEmail()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  email: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  password!: string;
+  @Field()
+  @IsNotEmpty({ message: "First name is missing or empty" })
+  firstname!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Last name is missing or empty" })
+  lastname!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Confirm password is missing or empty" })
+  confirmPassword!: string;
+}
+
+@InputType()
+export class SignInInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
   email!: string;
 
   @Field()
@@ -90,14 +129,4 @@ export class UserCreateInput {
     }
   )
   password!: string;
-
-  @Field()
-  firstname!: string;
-
-  @Field()
-  lastname!: string;
-
-  @Field()
-  @IsNotEmpty()
-  confirmPassword!: string;
 }

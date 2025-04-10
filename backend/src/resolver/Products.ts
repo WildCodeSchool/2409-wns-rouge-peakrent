@@ -1,5 +1,14 @@
 import { validate, ValidationError } from "class-validator";
-import { Arg, Ctx, ID, Int, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { In } from "typeorm";
 import { Category } from "../entities/Category";
 import {
@@ -25,7 +34,8 @@ export class ProductResolver {
       take: onPage,
       relations: {
         categories: true,
-        created_by: true,
+        createdBy: true,
+        variants: true,
       },
     });
 
@@ -49,19 +59,19 @@ export class ProductResolver {
       const id = Number(param);
       product = await Product.findOne({
         where: { id },
-        relations: { categories: true, created_by: true },
+        relations: { categories: true, createdBy: true, variants: true },
       });
     } else {
       product = await Product.findOne({
         where: { name: param },
-        relations: { categories: true, created_by: true },
+        relations: { categories: true, createdBy: true, variants: true },
       });
     }
 
     return product;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product)
   async createProduct(
     @Arg("data", () => ProductCreateInput) data: ProductCreateInput,
@@ -84,7 +94,7 @@ export class ProductResolver {
     }
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product)
   async updateProduct(
     @Arg("id", () => String) _id: string,
@@ -94,7 +104,7 @@ export class ProductResolver {
     const id = Number(_id);
 
     const product = await Product.findOne({
-      where: { id, created_by: { id: context.user.id } },
+      where: { id, createdBy: { id: context.user.id } },
       relations: { categories: true },
     });
 
@@ -127,7 +137,7 @@ export class ProductResolver {
     return product;
   }
 
-  // @Authorized()
+  @Authorized(["admin"])
   @Mutation(() => Product, { nullable: true })
   async deleteProduct(
     @Arg("id", () => ID) _id: number,
@@ -136,7 +146,7 @@ export class ProductResolver {
     const id = Number(_id);
     const product = await Product.findOneBy({
       id,
-      created_by: { id: context.user.id },
+      createdBy: { id: context.user.id },
     });
     if (product !== null) {
       await product.remove();

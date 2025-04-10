@@ -4,6 +4,7 @@ import {
   Authorized,
   Ctx,
   ID,
+  Int,
   Mutation,
   Query,
   Resolver,
@@ -11,23 +12,34 @@ import {
 import { Equal } from "typeorm";
 import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
-import { OrderItems } from "../entities/OrderItems";
+import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
+import { getTotalOrderPrice } from "../helpers/getTotalOrderPrice";
 import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)
 export class CartResolver {
   @Query(() => [Cart])
-  @Authorized()
+  @Authorized("admin")
   async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
-    const cart = await Cart.find({ relations: { profile_id: true } });
+    const cart = await Cart.find({ relations: { profile: true } });
     if (!(context.user.role === "admin")) {
       throw new Error("Unauthorized");
     }
     return cart;
   }
 
-  @Authorized()
+  @Authorized(["admin"])
+  @Query(() => [Cart])
+  async getCarts(): Promise<Cart[]> {
+    return await Cart.find({
+      relations: {
+        profile: true,
+      },
+    });
+  }
+
+  @Authorized("admin", "user")
   @Query(() => Cart)
   async getCartById(
     @Arg("id", () => ID) _id: number,
@@ -36,14 +48,11 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profile: true },
     });
 
     if (
-      !(
-        context.user.role === "admin" ||
-        context.user.id === cart.profile_id.user_id
-      )
+      !(context.user.role === "admin" || context.user.id === cart.profile.id)
     ) {
       throw new Error("Unauthorized");
     }
@@ -51,19 +60,30 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized()
+  @Authorized("user", "admin")
+  @Query(() => Cart, { nullable: true })
+  async getCartByProfile(
+    @Arg("profileId", () => Int) profileId: number
+  ): Promise<Cart | null> {
+    return await Cart.findOne({
+      where: { profile: Number(profileId) as any },
+      relations: { profile: true },
+    });
+  }
+
+  @Authorized("admin", "user")
   @Mutation(() => Cart)
   async createCart(
     @Arg("data", () => CartCreateInput) data: CartCreateInput
   ): Promise<Cart> {
     const profile = await Profile.findOne({
-      where: { user_id: data.profile_id },
+      where: { id: data.profileId },
     });
     if (!profile) {
       throw new Error(`profile not found`);
     }
     const newCart = new Cart();
-    Object.assign(newCart, data);
+    Object.assign(newCart, data, { profile: data.profileId });
     const errors = await validate(newCart);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -73,7 +93,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("id", () => ID) _id: number,
@@ -81,9 +101,9 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
     const id = Number(_id);
-    if (data.profile_id) {
+    if (data.profileId) {
       const profile = await Profile.findOne({
-        where: { user_id: data.profile_id },
+        where: { id: data.profileId },
       });
       if (!profile) {
         throw new Error(`profile not found`);
@@ -95,14 +115,11 @@ export class CartResolver {
 
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.user_id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
-      Object.assign(cart, data);
+      Object.assign(cart, data, { profile: data.profileId });
       const errors = await validate(cart);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -115,7 +132,7 @@ export class CartResolver {
     }
   }
 
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async deleteCart(
     @Arg("id", () => ID) _id: number,
@@ -127,10 +144,7 @@ export class CartResolver {
     });
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.user_id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
@@ -142,7 +156,7 @@ export class CartResolver {
   }
 
   // a compléter ave Stripe
-  @Authorized()
+  @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
   async validateCart(
     @Arg("id", () => ID) _id: number,
@@ -152,20 +166,17 @@ export class CartResolver {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profile_id: true },
+      relations: { profile: true },
     });
     if (cart !== null) {
       if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === cart.profile_id.user_id
-        )
+        !(context.user.role === "admin" || context.user.id === cart.profile.id)
       ) {
         throw new Error("Unauthorized");
       }
-      const orderItems = await OrderItems.find({
-        where: { cart_id: Equal(id) },
-        relations: { variant_id: true },
+      const orderItems = await OrderItem.find({
+        where: { cart: Equal(id) },
+        relations: { variant: true },
       });
       if (orderItems !== null) {
         const errors = await validate(orderItems);
@@ -174,34 +185,28 @@ export class CartResolver {
         }
         const order = new Order();
         const orderData = {
-          profile_id: cart.profile_id,
+          profileId: cart.profile.id,
           status: OrderStatusType.confirmed,
-          payment_method: data.payment_method,
+          paymentMethod: data.paymentMethod,
           reference: data.reference,
-          paid_at: new Date(),
-          address_1: cart.address_1,
-          address_2: cart.address_2,
+          paidAt: new Date(),
+          address1: cart.address1,
+          address2: cart.address2,
           country: cart.country,
           city: cart.city,
-          zip_code: cart.zip_code,
+          zipCode: cart.zipCode,
         };
 
         // A Verifier
-        const totalPrice = orderItems.reduce((sum, item) => {
-          const start = new Date(item.starts_at);
-          const end = new Date(item.ends_at);
-          const durationHours =
-            (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-          return sum + item.variant_id?.price_per_hour * durationHours;
-        }, 0);
+        const totalPrice = getTotalOrderPrice(orderItems);
 
-        Object.assign(order, orderData);
+        Object.assign(order, orderData, { profile: orderData.profileId });
         await order.save();
 
         await Promise.all(
           orderItems.map(async (item) => {
-            item.cart_id = null;
-            item.order_id = order;
+            item.cart = null;
+            item.order = order;
             await item.save();
           })
         );
