@@ -76,13 +76,19 @@ export function ProductCard({ product }: { product: any }) {
         </div>
       </CardContent>
       <CardFooter className="sm:p-4 p-2 sm:pt-2">
-        <Button
-          size="sm"
-          className="w-full text-sm text-white md:text-base rounded-lg"
-          variant="primary"
+        <NavLink
+          to={`/products/${product.id}`}
+          className="w-full"
+          onClick={(e) => e.stopPropagation()}
         >
-          Réserver
-        </Button>
+          <Button
+            size="sm"
+            className="w-full text-sm text-white md:text-base rounded-lg"
+            variant="primary"
+          >
+            Réserver
+          </Button>
+        </NavLink>
       </CardFooter>
     </Card>
   );

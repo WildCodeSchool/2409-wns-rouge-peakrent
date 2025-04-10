@@ -26,15 +26,11 @@ export default function ForwardProducts() {
       </h2>
       <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {forwardProducts.length ? (
-          forwardProducts.slice(0, getProductCount()).map((product) => (
-            <NavLink
-              className="col-span-1 rounded-[5px] w-full"
-              to={`/products/${product.id}`}
-              key={product.id}
-            >
-              <ProductCard product={product} />
-            </NavLink>
-          ))
+          forwardProducts
+            .slice(0, getProductCount())
+            .map((product) => (
+              <ProductCard product={product} key={product.id} />
+            ))
         ) : (
           <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
             <Meh size={48} />
