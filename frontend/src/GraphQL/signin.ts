@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from "@apollo/client/core";
 
 export const SIGNIN = gql`
   mutation Mutation($datas: SignInInput!) {
