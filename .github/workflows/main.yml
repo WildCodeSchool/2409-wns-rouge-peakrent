@@ -33,9 +33,9 @@ jobs:
       - name: Install
         run: cd frontend && npm ci
       - name: check prettier
-        run: npm run format:check
-      - name: check estlin
-        run: npm run lint
+        run: cd frontend && npm run format:check
+      - name: check estlint
+        run: cd frontend && npm run lint
       - name: Run test
         run: cd frontend && npm test
 
@@ -49,8 +49,8 @@ jobs:
       - name: Install
         run: cd backend && npm ci
       - name: check prettier
-        run: npm run format:check
-      - name: check estlin
-        run: npm run lint
+        run: cd backend && npm run format:check
+      - name: check estlint
+        run: cd backend && npm run lint
       - name: Run test
         run: cd backend && npm run test:postgres
