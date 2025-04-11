@@ -163,6 +163,10 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
+    const errors = await validate(data);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    }
     const cart = await Cart.findOne({
       where: { id },
       relations: { profile: true },
@@ -177,11 +181,7 @@ export class CartResolver {
         where: { cart: { id } },
         relations: { cart: true, variant: true },
       });
-      if (orderItems !== null) {
-        const errors = await validate(orderItems);
-        if (errors.length > 0) {
-          throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-        }
+      if (orderItems.length > 0) {
         const order = new Order();
         const orderData = {
           profileId: cart.profile.id,
