@@ -1,6 +1,6 @@
+import MehSection from "@/components/section/MehSection";
 import { GET_CATEGORIES_WITH_COUNT } from "@/GraphQL/categories";
 import { gql, useQuery } from "@apollo/client";
-import { Meh } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ActivitiesBentoGrid } from "./ActivitiesBentoGrid";
 import { ActivitiesSection } from "./ActivitiesSection";
@@ -31,12 +31,10 @@ export function HomeActivities() {
 
   if (error) {
     return (
-      <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
-        <Meh size={48} />
-        <span className="font-medium">
-          Erreur lors du chargement des activités
-        </span>
-      </div>
+      <MehSection
+        text="Erreur lors du chargement des activités"
+        className="my-24"
+      />
     );
   }
   return (

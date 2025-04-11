@@ -1,6 +1,7 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { cn } from "@/lib/utils";
 import { CategoryType } from "@/types/types";
+import { Meh } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -51,6 +52,13 @@ export function ActivitiesBentoGrid({
             </div>
           </NavLink>
         ))}
+        {!activities ||
+          (activities.length === 0 && (
+            <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
+              <Meh size={48} />
+              <span className="font-medium">Aucune activité</span>
+            </div>
+          ))}
       </div>
     </section>
   );

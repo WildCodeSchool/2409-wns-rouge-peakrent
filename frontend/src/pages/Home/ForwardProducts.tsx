@@ -1,5 +1,6 @@
 import { ProductCard } from "@/components/cards/ProductCard";
 import { ProductCardSkeleton } from "@/components/cards/ProductCardSkeleton";
+import MehSection from "@/components/section/MehSection";
 import { Button } from "@/components/ui/button";
 import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
 import { ProductType } from "@/types/types";
@@ -65,10 +66,7 @@ export function ForwardProducts() {
             <ProductCard product={product} key={product.id} />
           ))
         ) : (
-          <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
-            <Meh size={48} />
-            <span className="font-medium">Aucun produit</span>
-          </div>
+          <MehSection text="Aucun produit" />
         )}
       </div>
       <NavLink to="/products">

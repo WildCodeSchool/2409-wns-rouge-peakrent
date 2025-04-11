@@ -32,12 +32,12 @@ export const seedCategories = async () => {
     {
       name: "Chaussures",
       urlImage:
-        "https://unsplash.com/fr/photos/une-paire-de-chaussures-de-ski-posee-dans-la-neige-NXTSa2L7xTs",
+        "https://www.google.com/imgres?q=chaussure%20ski&imgurl=https%3A%2F%2Fwww.montisport.fr%2F62472-large_default%2Fchaussures-ski-homme-head-edge-80-hv.jpg&imgrefurl=https%3A%2F%2Fwww.montisport.fr%2Fchaussures-de-ski%2F26837-chaussures-ski-homme-head-edge-80-hv.html&docid=l2gV6564f6FimM&tbnid=0ODzRWUJg1XE-M&vet=12ahUKEwi56rqoh9CMAxU2KvsDHWKeBaEQM3oECFMQAA..i&w=800&h=800&hcb=2&ved=2ahUKEwi56rqoh9CMAxU2KvsDHWKeBaEQM3oECFMQAA",
     },
     {
       name: "Vêtements",
       urlImage:
-        "https://unsplash.com/fr/photos/personne-avec-des-skis-prete-pour-les-pistes-EqIbeYzpQus",
+        "https://www.google.com/imgres?q=vetement%20sport%20ski&imgurl=https%3A%2F%2Fwww.ridestore.com%2Fimages%2FH2699_01_THok4D3.jpg%3Fw%3D188%26dpr%3D2&imgrefurl=https%3A%2F%2Fwww.ridestore.com%2Ffr%2Fvetements-ski-femme&docid=MXB_9Z1kz6AdQM&tbnid=8tKM451PA4Hh_M&vet=12ahUKEwjNzLDdh9CMAxWsQ6QEHSGwA7s4FBAzegQIcxAA..i&w=376&h=442&hcb=2&ved=2ahUKEwjNzLDdh9CMAxWsQ6QEHSGwA7s4FBAzegQIcxAA",
     },
     {
       name: "Vélos",

@@ -30,8 +30,8 @@ export default function CategoriesTable() {
       return;
     }
 
-    if (data?.getCategories) {
-      setCategories(data.getCategories);
+    if (data?.getCategories?.categories) {
+      setCategories(data.getCategories.categories);
       setCategoriesFetched(true);
     }
   }, [data, error, setCategories, setCategoriesFetched]);
