@@ -151,7 +151,7 @@ const NavBar = () => {
         ) : (
           <NavLink
             to="/signin"
-            aria-label="Navigation vers la page panier"
+            aria-label="Navigation vers la page de connexion"
             className={cn(
               buttonVariants({ variant: "primary", size: "icon" }),
               "py-2 px-4 cursor-pointer text-center"
