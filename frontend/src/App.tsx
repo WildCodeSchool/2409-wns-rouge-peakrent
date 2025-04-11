@@ -18,6 +18,7 @@ import AdminLayout from "./pages/Layout/Admin/AdminLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
+import ProductsPage from "./pages/ProductsPage/ProductsPage";
 
 enum AuthStates {
   authenticated,
@@ -79,6 +80,7 @@ function App() {
               Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
             />
             <Route path="products/:id" Component={ProductDetail} />
+            <Route path="products" Component={ProductsPage} />
 
             {/* Admin Routes */}
             <Route
