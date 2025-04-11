@@ -9,19 +9,25 @@ import {
 } from "@/components/ui/card";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { cn } from "@/lib/utils";
+import { getCategories } from "@/utils/getCategories";
 import { getDiscountStyles } from "@/utils/getDiscountStyles";
-import { getProductTagVariant } from "@/utils/getVariants/getProductTagVariant";
-import { NavLink } from "react-router-dom";
+import { getPriceRange } from "@/utils/getPriceRange";
+import { getProductCategoryVariant } from "@/utils/getVariants/getProductCategoryVariant";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export function ProductCard({ product }: { product: any }) {
   const { discountColor, discountBorder } = getDiscountStyles(product.discount);
+  const navigate = useNavigate();
 
   return (
     <Card
       className={cn(
-        "overflow-hidden bg-white p-0 hover:bg-white gap-0",
+        "overflow-hidden bg-white p-0 hover:bg-white gap-0 cursor-pointer",
         discountBorder
       )}
+      onClick={() => {
+        navigate(`/products/${product.id}`);
+      }}
     >
       <CardHeader className="relative w-full overflow-hidden bg-white p-0 text-black">
         {product.discount > 0 && (
@@ -35,24 +41,24 @@ export function ProductCard({ product }: { product: any }) {
           </div>
         )}
         <ImageHandler
-          src={""}
+          src={product.urlImage ?? ""}
           alt={product.name ?? ""}
-          className="w-full object-cover border-b"
+          className="w-full object-cover border-b max-h-[200px] h-[200px] md:h-[250px] md:max-h-[250px]"
         />
       </CardHeader>
       <CardContent className="sm:px-4 py-0 px-2">
         <div className="flex items-center gap-2 capitalize mb-1">
-          {product.tags.map((tag: string) => (
+          {getCategories(product)?.map((category: string) => (
             <NavLink
-              to={`/products?tag=${tag}`}
-              key={tag}
+              to={`/products?activities=${category}`}
+              key={category}
               onClick={(e) => e.stopPropagation()}
             >
               <Badge
                 className="rounded-lg text-xs md:text-sm px-2 py-1 hover:bg-none"
-                variant={getProductTagVariant(tag)}
+                variant={getProductCategoryVariant(category?.toLowerCase())}
               >
-                {tag}
+                {category}
               </Badge>
             </NavLink>
           ))}
@@ -65,12 +71,12 @@ export function ProductCard({ product }: { product: any }) {
         </CardTitle>
         <div className="flex items-center gap-1 text-sm md:text-base text-black">
           {product.discount > 0 && (
-            <p className="line-through text-muted-foreground">
-              {(product.price / 100).toFixed(2)}€/j
+            <p className="line-through text-muted-foreground mt-1">
+              {getPriceRange(product)}€/j
             </p>
           )}
           <p className="font-bold ml-auto mt-1">
-            {((product.price * (1 - product.discount / 100)) / 100).toFixed(2)}
+            {getPriceRange(product, true)}
             €/j
           </p>
         </div>
