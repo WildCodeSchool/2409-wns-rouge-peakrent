@@ -42,7 +42,7 @@ const NavBarMobile = () => {
   ];
 
   return (
-    <nav className="flex justify-evenly bg-white items-center fixed bottom-0 w-full md:hidden">
+    <nav className="flex justify-evenly bg-white items-center fixed bottom-0 w-full md:hidden z-50">
       {navItems.map((item) => (
         <NavLink
           key={item.name}
