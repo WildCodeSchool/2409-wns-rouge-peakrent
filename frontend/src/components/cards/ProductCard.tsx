@@ -35,13 +35,13 @@ export function ProductCard({ product }: { product: any }) {
           </div>
         )}
         <ImageHandler
-          src={product.urlImage ?? ""}
+          src={""}
           alt={product.name ?? ""}
           className="w-full object-cover border-b"
         />
       </CardHeader>
       <CardContent className="sm:px-4 py-0 px-2">
-        {/* <div className="flex items-center gap-2 capitalize mb-1">
+        <div className="flex items-center gap-2 capitalize mb-1">
           {product.tags.map((tag: string) => (
             <NavLink
               to={`/products?tag=${tag}`}
@@ -56,7 +56,7 @@ export function ProductCard({ product }: { product: any }) {
               </Badge>
             </NavLink>
           ))}
-        </div> */}
+        </div>
         <CardTitle
           className="line-clamp-2 h-[48px] min-h-[48px] md:h-[56px] md:min-h-[56px] text-base md:text-lg text-black font-medium"
           title={product.name ?? ""}
