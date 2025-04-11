@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { LoadIcon } from "@/components/icons/LoadIcon";
+import { GET_CATEGORIES } from "@/GraphQL/categories";
 import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
+import FilterList from "@/components/FilterList/FilterList";
 import ProductsList from "@/components/ProductsList/ProductsList";
 import FilterButton from "@/components/buttons/FilterButton";
-import { GET_CATEGORIES } from "@/GraphQL/categories";
-import FilterList from "@/components/FilterList/FilterList";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 
 const ProductsPage = () => {
   const [itemsOnPage, setItemsOnPage] = useState(15);
@@ -74,7 +74,7 @@ const ProductsPage = () => {
       variables: {
         onPage: itemsOnPage,
         page: 1,
-        categoriesId: selectedCategories,
+        categoryIds: selectedCategories,
         // activitiesId: selectedActivities,
       },
     });
@@ -115,34 +115,34 @@ const ProductsPage = () => {
     );
   }
   return (
-    maxPage > 0 && (
-      <>
-        <div className="flex flex-row items-center justify-between h-10 px-2.5">
-          <h2>Breadcrumb ?</h2>
-          <FilterButton
-            text={"Filtrer"}
-            modalContent={modal.content}
-            ariaLabel={"editCategoryAriaLabel"}
-            variant="primary"
-            modalTitle="Filtrer les produits"
-            modalDescription={modal.description}
-            className="flex md:hidden text-base"
-          />
-        </div>
+    <>
+      <div className="flex flex-row items-center justify-between h-10 px-2.5">
+        <h2>Breadcrumb ?</h2>
+        <FilterButton
+          text={"Filtrer"}
+          modalContent={modal.content}
+          ariaLabel={"editCategoryAriaLabel"}
+          variant="primary"
+          modalTitle="Filtrer les produits"
+          modalDescription={modal.description}
+          className="flex md:hidden text-base"
+        />
+      </div>
 
-        <div className="flex">
-          <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
-            <FilterList
-              // activities={activities}
-              // selectedActivities={selectedActivities}
-              // setSelectedActivities={setSelectedActivities}
-              categories={categories}
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-              handleFilter={handleFilter}
-            />
-          </aside>
-          <div className="flex-1 p-4">
+      <div className="flex">
+        <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
+          <FilterList
+            // activities={activities}
+            // selectedActivities={selectedActivities}
+            // setSelectedActivities={setSelectedActivities}
+            categories={categories}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            handleFilter={handleFilter}
+          />
+        </aside>
+        <div className="flex-1 p-4">
+          {products.length > 0 ? (
             <ProductsList
               title="Tous les produits"
               items={products}
@@ -152,10 +152,14 @@ const ProductsPage = () => {
               setPageIndex={setPageIndex}
               maxPage={maxPage}
             />
-          </div>
+          ) : (
+            <p className="text-center text-gray-500">
+              Aucun produit ne correspond à vos filtres.
+            </p>
+          )}
         </div>
-      </>
-    )
+      </div>
+    </>
   );
 };
 

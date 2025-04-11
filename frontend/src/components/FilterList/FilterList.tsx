@@ -1,7 +1,7 @@
 import React from "react";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 interface CategoryFilterProps {
   activities?: any[];
