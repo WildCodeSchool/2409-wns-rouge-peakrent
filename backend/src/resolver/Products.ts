@@ -26,15 +26,15 @@ export class ProductResolver {
   async getProducts(
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
-    @Arg("categoriesId", () => [Int], { nullable: true })
-    categoriesId?: number[]
+    @Arg("categoryIds", () => [Int], { nullable: true })
+    categoryIds?: number[]
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
     const where: any = {};
 
-    if (categoriesId && categoriesId.length > 0) {
+    if (categoryIds && categoryIds.length > 0) {
       where.categories = {
-        id: In(categoriesId),
+        id: In(categoryIds),
       };
     }
 
