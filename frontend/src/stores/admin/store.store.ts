@@ -1,18 +1,18 @@
-import { StoreType } from "@/types/types";
+import { Store } from "@/gql/graphql";
 import { create } from "zustand";
 
 export interface StoreStoreState {
-  stores: StoreType[];
+  stores: Store[];
   storesFetched: boolean;
 
-  setStores: (stores: StoreType[]) => void;
+  setStores: (stores: Store[]) => void;
   setStoresFetched: (fetched: boolean) => void;
 
   deleteStore: (id: number) => void;
   deleteMultipleStores: (ids: number[]) => void;
 
-  updateStore: (id: number, store: Partial<StoreType>) => void;
-  addStore: (newStore: StoreType) => void;
+  updateStore: (id: number, store: Partial<Store>) => void;
+  addStore: (newStore: Store) => void;
 }
 
 export const useStoreStore = create<StoreStoreState>((set, get) => ({
@@ -23,18 +23,18 @@ export const useStoreStore = create<StoreStoreState>((set, get) => ({
 
   deleteStore: (id) =>
     set((state) => ({
-      stores: state.stores.filter((store) => store.id !== id),
+      stores: state.stores.filter((store) => Number(store.id) !== id),
     })),
 
   deleteMultipleStores: (ids) =>
     set((state) => ({
-      stores: state.stores.filter((store) => !ids.includes(store.id)),
+      stores: state.stores.filter((store) => !ids.includes(Number(store.id))),
     })),
 
   updateStore: (id, updatedStore) =>
     set((state) => ({
       stores: state.stores.map((store) =>
-        store.id === id ? { ...store, ...updatedStore } : store
+        Number(store.id) === id ? { ...store, ...updatedStore } : store
       ),
     })),
 
@@ -55,12 +55,12 @@ export const deleteMultipleStores = (ids: (string | number)[]) => {
   deleteMultipleStores(ids as number[]);
 };
 
-export const updateStore = (id: number, store: Partial<StoreType>) => {
+export const updateStore = (id: number, store: Partial<Store>) => {
   const { updateStore } = useStoreStore.getState();
   updateStore(id, store);
 };
 
-export const addStore = (newStore: StoreType) => {
+export const addStore = (newStore: Store) => {
   const { addStore } = useStoreStore.getState();
   addStore(newStore);
 };

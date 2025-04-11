@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from "class-validator";
+import { IsString, Length } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -25,7 +25,6 @@ export class Cart extends BaseEntity {
     nullable: true,
   })
   @JoinColumn({ name: "user_id" })
-  @Column({ name: "user_id" })
   profile?: Profile;
 
   @Field({ nullable: true })

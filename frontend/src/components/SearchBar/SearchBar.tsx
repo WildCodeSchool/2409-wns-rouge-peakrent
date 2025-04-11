@@ -1,3 +1,4 @@
+import { Category, Product } from "@/gql/graphql";
 import { gql, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import { debounce } from "lodash";
@@ -5,7 +6,6 @@ import { useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { GET_PRODUCTS_AND_CATEGORIES } from "../../GraphQL/search";
-import { CategoryType, ProductType } from "../../types/types";
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,12 +50,12 @@ const SearchBar = () => {
                 }
               )}
             >
-              {searchResults?.products.map((product: ProductType) => (
+              {searchResults?.products.map((product: Product) => (
                 <li key={product.id} className="hover:text-primary">
                   <Link to={`/products/${product.id}`}>{product.name}</Link>
                 </li>
               ))}
-              {searchResults?.categories.map((categorie: CategoryType) => (
+              {searchResults?.categories.map((categorie: Category) => (
                 <li key={categorie.id} className="hover:text-primary">
                   <Link to={`/categories/${categorie.id}`}>
                     {categorie.name}

@@ -17,7 +17,9 @@ const NavBar = () => {
   const { data: whoamiData } = useQuery(gql(WHOAMI));
   const me = whoamiData?.whoami;
 
-  const [doSignout] = useMutation(gql(SIGNOUT), { refetchQueries: [WHOAMI] });
+  const [doSignout] = useMutation(gql(SIGNOUT), {
+    refetchQueries: [{ query: gql(WHOAMI) }],
+  });
 
   const onSignout = async () => {
     doSignout();
@@ -55,22 +57,22 @@ const NavBar = () => {
   ];
 
   return (
-    <header className="flex justify-center items-center sticky top-0 left-0 right-0 z-50 border-b border-light-gray bg-white gap-2 md:gap-1">
+    <header className="flex justify-center items-center sticky top-0 left-0 right-0 z-50 bg-white h-14">
       <NavLink
         to="/"
         aria-label="Navigation vers la page d'accueil"
-        className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2"
+        className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2 h-full"
       >
         <img
           src="/LogoPeakrent.png"
-          className="w-[50px] md:w-[60px] lg:w-[70px] max-w-svw"
+          className="h-full w-auto max-h-full object-contain"
         />
         <p className="hidden lg:block text-white font-logo text-[2.3vw] ml-1">
           PeakRent
         </p>
       </NavLink>
 
-      <div className="flex items-center justify-between grow gap-20 md:gap-10 lg:gap-20">
+      <div className="flex items-center justify-between grow gap-20 md:gap-10 lg:gap-20 h-full border-b border-light-gray">
         <nav className="hidden md:flex items-center gap-5 lg:gap-9">
           <NavLink
             to={"/"}
@@ -97,7 +99,7 @@ const NavBar = () => {
         <SearchBar />
       </div>
 
-      <div className="hidden md:flex items-center gap-5 pr-2">
+      <div className="hidden md:flex items-center gap-5 pr-2 h-full border-b border-light-gray">
         <NavLink
           to="/cart"
           aria-label="Navigation vers la page panier"
@@ -155,7 +157,7 @@ const NavBar = () => {
               "py-2 px-4 cursor-pointer text-center"
             )}
           >
-            <CiLogin size={50} />
+            <CiLogin size={30} className="flex-none" />
           </NavLink>
         )}
       </div>

@@ -9,7 +9,6 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Equal } from "typeorm";
 import { Cart } from "../entities/Cart";
 import { Order } from "../entities/Order";
 import {
@@ -17,8 +16,8 @@ import {
   OrderItemsCreateInput,
   OrderItemsUpdateInput,
 } from "../entities/OrderItem";
-import { AuthContextType } from "../types";
 import { Variant } from "../entities/Variant";
+import { AuthContextType } from "../types";
 
 @Resolver(OrderItem)
 export class OrderItemsResolver {
@@ -37,8 +36,7 @@ export class OrderItemsResolver {
   @Query(() => OrderItem)
   @Authorized()
   async getOrderItemsById(
-    @Arg("id", () => ID) _id: number,
-    @Ctx() context: AuthContextType
+    @Arg("id", () => ID) _id: number
   ): Promise<OrderItem | null> {
     const id = Number(_id);
     const orderItem = await OrderItem.findOne({
@@ -61,7 +59,7 @@ export class OrderItemsResolver {
       throw new Error("Cart not found.");
     }
     const orderItem = await OrderItem.find({
-      where: { cart: Equal(id) },
+      where: { cart: { id } },
       relations: { cart: true, variant: true },
     });
     if (
@@ -87,7 +85,7 @@ export class OrderItemsResolver {
       throw new Error("Order not found.");
     }
     const orderItem = await OrderItem.find({
-      where: { order: Equal(id) },
+      where: { order: { id } },
       relations: { variant: true, order: true },
     });
 
@@ -105,8 +103,7 @@ export class OrderItemsResolver {
   @Mutation(() => OrderItem)
   @Authorized()
   async createOrderItems(
-    @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput
   ): Promise<OrderItem> {
     const { profileId, variantId, quantity, pricePerHour, startsAt, endsAt } =
       data;
