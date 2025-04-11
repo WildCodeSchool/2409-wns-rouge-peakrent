@@ -144,7 +144,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  async signOut(@Ctx() context: ContextType): Promise<Boolean> {
+  async signOut(@Ctx() context: ContextType): Promise<boolean> {
     const cookies = new Cookies(context.req, context.res);
     cookies.set("token", "", { maxAge: 0 });
     return true;

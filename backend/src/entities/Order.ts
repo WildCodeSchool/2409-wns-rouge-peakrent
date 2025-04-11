@@ -83,7 +83,6 @@ export class Order extends BaseEntity {
     nullable: true,
   })
   @JoinColumn({ name: "profile_id" })
-  @Column({ name: "profile_id" })
   profile?: Profile;
 }
 
