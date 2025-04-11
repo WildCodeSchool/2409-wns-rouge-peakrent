@@ -12,6 +12,7 @@ COPY tsconfig.json tsconfig.json
 COPY vite.config.ts vite.config.ts
 COPY index.html index.html
 COPY public public
+COPY codegen.ts codegen.ts
 COPY src src
 
 CMD ["npm", "run", "dev"]

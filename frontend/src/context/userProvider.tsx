@@ -1,25 +1,12 @@
+import { Profile, User } from "@/gql/graphql";
 import { GET_PROFILE_BY_USER_ID } from "@/GraphQL/profile";
 import { WHOAMI } from "@/GraphQL/whoami";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 
-type UserType = {
-  id: number;
-  email: string;
-  role: string;
-};
-
-type ProfileType = {
-  id: number;
-  firstname: string;
-  lastname: string;
-  email: string;
-  role: string;
-};
-
 type UserContextType = {
-  user: UserType | null;
-  profile: ProfileType | null;
+  user: User | null;
+  profile: Profile | null;
   loading: boolean;
   error: any;
 };
