@@ -1,20 +1,22 @@
-import { OrderItemType, OrderType } from "@/types/types";
+import { Order, OrderItem } from "@/gql/graphql";
 import { create } from "zustand";
 
 export interface OrderStoreState {
-  orders: NonNullable<OrderType>[];
+  orders: NonNullable<Order>[];
   ordersFetched: boolean;
 
-  currentOrder: OrderType | null;
+  currentOrder: Order | null;
   currentOrderFetched: boolean;
+
+  orderItems: OrderItem[] | null;
 
   setStore: (store: OrderStoreState) => void;
 
   setOrdersFetched: (bool: boolean) => void;
   setCurrentOrderFetched: (bool: boolean) => void;
 
-  setOrders: (orders: NonNullable<OrderType>[]) => void;
-  setCurrentOrder: (order: NonNullable<OrderType>) => void;
+  setOrders: (orders: NonNullable<Order>[]) => void;
+  setCurrentOrder: (order: NonNullable<Order>) => void;
 
   deleteOrder: (id: number) => void;
   deleteMultipleOrders: (ids: number[]) => void;
@@ -22,10 +24,10 @@ export interface OrderStoreState {
   deleteOrderItem: (id: number) => void;
   deleteOrderItems: (ids: number[]) => void;
 
-  updateOrder: (id: number, order: Partial<OrderType>) => void;
-  updateOrderItem: (id: number, item: Partial<OrderItemType>) => void;
+  updateOrder: (id: number, order: Partial<Order>) => void;
+  updateOrderItem: (id: number, item: Partial<OrderItem>) => void;
 
-  addOrder: (newOrder: OrderType) => void;
+  addOrder: (newOrder: Order) => void;
 }
 
 export const useOrderStore = create<OrderStoreState>((set, get) => ({
@@ -34,6 +36,8 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
 
   currentOrder: null,
   currentOrderFetched: false,
+
+  orderItems: null,
 
   setStore: (store) => set(store),
 
@@ -45,19 +49,19 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
 
   deleteOrder: (id) =>
     set((state) => ({
-      orders: state.orders.filter((order) => order.id !== id),
+      orders: state.orders.filter((order) => Number(order.id) !== id),
     })),
   deleteMultipleOrders: (ids) =>
     set((state) => ({
-      orders: state.orders.filter((order) => !ids.includes(order.id as number)),
+      orders: state.orders.filter((order) => !ids.includes(Number(order.id))),
     })),
 
   deleteOrderItem: (id) =>
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.currentOrder!.order_items?.filter(
-          (item: OrderItemType) => item?.id !== id
+        orderItems: state.orderItems?.filter(
+          (item: OrderItem) => Number(item?.id) !== id
         ),
       },
     })),
@@ -66,28 +70,36 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.currentOrder!.order_items?.filter(
-          (item: OrderItemType) => !ids.includes(item?.id as number)
+        orderItems: state.orderItems?.filter(
+          (item: OrderItem) => !ids.includes(Number(item?.id))
         ),
       },
     })),
 
-  updateOrder: (id, order) =>
-    set((state) => ({
-      orders: state.orders.map((o) => (o.id === id ? { ...o, ...order } : o)),
-      currentOrder:
-        state.currentOrder?.id === id
+  updateOrder: (id: number, order: Partial<Order>) =>
+    set((state) => {
+      const updatedOrders = state.orders.map((o) =>
+        Number(o.id) === id ? { ...o, ...order } : o
+      );
+
+      const updatedCurrentOrder =
+        Number(state.currentOrder?.id) === id && state.currentOrder
           ? { ...state.currentOrder, ...order }
-          : state.currentOrder,
-    })),
+          : state.currentOrder;
+
+      return {
+        orders: updatedOrders,
+        currentOrder: updatedCurrentOrder,
+      };
+    }),
 
   updateOrderItem: (id, item) =>
     set((state) => ({
       currentOrder: state.currentOrder
         ? {
             ...state.currentOrder,
-            order_items: state.currentOrder.order_items?.map(
-              (i: OrderItemType) => (i.id === id ? { ...i, ...item } : i)
+            order_items: state.orderItems?.map((i: OrderItem) =>
+              Number(i.id) === id ? { ...i, ...item } : i
             ),
           }
         : null,
@@ -121,17 +133,17 @@ export const deleteMultipleOrderItems = (ids: (string | number)[]) => {
   deleteOrderItems(ids as number[]);
 };
 
-export const updateOrder = (id: number, order: Partial<OrderType>) => {
+export const updateOrder = (id: number, order: Partial<Order>) => {
   const { updateOrder } = useOrderStore.getState();
   updateOrder(id, order);
 };
 
-export const updateOrderItem = (id: number, item: Partial<OrderItemType>) => {
+export const updateOrderItem = (id: number, item: Partial<OrderItem>) => {
   const { updateOrderItem } = useOrderStore.getState();
   updateOrderItem(id, item);
 };
 
-export const addOrder = (newOrder: OrderType) => {
+export const addOrder = (newOrder: Order) => {
   const { addOrder } = useOrderStore.getState();
   addOrder(newOrder);
 };

@@ -1,18 +1,18 @@
-import { CartType } from "@/types/types";
+import { Cart } from "@/gql/graphql";
 import { create } from "zustand";
 
 export interface CartStoreState {
-  carts: CartType[];
+  carts: Cart[];
   cartsFetched: boolean;
 
-  setCarts: (carts: CartType[]) => void;
+  setCarts: (carts: Cart[]) => void;
   setCartsFetched: (fetched: boolean) => void;
 
   deleteCart: (id: number) => void;
   deleteMultipleCarts: (ids: number[]) => void;
 
-  updateCart: (id: number, cart: Partial<CartType>) => void;
-  addCart: (cart: CartType) => void;
+  updateCart: (id: number, cart: Partial<Cart>) => void;
+  addCart: (cart: Cart) => void;
 }
 
 export const useCartStore = create<CartStoreState>((set, get) => ({
@@ -24,18 +24,18 @@ export const useCartStore = create<CartStoreState>((set, get) => ({
 
   deleteCart: (id) =>
     set((state) => ({
-      carts: state.carts.filter((cart) => cart.id !== id),
+      carts: state.carts.filter((cart) => Number(cart.id) !== id),
     })),
 
   deleteMultipleCarts: (ids) =>
     set((state) => ({
-      carts: state.carts.filter((cart) => !ids.includes(cart.id)),
+      carts: state.carts.filter((cart) => !ids.includes(Number(cart.id))),
     })),
 
   updateCart: (id, updatedCart) =>
     set((state) => ({
       carts: state.carts.map((cart) =>
-        cart.id === id ? { ...cart, ...updatedCart } : cart
+        Number(cart.id) === id ? { ...cart, ...updatedCart } : cart
       ),
     })),
 
@@ -56,12 +56,12 @@ export const deleteMultipleCarts = (ids: (string | number)[]) => {
   deleteMultipleCarts(ids as number[]);
 };
 
-export const updateCart = (id: number, cart: Partial<CartType>) => {
+export const updateCart = (id: number, cart: Partial<Cart>) => {
   const { updateCart } = useCartStore.getState();
   updateCart(id, cart);
 };
 
-export const addCart = (cart: CartType) => {
+export const addCart = (cart: Cart) => {
   const { addCart } = useCartStore.getState();
   addCart(cart);
 };
