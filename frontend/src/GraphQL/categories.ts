@@ -1,19 +1,41 @@
 export const GET_CATEGORIES = `
   query GetCategories {
     getCategories {
-      id
-      name
-      normalizedName
-      urlImage
-      createdAt
-      updatedAt
-      children {
+      categories {
         id
         name
         normalizedName
         urlImage
         createdAt
         updatedAt
+        children {
+          id
+          name
+          normalizedName
+          urlImage
+          createdAt
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
+export const GET_CATEGORIES_WITH_COUNT = `
+  query GetCategories($page: Int, $onPage: Int) {
+    getCategories(page: $page, onPage: $onPage) {
+      categories {
+        id
+        name
+        normalizedName
+        urlImage
+        createdAt
+        updatedAt
+      }
+      pagination {
+        total
+        currentPage
+        totalPages
       }
     }
   }

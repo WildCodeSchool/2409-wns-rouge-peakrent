@@ -28,9 +28,23 @@ export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
     getProducts(onPage: $onPage, page: $page) {
       products {
         id
-        name
-        urlImage
         isPublished
+        name
+        sku
+        urlImage
+        description
+        createdAt
+        categories {
+          id
+          name
+          children {
+            id
+            name
+          }
+        }
+        variants {
+          pricePerHour
+        }
       }
       pagination {
         total
