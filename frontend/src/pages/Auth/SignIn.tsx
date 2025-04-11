@@ -11,8 +11,8 @@ import { SIGNIN } from "../../GraphQL/signin";
 import { WHOAMI } from "../../GraphQL/whoami";
 
 export function SignInPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@peakrent.com");
+  const [password, setPassword] = useState("Aadmin123!");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [signinError, setSigninError] = useState("");
