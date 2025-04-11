@@ -13,7 +13,9 @@ export function ActivitiesBentoGridSkeleton() {
   ];
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
-      <Skeleton className="h-8 md:h-9 w-32 mx-auto my-4 md:my-6" />
+      <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
+        Activités
+      </h2>
       <div className="grid grid-cols-10 gap-4 auto-rows-[250px]">
         {spans.map((span, index) => (
           <div

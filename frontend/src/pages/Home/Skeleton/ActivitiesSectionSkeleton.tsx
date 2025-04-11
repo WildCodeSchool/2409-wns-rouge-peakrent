@@ -27,7 +27,9 @@ export function ActivitiesSectionSkeleton() {
   };
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
-      <Skeleton className="h-8 md:h-9 w-32 mx-auto my-4 md:my-6" />
+      <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
+        Activités
+      </h2>
       <div className="flex flex-col gap-0">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4">
           {[...Array(Math.ceil(getActivitiesCount() / 2))].map((_, index) => (
