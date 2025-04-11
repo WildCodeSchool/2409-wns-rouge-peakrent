@@ -3,7 +3,7 @@ export type CategoryType = {
   name: string;
   description?: string;
   children?: CategoryType[];
-  image?: string;
+  urlImage?: string;
   createdAt: Date;
   updatedAt: Date;
 };

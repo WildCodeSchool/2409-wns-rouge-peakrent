@@ -19,6 +19,26 @@ export const GET_CATEGORIES = `
   }
 `;
 
+export const GET_CATEGORIES_WITH_COUNT = `
+  query GetCategories($page: Int, $onPage: Int) {
+    getCategories(page: $page, onPage: $onPage) {
+      categories {
+        id
+        name
+        normalizedName
+        urlImage
+        createdAt
+        updatedAt
+      }
+      pagination {
+        total
+        currentPage
+        totalPages
+      }
+    }
+  }
+`;
+
 export const GET_CATEGORY = `
   query GetCategory($id: ID!) {
     category(id: $id) {

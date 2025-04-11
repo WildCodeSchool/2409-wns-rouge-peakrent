@@ -1,8 +1,8 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { cn } from "@/lib/utils";
+import { CategoryType } from "@/types/types";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { homeActivities } from "./fakeData";
 
 const ActivityItem = ({
   activity,
@@ -38,7 +38,11 @@ const ActivityItem = ({
   );
 };
 
-export function ActivitiesSection() {
+export function ActivitiesSection({
+  activities,
+}: {
+  activities: CategoryType[];
+}) {
   const [windowWidth, setWindowWidth] = useState(0);
 
   useEffect(() => {
@@ -62,19 +66,19 @@ export function ActivitiesSection() {
 
       <div className="flex flex-col gap-0">
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-4">
-          {homeActivities
-            .slice(0, Math.ceil(getActivitiesCount() / 2))
+          {activities
+            ?.slice(0, Math.ceil(getActivitiesCount() / 2))
             .map((activity) => (
-              <ActivityItem key={activity.title} activity={activity} />
+              <ActivityItem key={activity.name} activity={activity} />
             ))}
         </div>
         <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-4 mx-auto">
-          {homeActivities
-            .slice(Math.ceil(getActivitiesCount() / 2), getActivitiesCount())
+          {activities
+            ?.slice(Math.ceil(getActivitiesCount() / 2), getActivitiesCount())
             .map((activity, index) => {
               return (
                 <ActivityItem
-                  key={activity.title}
+                  key={activity.name}
                   activity={activity}
                   index={index}
                 />
