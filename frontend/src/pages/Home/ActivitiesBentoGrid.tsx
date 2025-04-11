@@ -1,9 +1,10 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import { homeActivities } from "./fakeData";
 
-export default function ActivitiesBentoGrid() {
+export function ActivitiesBentoGrid() {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
   return (
@@ -13,7 +14,8 @@ export default function ActivitiesBentoGrid() {
       </h2>
       <div className="grid grid-cols-10 gap-4 auto-rows-[250px]">
         {homeActivities.slice(0, 7).map((activity) => (
-          <div
+          <NavLink
+            to={`/activities/${activity.title}`}
             key={activity.id}
             className={cn(
               "relative overflow-hidden rounded-xl border hover:cursor-pointer",
@@ -37,7 +39,7 @@ export default function ActivitiesBentoGrid() {
               </h3>
               <p className="text-sm text-white/90">{activity.description}</p>
             </div>
-          </div>
+          </NavLink>
         ))}
       </div>
     </section>

@@ -11,15 +11,15 @@ const ActivityItem = ({
   activity: any;
   index?: number;
 }) => {
+  const spans = ["col-start-2", "col-start-4", "col-start-6", "col-start-8"];
   return (
     <NavLink
       key={activity.title}
       to={`/activities/${activity.title}`}
       className={cn(
-        "aspect-square relative hover:cursor-pointer group overflow-hidden col-span-1",
-        index !== undefined &&
-          index !== null &&
-          `col-start-${index + 2} col-span-2`
+        "aspect-square relative hover:cursor-pointer group overflow-hidden",
+        index !== undefined && index !== null && "col-span-2",
+        index !== undefined && index !== null && spans[index]
       )}
     >
       <div className="w-full h-full overflow-hidden rounded-full border">
@@ -38,7 +38,7 @@ const ActivityItem = ({
   );
 };
 
-export default function ActivitiesSection() {
+export function ActivitiesSection() {
   const [windowWidth, setWindowWidth] = useState(0);
 
   useEffect(() => {
@@ -53,6 +53,7 @@ export default function ActivitiesSection() {
     if (windowWidth >= 640) return 7;
     return 5;
   };
+
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
       <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:py-6 text-center">
