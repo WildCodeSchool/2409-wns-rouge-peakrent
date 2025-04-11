@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/cards/ProductCard";
+import { ProductCardSkeleton } from "@/components/cards/ProductCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
 import { ProductType } from "@/types/types";
@@ -8,7 +9,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { forwardProducts } from "./fakeData";
 
-export default function ForwardProducts() {
+export function ForwardProducts() {
   const [windowWidth, setWindowWidth] = useState(0);
 
   useEffect(() => {
@@ -47,10 +48,11 @@ export default function ForwardProducts() {
         {forwardProducts.map((product: any) => (
           <ProductCard product={product} key={product.id} />
         ))}
+
         {loading ? (
-          <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
-            <span className="font-medium">Chargement...</span>
-          </div>
+          [...Array(getProductCount())].map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))
         ) : error ? (
           <div className="col-span-full my-10 flex w-full flex-1 flex-col items-center justify-center gap-4 text-2xl">
             <Meh size={48} />
