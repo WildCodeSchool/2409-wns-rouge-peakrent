@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { LoadIcon } from "@/components/icons/LoadIcon";
+import { GET_CATEGORIES } from "@/GraphQL/categories";
 import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
+import FilterList from "@/components/FilterList/FilterList";
 import ProductsList from "@/components/ProductsList/ProductsList";
 import FilterButton from "@/components/buttons/FilterButton";
-import { GET_CATEGORIES } from "@/GraphQL/categories";
-import FilterList from "@/components/FilterList/FilterList";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 
 const ProductsPage = () => {
   const [itemsOnPage, setItemsOnPage] = useState(15);
@@ -48,7 +48,7 @@ const ProductsPage = () => {
     error: getCategoriesError,
   } = useQuery(gql(GET_CATEGORIES));
 
-  const categories = getCategoriesData?.getCategories || [];
+  const categories = getCategoriesData?.getCategories.categories || [];
 
   // const {
   //   data: getActivitiesData,
@@ -64,7 +64,7 @@ const ProductsPage = () => {
       variables: {
         onPage: itemsOnPage,
         page: 1,
-        categoriesId: selectedCategories,
+        categoryIds: selectedCategories,
         // activitiesId: selectedActivities,
       },
     });

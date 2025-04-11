@@ -24,8 +24,8 @@ export const GET_PRODUCTS = `
 `;
 
 export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
-  query GetProducts($onPage: Int!, $page: Int!, $categoriesId: [Int!]) {
-    getProducts(onPage: $onPage, page: $page, categoriesId: $categoriesId) {
+  query GetProducts($onPage: Int!, $page: Int!, $categoryIds: [Int!]) {
+    getProducts(onPage: $onPage, page: $page, categoryIds: $categoryIds) {
       products {
         id
         isPublished

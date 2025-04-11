@@ -1,7 +1,7 @@
 import React from "react";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 interface CategoryFilterProps {
   activities?: any[];
@@ -70,7 +70,7 @@ const FilterList = ({
       {categories && (
         <div className="space-y-2">
           <h2>Categories :</h2>
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <Label
               key={category.id}
               htmlFor={`category-${category.id}`}
