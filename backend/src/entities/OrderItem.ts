@@ -31,19 +31,16 @@ export class OrderItem extends BaseEntity {
     nullable: true,
   })
   @JoinColumn({ name: "cart_id" })
-  @Column({ name: "cart_id", nullable: true })
   cart?: Cart;
 
   @Field({ nullable: true })
   @ManyToOne(() => Order, (order) => order.id, { nullable: true })
   @JoinColumn({ name: "order_id" })
-  @Column({ name: "order_id", nullable: true })
   order?: Order;
 
   @Field({ nullable: true })
   @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
   @JoinColumn({ name: "variant_id" })
-  @Column({ name: "variant_id", nullable: true })
   variant?: Variant;
 
   @Field()
@@ -82,14 +79,14 @@ export class OrderItemsCreateInput {
   profileId!: number;
 
   @Field(() => Int, { nullable: true })
-  orderId?: Number;
+  orderId?: number;
 
   @Field(() => Int)
   @IsNotEmpty({ message: "variant_id must not be empty." })
-  variantId!: Number;
+  variantId!: number;
 
   @Field(() => Int, { nullable: true })
-  cartId?: Number;
+  cartId?: number;
 
   @Field(() => Int)
   @Min(0, { message: "quantity should be positive" })
@@ -115,13 +112,13 @@ export class OrderItemsCreateInput {
 @InputType()
 export class OrderItemsUpdateInput {
   @Field(() => Int, { nullable: true })
-  orderId?: Number;
+  orderId?: number;
 
   @Field(() => Int, { nullable: true })
-  variantId?: Number;
+  variantId?: number;
 
   @Field(() => Int, { nullable: true })
-  cartId?: Number;
+  cartId?: number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })

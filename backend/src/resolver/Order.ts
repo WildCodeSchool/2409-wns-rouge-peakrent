@@ -87,6 +87,11 @@ export class OrderResolver {
     });
 
     if (order !== null) {
+      if (
+        !(context.user.role === "admin" || context.user.id === order.profile.id)
+      ) {
+        throw new Error("Unauthorized");
+      }
       Object.assign(order, data, { profile: data.profileId });
       const errors = await validate(order);
       if (errors.length > 0) {
@@ -112,6 +117,11 @@ export class OrderResolver {
       relations: { profile: true },
     });
     if (order !== null) {
+      if (
+        !(context.user.role === "admin" || context.user.id === order.profile.id)
+      ) {
+        throw new Error("Unauthorized");
+      }
       await order.remove();
       return order;
     } else {
