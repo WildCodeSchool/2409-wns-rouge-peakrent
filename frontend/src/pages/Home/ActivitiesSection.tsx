@@ -8,14 +8,14 @@ const ActivityItem = ({
   activity,
   index,
 }: {
-  activity: any;
+  activity: CategoryType;
   index?: number;
 }) => {
   const spans = ["col-start-2", "col-start-4", "col-start-6", "col-start-8"];
   return (
     <NavLink
-      key={activity.title}
-      to={`/activities/${activity.title}`}
+      key={activity.id}
+      to={`/activities/${activity.name}`}
       className={cn(
         "aspect-square relative hover:cursor-pointer group overflow-hidden",
         index !== undefined && index !== null && "col-span-2",
@@ -24,13 +24,13 @@ const ActivityItem = ({
     >
       <div className="w-full h-full overflow-hidden rounded-full border">
         <ImageHandler
-          src={activity.image}
-          alt={activity.title}
+          src={activity.urlImage}
+          alt={activity.name}
           className="w-full h-full object-cover hover:scale-110 transition-all duration-300"
         />
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-center justify-center rounded-full">
           <p className="text-white text-lg font-semibold text-center px-4">
-            {activity.title}
+            {activity.name}
           </p>
         </div>
       </div>
