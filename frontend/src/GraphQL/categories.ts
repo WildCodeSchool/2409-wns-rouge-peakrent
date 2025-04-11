@@ -1,19 +1,21 @@
 export const GET_CATEGORIES = `
   query GetCategories {
     getCategories {
-      id
-      name
-      normalizedName
-      urlImage
-      createdAt
-      updatedAt
-      children {
+      categories {
         id
         name
         normalizedName
         urlImage
         createdAt
         updatedAt
+        children {
+          id
+          name
+          normalizedName
+          urlImage
+          createdAt
+          updatedAt
+        }
       }
     }
   }
