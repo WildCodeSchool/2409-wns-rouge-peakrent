@@ -9,4 +9,11 @@ afterEach(() => {
   cleanup();
 });
 
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 expect.extend(matchers);
+global.ResizeObserver = ResizeObserver;

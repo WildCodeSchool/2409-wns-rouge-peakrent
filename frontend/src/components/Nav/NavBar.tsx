@@ -17,7 +17,9 @@ const NavBar = () => {
   const { data: whoamiData } = useQuery(gql(WHOAMI));
   const me = whoamiData?.whoami;
 
-  const [doSignout] = useMutation(gql(SIGNOUT), { refetchQueries: [WHOAMI] });
+  const [doSignout] = useMutation(gql(SIGNOUT), {
+    refetchQueries: [{ query: gql(WHOAMI) }],
+  });
 
   const onSignout = async () => {
     doSignout();
@@ -155,7 +157,7 @@ const NavBar = () => {
               "py-2 px-4 cursor-pointer text-center"
             )}
           >
-            <CiLogin size={50} />
+            <CiLogin size={30} className="flex-none" />
           </NavLink>
         )}
       </div>

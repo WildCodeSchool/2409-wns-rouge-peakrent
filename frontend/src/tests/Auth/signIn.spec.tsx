@@ -81,9 +81,19 @@ const unauthaurizedMock = [
 ];
 
 const mockedUsedNavigate = vi.fn();
-vi.mock("react-router-dom", () => ({
-  useNavigate: () => mockedUsedNavigate,
-}));
+vi.mock("react-router-dom", async () => {
+  const actual =
+    await vi.importActual<typeof import("react-router-dom")>(
+      "react-router-dom"
+    );
+  return {
+    ...actual,
+    useNavigate: () => mockedUsedNavigate,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+      <a href={to}>{children}</a>
+    ),
+  };
+});
 
 describe("SignIn Component", () => {
   beforeEach(() => {
@@ -98,9 +108,9 @@ describe("SignIn Component", () => {
     );
 
     expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/mot de passe/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /sign in/i })
+      screen.getByRole("button", { name: /Se connecter/i })
     ).toBeInTheDocument();
   });
 
@@ -112,8 +122,8 @@ describe("SignIn Component", () => {
     );
 
     const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const button = screen.getByRole("button", { name: /sign in/i });
+    const passwordInput = screen.getByPlaceholderText(/mot de passe/i);
+    const button = screen.getByRole("button", { name: /Se connecter/i });
 
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "password123");
@@ -130,8 +140,8 @@ describe("SignIn Component", () => {
     );
 
     const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const button = screen.getByRole("button", { name: /sign in/i });
+    const passwordInput = screen.getByPlaceholderText(/mot de passe/i);
+    const button = screen.getByRole("button", { name: /Se connecter/i });
 
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "password123");
