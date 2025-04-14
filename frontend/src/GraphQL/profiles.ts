@@ -33,6 +33,8 @@ export const CREATE_PROFILE = `
       firstname
       lastname
       role
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -44,6 +46,8 @@ export const UPDATE_PROFILE = `
       firstname
       lastname
       role
+      createdAt
+      updatedAt
     }
   }
 `;
