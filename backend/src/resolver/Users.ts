@@ -3,10 +3,16 @@ import { ValidationError } from "class-validator";
 import Cookies from "cookies";
 import { GraphQLError } from "graphql";
 import * as jsonwebtoken from "jsonwebtoken";
-import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
-import { SignInInput, User, UserCreateInput } from "../entities/User";
+import {
+  AdminCreateUserInput,
+  AdminUpdateUserInput,
+  SignInInput,
+  User,
+  UserCreateInput,
+} from "../entities/User";
 import { UserToken } from "../entities/UserToken";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
 import { validateInput } from "../helpers/validateInput";
@@ -47,7 +53,7 @@ export class UserResolver {
       newUser.password = hashedPassword;
       newUser.firstname = data.firstname;
       newUser.lastname = data.lastname;
-      newUser.role = RoleType.USER;
+      newUser.role = RoleType.user;
 
       await dataSource.manager.transaction(async () => {
         await newUser.save();
@@ -148,5 +154,105 @@ export class UserResolver {
     const cookies = new Cookies(context.req, context.res);
     cookies.set("token", "", { maxAge: 0 });
     return true;
+  }
+
+  @Mutation(() => User)
+  async createUserByAdmin(
+    @Arg("data", () => AdminCreateUserInput) data: AdminCreateUserInput
+  ): Promise<User | ValidationError[]> {
+    await validateInput(data);
+
+    const existingUser = await User.findOne({ where: { email: data.email } });
+
+    if (existingUser) {
+      throw new GraphQLError("User with this email already exists", {
+        extensions: {
+          code: "EMAIL_ALREADY_EXIST",
+          http: { status: 409 },
+        },
+      });
+    }
+
+    try {
+      const hashedPassword = await hashPassword(data.password);
+      const newUser = new User();
+      newUser.email = data.email;
+      newUser.password = hashedPassword;
+      newUser.firstname = data.firstname;
+      newUser.lastname = data.lastname;
+      newUser.role = data.role || RoleType.user;
+
+      await dataSource.manager.transaction(async () => {
+        await newUser.save();
+
+        const profile = new Profile();
+        profile.email = newUser.email;
+        profile.firstname = newUser.firstname;
+        profile.lastname = newUser.lastname;
+        profile.id = newUser.id;
+        profile.role = newUser.role;
+
+        await profile.save();
+      });
+
+      return newUser;
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw new Error("Unable to create user. Please try again.");
+    }
+  }
+
+  @Mutation(() => User)
+  async updateUserByAdmin(
+    @Arg("id", () => ID) id: number,
+    @Arg("data", () => AdminUpdateUserInput) data: AdminUpdateUserInput
+  ): Promise<Profile | ValidationError[]> {
+    await validateInput(data);
+
+    const user = await User.findOne({ where: { id } });
+    if (!user) {
+      throw new GraphQLError("User not found", {
+        extensions: {
+          code: "USER_NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    try {
+      user.email = data.email;
+      user.firstname = data.firstname;
+      user.lastname = data.lastname;
+      user.role = data.role || user.role;
+
+      let profile: Profile | null = null;
+
+      await dataSource.manager.transaction(async () => {
+        await user.save();
+
+        profile = await Profile.findOne({ where: { id: user.id } });
+        if (profile) {
+          profile.email = user.email;
+          profile.firstname = user.firstname;
+          profile.lastname = user.lastname;
+          profile.role = user.role;
+          await profile.save();
+        }
+      });
+
+      if (!profile) {
+        throw new GraphQLError("Profile not found", {
+          extensions: {
+            code: "PROFILE_NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+      console.log(profile);
+      return profile;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw new Error("Unable to update user. Please try again.");
+    }
   }
 }
