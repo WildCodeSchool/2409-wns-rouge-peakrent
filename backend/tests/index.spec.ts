@@ -70,10 +70,10 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
     where: { id: testArgs.data.admin.id },
   });
 
-  adminProfile.role = RoleType.ADMIN;
+  adminProfile.role = RoleType.admin;
   await adminProfile.save();
 
-  testArgs.data.admin.role = RoleType.ADMIN;
+  testArgs.data.admin.role = RoleType.admin;
 };
 
 beforeAll(async () => {

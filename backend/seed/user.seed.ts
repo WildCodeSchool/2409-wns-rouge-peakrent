@@ -13,14 +13,14 @@ export const seedUsers = async () => {
       password: "Aadmin123!",
       firstname: "Admin",
       lastname: "User",
-      role: RoleType.ADMIN,
+      role: RoleType.admin,
     },
     {
       email: "client@example.com",
       password: "Client123!",
       firstname: "Jean",
       lastname: "Dupont",
-      role: RoleType.USER,
+      role: RoleType.user,
     },
   ];
 
