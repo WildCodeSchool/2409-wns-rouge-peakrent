@@ -3,7 +3,7 @@ import { ValidationError } from "class-validator";
 import Cookies from "cookies";
 import { GraphQLError } from "graphql";
 import * as jsonwebtoken from "jsonwebtoken";
-import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import { dataSource } from "../config/db";
 import { Profile } from "../entities/Profile";
 import {
@@ -16,7 +16,7 @@ import {
 import { UserToken } from "../entities/UserToken";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
 import { validateInput } from "../helpers/validateInput";
-import { ContextType, RoleType } from "../types";
+import { AuthContextType, ContextType, RoleType } from "../types";
 
 @Resolver(User)
 export class UserResolver {
@@ -156,11 +156,26 @@ export class UserResolver {
     return true;
   }
 
-  @Mutation(() => User)
+  @Authorized(["admin", "superadmin"])
+  @Mutation(() => Profile)
   async createUserByAdmin(
-    @Arg("data", () => AdminCreateUserInput) data: AdminCreateUserInput
-  ): Promise<User | ValidationError[]> {
+    @Arg("data", () => AdminCreateUserInput) data: AdminCreateUserInput,
+    @Ctx() context: AuthContextType
+  ): Promise<Profile | ValidationError[]> {
     await validateInput(data);
+
+    if (
+      context.user.role !== "superadmin" &&
+      data.role &&
+      data.role === "superadmin"
+    ) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 403 },
+        },
+      });
+    }
 
     const existingUser = await User.findOne({ where: { email: data.email } });
 
@@ -182,10 +197,12 @@ export class UserResolver {
       newUser.lastname = data.lastname;
       newUser.role = data.role || RoleType.user;
 
+      let profile: Profile | null = null;
+
       await dataSource.manager.transaction(async () => {
         await newUser.save();
 
-        const profile = new Profile();
+        profile = new Profile();
         profile.email = newUser.email;
         profile.firstname = newUser.firstname;
         profile.lastname = newUser.lastname;
@@ -195,19 +212,34 @@ export class UserResolver {
         await profile.save();
       });
 
-      return newUser;
+      return profile;
     } catch (error) {
       console.error("Error creating user:", error);
       throw new Error("Unable to create user. Please try again.");
     }
   }
 
-  @Mutation(() => User)
+  @Authorized(["admin", "superadmin"])
+  @Mutation(() => Profile)
   async updateUserByAdmin(
     @Arg("id", () => ID) id: number,
-    @Arg("data", () => AdminUpdateUserInput) data: AdminUpdateUserInput
+    @Arg("data", () => AdminUpdateUserInput) data: AdminUpdateUserInput,
+    @Ctx() context: AuthContextType
   ): Promise<Profile | ValidationError[]> {
     await validateInput(data);
+
+    if (
+      context.user.role !== "superadmin" &&
+      data.role &&
+      data.role === "superadmin"
+    ) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 403 },
+        },
+      });
+    }
 
     const user = await User.findOne({ where: { id } });
     if (!user) {
@@ -230,7 +262,9 @@ export class UserResolver {
       await dataSource.manager.transaction(async () => {
         await user.save();
 
-        profile = await Profile.findOne({ where: { id: user.id } });
+        profile = await Profile.findOne({
+          where: { id: user.id },
+        });
         if (profile) {
           profile.email = user.email;
           profile.firstname = user.firstname;
@@ -248,7 +282,7 @@ export class UserResolver {
           },
         });
       }
-      console.log(profile);
+
       return profile;
     } catch (error) {
       console.error("Error updating user:", error);
