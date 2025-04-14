@@ -49,14 +49,14 @@ const FilterList = ({
       {activities && (
         <div className="space-y-2">
           <h2>Activités :</h2>
-          {activities.map((activity) => (
+          {activities?.map((activity) => (
             <Label
               key={activity.id}
-              htmlFor={`category-${activity.id}`}
+              htmlFor={`activity-${activity.id}`}
               className="flex items-center gap-2"
             >
               <Checkbox
-                id={`category-${activity.id}`}
+                id={`activity-${activity.id}`}
                 checked={selectedActivities?.includes(Number(activity.id))}
                 onCheckedChange={() =>
                   handleActivitiesCheckboxAction(Number(activity.id))
