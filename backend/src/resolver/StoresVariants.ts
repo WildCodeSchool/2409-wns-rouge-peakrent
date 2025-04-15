@@ -1,9 +1,12 @@
 import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { IsNull, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
+import { OrderItem } from "../entities/OrderItem";
 import {
   StoreVariant,
   StoreVariantCreateInput,
   StoreVariantUpdateInput,
 } from "../entities/StoreVariant";
+import { OrderStatusType } from "../types";
 
 @Resolver()
 export class StoreVariantResolver {
@@ -56,5 +59,41 @@ export class StoreVariantResolver {
 
     await storeVariant.remove();
     return true;
+  }
+
+  @Query(() => Number)
+  async checkVariantStock(
+    @Arg("storeId") storeId: number,
+    @Arg("variantId") variantId: number,
+    @Arg("startingDate") startingDate: Date,
+    @Arg("endingDate") endingDate: Date
+  ): Promise<number> {
+    // Récupérer tous les order items des dates indiquées
+    const numberOfOrderItems = await OrderItem.count({
+      where: {
+        variant: { id: variantId },
+        startsAt: LessThanOrEqual(endingDate),
+        endsAt: MoreThanOrEqual(startingDate),
+        order: {
+          id: Not(IsNull()),
+          status: OrderStatusType.confirmed,
+        },
+      },
+      relations: ["variant", "order"],
+    });
+
+    // Récupérer les stocks pour un Magasin
+    const storeVariantQuantity = await StoreVariant.findOne({
+      where: {
+        storeId,
+        variantId,
+      },
+      select: ["quantity"],
+    });
+
+    const quantity = storeVariantQuantity ?? 0;
+    const variantQuantity = Number(quantity) - numberOfOrderItems;
+
+    return variantQuantity > 0 ? variantQuantity : 0;
   }
 }
