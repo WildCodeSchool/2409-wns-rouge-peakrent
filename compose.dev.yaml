@@ -3,6 +3,7 @@ services:
     build: ./backend
     ports:
       - 5050:4000
+      - "4001:4001"
     env_file:
       - database.env
       - variables.env

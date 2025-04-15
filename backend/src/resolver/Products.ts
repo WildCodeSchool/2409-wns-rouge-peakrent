@@ -105,21 +105,21 @@ export class ProductResolver {
   }
 
   @Authorized(["admin"])
-  @Mutation(() => Product)
+  @Mutation(() => Product, { nullable: true })
   async updateProduct(
     @Arg("id", () => String) _id: string,
-    @Arg("data", () => ProductUpdateInput) data: ProductUpdateInput,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => ProductUpdateInput) data: ProductUpdateInput
+    // @Ctx() context: AuthContextType
   ) {
     const id = Number(_id);
 
     const product = await Product.findOne({
-      where: { id, createdBy: { id: context.user.id } },
+      where: { id /*createdBy: { id: context.user.id }*/ },
       relations: { categories: true },
     });
 
     if (!product) {
-      return null;
+      throw new Error("Product not found or access denied.");
     }
 
     Object.assign(product, data);

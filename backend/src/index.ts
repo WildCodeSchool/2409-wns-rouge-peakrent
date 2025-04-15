@@ -10,7 +10,10 @@ import { getUserFromContext } from "./helpers/helpers";
 import { ContextType } from "./types";
 
 export interface MulterRequest extends Request {
-  file: Express.Multer.File;
+  file: tempType;
+}
+export interface tempType extends File {
+  filename: string;
 }
 
 const GRAPHQL_PORT = 4000;
@@ -43,7 +46,7 @@ const initialize = async () => {
   const storage = multer.diskStorage({
     destination: "uploads/",
     filename: (
-      req: MulterRequest,
+      req: Request,
       file: { originalname: string },
       cb: (arg0: null, arg1: string) => void
     ) => {
