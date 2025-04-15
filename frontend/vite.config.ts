@@ -11,8 +11,10 @@ export default defineConfig({
   server: {
     host: true,
     watch: { usePolling: true },
+    hmr: { path: "/hmr" },
     // this is mandatory to use front and back apps on the same domain
     // avoiding CORS & cookies issues
+    allowedHosts: ["frontend"],
     proxy: {
       "/api": {
         target: "http://backend:4000", // or http://localhost:5000 if you are running the front locally with npm run dev
