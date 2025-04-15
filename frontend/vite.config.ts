@@ -11,6 +11,7 @@ export default defineConfig({
   server: {
     host: true,
     watch: { usePolling: true },
+    hmr: { path: "/hmr" },
     // this is mandatory to use front and back apps on the same domain
     // avoiding CORS & cookies issues
     allowedHosts: ["frontend"],
