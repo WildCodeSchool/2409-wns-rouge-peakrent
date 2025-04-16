@@ -18,7 +18,6 @@ services:
     image: postgres
     ports:
       - 3030:5432
-      # - 5555 / 3030 / 8080
     env_file:
       - database.env
     volumes:
