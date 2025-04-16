@@ -1,16 +1,17 @@
 services:
   backend:
-    build: ./backend-GraphQL
+    build: ./backend
     ports:
-      - 5050:5000
-    command: npm run dev
+      - 5050:4000
+    env_file:
+      - database.env
+      - variables.env
     volumes:
-      - ./backend-GraphQL/src:/app/src
-      - ./backend-GraphQL/good_corner.sqlite:/app/good_corner.sqlite
-      - ./backend-GraphQL/queries.sql:/app/queries.sql
-      - ./backend-GraphQL/tsconfig.json:/app/tsconfig.json
-    networks:
-      - my_network
+      - ./backend/src:/app/src
+      - ./backend/tsconfig.json:/app/tsconfig.json
+    command: npm start
+    depends_on:
+      - db
 
   frontend:
     build: ./frontend
@@ -24,9 +25,27 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - ./frontend/vite.config.ts:/app/vite.config.ts
-    networks:
-      - my_network
 
-networks:
-  my_network:
-    driver: bridge
+  db:
+    image: postgres
+    ports:
+      - 5555:5432
+      # - 5555 / 3030 / 8080
+    env_file:
+      - database.env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  dbdata:
+    driver: local

@@ -7,7 +7,7 @@ import {
   Length,
   MaxLength,
 } from "class-validator";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,

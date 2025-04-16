@@ -24,13 +24,27 @@ export const GET_PRODUCTS = `
 `;
 
 export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
-  query GetProducts($onPage: Int!, $page: Int!) {
-    getProducts(onPage: $onPage, page: $page) {
+  query GetProducts($onPage: Int!, $page: Int!, $categoryIds: [Int!]) {
+    getProducts(onPage: $onPage, page: $page, categoryIds: $categoryIds) {
       products {
         id
-        name
-        urlImage
         isPublished
+        name
+        sku
+        urlImage
+        description
+        createdAt
+        categories {
+          id
+          name
+          children {
+            id
+            name
+          }
+        }
+        variants {
+          pricePerHour
+        }
       }
       pagination {
         total

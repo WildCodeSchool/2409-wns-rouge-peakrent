@@ -1,6 +1,6 @@
 import Cookies from "cookies";
 import { verify } from "jsonwebtoken";
-import { AuthChecker, MiddlewareFn } from "type-graphql";
+import { AuthChecker } from "type-graphql";
 import { User } from "./entities/User";
 import { ContextType } from "./types";
 
@@ -37,7 +37,7 @@ export async function getUserFromContext(
 }
 
 export const authChecker: AuthChecker<ContextType> = async (
-  { root, args, context, info },
+  { context },
   roles
 ) => {
   // @Authorized(["admin", "user"]) → roles = ["admin", "user"]

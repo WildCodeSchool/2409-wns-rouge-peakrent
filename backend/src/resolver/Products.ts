@@ -25,13 +25,23 @@ export class ProductResolver {
   @Query(() => ProductWithCount)
   async getProducts(
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number
+    @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
+    @Arg("categoryIds", () => [Int], { nullable: true })
+    categoryIds?: number[]
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
+    const where: any = {};
+
+    if (categoryIds && categoryIds.length > 0) {
+      where.categories = {
+        id: In(categoryIds),
+      };
+    }
 
     const [products, total] = await Product.findAndCount({
       skip: itemsToSkip,
       take: onPage,
+      where,
       relations: {
         categories: true,
         createdBy: true,

@@ -79,6 +79,15 @@ export class CategoryWithCount {
   pagination!: Pagination;
 }
 
+@ObjectType()
+export class CategoriesWithCount {
+  @Field(() => [Category])
+  categories!: Category[];
+
+  @Field(() => Pagination, { nullable: true })
+  pagination: Pagination;
+}
+
 @InputType()
 export class CategoryCreateInput {
   @Field()

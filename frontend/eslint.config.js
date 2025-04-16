@@ -13,8 +13,8 @@ export default [
   {
     settings: {
       react: {
-        version: "detect"
-      }
+        version: "detect",
+      },
     },
     rules: {
       "react/react-in-jsx-scope": "off",
@@ -22,6 +22,6 @@ export default [
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-this-alias": "off",
-    }
+    },
   },
 ];

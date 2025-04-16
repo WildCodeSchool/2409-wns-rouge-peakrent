@@ -10,6 +10,7 @@ import {
   Resolver,
 } from "type-graphql";
 import {
+  CategoriesWithCount,
   Category,
   CategoryCreateInput,
   CategoryUpdateInput,
@@ -21,12 +22,25 @@ import { AuthContextType } from "../types";
 
 @Resolver(Category)
 export class CategoryResolver {
-  @Query(() => [Category])
-  async getCategories(): Promise<Category[]> {
-    const categories = await Category.find({
+  @Query(() => CategoriesWithCount)
+  async getCategories(
+    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
+    @Arg("onPage", () => Int, { defaultValue: 15 })
+    onPage: number
+  ): Promise<CategoriesWithCount> {
+    const [categories, total] = await Category.findAndCount({
       relations: { products: true, parentCategory: true, children: true },
+      skip: (page - 1) * onPage,
+      take: onPage,
     });
-    return categories;
+    return {
+      categories,
+      pagination: {
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / onPage),
+      },
+    };
   }
 
   @Query(() => CategoryWithCount, { nullable: true })

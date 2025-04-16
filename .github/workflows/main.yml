@@ -4,24 +4,6 @@ on:
   pull_request:
     branches: [main, develop]
 
-# A revoir
-# jobs:
-#   prettier:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-#         with:
-#           # Make sure the actual branch is checked out when running on pull requests
-#           ref: ${{ github.head_ref }}
-
-#       - name: Prettify code
-#         uses: creyD/prettier_action@v4.3
-#         with:
-#           # This part is also where you can pass other options, for example:
-#           prettier_options: --write **/*.{js,md}
-
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -46,13 +28,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      #a verifier pour eslint
-      # - name: Run ESLint
-      #   run: eslint . --ext .js,.jsx,.ts,.tsx
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install
         run: cd frontend && npm ci
+      - name: check prettier
+        run: cd frontend && npm run format:check
+      - name: check estlint
+        run: cd frontend && npm run lint
       - name: Run test
         run: cd frontend && npm test
 
@@ -61,12 +44,13 @@ jobs:
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      #a verifier pour eslint
-      # - name: Run ESLint
-      #   run: eslint . --ext .js,.jsx,.ts,.tsx
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install
         run: cd backend && npm ci
+      - name: check prettier
+        run: cd backend && npm run format:check
+      - name: check estlint
+        run: cd backend && npm run lint
       - name: Run test
         run: cd backend && npm run test:postgres

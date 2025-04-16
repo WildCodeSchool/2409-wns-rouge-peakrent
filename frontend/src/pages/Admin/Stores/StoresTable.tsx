@@ -5,7 +5,7 @@ import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
 import { GET_STORES } from "@/GraphQL/stores";
 import { ColumnConfig } from "@/types/datasTable";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { createColumns } from "./storesColumns";
 
@@ -15,7 +15,7 @@ export default function StoresTable() {
   const setStores = useStoreStore((state) => state.setStores);
   const setStoresFetched = useStoreStore((state) => state.setStoresFetched);
 
-  const { data, error, loading } = useQuery(GET_STORES);
+  const { data, error, loading } = useQuery(gql(GET_STORES));
 
   const columnConfigs: ColumnConfig[] = [];
 

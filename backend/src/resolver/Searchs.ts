@@ -12,17 +12,17 @@ export class SearchResolver {
     @Arg("searchTerm", () => String) _searchTerm: string
   ): Promise<Search> {
     const searchTerm = `%${_searchTerm}%`;
-    let categories: Category[];
-    let products: Product[];
 
-    categories = await dataSource.getRepository(Category).find({
-      select: ["id", "name"],
-      where: { normalizedName: Like(searchTerm) },
-      order: {
-        name: "ASC",
-      },
-    });
-    products = await dataSource.getRepository(Product).find({
+    const categories: Category[] = await dataSource
+      .getRepository(Category)
+      .find({
+        select: ["id", "name"],
+        where: { normalizedName: Like(searchTerm) },
+        order: {
+          name: "ASC",
+        },
+      });
+    const products: Product[] = await dataSource.getRepository(Product).find({
       select: ["id", "name"],
       take: 50,
       skip: 0,

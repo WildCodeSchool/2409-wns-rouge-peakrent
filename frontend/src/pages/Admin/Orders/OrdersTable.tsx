@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import { GET_ORDERS } from "@/GraphQL/order";
 import { useOrderStore } from "@/stores/admin/order.store";
 import { ColumnConfig } from "@/types/datasTable";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { createColumns } from "./ordersColumns";
 
@@ -15,7 +15,7 @@ export default function OrdersTable() {
   const setOrders = useOrderStore((state) => state.setOrders);
   const setOrdersFetched = useOrderStore((state) => state.setOrdersFetched);
 
-  const { data, error, loading } = useQuery(GET_ORDERS);
+  const { data, error, loading } = useQuery(gql(GET_ORDERS));
 
   const columnConfigs: ColumnConfig[] = [];
 

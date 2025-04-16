@@ -46,7 +46,7 @@ const SvgDrawVertical = () => (
   </svg>
 );
 
-export default function RentalProcessFlow() {
+export function RentalProcessFlow() {
   return (
     <section className="relative w-full max-w-screen-xl mx-auto py-12 sm:px-4 mt-8">
       {/* Desktop */}

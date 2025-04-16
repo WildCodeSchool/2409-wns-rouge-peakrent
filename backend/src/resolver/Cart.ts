@@ -9,7 +9,6 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Equal } from "typeorm";
 import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
@@ -66,7 +65,7 @@ export class CartResolver {
     @Arg("profileId", () => Int) profileId: number
   ): Promise<Cart | null> {
     return await Cart.findOne({
-      where: { profile: Number(profileId) as any },
+      where: { profile: { id: profileId } },
       relations: { profile: true },
     });
   }
@@ -164,6 +163,10 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
+    const errors = await validate(data);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    }
     const cart = await Cart.findOne({
       where: { id },
       relations: { profile: true },
@@ -175,14 +178,10 @@ export class CartResolver {
         throw new Error("Unauthorized");
       }
       const orderItems = await OrderItem.find({
-        where: { cart: Equal(id) },
-        relations: { variant: true },
+        where: { cart: { id } },
+        relations: { cart: true, variant: true },
       });
-      if (orderItems !== null) {
-        const errors = await validate(orderItems);
-        if (errors.length > 0) {
-          throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-        }
+      if (orderItems.length > 0) {
         const order = new Order();
         const orderData = {
           profileId: cart.profile.id,
@@ -198,6 +197,7 @@ export class CartResolver {
         };
 
         // A Verifier
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const totalPrice = getTotalOrderPrice(orderItems);
 
         Object.assign(order, orderData, { profile: orderData.profileId });

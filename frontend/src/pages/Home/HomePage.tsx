@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/ui/carousel/Carousel";
-import useBreakpoints from "@/hooks/useBreakpoint";
 import { NavLink } from "react-router-dom";
-import ActivitiesBentoGrid from "./ActivitiesBentoGrid";
-import ActivitiesSection from "./ActivitiesSection";
 import { carousselImages } from "./fakeData";
-import ForwardProducts from "./ForwardProducts";
-import RentalProcessFlow from "./RentalProcess";
+import { ForwardProducts } from "./ForwardProducts";
+import { HomeActivities } from "./HomeActivities";
+import { RentalProcessFlow } from "./RentalProcess";
 
 export function HomePage() {
-  const { lg } = useBreakpoints();
   return (
     <>
       <div className="relative">
@@ -32,7 +29,7 @@ export function HomePage() {
       </div>
 
       <div className="container mx-auto px-4 max-w-screen-xl flex flex-col gap-4">
-        {lg ? <ActivitiesBentoGrid /> : <ActivitiesSection />}
+        <HomeActivities />
 
         <ForwardProducts />
         <RentalProcessFlow />

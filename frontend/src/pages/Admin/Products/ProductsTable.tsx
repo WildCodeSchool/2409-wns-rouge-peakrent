@@ -5,7 +5,7 @@ import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
 import { GET_PRODUCTS } from "@/GraphQL/products";
 import { ColumnConfig } from "@/types/datasTable";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import { Eye } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export default function ProductsTable() {
     (state) => state.setProductsFetched
   );
 
-  const { data, error, loading } = useQuery(GET_PRODUCTS, {
+  const { data, error, loading } = useQuery(gql(GET_PRODUCTS), {
     variables: {
       page: 1,
       onPage: 100,

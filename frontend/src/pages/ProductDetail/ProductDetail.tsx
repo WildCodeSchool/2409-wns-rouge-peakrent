@@ -6,6 +6,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
+
 interface Variant {
   id: number;
   pricePerHour: number;
