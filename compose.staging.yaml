@@ -26,7 +26,8 @@ services:
   nginx:
     image: nginx
     volumes:
-      - ./nginx:/etc/nginx
+      - ./nginx-staging:/etc/nginx
+      - ./logs/staging:/var/log/nginx
     ports:
       - "8001:80"
     depends_on:
