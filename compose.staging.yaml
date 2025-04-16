@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend
+    image: charlotter678/peakrentbackend
     ports:
       - 5050:4000
     env_file:
@@ -14,7 +14,7 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    build: charlotter678/peakrentfrontend
     ports:
       - 3000:5173
     command: npm run dev
