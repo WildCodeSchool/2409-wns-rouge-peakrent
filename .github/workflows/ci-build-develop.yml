@@ -1,13 +1,13 @@
-name: ci-build
+name: ci-build-develop
 
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   build-frontend:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -24,12 +24,12 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:${{ github.sha }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_STAGING_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_STAGING_REPO }}:${{ github.sha }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   build-backend:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
@@ -46,6 +46,6 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_REPO }}:${{ github.sha }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_STAGING_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_STAGING_REPO }}:${{ github.sha }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
