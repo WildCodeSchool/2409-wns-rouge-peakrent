@@ -40,6 +40,7 @@ services:
     image: nginx
     volumes:
       - ./nginx:/etc/nginx
+      - ./logs/prod:/var/log/nginx
     ports:
       - "8080:80"
     depends_on:
