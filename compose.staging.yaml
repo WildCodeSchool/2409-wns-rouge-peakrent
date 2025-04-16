@@ -1,36 +1,23 @@
 services:
   backend:
-    build: ./backend
-    ports:
-      - 5050:4000
+    image: charlotter678/peakrentbackend
     env_file:
       - database.env
       - variables.env
-    volumes:
-      - ./backend/src:/app/src
-      - ./backend/tsconfig.json:/app/tsconfig.json
     command: npm start
     depends_on:
       - db
 
   frontend:
-    build: ./frontend
-    ports:
-      - 3000:5173
+    image: charlotter678/peakrentfrontend
     command: npm run dev
     depends_on:
       - backend
-    volumes:
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/vite.config.ts:/app/vite.config.ts
 
   db:
     image: postgres
     ports:
       - 5555:5432
-      # - 5555 / 3030 / 8080
     env_file:
       - database.env
     volumes:
@@ -41,7 +28,7 @@ services:
     volumes:
       - ./nginx:/etc/nginx
     ports:
-      - "8080:80"
+      - "8001:80"
     depends_on:
       - backend
       - frontend
