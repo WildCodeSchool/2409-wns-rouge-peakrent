@@ -1,54 +1,97 @@
+import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
+import { String } from "@/components/forms/formField/string/StringInput";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { useMutation, gql } from "@apollo/client";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { gql, useMutation } from "@apollo/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Link, NavLink } from "react-router-dom";
+import { toast } from "sonner";
+import { z } from "zod";
 import { CREATE_USER } from "../../GraphQL/createUser";
+import { CheckboxInput } from "@/components/forms/formField";
+
+const signUpSchema = z
+  .object({
+    firstname: z.string().min(1, "Le prénom est requis"),
+    lastname: z.string().min(1, "Le nom est requis"),
+    email: z.string().email("Email invalide"),
+    password: z
+      .string()
+      .min(10, "Le mot de passe doit contenir au moins 10 caractères"),
+    confirmPassword: z
+      .string()
+      .min(
+        10,
+        "La confirmation du mot de passe doit contenir au moins 10 caractères"
+      ),
+    agreeToPolicy: z.boolean().refine((val) => val === true, {
+      message: "Vous devez accepter les conditions d'utilisation",
+    }),
+
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [signupError, setSignupError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeToPolicy, setAgreeToPolicy] = useState(false);
   const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
 
-  async function doSubmitSignup() {
-    if (!agreeToPolicy) {
-      setSignupError("Vous devez accepter les conditions d'utilisation");
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      agreeToPolicy: false,
+    },
+  });
+
+  const onSubmit = async (formData: SignUpFormValues) => {
+    console.log('Tentative de soumission du formulaire', formData);
+    
+    if (!formData.agreeToPolicy) {
+      toast.error("Vous devez accepter les conditions d'utilisation");
       return;
     }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Les mots de passe ne correspondent pas");
+      return;
+    }
+
     try {
-      await doCreateUser({
+      console.log('Appel de la mutation createUser');
+      const result = await doCreateUser({
         variables: {
           data: {
-            email,
-            password,
-            confirmPassword,
-            firstname,
-            lastname,
+            email: formData.email,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+            firstname: formData.firstname,
+            lastname: formData.lastname,
           },
         },
       });
-    } catch (e: any) {
-      console.error(e);
-      if (e.message.includes("password is not strong enough")) {
-        setSignupError("Le mot de passe n'est pas assez fort");
-      } else if (e.message.includes("email must be an email")) {
-        setSignupError("L'email est invalide");
+      console.log('Résultat de la mutation', result);
+      toast.success("Inscription réussie !");
+    } catch (error: any) {
+      console.error('Erreur lors de la création du compte:', error);
+      if (error.message.includes("password is not strong enough")) {
+        toast.error("Le mot de passe n'est pas assez fort");
+      } else if (error.message.includes("email must be an email")) {
+        toast.error("L'email est invalide");
       } else {
-        setSignupError(e.message);
+        toast.error(error.message || "Une erreur est survenue lors de l'inscription");
       }
     }
-  }
+  };
 
   if (data) {
     return (
@@ -81,13 +124,15 @@ export function SignUpPage() {
                     vous connecter pour accéder à votre espace.
                   </p>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                    <Button
-                      size="lg"
-                      className="w-full text-sm text-white rounded-lg"
-                      variant="primary"
-                    >
-                      <Link to="/signin">Se connecter</Link>
-                    </Button>
+                    <NavLink to="/signin">
+                      <Button
+                        size="lg"
+                        className="w-full text-sm text-white rounded-lg"
+                        variant="primary"
+                      >
+                        Se connecter
+                      </Button>
+                    </NavLink>
                   </div>
                 </div>
               </div>
@@ -149,109 +194,75 @@ export function SignUpPage() {
               <h2 className="!text-3xl font-semibold mb-8 text-center">
                 Inscription
               </h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  doSubmitSignup();
-                }}
-                className="space-y-4"
-              >
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="prénom"
-                    value={firstname}
-                    onChange={(e) => setFirstname(e.target.value)}
-                    className="w-1/2"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <div className="flex block gap-2 w-full">
+                    <String
+                      form={form}
+                      name="firstname"
+                      label="Prénom"
+                      placeholder=" "
+                      required
+                      containerClassName="w-full"
+                    />
+                    <String
+                      form={form}
+                      name="lastname"
+                      label="Nom"
+                      placeholder=" "
+                      required
+                      containerClassName="w-full"
+                    />
+                  </div>
+                  <String
+                    form={form}
+                    name="email"
+                    label="adresse email"
+                    placeholder=" "
+                    required
                   />
-                  <Input
-                    type="text"
-                    placeholder="nom"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    className="w-1/2"
+                  <PasswordValidation
+                    form={form}
+                    label="Mot de passe"
+                    isRequired={true}
+                    name="password"
+                    needValidation={true}
                   />
-                </div>
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full"
+                  <PasswordValidation
+                    form={form}
+                    label="Confirmation du mot de passe"
+                    isRequired={true}
+                    name="confirmPassword"
                   />
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword ? (
-                      <EyeOffIcon size={20} />
-                    ) : (
-                      <EyeIcon size={20} />
-                    )}
-                  </button>
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="confirmer le mot de passe"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOffIcon size={20} />
-                    ) : (
-                      <EyeIcon size={20} />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="policy"
-                    checked={agreeToPolicy}
-                    onCheckedChange={(checked) =>
-                      setAgreeToPolicy(checked as boolean)
-                    }
-                  />
-                  <label htmlFor="policy" className="text-sm text-gray-600">
-                    J&apos;accepte les conditions d&apos;utilisation
-                  </label>
-                </div>
-                {signupError && (
-                  <p className="text-destructive text-sm">{signupError}</p>
-                )}
-                <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-white rounded-lg"
-                    variant="primary"
-                  >
-                    S&apos;inscrire
-                  </Button>
-                </div>
-                <div className="sm:block md:hidden text-center text-sm text-gray-600">
-                  Vous avez déjà un compte ?{" "}
-                  <Link to="/signin" className="text-primary hover:underline">
-                    Se connecter
-                  </Link>
-                </div>
-              </form>
+                  <div className="flex items-center space-x-2">
+                    <CheckboxInput
+                      form={form}
+                      name="agreeToPolicy"
+                      label="J&apos;accepte les conditions d&apos;utilisation"
+                      required  
+                    />
+                  </div>
+                  <div className="flex justify-center mt-8 w-1/2 mx-auto">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full text-sm text-white rounded-lg"
+                      variant="primary"
+                    >
+                      S&apos;inscrire
+                    </Button>
+                  </div>
+                  <div className="sm:block md:hidden text-center text-sm text-gray-600">
+                    Vous avez déjà un compte ?{" "}
+                    <Link to="/signin" className="text-primary hover:underline">
+                      Se connecter
+                    </Link>
+                  </div>
+                </form>
+              </Form>
             </div>
           </div>
         </Card>
