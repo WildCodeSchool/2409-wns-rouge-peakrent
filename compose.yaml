@@ -10,7 +10,7 @@ services:
 
   frontend:
     image: charlotter678/peakrentfrontend
-    command: npm run dev
+    command: ["npx", "serve", "dist"]
     depends_on:
       - backend
 
