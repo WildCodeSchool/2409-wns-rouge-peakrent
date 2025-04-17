@@ -2,7 +2,8 @@ import { Row } from "@tanstack/react-table";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
-import { UpdateProductForm } from "../../../components/forms/ProductForm";
+import { ProductForm } from "../../../components/forms/ProductForm";
+import { Product } from "@/gql/graphql";
 
 interface DataTableRowProductsActionsProps<TData> {
   row: Row<TData>;
@@ -11,7 +12,7 @@ interface DataTableRowProductsActionsProps<TData> {
 export function DataTableRowProductsActions<TData>({
   row,
 }: DataTableRowProductsActionsProps<TData>) {
-  const product = row.original as any;
+  const product = row.original as Product;
 
   const handleDelete = async (ids: string[] | number[]) => {
     return true;
@@ -20,7 +21,7 @@ export function DataTableRowProductsActions<TData>({
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">
       <UpdateButton
-        modalContent={<UpdateProductForm product={product} />}
+        modalContent={<ProductForm product={product} />}
         ariaLabel={"editProductAriaLabel"}
         variant="primary"
         modalTitle="Modifier le produit"
