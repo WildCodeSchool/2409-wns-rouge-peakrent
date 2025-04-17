@@ -96,7 +96,6 @@ export function SignInPage() {
                       form={form}
                       name="rememberMe"
                       label="Se souvenir de moi"
-                      required
                     />
                   </div>
                   <div className="text-right">
