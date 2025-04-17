@@ -31,7 +31,7 @@ export type ProductType = {
 };
 
 export enum RoleType {
-  USER = "user",
-  ADMIN = "admin",
-  SUPER_ADMIN = "super_admin",
+  user = "user",
+  admin = "admin",
+  superadmin = "superadmin",
 }

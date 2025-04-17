@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -22,6 +23,7 @@ createRoot(document.getElementById("root")!).render(
         <DeleteModalProvider>
           <AdminProvider>
             <App />
+            <Toaster />
           </AdminProvider>
         </DeleteModalProvider>
       </ModalProvider>

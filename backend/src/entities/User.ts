@@ -44,7 +44,7 @@ export class User extends BaseEntity {
   @Column({
     type: "enum",
     enum: RoleType,
-    default: RoleType.USER,
+    default: RoleType.user,
   })
   role!: RoleType;
 
@@ -129,4 +129,50 @@ export class SignInInput {
     }
   )
   password!: string;
+}
+
+@InputType()
+export class AdminCreateUserInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  email!: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  password!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "First name is missing or empty" })
+  firstname!: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Last name is missing or empty" })
+  lastname!: string;
+
+  @Field(() => RoleType, { nullable: true })
+  role?: RoleType;
+}
+
+@InputType()
+export class AdminUpdateUserInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  email?: string;
+
+  @Field()
+  @IsNotEmpty({ message: "First name is empty" })
+  firstname?: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Last name is empty" })
+  lastname?: string;
+
+  @Field(() => RoleType)
+  role?: RoleType;
 }
