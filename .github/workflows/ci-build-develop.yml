@@ -6,7 +6,7 @@ on:
       - develop
 
 jobs:
-  build-frontend:
+  build-frontend-develop:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-  build-backend:
+  build-backend-develop:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:

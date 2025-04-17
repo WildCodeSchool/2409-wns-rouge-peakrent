@@ -10,14 +10,14 @@ services:
 
   frontend:
     image: charlotter678/peakrentfrontend
-    command: npm run dev
+    command: -c "npx serve dist"
     depends_on:
       - backend
 
   db:
     image: postgres
     ports:
-      - 3030:5432
+      - 5555:5432
     env_file:
       - database.env
     volumes:

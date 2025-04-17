@@ -16,8 +16,9 @@ services:
 
   db:
     image: postgres
+    container_name: postgres-staging
     ports:
-      - 5555:5432
+      - 3030:5432
     env_file:
       - database.env
     volumes:
@@ -25,6 +26,7 @@ services:
 
   nginx:
     image: nginx
+    container_name: nginx-staging
     volumes:
       - ./nginx-staging:/etc/nginx
       - ./logs/staging:/var/log/nginx
