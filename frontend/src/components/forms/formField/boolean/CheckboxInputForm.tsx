@@ -16,6 +16,7 @@ interface CheckboxInputProps {
   isPending?: boolean;
   className?: string;
   containerClassName?: string;
+  onlyLabel?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }
 
@@ -27,6 +28,7 @@ export const CheckboxInput = ({
   isPending = false,
   className,
   containerClassName,
+  onlyLabel = false,
   onCheckedChange,
 }: CheckboxInputProps) => {
   const handleCheckedChange = (checked: boolean) => {
@@ -51,7 +53,7 @@ export const CheckboxInput = ({
                 className={cn(className)}
               />
             </FormControl>
-            <LabelSection label={label} required={required} />
+            <LabelSection label={label} required={required} onlyLabel={onlyLabel} />
           </div>
           <FormMessage />
         </FormItem>

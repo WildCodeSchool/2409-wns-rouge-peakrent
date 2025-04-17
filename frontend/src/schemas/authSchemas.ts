@@ -4,44 +4,44 @@ import { nameRegex } from "./regex";
 export const createPasswordSchema = () =>
   z
     .string({
-      required_error: "passwordRequired",
+      required_error: "Le mot de passe est requis",
     })
     .min(8, {
-      message: "passwordMinLength",
+      message: "Le mot de passe doit contenir au moins 8 caractères",
     })
     .regex(/(?=.*[A-Z])/, {
-      message: "passwordUppercase",
+      message: "Le mot de passe doit contenir au moins une lettre majuscule",
     })
     .regex(/(?=.*[a-z])/, {
-      message: "passwordLowercase",
+      message: "Le mot de passe doit contenir au moins une lettre minuscule",
     })
     .regex(/(?=.*\d)/, {
-      message: "passwordDigit",
+      message: "Le mot de passe doit contenir au moins un chiffre",
     })
     .regex(/[$&+,:;=?@#|'<>.^*()%!-]/, {
-      message: "passwordSpecialChar",
+      message: "Le mot de passe doit contenir au moins un caractère spécial",
     });
 
 export const createFirstnameSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "firstnameRequired",
+      required_error: "Le prénom est requis",
     })
-    .min(2, { message: "firstnameTooShort" })
-    .max(50, { message: "firstnameMaxLength" })
+    .min(2, { message: "Le prénom doit contenir au moins 2 caractères" })
+    .max(50, { message: "Le prénom ne doit pas excéder 50 caractères" })
     .regex(nameRegex, {
-      message: "firstnameInvalid",
+      message: "Le prénom est invalide",
     })
     .default(data);
 
 export const createLastnameSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "lastnameRequired",
+      required_error: "Le nom est requis",
     })
-    .min(2, { message: "lastnameTooShort" })
-    .max(50, { message: "lastnameMaxLength" })
+    .min(2, { message: "Le nom doit contenir au moins 2 caractères" })
+    .max(50, { message: "Le nom ne doit pas excéder 50 caractères" })
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s-]+$/, {
-      message: "lastnameInvalid",
+      message: "Le nom est invalide",
     })
     .default(data);

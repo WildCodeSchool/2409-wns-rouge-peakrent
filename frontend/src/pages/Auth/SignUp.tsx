@@ -13,25 +13,23 @@ import { z } from "zod";
 import { CREATE_USER } from "../../GraphQL/createUser";
 import { CheckboxInput } from "@/components/forms/formField";
 import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
+import {
+  createFirstnameSchema,
+  createLastnameSchema,
+  createPasswordSchema,
+} from "@/schemas/authSchemas";
 
 const signUpSchema = z
   .object({
-    firstname: z.string().min(1, "Le prénom est requis"),
-    lastname: z.string().min(1, "Le nom est requis"),
+    firstname: createFirstnameSchema(),
+    lastname: createLastnameSchema(),
     email: createEmailSchema({
       requiredError: "L'adresse email est requise",
       invalidFormatError: "Format d'email invalide",
       maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
     }),
-    password: z
-      .string()
-      .min(10, "Le mot de passe doit contenir au moins 10 caractères"),
-    confirmPassword: z
-      .string()
-      .min(
-        10,
-        "La confirmation du mot de passe doit contenir au moins 10 caractères"
-      ),
+    password: createPasswordSchema(),
+    confirmPassword: createPasswordSchema(),
     agreeToPolicy: z.boolean().refine((val) => val === true, {
       message: "Vous devez accepter les conditions d'utilisation",
     }),
@@ -181,13 +179,15 @@ export function SignUpPage() {
                   <p className="text-sm text-white mb-4">
                     Vous avez déjà un compte ?
                   </p>
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-black rounded-lg"
-                    variant="outline"
-                  >
-                    <Link to="/signin">Se connecter</Link>
-                  </Button>
+                  <Link to="/signin">
+                    <Button
+                      size="lg"
+                      className="w-full text-sm text-black rounded-lg"
+                      variant="outline"
+                    >
+                      Se connecter
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -222,7 +222,7 @@ export function SignUpPage() {
                   <StringInput
                     form={form}
                     name="email"
-                    label="adresse email"
+                    label="Email"
                     placeholder=" "
                     required
                   />
