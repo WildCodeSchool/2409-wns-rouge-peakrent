@@ -1,6 +1,6 @@
 services:
   backend:
-    image: charlotter678/peakrentbackend
+    image: charlotter678/peakrentbackend_staging
     env_file:
       - database.env
       - variables.env
@@ -9,15 +9,16 @@ services:
       - db
 
   frontend:
-    image: charlotter678/peakrentfrontend
-    command: ["npx", "serve", "dist", "--single"]
+    image: charlotter678/peakrentfrontend_staging
+    command: npm run dev
     depends_on:
       - backend
 
   db:
     image: postgres
+    container_name: postgres-staging
     ports:
-      - 5555:5432
+      - 3030:5432
     env_file:
       - database.env
     volumes:
@@ -25,11 +26,12 @@ services:
 
   nginx:
     image: nginx
+    container_name: nginx-staging
     volumes:
-      - ./nginx:/etc/nginx
-      - ./logs/prod:/var/log/nginx
+      - ./nginx-staging:/etc/nginx
+      - ./logs/staging:/var/log/nginx
     ports:
-      - "8080:80"
+      - "8001:80"
     depends_on:
       - backend
       - frontend
