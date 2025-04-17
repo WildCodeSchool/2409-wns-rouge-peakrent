@@ -43,7 +43,6 @@ export const CheckboxInput = ({
       render={({ field }) => (
         <FormItem className={cn("flex flex-col", containerClassName)}>
           <div className="flex items-center space-x-2">
-            <LabelSection label={label} required={required} />
             <FormControl>
               <Checkbox
                 disabled={isPending}
@@ -52,6 +51,7 @@ export const CheckboxInput = ({
                 className={cn(className)}
               />
             </FormControl>
+            <LabelSection label={label} required={required} />
           </div>
           <FormMessage />
         </FormItem>
