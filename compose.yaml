@@ -10,7 +10,7 @@ services:
 
   frontend:
     image: charlotter678/peakrentfrontend
-    command: ["npx", "serve", "dist"]
+    command: ["npx", "serve", "dist", "--single"]
     depends_on:
       - backend
 
