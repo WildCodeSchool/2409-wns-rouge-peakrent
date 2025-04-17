@@ -104,7 +104,7 @@ export class ProductResolver {
     }
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "user"])
   @Mutation(() => Product, { nullable: true })
   async updateProduct(
     @Arg("id", () => String) _id: string,
@@ -112,6 +112,7 @@ export class ProductResolver {
     // @Ctx() context: AuthContextType
   ) {
     const id = Number(_id);
+    console.log("1----------------------", id);
 
     const product = await Product.findOne({
       where: { id /*createdBy: { id: context.user.id }*/ },
@@ -121,6 +122,7 @@ export class ProductResolver {
     if (!product) {
       throw new Error("Product not found or access denied.");
     }
+    console.log("2----------------------", product);
 
     Object.assign(product, data);
 
@@ -140,10 +142,13 @@ export class ProductResolver {
 
     const validationErrors = await validate(product);
     if (validationErrors.length) {
-      return validationErrors;
+      // return validationErrors;
+      console.log("Validation failed: ", validationErrors);
+      throw new Error("Validation failed: ");
     }
 
-    await product.save();
+    const savedProduct = await product.save();
+    console.log("3---------------", savedProduct);
     return product;
   }
 

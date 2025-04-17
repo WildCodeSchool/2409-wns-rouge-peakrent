@@ -2,7 +2,7 @@ import { Row } from "@tanstack/react-table";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
-import { UpdateProductForm } from "./UpdateProductForm";
+import { UpdateProductForm } from "../../../components/forms/ProductForm";
 
 interface DataTableRowProductsActionsProps<TData> {
   row: Row<TData>;

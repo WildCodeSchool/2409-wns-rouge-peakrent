@@ -50,7 +50,7 @@ const initialize = async () => {
       file: { originalname: string },
       cb: (arg0: null, arg1: string) => void
     ) => {
-      cb(null, file.originalname + "-" + Date.now());
+      cb(null, file.originalname);
     },
   });
   const upload = multer({ storage });

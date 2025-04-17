@@ -18,29 +18,29 @@ type UpdateProductFormType = {
 export const UpdateProductForm = ({ product }: UpdateProductFormType) => {
   const [name, setName] = useState<string>(product.name);
   const [sku, setSku] = useState<string>(product.sku);
-  const [description, setDescription] = useState<string | undefined | null>(
-    product.description
+  const [description, setDescription] = useState<string>(
+    product.description ?? ""
   );
   const [isPublished, setIsPublished] = useState<boolean>(product.isPublished);
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
-  // const [categories, setCategories] = useState<Category[]>([]);
-  // const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
   const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
   console.log(product);
 
-  // const {
-  //   data: getCategoriesData,
-  //   loading: getCategoriesLoading,
-  //   error: getCategoriesError,
-  // } = useQuery(gql(GET_CATEGORIES));
+  const {
+    data: getCategoriesData,
+    loading: getCategoriesLoading,
+    error: getCategoriesError,
+  } = useQuery(gql(GET_CATEGORIES));
 
-  // useEffect(() => {
-  //   if (getCategoriesData?.getCategories?.categories) {
-  //     setCategories(getCategoriesData.getCategories.categories);
-  //   }
-  // }, [getCategoriesData?.getCategories.categories]);
+  useEffect(() => {
+    if (getCategoriesData?.getCategories?.categories) {
+      setCategories(getCategoriesData.getCategories.categories);
+    }
+  }, [getCategoriesData?.getCategories.categories]);
 
   useEffect(() => {}, []);
 
@@ -78,15 +78,15 @@ export const UpdateProductForm = ({ product }: UpdateProductFormType) => {
     }
   };
 
-  // const handleCategoriesCheckboxAction = (categoryId: number) => {
-  //   if (!setSelectedCategories) return;
+  const handleCategoriesCheckboxAction = (categoryId: number) => {
+    if (!setSelectedCategories) return;
 
-  //   setSelectedCategories((prev) =>
-  //     prev.includes(categoryId)
-  //       ? prev.filter((id) => id !== categoryId)
-  //       : [...prev, categoryId]
-  //   );
-  // };
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -122,7 +122,7 @@ export const UpdateProductForm = ({ product }: UpdateProductFormType) => {
         Publier
       </Label>
 
-      {/* {categories.map((category) => (
+      {categories.map((category) => (
         <Label
           htmlFor={`category-${category.id}`}
           key={category.id}
@@ -137,7 +137,7 @@ export const UpdateProductForm = ({ product }: UpdateProductFormType) => {
           />
           {category.name}
         </Label>
-      ))} */}
+      ))}
 
       <Button type="submit" disabled={uploading}>
         {uploading ? <LoadIcon size={24} /> : "Update Product"}
