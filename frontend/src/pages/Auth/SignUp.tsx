@@ -1,5 +1,5 @@
 import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
-import { String } from "@/components/forms/formField/string/StringInput";
+import { StringInput } from "@/components/forms/formField/string/StringInput";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -30,7 +30,6 @@ const signUpSchema = z
     agreeToPolicy: z.boolean().refine((val) => val === true, {
       message: "Vous devez accepter les conditions d'utilisation",
     }),
-
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Les mots de passe ne correspondent pas",
@@ -55,8 +54,6 @@ export function SignUpPage() {
   });
 
   const onSubmit = async (formData: SignUpFormValues) => {
-    console.log('Tentative de soumission du formulaire', formData);
-    
     if (!formData.agreeToPolicy) {
       toast.error("Vous devez accepter les conditions d'utilisation");
       return;
@@ -67,7 +64,6 @@ export function SignUpPage() {
     }
 
     try {
-      console.log('Appel de la mutation createUser');
       const result = await doCreateUser({
         variables: {
           data: {
@@ -79,16 +75,17 @@ export function SignUpPage() {
           },
         },
       });
-      console.log('Résultat de la mutation', result);
       toast.success("Inscription réussie !");
     } catch (error: any) {
-      console.error('Erreur lors de la création du compte:', error);
+      console.error("Erreur lors de la création du compte:", error);
       if (error.message.includes("password is not strong enough")) {
         toast.error("Le mot de passe n'est pas assez fort");
       } else if (error.message.includes("email must be an email")) {
         toast.error("L'email est invalide");
       } else {
-        toast.error(error.message || "Une erreur est survenue lors de l'inscription");
+        toast.error(
+          error.message || "Une erreur est survenue lors de l'inscription"
+        );
       }
     }
   };
@@ -200,7 +197,7 @@ export function SignUpPage() {
                   className="space-y-4"
                 >
                   <div className="flex block gap-2 w-full">
-                    <String
+                    <StringInput
                       form={form}
                       name="firstname"
                       label="Prénom"
@@ -208,7 +205,7 @@ export function SignUpPage() {
                       required
                       containerClassName="w-full"
                     />
-                    <String
+                    <StringInput
                       form={form}
                       name="lastname"
                       label="Nom"
@@ -217,7 +214,7 @@ export function SignUpPage() {
                       containerClassName="w-full"
                     />
                   </div>
-                  <String
+                  <StringInput
                     form={form}
                     name="email"
                     label="adresse email"
@@ -241,8 +238,8 @@ export function SignUpPage() {
                     <CheckboxInput
                       form={form}
                       name="agreeToPolicy"
-                      label="J&apos;accepte les conditions d&apos;utilisation"
-                      required  
+                      label="J'accepte les conditions d'utilisation"
+                      required
                     />
                   </div>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">

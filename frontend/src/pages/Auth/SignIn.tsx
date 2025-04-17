@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { String } from "@/components/forms/formField/string/StringInput";
+import { StringInput } from "@/components/forms/formField/string/StringInput";
 import { Card } from "@/components/ui/card";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { gql, useMutation } from "@apollo/client";
@@ -78,7 +78,7 @@ export function SignInPage() {
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-4"
                 >
-                  <String
+                  <StringInput
                     label="adresse email"
                     form={form}
                     name="email"

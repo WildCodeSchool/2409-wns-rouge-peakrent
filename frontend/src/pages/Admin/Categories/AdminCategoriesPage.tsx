@@ -10,7 +10,7 @@ export function AdminCategoriesPage() {
     <div>
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold leading-none tracking-tight">
-        Catégories
+          Catégories
         </h1>
         <Button onClick={() => openModal(<CategoryForm />)}>
           <Plus size={16} className="mr-2" />
