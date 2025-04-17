@@ -21,7 +21,7 @@ interface StringInputProps {
   readOnly?: boolean;
 }
 
-export const String = ({
+export const StringInput = ({
   form,
   name = "string",
   label = "String",

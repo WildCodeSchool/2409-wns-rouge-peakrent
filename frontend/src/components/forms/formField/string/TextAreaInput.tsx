@@ -20,7 +20,7 @@ interface TextAreaInputProps {
   containerClassName?: string;
 }
 
-export const TextArea = ({
+export const TextAreaInput = ({
   form,
   name = "textarea",
   label = "Textarea",

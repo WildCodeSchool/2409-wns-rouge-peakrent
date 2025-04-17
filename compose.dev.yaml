@@ -36,6 +36,16 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
 
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx-staging:/etc/nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - frontend
+
 volumes:
   dbdata:
     driver: local

@@ -2,6 +2,7 @@ import { Row } from "@tanstack/react-table";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
+import { UserForm } from "./UserForm";
 
 interface DataTableRowUsersActionsProps<TData> {
   row: Row<TData>;
@@ -16,7 +17,7 @@ export function DataTableRowUsersActions<TData>({
     return true;
   };
 
-  const formContent = <div>Form content</div>;
+  const formContent = <UserForm datas={user} />;
 
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">

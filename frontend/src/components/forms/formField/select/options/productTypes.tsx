@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Brush, Footprints, LifeBuoy, Package, Shirt } from "lucide-react";
+import {
+  Footprints,
+  HardHat,
+  LifeBuoy,
+  Shirt,
+  SquareScissors,
+} from "lucide-react";
 
 export const productTypeOptions = [
   {
@@ -23,32 +29,32 @@ export const productTypeOptions = [
     ),
   },
   {
+    value: "materiel",
+    label: "Matériel",
+    renderLabel: () => (
+      <Badge variant="emerald" className="flex h-6 gap-2">
+        <LifeBuoy className="size-4" />
+        Matériel
+      </Badge>
+    ),
+  },
+  {
     value: "accessoire",
     label: "Accessoire",
     renderLabel: () => (
       <Badge variant="red" className="flex h-6 gap-2">
-        <Package className="size-4" />
+        <SquareScissors className="size-4" />
         Accessoire
       </Badge>
     ),
   },
   {
-    value: "lifestyle",
-    label: "Lifestyle",
+    value: "equipement",
+    label: "Equipement",
     renderLabel: () => (
       <Badge variant="emerald" className="flex h-6 gap-2">
-        <LifeBuoy className="size-4" />
-        Lifestyle
-      </Badge>
-    ),
-  },
-  {
-    value: "nettoyage",
-    label: "Nettoyage",
-    renderLabel: () => (
-      <Badge variant="cyan" className="flex h-6 gap-2">
-        <Brush className="size-4" />
-        Nettoyage
+        <HardHat className="size-4" />
+        Equipement
       </Badge>
     ),
   },

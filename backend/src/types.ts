@@ -65,9 +65,15 @@ export type AuthContextType = ContextType & { user: ProfileType };
 // export type Role = "admin" | "moderator" | "user";
 
 export enum RoleType {
-  USER = "user",
-  ADMIN = "admin",
+  user = "user",
+  admin = "admin",
+  superadmin = "superadmin",
 }
+
+registerEnumType(RoleType, {
+  name: "RoleType",
+  description: "The role of the user",
+});
 
 export enum OrderStatusType {
   confirmed = "confirmed",

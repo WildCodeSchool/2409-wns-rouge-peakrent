@@ -1,0 +1,41 @@
+services:
+  backend:
+    image: charlotter678/peakrentbackend_staging
+    env_file:
+      - database.env
+      - variables.env
+    command: npm start
+    depends_on:
+      - db
+
+  frontend:
+    image: charlotter678/peakrentfrontend_staging
+    command: npm run dev
+    depends_on:
+      - backend
+
+  db:
+    image: postgres
+    container_name: postgres-staging
+    ports:
+      - 3030:5432
+    env_file:
+      - database.env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx
+    container_name: nginx-staging
+    volumes:
+      - ./nginx-staging:/etc/nginx
+      - ./logs/staging:/var/log/nginx
+    ports:
+      - "8001:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  dbdata:
+    driver: local
