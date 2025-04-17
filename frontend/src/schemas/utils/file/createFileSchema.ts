@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createGetMessage } from "../createGetMessage";
 
 interface FileSchemaOptions {
-  dictionnary?: MessagesIntl;
+  dictionnary?: any;
   maxSize?: number;
   maxSizeError?: string;
   allowedTypes?: string[];

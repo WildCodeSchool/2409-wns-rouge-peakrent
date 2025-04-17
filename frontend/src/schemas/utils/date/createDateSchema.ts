@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createGetMessage } from "../createGetMessage";
 
 interface DateSchemaOptions {
-  dictionnary?: MessagesIntl;
+  dictionnary?: any;
   required?: boolean;
   requiredError?: string;
   minDate?: Date;

@@ -39,7 +39,7 @@ services:
   nginx:
     image: nginx
     volumes:
-      - ./nginx:/etc/nginx
+      - ./nginx-staging:/etc/nginx
     ports:
       - "8080:80"
     depends_on:

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createGetMessage } from "../createGetMessage";
 
 interface BooleanSchemaOptions {
-  dictionnary?: MessagesIntl;
+  dictionnary?: any;
   required?: boolean;
   requiredError?: string;
   defaultValue?: boolean;

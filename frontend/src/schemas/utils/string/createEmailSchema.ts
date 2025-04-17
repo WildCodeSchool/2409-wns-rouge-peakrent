@@ -4,7 +4,7 @@ import { emailRegex } from "@/schemas/regex";
 import { createGetMessage } from "../createGetMessage";
 
 interface EmailSchemaOptions {
-  dictionnary?: MessagesIntl;
+  dictionnary?: any;
   requiredError?: string;
   defaultValue?: string;
   maxLength?: number;
