@@ -13,10 +13,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
 import { CheckboxInput } from "@/components/forms/formField";
 import { toast } from "sonner";
+import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
+import { createPasswordSchema } from "@/schemas/authSchemas";
 
 const signInSchema = z.object({
-  email: z.string().email("Email invalide"),
-  password: z.string(),
+  email: createEmailSchema({
+    requiredError: "L'adresse email est requise",
+    invalidFormatError: "Format d'email invalide",
+    maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
+  }),
+  password: createPasswordSchema(),
   rememberMe: z.boolean().optional(),
 });
 
@@ -79,7 +85,7 @@ export function SignInPage() {
                   className="space-y-4"
                 >
                   <StringInput
-                    label="adresse email"
+                    label="Email"
                     form={form}
                     name="email"
                     placeholder="email"
@@ -96,7 +102,7 @@ export function SignInPage() {
                       form={form}
                       name="rememberMe"
                       label="Se souvenir de moi"
-                      required
+                      onlyLabel={true}
                     />
                   </div>
                   <div className="text-right">
