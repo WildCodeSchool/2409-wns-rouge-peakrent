@@ -12,7 +12,9 @@ import { SingleSelectorInput, StringInput } from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { getBadgeVariantOptions } from "@/utils/getVariants/getBadgeVariant";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -158,42 +160,48 @@ export function CategoryForm({ datas }: { datas?: any }) {
             </Button>
           </div>
 
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-start gap-4">
-              <span className="text-md rounded-full flex items-center justify-center font-bold translate-y-1/2 mt-3">
-                {index + 1} -
-              </span>
-              <div className="flex-1 space-y-4">
-                <StringInput
-                  form={form}
-                  name={`subCategories.${index}.name`}
-                  label="Nom de la sous-catégorie"
-                  placeholder="Nom"
-                  isPending={isPending}
-                  required
-                />
-                <SingleSelectorInput
-                  form={form}
-                  name={`subCategories.${index}.variant`}
-                  label="Badge variant"
-                  placeholder="Séléctionner un badge"
-                  options={getBadgeVariantOptions()}
-                  isPending={isPending}
-                  columns={3}
-                  required
-                />
-              </div>
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                onClick={() => remove(index)}
-                className="translate-y-1/2"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+          <ScrollArea className="h-[300px] rounded-md border p-4">
+            <div className="space-y-4">
+              {fields.map((field, index) => (
+                <Card key={field.id} className="p-4">
+                  <div className="flex items-start gap-4">
+                    <span className="text-md rounded-full flex items-center justify-center font-bold translate-y-1/2 mt-3">
+                      {index + 1} -
+                    </span>
+                    <div className="flex-1 space-y-4">
+                      <StringInput
+                        form={form}
+                        name={`subCategories.${index}.name`}
+                        label="Nom de la sous-catégorie"
+                        placeholder="Nom"
+                        isPending={isPending}
+                        required
+                      />
+                      <SingleSelectorInput
+                        form={form}
+                        name={`subCategories.${index}.variant`}
+                        label="Badge variant"
+                        placeholder="Séléctionner un badge"
+                        options={getBadgeVariantOptions()}
+                        isPending={isPending}
+                        columns={3}
+                        required
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => remove(index)}
+                      className="translate-y-1/2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
-          ))}
+          </ScrollArea>
         </div>
 
         <div className="ml-auto w-[300px]">
