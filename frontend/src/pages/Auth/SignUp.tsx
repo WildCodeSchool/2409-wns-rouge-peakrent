@@ -12,12 +12,17 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { CREATE_USER } from "../../GraphQL/createUser";
 import { CheckboxInput } from "@/components/forms/formField";
+import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
 
 const signUpSchema = z
   .object({
     firstname: z.string().min(1, "Le prénom est requis"),
     lastname: z.string().min(1, "Le nom est requis"),
-    email: z.string().email("Email invalide"),
+    email: createEmailSchema({
+      requiredError: "L'adresse email est requise",
+      invalidFormatError: "Format d'email invalide",
+      maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
+    }),
     password: z
       .string()
       .min(10, "Le mot de passe doit contenir au moins 10 caractères"),
