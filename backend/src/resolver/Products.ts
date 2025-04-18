@@ -20,6 +20,7 @@ import {
 import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
 import { Variant, VariantCreateNestedInput } from "../entities/Variant";
+import { GraphQLError } from "graphql";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -156,7 +157,7 @@ export class ProductResolver {
     return productWithVariants;
   }
 
-  @Authorized(["admin", "user"])
+  @Authorized(["admin"])
   @Mutation(() => Product, { nullable: true })
   async updateProduct(
     @Arg("id", () => String) _id: string,
@@ -164,7 +165,6 @@ export class ProductResolver {
     // @Ctx() context: AuthContextType
   ) {
     const id = Number(_id);
-    console.log("1----------------------", id);
 
     const product = await Product.findOne({
       where: { id /*createdBy: { id: context.user.id }*/ },
@@ -174,7 +174,6 @@ export class ProductResolver {
     if (!product) {
       throw new Error("Product not found or access denied.");
     }
-    console.log("2----------------------", product);
 
     Object.assign(product, data);
 
@@ -196,11 +195,17 @@ export class ProductResolver {
     if (validationErrors.length) {
       // return validationErrors;
       console.log("Validation failed: ", validationErrors);
-      throw new Error("Validation failed: ");
+      if (validationErrors.length > 0) {
+        throw new GraphQLError("Validation error", {
+          extensions: {
+            code: "VALIDATION_ERROR",
+            http: { status: 400 },
+          },
+        });
+      }
     }
 
-    const savedProduct = await product.save();
-    console.log("3---------------", savedProduct);
+    await product.save();
     return product;
   }
 

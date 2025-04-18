@@ -97,10 +97,6 @@ export const ProductForm = () => {
       };
 
       if (product?.id) {
-        console.log("updateProduct", {
-          updateProductId: product.id,
-          data: commonData,
-        });
         await updateProduct({
           variables: {
             updateProductId: product.id,
@@ -109,10 +105,6 @@ export const ProductForm = () => {
         });
         toast.success("Produit modifié avec succès !");
       } else if (newVariants.length > 0) {
-        console.log("createProductWithVariant", {
-          productData: commonData,
-          variants: newVariants,
-        });
         await createProductWithVariant({
           variables: {
             productData: commonData,
@@ -125,7 +117,6 @@ export const ProductForm = () => {
         });
         toast.success("Produit créé avec succès !");
       } else {
-        console.log("createProduct", commonData);
         await createProduct({
           variables: {
             data: commonData,
@@ -160,17 +151,6 @@ export const ProductForm = () => {
 
   const hasVariants =
     Array.isArray(product?.variants) && product.variants.length > 0;
-
-  console.log({
-    name,
-    description,
-    urlImage,
-    isPublished,
-    sku,
-    categories: selectedCategories.map((id) => ({ id })),
-    updateProductId: product?.id,
-    variants: newVariants,
-  });
 
   return (
     <form onSubmit={handleProductFormSubmit}>
