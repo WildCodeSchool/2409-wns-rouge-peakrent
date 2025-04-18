@@ -130,7 +130,7 @@ describe("SignIn Component", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Mot de passe oublié/i })
-    ).toBeInTheDocument()
+    ).toBeInTheDocument();
   });
 
   it("should call onSubmit with email and password", async () => {
