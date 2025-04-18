@@ -11,6 +11,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { In } from "typeorm";
 import { dataSource } from "../config/db";
 import {
   CategoriesWithCount,
@@ -33,12 +34,13 @@ export class CategoryResolver {
   ): Promise<CategoriesWithCount> {
     const { page, onPage, sort, order, onlyParent } = input;
 
+    const where = onlyParent ? { parentCategory: null } : undefined;
     const [categories, total] = await Category.findAndCount({
       relations: { products: true, parentCategory: true, childrens: true },
       skip: (page - 1) * onPage,
       take: onPage,
       order: { [sort]: order },
-      where: onlyParent ? { parentCategory: null } : undefined,
+      where,
     });
     return {
       categories,
@@ -265,12 +267,11 @@ export class CategoryResolver {
   @Mutation(() => Category, { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async deleteCategory(
-    @Arg("id", () => ID) _id: number,
-    @Ctx() context: AuthContextType
+    @Arg("id", () => ID) _id: number
   ): Promise<Category | null> {
     const id = Number(_id);
     const category = await Category.findOne({
-      where: { id, createdBy: { id: context.user.id } },
+      where: { id },
     });
     if (category !== null) {
       await category.remove();
@@ -283,5 +284,33 @@ export class CategoryResolver {
         },
       });
     }
+  }
+
+  @Authorized(["admin", "superadmin"])
+  @Mutation(() => [ID], { nullable: true })
+  @UseMiddleware(ErrorCatcher)
+  async deleteCategories(
+    @Arg("ids", () => [ID]) ids: number[]
+  ): Promise<number[] | null> {
+    const categories = await Category.find({
+      where: {
+        id: In(ids),
+      },
+    });
+
+    if (categories.length === 0) {
+      throw new GraphQLError("Aucune catégorie trouvée", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    const deletedIds = categories.map((category) => category.id);
+    await Category.remove(categories);
+    console.log(deletedIds);
+
+    return deletedIds;
   }
 }

@@ -158,3 +158,9 @@ export class CategoryPaginationInput {
   @IsOptional()
   onlyParent?: boolean;
 }
+
+@ObjectType()
+export class DeleteCategoriesResponse {
+  @Field(() => [ID])
+  deletedIds: number[];
+}

@@ -2,10 +2,16 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_CATEGORIES } from "@/GraphQL/categories";
-import { useCategoryStore } from "@/stores/admin/category.store";
+import {
+  DELETE_MULTIPLE_CATEGORIES,
+  GET_CATEGORIES,
+} from "@/GraphQL/categories";
+import {
+  deleteMultipleCategories,
+  useCategoryStore,
+} from "@/stores/admin/category.store";
 import { ColumnConfig } from "@/types/datasTable";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { createColumns } from "./categoriesColumns";
 
@@ -18,10 +24,17 @@ export default function CategoriesTable() {
   const setCategoriesFetched = useCategoryStore(
     (state) => state.setCategoriesFetched
   );
+  const [deleteCategories] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
 
   const { data, error, loading } = useQuery(gql(GET_CATEGORIES), {
     variables: {
-      input: { page: 1, onPage: 1000, sort: "id", order: "ASC" },
+      input: {
+        page: 1,
+        onPage: 1000,
+        sort: "id",
+        order: "ASC",
+        onlyParent: true,
+      },
     },
   });
 
@@ -55,7 +68,34 @@ export default function CategoriesTable() {
   }
 
   const onDeleteMultipleFunction = async (ids: string[] | number[]) => {
-    return true;
+    try {
+      const { data } = await deleteCategories({ variables: { ids } });
+      const idsToRemove = data?.deleteCategories?.map((id: string | number) =>
+        Number(id)
+      );
+      if (
+        data?.deleteCategories &&
+        data.deleteCategories.length === ids.length
+      ) {
+        toast.success(
+          "Toutes les catégories séléctionnées ont été supprimées avec succès"
+        );
+        deleteMultipleCategories(idsToRemove);
+        return true;
+      } else if (data?.deleteCategories && data.deleteCategories.length > 0) {
+        toast.success(
+          `${data.deleteCategories.length} catégorie(s) ont été supprimée(s) avec succès`
+        );
+        deleteMultipleCategories(idsToRemove);
+        return true;
+      }
+      toast.error("Erreur lors de la suppression des catégories séléctionnées");
+      return false;
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de la suppression des catégories séléctionnées");
+      return false;
+    }
   };
 
   return (

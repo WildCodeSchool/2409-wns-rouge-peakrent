@@ -115,8 +115,6 @@ export const DELETE_CATEGORY = `
 
 export const DELETE_MULTIPLE_CATEGORIES = `
   mutation DeleteMultipleCategories($ids: [ID!]!) {
-    deleteMultipleCategories(ids: $ids) {
-      id
-    }
+    deleteCategories(ids: $ids)
   }
 `;
