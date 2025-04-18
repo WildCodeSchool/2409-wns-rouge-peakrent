@@ -54,7 +54,6 @@ export class ProductResolver {
     });
 
     if ((startingDate || endingDate) && products.length > 0) {
-      // const productIds = products.map((p) => p.id);
       for (const product of products) {
         const storeVariants = await StoreVariant.find({
           where: {

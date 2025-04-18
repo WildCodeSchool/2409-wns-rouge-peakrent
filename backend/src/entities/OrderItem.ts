@@ -39,7 +39,7 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: "order_id" })
   order?: Order;
 
-  @Field({ nullable: true })
+  @Field(() => Variant, { nullable: true })
   @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
   @JoinColumn({ name: "variant_id" })
   variant?: Variant;
@@ -72,7 +72,7 @@ export class OrderItem extends BaseEntity {
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 
-  @Field()
+  @Field(() => Store)
   @ManyToOne(() => Store, (store) => store.orderItems)
   @JoinColumn({ name: "store_id" })
   store!: Store;

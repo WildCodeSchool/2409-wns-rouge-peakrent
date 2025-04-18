@@ -25,30 +25,31 @@ export const checkStockByVariantAndStore = async (
     where.startsAt = LessThanOrEqual(endingDate);
   }
 
-  const orderItemsQuantity = await OrderItem.find({
+  const orderItems = await OrderItem.find({
     where,
-    relations: {
-      variant: true,
-      order: true,
-    },
-    select: {
-      quantity: true,
-    },
   });
 
-  const totalOrderItemsQuantity = orderItemsQuantity.reduce(
-    (sum, quantity) => sum + Number(quantity),
-    0
-  );
-
-  const storeVariantQuantity = await StoreVariant.findOne({
+  const storeVariant = await StoreVariant.findOne({
     where: {
       storeId,
       variantId,
     },
   });
 
+  if (storeVariant === null) {
+    throw new Error("Store Variant not found");
+  }
+
+  if (orderItems.length === 0) {
+    return storeVariant.quantity;
+  }
+
+  const totalOrderItemsQuantity = orderItems.reduce(
+    (sum, orderItem) => sum + Number(orderItem.quantity),
+    0
+  );
+
   const availableQuantity =
-    Number(storeVariantQuantity.quantity) - totalOrderItemsQuantity;
+    Number(storeVariant.quantity) - totalOrderItemsQuantity;
   return availableQuantity > 0 ? availableQuantity : 0;
 };

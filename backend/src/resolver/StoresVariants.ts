@@ -73,9 +73,6 @@ export class StoreVariantResolver {
       endingDate
     );
 
-    if (!availableQuantity) {
-      return null;
-    }
     return availableQuantity;
   }
 }
