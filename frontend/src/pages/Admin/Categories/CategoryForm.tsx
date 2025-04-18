@@ -67,7 +67,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
 
       if (datas) {
         const { data: updatedCategory } = await updateCategory({
-          variables: { _id: datas.id, input },
+          variables: { id: datas.id, input },
         });
         data = updatedCategory;
       } else {

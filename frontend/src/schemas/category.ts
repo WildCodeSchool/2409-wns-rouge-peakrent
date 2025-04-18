@@ -22,12 +22,17 @@ export const categoryBaseSchema = (
       "Badge invalide",
       defaultColor || "default"
     ),
-    id: z.number().int().positive().optional(),
+    id: z.coerce
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .transform((val) => (val ? Number(val) : undefined)),
   });
 
 export const categoryWithChildrenSchema = (datas?: any) =>
   z.object({
-    ...categoryBaseSchema(datas?.name, datas?.color).shape,
+    ...categoryBaseSchema(datas?.name, datas?.variant).shape,
     subCategories: z
       .array(categoryBaseSchema())
       .default(

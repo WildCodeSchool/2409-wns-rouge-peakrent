@@ -122,6 +122,7 @@ export class CategoryResolver {
 
     await dataSource.manager.transaction(async () => {
       await newCategory.save();
+      newCategory.childrens = [];
 
       if (input.childrens && input.childrens.length > 0) {
         const subCategories = input.childrens.map((subCategory) => {
@@ -200,6 +201,7 @@ export class CategoryResolver {
 
     await dataSource.manager.transaction(async () => {
       await category.save();
+      category.childrens = [];
 
       if (input.childrens && input.childrens.length > 0) {
         const existingChildren = await Category.find({
@@ -246,6 +248,12 @@ export class CategoryResolver {
             );
           }
           await subCategory.save();
+          Object.assign(category, {
+            childrens:
+              category.childrens && category.childrens.length > 0
+                ? [...category.childrens, subCategory]
+                : [subCategory],
+          });
         }
       }
     });
