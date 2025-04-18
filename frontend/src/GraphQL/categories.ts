@@ -83,7 +83,7 @@ export const CREATE_CATEGORY = `
 
 export const UPDATE_CATEGORY = `
   mutation UpdateCategory($id: ID!, $input: CategoryUpdateInput!) {
-    updateCategory(_id: $id, input: $input) {
+    updateCategory(id: $id, input: $input) {
       id
       name
       normalizedName
