@@ -48,6 +48,7 @@ export const StringInput = ({
                 className={
                   (cn("hover:ring-ring border hover:ring-1"), className)
                 }
+                data-testid={name}
                 readOnly={readOnly}
                 {...field}
                 value={field.value ?? ""}
