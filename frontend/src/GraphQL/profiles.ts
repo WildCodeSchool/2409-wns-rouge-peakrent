@@ -12,13 +12,13 @@ export const GET_PROFILES = `
   }
 `;
 
-export const GET_PROFILE = `
-  query GetProfile {
-    getProfile {
+export const GET_PROFILE_BY_USER_ID = `
+  query GetProfileByUserId($userId: ID!) {
+    getProfileByUserId(userId: $userId) {
       id
-      email
       firstname
       lastname
+      email
       role
       createdAt
       updatedAt

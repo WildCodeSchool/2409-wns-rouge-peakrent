@@ -5,6 +5,7 @@ export const GET_PRODUCTS = `
         categories {
           createdAt
           name
+          variant
         }
         createdAt
         description
@@ -37,10 +38,7 @@ export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
         categories {
           id
           name
-          children {
-            id
-            name
-          }
+          variant
         }
         variants {
           pricePerHour
@@ -73,11 +71,11 @@ export const GET_PRODUCT_BY_ID = `
       categories {
         id
         name
-        urlImage
+        variant
         parentCategory {
           id
           name
-          urlImage
+          variant
         }
       }
     }

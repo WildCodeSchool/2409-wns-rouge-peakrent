@@ -1,18 +1,21 @@
 export const GET_CATEGORIES = `
-  query GetCategories {
-    getCategories {
+  query GetCategories($input: CategoryPaginationInput!) {
+    getCategories(input: $input) {
       categories {
         id
         name
         normalizedName
-        urlImage
+        variant
         createdAt
         updatedAt
-        children {
+        parentCategory {
+          id
+        }
+        childrens {
           id
           name
           normalizedName
-          urlImage
+          variant
           createdAt
           updatedAt
         }
@@ -28,7 +31,7 @@ export const GET_CATEGORIES_WITH_COUNT = `
         id
         name
         normalizedName
-        urlImage
+        variant
         createdAt
         updatedAt
       }
@@ -43,11 +46,11 @@ export const GET_CATEGORIES_WITH_COUNT = `
 
 export const GET_CATEGORY = `
   query GetCategory($id: ID!) {
-    category(id: $id) {
+    getCategoryById(id: $id) {
       id
       name
-      description
-      image
+      normalizedName
+      variant
       createdAt
       updatedAt
     }
@@ -55,27 +58,49 @@ export const GET_CATEGORY = `
 `;
 
 export const CREATE_CATEGORY = `
-  mutation CreateCategory($input: CategoryInput!) {
+  mutation CreateCategory($input: CategoryCreateInput!) {
     createCategory(input: $input) {
       id
       name
-      description
-      image
+      normalizedName
+      variant
       createdAt
       updatedAt
+      parentCategory {
+        id
+      }
+      childrens {
+        id
+        name
+        normalizedName
+        variant
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
 
 export const UPDATE_CATEGORY = `
-  mutation UpdateCategory($id: ID!, $input: CategoryInput!) {
+  mutation UpdateCategory($id: ID!, $input: CategoryUpdateInput!) {
     updateCategory(id: $id, input: $input) {
       id
       name
-      description
-      image
+      normalizedName
+      variant
       createdAt
       updatedAt
+      parentCategory {
+        id
+      }
+      childrens {
+        id
+        name
+        normalizedName
+        variant
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -92,27 +117,6 @@ export const DELETE_MULTIPLE_CATEGORIES = `
   mutation DeleteMultipleCategories($ids: [ID!]!) {
     deleteMultipleCategories(ids: $ids) {
       id
-    }
-  }
-`;
-
-export const GET_ALL_ADS_IN_A_CATEGORY = `
-  query getAllAdsInACategory($param: String!) {
-    getCategoryById(param: $param) {
-      category {
-        name
-      }
-      pagination {
-        total
-        currentPage
-        totalPages
-      }
-      ads {
-        id
-        title
-        picture
-        price
-      }
     }
   }
 `;
