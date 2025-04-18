@@ -1,6 +1,6 @@
 export const mutationCreateCategory = `#graphql
-  mutation CreateCategory($input: CategoryCreateInput!) {
-    createCategory(input: $input) {
+  mutation CreateCategory($data: CategoryCreateInput!) {
+    createCategory(data: $data) {
       id
       name
       normalizedName

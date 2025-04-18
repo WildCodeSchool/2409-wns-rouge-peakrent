@@ -21,7 +21,7 @@ export function CategoriesResolverTest(testArgs: TestArgsType) {
       {
         query: mutationCreateCategory,
         variables: {
-          input: category,
+          data: category,
         },
       },
       {
@@ -43,7 +43,7 @@ export function CategoriesResolverTest(testArgs: TestArgsType) {
       {
         query: mutationCreateCategory,
         variables: {
-          input: category,
+          data: category,
         },
       },
       {

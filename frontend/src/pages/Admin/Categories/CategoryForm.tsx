@@ -54,32 +54,32 @@ export function CategoryForm({ datas }: { datas?: any }) {
 
   const onSubmit = async (formData: CategoryFormSchema) => {
     try {
-      const input = {
+      const data = {
         name: formData.name,
         variant: formData.variant,
         childrens: formData.subCategories,
       };
 
-      let data;
+      let savedCategory;
 
       if (datas) {
         const { data: updatedCategory } = await updateCategory({
-          variables: { id: datas.id, input },
+          variables: { id: datas.id, data },
         });
-        data = updatedCategory;
+        savedCategory = updatedCategory;
       } else {
         const { data: createdCategory } = await createCategory({
-          variables: { input },
+          variables: { data },
         });
-        data = createdCategory;
+        savedCategory = createdCategory;
       }
 
-      if (data) {
+      if (savedCategory) {
         if (datas) {
-          updateCategoryStore(Number(datas.id), data.updateCategory);
+          updateCategoryStore(Number(datas.id), savedCategory.updateCategory);
           toast.success("Catégorie modifiée avec succès");
         } else {
-          addCategory(data.createCategory);
+          addCategory(savedCategory.createCategory);
           toast.success("Catégorie créée avec succès");
         }
         closeModal();
@@ -121,7 +121,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
           form={form}
           name="variant"
           label="Badge variant"
-          placeholder="Séléctionner un badge"
+          placeholder="Sélectionner un badge"
           options={getBadgeVariantOptions()}
           isPending={createLoading || updateLoading}
           columns={3}
@@ -186,7 +186,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
                         form={form}
                         name={`subCategories.${index}.variant`}
                         label="Badge variant"
-                        placeholder="Séléctionner un badge"
+                        placeholder="Sélectionner un badge"
                         options={getBadgeVariantOptions()}
                         isPending={createLoading || updateLoading}
                         columns={3}

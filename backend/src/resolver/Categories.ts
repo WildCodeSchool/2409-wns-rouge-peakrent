@@ -30,9 +30,9 @@ import { AuthContextType } from "../types";
 export class CategoryResolver {
   @Query(() => CategoriesWithCount)
   async getCategories(
-    @Arg("input", () => CategoryPaginationInput) input: CategoryPaginationInput
+    @Arg("data", () => CategoryPaginationInput) data: CategoryPaginationInput
   ): Promise<CategoriesWithCount> {
-    const { page, onPage, sort, order, onlyParent } = input;
+    const { page, onPage, sort, order, onlyParent } = data;
 
     const [categories, total] = await Category.findAndCount({
       relations: { products: true, parentCategory: true, childrens: true },
@@ -97,7 +97,7 @@ export class CategoryResolver {
   @Mutation(() => Category)
   @UseMiddleware(ErrorCatcher)
   async createCategory(
-    @Arg("input", () => CategoryCreateInput) input: CategoryCreateInput,
+    @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category> {
     const user = context.user;
@@ -105,8 +105,8 @@ export class CategoryResolver {
     const newCategory = new Category();
 
     Object.assign(newCategory, {
-      name: input.name,
-      variant: input.variant,
+      name: data.name,
+      variant: data.variant,
       createdBy: user,
     });
     newCategory.normalizedName = normalizeString(newCategory.name);
@@ -125,8 +125,8 @@ export class CategoryResolver {
       await newCategory.save();
       newCategory.childrens = [];
 
-      if (input.childrens && input.childrens.length > 0) {
-        const subCategories = input.childrens.map((subCategory) => {
+      if (data.childrens && data.childrens.length > 0) {
+        const subCategories = data.childrens.map((subCategory) => {
           const newSubCategory = new Category();
           Object.assign(newSubCategory, {
             name: subCategory.name,
@@ -165,7 +165,7 @@ export class CategoryResolver {
   @UseMiddleware(ErrorCatcher)
   async updateCategory(
     @Arg("id", () => ID) _id: number,
-    @Arg("input", () => CategoryUpdateInput) input: CategoryUpdateInput,
+    @Arg("data", () => CategoryUpdateInput) data: CategoryUpdateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category | null> {
     const id = Number(_id);
@@ -180,8 +180,8 @@ export class CategoryResolver {
     }
 
     Object.assign(category, {
-      name: input.name,
-      variant: input.variant,
+      name: data.name,
+      variant: data.variant,
     });
     category.normalizedName = normalizeString(category.name);
 
@@ -199,17 +199,17 @@ export class CategoryResolver {
       await category.save();
       category.childrens = [];
 
-      if (input.childrens && input.childrens.length > 0) {
+      if (data.childrens && data.childrens.length > 0) {
         const existingChildren = await Category.find({
           where: { parentCategory: { id: category.id } },
         });
         const childrenToDelete = existingChildren.filter(
           (child) =>
-            !input.childrens.some((inputChild) => inputChild.id === child.id)
+            !data.childrens.some((inputChild) => inputChild.id === child.id)
         );
         await Category.remove(childrenToDelete);
 
-        for (const subCategoryInput of input.childrens) {
+        for (const subCategoryInput of data.childrens) {
           let subCategory: Category;
           if (subCategoryInput.id) {
             subCategory = await Category.findOne({
@@ -298,7 +298,6 @@ export class CategoryResolver {
 
     const deletedIds = categories.map((category) => category.id);
     await Category.remove(categories);
-    console.log(deletedIds);
 
     return deletedIds;
   }

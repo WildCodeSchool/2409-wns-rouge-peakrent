@@ -1,6 +1,6 @@
 export const GET_CATEGORIES = `
-  query GetCategories($input: CategoryPaginationInput!) {
-    getCategories(input: $input) {
+  query GetCategories($data: CategoryPaginationInput!) {
+    getCategories(data: $data) {
       categories {
         id
         name
@@ -58,8 +58,8 @@ export const GET_CATEGORY = `
 `;
 
 export const CREATE_CATEGORY = `
-  mutation CreateCategory($input: CategoryCreateInput!) {
-    createCategory(input: $input) {
+  mutation CreateCategory($data: CategoryCreateInput!) {
+    createCategory(data: $data) {
       id
       name
       normalizedName
@@ -82,8 +82,8 @@ export const CREATE_CATEGORY = `
 `;
 
 export const UPDATE_CATEGORY = `
-  mutation UpdateCategory($id: ID!, $input: CategoryUpdateInput!) {
-    updateCategory(id: $id, input: $input) {
+  mutation UpdateCategory($id: ID!, $data: CategoryUpdateInput!) {
+    updateCategory(id: $id, data: $data) {
       id
       name
       normalizedName

@@ -30,7 +30,7 @@ const ProductsPage = () => {
     loading: getCategoriesLoading,
     error: getCategoriesError,
   } = useQuery(gql(GET_CATEGORIES), {
-    variables: { input: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
+    variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
   const [

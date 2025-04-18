@@ -28,7 +28,7 @@ export default function CategoriesTable() {
 
   const { data, error, loading } = useQuery(gql(GET_CATEGORIES), {
     variables: {
-      input: {
+      data: {
         page: 1,
         onPage: 1000,
         sort: "id",
