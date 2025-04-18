@@ -15,20 +15,88 @@ export const seedCategories = async () => {
 
   const categories = [
     {
-      name: "Débutant",
+      name: "Niveaux",
       variant: "green",
+      childrens: [
+        {
+          name: "Débutant",
+          variant: "green",
+        },
+        {
+          name: "Intermédiaire",
+          variant: "blue",
+        },
+        {
+          name: "Confirmé",
+          variant: "red",
+        },
+        {
+          name: "Expert",
+          variant: "black",
+        },
+      ],
     },
     {
-      name: "Medium",
-      variant: "blue",
+      name: "Ski",
+      variant: "lime",
+      childrens: [
+        {
+          name: "Ski de randonnée",
+          variant: "lime",
+        },
+        {
+          name: "Ski freestyle",
+          variant: "lime",
+        },
+        {
+          name: "Ski de vitesse",
+          variant: "lime",
+        },
+      ],
     },
     {
-      name: "Confirmé",
-      variant: "red",
+      name: "Vélo",
+      variant: "stone",
+      childrens: [
+        {
+          name: "Vélo de route",
+          variant: "stone",
+        },
+        {
+          name: "VTT",
+          variant: "stone",
+        },
+      ],
     },
     {
-      name: "Expert",
-      variant: "black",
+      name: "Vêtements",
+      variant: "orange",
+      childrens: [
+        {
+          name: "T-shirt",
+          variant: "orange",
+        },
+        {
+          name: "Pull",
+          variant: "orange",
+        },
+        {
+          name: "Gants",
+          variant: "orange",
+        },
+        {
+          name: "Chaussettes",
+          variant: "orange",
+        },
+        {
+          name: "Pantalon",
+          variant: "orange",
+        },
+        {
+          name: "Veste",
+          variant: "orange",
+        },
+      ],
     },
   ];
 
@@ -74,11 +142,25 @@ export const seedCategories = async () => {
     const exists = await categoryRepo.findOneBy({ name: category.name });
     if (!exists) {
       const newCategory = categoryRepo.create({
-        ...category,
+        name: category.name,
+        variant: category.variant,
         normalizedName: normalizeString(category.name),
         createdBy: adminUser,
       });
       await categoryRepo.save(newCategory);
+
+      if (category.childrens && category.childrens.length > 0) {
+        for (const child of category.childrens) {
+          const newChild = categoryRepo.create({
+            name: child.name,
+            variant: child.variant,
+            normalizedName: normalizeString(child.name),
+            parentCategory: newCategory,
+            createdBy: adminUser,
+          });
+          await categoryRepo.save(newChild);
+        }
+      }
     }
   }
 
