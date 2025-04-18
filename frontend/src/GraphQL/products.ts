@@ -3,6 +3,7 @@ export const GET_PRODUCTS = `
     getProducts(page: $page, onPage: $onPage) {
       products {
         categories {
+          id
           createdAt
           name
         }
@@ -17,6 +18,8 @@ export const GET_PRODUCTS = `
         variants {
           id
           size
+          color
+          pricePerHour
         }
       }
     }

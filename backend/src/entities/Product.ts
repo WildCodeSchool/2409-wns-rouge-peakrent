@@ -52,7 +52,7 @@ export class Product extends BaseEntity {
 
   @Field()
   @Column({ name: "url_image" })
-  @IsUrl()
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
 
   @Field()
@@ -110,7 +110,7 @@ export class ProductCreateInput {
   description?: string;
 
   @Field()
-  @IsUrl({}, { message: "URL must be a valid URL." })
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
 
   @Field()

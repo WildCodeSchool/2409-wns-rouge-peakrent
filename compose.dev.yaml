@@ -3,12 +3,14 @@ services:
     build: ./backend
     ports:
       - 5050:4000
+      - "4001:4001"
     env_file:
       - database.env
       - variables.env
     volumes:
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/uploads:/app/uploads
     command: npm start
     depends_on:
       - db

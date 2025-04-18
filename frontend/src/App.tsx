@@ -19,6 +19,7 @@ import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
+import { ProductForm } from "./components/forms/ProductForm";
 
 enum AuthStates {
   authenticated,
@@ -69,18 +70,18 @@ function App() {
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" Component={PageLayout}>
-            <Route index Component={HomePage} />
+          <Route path="/" element={<PageLayout />}>
+            <Route index element={<HomePage />} />
             <Route
               path="/signin"
-              Component={checkAuth(SignInPage, [AuthStates.unauthenticated])}
+              element={checkAuth(SignInPage, [AuthStates.unauthenticated])()}
             />
             <Route
               path="/signup"
-              Component={checkAuth(SignUpPage, [AuthStates.unauthenticated])}
+              element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
             />
-            <Route path="products/:id" Component={ProductDetail} />
-            <Route path="products" Component={ProductsPage} />
+            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="products" element={<ProductsPage />} />
 
             {/* Admin Routes */}
             <Route
@@ -92,12 +93,14 @@ function App() {
               <Route path="stores" element={<AdminStoresPage />} />
               <Route path="categories" element={<AdminCategoriesPage />} />
               <Route path="products" element={<AdminProductsPage />} />
+              <Route path="products/edit/:id" element={<ProductForm />} />
+              <Route path="products/create" element={<ProductForm />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="carts" element={<AdminCartsPage />} />
               <Route path="*" element={<PageNotFound />} />
             </Route>
           </Route>
-          <Route path="*" Component={PageNotFound} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
     </UserProvider>

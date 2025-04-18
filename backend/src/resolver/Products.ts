@@ -19,6 +19,8 @@ import {
 } from "../entities/Product";
 import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
+import { Variant, VariantCreateNestedInput } from "../entities/Variant";
+import { GraphQLError } from "graphql";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -106,20 +108,71 @@ export class ProductResolver {
 
   @Authorized(["admin"])
   @Mutation(() => Product)
+  async createProductWithVariants(
+    @Arg("productData", () => ProductCreateInput)
+    productData: ProductCreateInput,
+    @Arg("variants", () => [VariantCreateNestedInput], { nullable: true })
+    variants: VariantCreateNestedInput[],
+    @Ctx() context: AuthContextType
+  ): Promise<Product> {
+    const user = context.user;
+    const product = Product.create({ ...productData, createdBy: user });
+    product.normalizedName = normalizeString(product.name);
+
+    const validationErrors = await validate(product);
+    if (validationErrors.length > 0) {
+      throw new Error(
+        `Product validation error: ${JSON.stringify(validationErrors)}`
+      );
+    }
+
+    await product.save();
+
+    if (variants?.length) {
+      for (const variantInput of variants) {
+        const variant = Variant.create({
+          ...variantInput,
+          product,
+          createdBy: user,
+        });
+        const errors = await validate(variant);
+        if (errors.length > 0) {
+          throw new Error(
+            `Variant validation error: ${JSON.stringify(errors)}`
+          );
+        }
+        await variant.save();
+      }
+    }
+
+    const productWithVariants = await Product.findOne({
+      where: { id: product.id },
+      relations: {
+        variants: true,
+        categories: true,
+        createdBy: true,
+      },
+    });
+
+    return productWithVariants;
+  }
+
+  @Authorized(["admin"])
+  @Mutation(() => Product, { nullable: true })
   async updateProduct(
     @Arg("id", () => String) _id: string,
-    @Arg("data", () => ProductUpdateInput) data: ProductUpdateInput,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => ProductUpdateInput) data: ProductUpdateInput
+    // @Ctx() context: AuthContextType
   ) {
     const id = Number(_id);
 
     const product = await Product.findOne({
-      where: { id, createdBy: { id: context.user.id } },
+      where: { id /*createdBy: { id: context.user.id }*/ },
       relations: { categories: true },
     });
 
     if (!product) {
-      return null;
+      throw new Error("Product not found or access denied.");
     }
 
     Object.assign(product, data);
@@ -140,7 +193,16 @@ export class ProductResolver {
 
     const validationErrors = await validate(product);
     if (validationErrors.length) {
-      return validationErrors;
+      // return validationErrors;
+      console.log("Validation failed: ", validationErrors);
+      if (validationErrors.length > 0) {
+        throw new GraphQLError("Validation error", {
+          extensions: {
+            code: "VALIDATION_ERROR",
+            http: { status: 400 },
+          },
+        });
+      }
     }
 
     await product.save();
