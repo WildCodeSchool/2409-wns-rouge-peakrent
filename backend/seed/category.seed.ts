@@ -18,84 +18,39 @@ export const seedCategories = async () => {
       name: "Niveaux",
       variant: "green",
       childrens: [
-        {
-          name: "Débutant",
-          variant: "green",
-        },
-        {
-          name: "Intermédiaire",
-          variant: "blue",
-        },
-        {
-          name: "Confirmé",
-          variant: "red",
-        },
-        {
-          name: "Expert",
-          variant: "black",
-        },
+        { name: "Débutant", variant: "green" },
+        { name: "Intermédiaire", variant: "blue" },
+        { name: "Confirmé", variant: "red" },
+        { name: "Expert", variant: "black" },
       ],
     },
     {
       name: "Ski",
       variant: "lime",
       childrens: [
-        {
-          name: "Ski de randonnée",
-          variant: "lime",
-        },
-        {
-          name: "Ski freestyle",
-          variant: "lime",
-        },
-        {
-          name: "Ski de vitesse",
-          variant: "lime",
-        },
+        { name: "Ski de randonnée", variant: "lime" },
+        { name: "Ski freestyle", variant: "lime" },
+        { name: "Ski de vitesse", variant: "lime" },
       ],
     },
     {
       name: "Vélo",
       variant: "stone",
       childrens: [
-        {
-          name: "Vélo de route",
-          variant: "stone",
-        },
-        {
-          name: "VTT",
-          variant: "stone",
-        },
+        { name: "Vélo de route", variant: "stone" },
+        { name: "VTT", variant: "stone" },
       ],
     },
     {
       name: "Vêtements",
       variant: "orange",
       childrens: [
-        {
-          name: "T-shirt",
-          variant: "orange",
-        },
-        {
-          name: "Pull",
-          variant: "orange",
-        },
-        {
-          name: "Gants",
-          variant: "orange",
-        },
-        {
-          name: "Chaussettes",
-          variant: "orange",
-        },
-        {
-          name: "Pantalon",
-          variant: "orange",
-        },
-        {
-          name: "Veste",
-          variant: "orange",
-        },
+        { name: "T-shirt", variant: "orange" },
+        { name: "Pull", variant: "orange" },
+        { name: "Gants", variant: "orange" },
+        { name: "Chaussettes", variant: "orange" },
+        { name: "Pantalon", variant: "orange" },
+        { name: "Veste", variant: "orange" },
       ],
     },
   ];
