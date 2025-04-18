@@ -1,6 +1,6 @@
 import { Min } from "class-validator";
 import { Field, InputType, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Store } from "./Store";
 import { Variant } from "./Variant";
 
@@ -16,6 +16,7 @@ export class StoreVariant extends BaseEntity {
   storeId!: number;
 
   @Field(() => Int)
+  @Column()
   @Min(0, { message: "Quantity must be at least 0" })
   quantity!: number;
 
