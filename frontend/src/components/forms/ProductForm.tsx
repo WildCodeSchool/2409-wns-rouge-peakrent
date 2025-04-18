@@ -9,34 +9,65 @@ import { GET_CATEGORIES } from "@/GraphQL/categories";
 import { Button } from "@/components/ui/button";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { UPDATE_PRODUCT } from "@/GraphQL/updateProduct";
-import AddItemButton from "../buttons/AddItemButton";
 import { VariantForm } from "./VariantForm";
-import { CREATE_PRODUCT } from "@/GraphQL/createProduct";
+import {
+  CREATE_PRODUCT,
+  CREATE_PRODUCT_WITH_VARIANT,
+} from "@/GraphQL/createProduct";
+import { useParams } from "react-router-dom";
+import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
+import CreateButton from "../buttons/CreateButton";
+import UpdateButton from "../buttons/UpdateButton";
+import { toast } from "sonner";
 
-type ProductFormType = {
-  product?: Product;
-};
+export const ProductForm = () => {
+  const { id } = useParams<{ id: string }>();
 
-export const ProductForm = ({ product }: ProductFormType) => {
-  const [name, setName] = useState<string>(product?.name ?? "");
-  const [sku, setSku] = useState<string>(product?.sku ?? "");
-  const [description, setDescription] = useState<string>(
-    product?.description ?? ""
-  );
-  const [isPublished, setIsPublished] = useState<boolean>(
-    product?.isPublished ?? true
-  );
+  const {
+    data: getProductData,
+    loading: getProductLoading,
+    error: getProductError,
+  } = useQuery(gql(GET_PRODUCT_BY_ID), {
+    variables: { param: id },
+    skip: !id,
+  });
+
+  const product: Product | null = getProductData?.getProductById;
+
+  const [name, setName] = useState<string>("");
+  const [sku, setSku] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [isPublished, setIsPublished] = useState<boolean>(true);
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [categories, setCategories] = useState<Category[] | null>();
-  const [selectedCategories, setSelectedCategories] = useState<number[]>(
-    product?.categories?.map((category) => Number(category.id)) || []
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newVariants, setNewVariants] = useState<Partial<Variant>[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
   const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
   const [createProduct] = useMutation(gql(CREATE_PRODUCT));
+  const [createProductWithVariant] = useMutation(
+    gql(CREATE_PRODUCT_WITH_VARIANT)
+  );
 
-  const { data: getCategoriesData } = useQuery(gql(GET_CATEGORIES));
+  const {
+    data: getCategoriesData,
+    loading: getCategoriesLoading,
+    error: getCategoriesError,
+  } = useQuery(gql(GET_CATEGORIES));
+
+  useEffect(() => {
+    if (product) {
+      setName(product.name);
+      setSku(product.sku);
+      setDescription(product.description ?? "");
+      setIsPublished(product.isPublished);
+      setSelectedCategories(
+        product.categories?.map((category: Category) => Number(category.id)) ??
+          []
+      );
+    }
+  }, [product]);
 
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
@@ -44,13 +75,14 @@ export const ProductForm = ({ product }: ProductFormType) => {
     }
   }, [getCategoriesData?.getCategories.categories]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  if (getProductLoading || getCategoriesLoading) return <p>Chargement...</p>;
+
+  let urlImage = product?.urlImage;
+  const handleProductFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
 
     try {
-      let urlImage = product?.urlImage;
-
       if (image) {
         urlImage = await uploadImage(image);
       }
@@ -65,20 +97,51 @@ export const ProductForm = ({ product }: ProductFormType) => {
       };
 
       if (product?.id) {
+        console.log("updateProduct", {
+          updateProductId: product.id,
+          data: commonData,
+        });
         await updateProduct({
           variables: {
             updateProductId: product.id,
             data: commonData,
           },
         });
-        alert("Produit modifié !");
+        toast.success("Produit modifié avec succès !");
+      } else if (newVariants.length > 0) {
+        console.log("createProductWithVariant", {
+          productData: commonData,
+          variants: newVariants,
+        });
+        await createProductWithVariant({
+          variables: {
+            productData: commonData,
+            variants: newVariants.map(({ color, size, pricePerHour }) => ({
+              color,
+              size,
+              pricePerHour,
+            })),
+          },
+        });
+        toast.success("Produit créé avec succès !");
       } else {
+        console.log("createProduct", commonData);
         await createProduct({
           variables: {
             data: commonData,
           },
         });
-        alert("Produit créé !");
+        toast.success("Produit créé avec succès !");
+      }
+
+      if (!product?.id) {
+        setName("");
+        setSku("");
+        setDescription("");
+        setImage(null);
+        setIsPublished(true);
+        setSelectedCategories([]);
+        setNewVariants([]);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -88,8 +151,6 @@ export const ProductForm = ({ product }: ProductFormType) => {
   };
 
   const handleCategoriesCheckboxAction = (categoryId: number) => {
-    if (!setSelectedCategories) return;
-
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
@@ -97,40 +158,76 @@ export const ProductForm = ({ product }: ProductFormType) => {
     );
   };
 
+  const hasVariants =
+    Array.isArray(product?.variants) && product.variants.length > 0;
+
+  console.log({
+    name,
+    description,
+    urlImage,
+    isPublished,
+    sku,
+    categories: selectedCategories.map((id) => ({ id })),
+    updateProductId: product?.id,
+    variants: newVariants,
+  });
+
   return (
-    <form onSubmit={handleSubmit}>
-      <Input
-        type="text"
-        placeholder="Product name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <Input
-        type="text"
-        placeholder="SKU"
-        value={sku}
-        onChange={(e) => setSku(e.target.value)}
-      />
-      <Input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <Input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setImage(e.target.files?.[0] || null)}
-      />
+    <form onSubmit={handleProductFormSubmit}>
+      <Label htmlFor="name" className="flex items-center gap-2">
+        Name :
+        <Input
+          id="name"
+          type="text"
+          placeholder="Product name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </Label>
+
+      <Label htmlFor="SKU" className="flex items-center gap-2">
+        SKU :
+        <Input
+          id="SKU"
+          type="text"
+          placeholder="SKU"
+          value={sku}
+          onChange={(e) => setSku(e.target.value)}
+        />
+      </Label>
+
+      <Label htmlFor="description" className="flex items-center gap-2">
+        Description :
+        <Input
+          id="description"
+          type="text"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </Label>
+
+      <Label htmlFor="image" className="flex items-center gap-2">
+        Image :
+        <Input
+          id="image"
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files?.[0] || null)}
+        />
+      </Label>
+
       <Label htmlFor="isPublished" className="flex items-center gap-2">
+        Publier :
         <Checkbox
           checked={isPublished}
           id="isPublished"
           onCheckedChange={(checked) => setIsPublished(!!checked)}
         />
-        Publier
       </Label>
+
       <div className="gap-4">
+        <h2>Catégories :</h2>
         {categories?.map((category) => (
           <Label
             htmlFor={`category-${category.id}`}
@@ -148,33 +245,70 @@ export const ProductForm = ({ product }: ProductFormType) => {
           </Label>
         ))}
       </div>
-
-      {product?.variants?.length && (
-        <div className="flex gap-4">
-          {product?.variants?.map((variant: Variant) => (
-            <div key={variant.id}>
-              <div className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer">
-                <div className="flex flex-col gap-2">
-                  <p>Taille :{variant.size}</p>
-                  <p>Couleur :{variant.color}</p>
-                  <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
-                    {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="gap-4">
+        <div className="flex justify-between gap-4">
+          <h2>Variants :</h2>
+          <CreateButton
+            modalContent={
+              product?.id ? (
+                <VariantForm productId={Number(product.id)} />
+              ) : (
+                <VariantForm setNewVariants={setNewVariants} />
+              )
+            }
+            ariaLabel={"createVariantAriaLabel"}
+            variant="primary"
+            modalTitle="Créer un variant"
+          />
         </div>
-      )}
-
-      {product?.id && (
-        <AddItemButton
-          modalContent={<VariantForm productId={Number(product?.id)} />}
-          ariaLabel={"createVariantAriaLabel"}
-          variant="primary"
-          modalTitle="Créer un variant"
-        />
-      )}
+        {hasVariants && (
+          <div className="flex gap-4">
+            {product?.variants?.map((variant: Variant) => (
+              <div key={variant.id}>
+                <div className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer">
+                  <div className="flex flex-col gap-2">
+                    <p>Taille :{variant.size}</p>
+                    <p>Couleur :{variant.color}</p>
+                    <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
+                      {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
+                    </p>
+                  </div>
+                </div>
+                <UpdateButton
+                  modalContent={
+                    <VariantForm
+                      productId={Number(product?.id)}
+                      // setNewVariants={setNewVariants}
+                      variant={variant}
+                    />
+                  }
+                  ariaLabel={"updateVariantAriaLabel"}
+                  variant="primary"
+                  modalTitle="Modifier un variant"
+                />
+              </div>
+            ))}
+            {!product?.id && newVariants.length > 0 && (
+              <div className="flex gap-4">
+                {newVariants.map((variant, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <p>Taille : {variant.size}</p>
+                      <p>Couleur : {variant.color}</p>
+                      <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
+                        {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <Button type="submit" disabled={uploading}>
         {uploading ? (

@@ -19,6 +19,7 @@ import {
 } from "../entities/Product";
 import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
+import { Variant, VariantCreateNestedInput } from "../entities/Variant";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -102,6 +103,57 @@ export class ProductResolver {
       await newProduct.save();
       return newProduct;
     }
+  }
+
+  @Authorized(["admin"])
+  @Mutation(() => Product)
+  async createProductWithVariants(
+    @Arg("productData", () => ProductCreateInput)
+    productData: ProductCreateInput,
+    @Arg("variants", () => [VariantCreateNestedInput], { nullable: true })
+    variants: VariantCreateNestedInput[],
+    @Ctx() context: AuthContextType
+  ): Promise<Product> {
+    const user = context.user;
+    const product = Product.create({ ...productData, createdBy: user });
+    product.normalizedName = normalizeString(product.name);
+
+    const validationErrors = await validate(product);
+    if (validationErrors.length > 0) {
+      throw new Error(
+        `Product validation error: ${JSON.stringify(validationErrors)}`
+      );
+    }
+
+    await product.save();
+
+    if (variants?.length) {
+      for (const variantInput of variants) {
+        const variant = Variant.create({
+          ...variantInput,
+          product,
+          createdBy: user,
+        });
+        const errors = await validate(variant);
+        if (errors.length > 0) {
+          throw new Error(
+            `Variant validation error: ${JSON.stringify(errors)}`
+          );
+        }
+        await variant.save();
+      }
+    }
+
+    const productWithVariants = await Product.findOne({
+      where: { id: product.id },
+      relations: {
+        variants: true,
+        categories: true,
+        createdBy: true,
+      },
+    });
+
+    return productWithVariants;
   }
 
   @Authorized(["admin", "user"])

@@ -1,11 +1,11 @@
 import { useModal } from "@/context/modalProvider";
 import { cn } from "@/lib/utils";
-import { Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 
-interface AddItemButtonProps {
+interface CreateButtonProps {
   modalContent: ReactNode;
   ariaLabel: string;
   title?: string;
@@ -29,7 +29,7 @@ interface AddItemButtonProps {
   disabled?: boolean;
 }
 
-export default function AddItemButton({
+export default function CreateButton({
   modalContent,
   modalDescription,
   modalTitle,
@@ -41,7 +41,7 @@ export default function AddItemButton({
   icon = <Plus size={18} />,
   title = ariaLabel,
   disabled = false,
-}: AddItemButtonProps) {
+}: CreateButtonProps) {
   const { openModal, setDescription, setTitle, setMaxWidth } = useModal();
 
   const handleClick = () => {

@@ -122,3 +122,23 @@ export class VariantUpdateInput {
   @Field(() => Int)
   productId!: number;
 }
+
+@InputType()
+export class VariantCreateNestedInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50, { message: "Size must be between 1 and 50 characters." })
+  size?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50, { message: "Color must be between 1 and 50 characters." })
+  color?: string;
+
+  @Field(() => Int)
+  @IsInt()
+  @Min(0, { message: "Price per hour must be a positive number." })
+  pricePerHour!: number;
+}

@@ -6,33 +6,65 @@ import { Button } from "@/components/ui/button";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { CREATE_VARIANT } from "@/GraphQL/createVariant";
 import { UPDATE_VARIANT } from "@/GraphQL/updateVariant";
+import { toast } from "sonner";
+import { useModal } from "@/context/modalProvider";
 
 type VariantFormType = {
   variant?: Variant;
-  productId: number;
+  productId?: number;
+  setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
+  onClose?: () => void;
 };
 
-export const VariantForm = ({ variant, productId }: VariantFormType) => {
+export const VariantForm = ({
+  variant,
+  productId,
+  setNewVariants,
+}: VariantFormType) => {
+  const { closeModal } = useModal();
   const [uploading, setUploading] = useState<boolean>(false);
   const [color, setColor] = useState(variant?.color ?? "");
   const [size, setSize] = useState(variant?.size ?? "");
-  const [price, setPrice] = useState(variant?.pricePerHour ?? 0);
+  const [pricePerHour, setPricePerHour] = useState(variant?.pricePerHour ?? 0);
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
 
-  console.log(productId);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleVariantFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
+    const isNew = !productId && setNewVariants;
 
     try {
-      await createVariant({
-        variables: {},
-      });
-
-      alert("Variant created!");
+      const commonData = {
+        productId,
+        color,
+        size,
+        pricePerHour,
+      };
+      if (isNew) {
+        setNewVariants((prevVariants) => [...prevVariants, commonData]);
+        toast.success("Variant ajouté localement !");
+        closeModal();
+      } else {
+        if (variant?.id) {
+          await updateVariant({
+            variables: {
+              updateVariantId: variant.id,
+              data: commonData,
+            },
+          });
+          toast.success("Variant modifié avec succès !");
+        } else {
+          await createVariant({
+            variables: {
+              data: commonData,
+            },
+          });
+          toast.success("Variant créé avec succès !");
+        }
+        closeModal();
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -41,7 +73,7 @@ export const VariantForm = ({ variant, productId }: VariantFormType) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleVariantFormSubmit}>
       <Input
         type="text"
         placeholder="Variant color"
@@ -57,12 +89,18 @@ export const VariantForm = ({ variant, productId }: VariantFormType) => {
       <Input
         type="number"
         placeholder="Price per hour"
-        value={price}
-        onChange={(e) => setPrice(Number(e.target.value))}
+        value={pricePerHour}
+        onChange={(e) => setPricePerHour(Number(e.target.value))}
       />
 
       <Button type="submit" disabled={uploading}>
-        {uploading ? <LoadIcon size={24} /> : "Create Variant"}
+        {uploading ? (
+          <LoadIcon size={24} />
+        ) : variant?.id ? (
+          "Modifier le variant"
+        ) : (
+          "Créer le variant"
+        )}
       </Button>
     </form>
   );
