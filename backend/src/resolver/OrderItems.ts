@@ -17,6 +17,7 @@ import {
   OrderItemsUpdateInput,
 } from "../entities/OrderItem";
 import { Variant } from "../entities/Variant";
+import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { AuthContextType } from "../types";
 
 @Resolver(OrderItem)
@@ -105,27 +106,83 @@ export class OrderItemsResolver {
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput
   ): Promise<OrderItem> {
-    const { profileId, variantId, quantity, pricePerHour, startsAt, endsAt } =
-      data;
-
-    let cart = await Cart.findOne({
-      where: { profile: profileId as any },
-      relations: ["profile"],
-    });
-
-    if (!cart) {
-      cart = Cart.create({ profile: profileId as any });
-      await cart.save();
-    }
-
-    const newOrderItem = new OrderItem();
-    Object.assign(newOrderItem, {
+    const {
+      profileId,
+      variantId,
       quantity,
       pricePerHour,
       startsAt,
       endsAt,
-      cart,
-    });
+      orderId,
+      cartId,
+      storeId,
+    } = data;
+
+    let dataOrderItems: {
+      quantity: number;
+      pricePerHour: number;
+      startsAt: Date;
+      endsAt: Date;
+      cart?: Cart;
+      order?: Order;
+      store: number;
+    } = {
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+      store: storeId ?? 1,
+    };
+
+    if (!orderId && !cartId) {
+      throw new Error(
+        "Missing required identifier: provide either a cart ID or an order ID."
+      );
+    }
+
+    const isAvailable =
+      (await checkStockByVariantAndStore(
+        storeId ?? 1,
+        variantId,
+        startsAt,
+        endsAt
+      )) > 0;
+
+    if (isAvailable) {
+      if (cartId) {
+        let cart = await Cart.findOne({
+          where: { profile: profileId as any },
+          relations: ["profile"],
+        });
+
+        if (!cart) {
+          cart = Cart.create({ profile: profileId as any });
+          await cart.save();
+        }
+        dataOrderItems = {
+          ...dataOrderItems,
+          cart,
+        };
+      }
+
+      if (orderId) {
+        let order = await Order.findOne({
+          where: { profile: profileId as any },
+        });
+
+        if (!order) {
+          throw new Error("order does not exist");
+        }
+
+        dataOrderItems = {
+          ...dataOrderItems,
+          order,
+        };
+      }
+    }
+
+    const newOrderItem = new OrderItem();
+    Object.assign(newOrderItem, dataOrderItems);
     newOrderItem.variant = { id: variantId } as Variant;
 
     const errors = await validate(newOrderItem);
@@ -159,6 +216,7 @@ export class OrderItemsResolver {
       ) {
         throw new Error("Unauthorized");
       }
+
       Object.assign(orderItem, data);
       const errors = await validate(orderItem);
       if (errors.length > 0) {

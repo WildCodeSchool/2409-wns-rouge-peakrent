@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { OrderItem } from "./OrderItem";
 import { StoreVariant } from "./StoreVariant";
 
 @ObjectType()
@@ -69,6 +70,10 @@ export class Store extends BaseEntity {
 
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.store)
   storeVariants!: StoreVariant[];
+
+  @Field(() => [OrderItem])
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.store)
+  orderItems!: OrderItem[];
 }
 
 @InputType()

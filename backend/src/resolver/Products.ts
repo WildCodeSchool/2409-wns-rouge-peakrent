@@ -17,6 +17,8 @@ import {
   ProductUpdateInput,
   ProductWithCount,
 } from "../entities/Product";
+import { StoreVariant } from "../entities/StoreVariant";
+import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
 
@@ -26,11 +28,13 @@ export class ProductResolver {
   async getProducts(
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
-    @Arg("categoryIds", () => [Int], { nullable: true })
-    categoryIds?: number[]
+    @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
+    @Arg("startingDate", () => Date, { nullable: true }) startingDate?: Date,
+    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
     const where: any = {};
+    const availableProductsByDates = [];
 
     if (categoryIds && categoryIds.length > 0) {
       where.categories = {
@@ -49,12 +53,51 @@ export class ProductResolver {
       },
     });
 
+    if ((startingDate || endingDate) && products.length > 0) {
+      // const productIds = products.map((p) => p.id);
+      for (const product of products) {
+        const storeVariants = await StoreVariant.find({
+          where: {
+            variant: {
+              product: {
+                id: product.id,
+              },
+            },
+          },
+          relations: ["variant", "variant.product"],
+        });
+
+        for (const storeVariant of storeVariants) {
+          const Quantity = await checkStockByVariantAndStore(
+            storeVariant.variantId,
+            storeVariant.storeId,
+            startingDate,
+            endingDate
+          );
+          if (Quantity > 0) {
+            availableProductsByDates.push(storeVariant.variant.product);
+            break;
+          }
+        }
+      }
+    }
+
     return {
-      products,
+      products:
+        availableProductsByDates.length > 0
+          ? availableProductsByDates
+          : products,
       pagination: {
-        total,
+        total:
+          availableProductsByDates.length > 0
+            ? availableProductsByDates.length
+            : total,
         currentPage: page,
-        totalPages: Math.ceil(total / onPage),
+        totalPages: Math.ceil(
+          (availableProductsByDates.length > 0
+            ? availableProductsByDates.length
+            : total) / onPage
+        ),
       },
     };
   }

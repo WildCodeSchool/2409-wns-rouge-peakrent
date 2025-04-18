@@ -13,6 +13,7 @@ import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
+import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { getTotalOrderPrice } from "../helpers/getTotalOrderPrice";
 import { AuthContextType, OrderStatusType } from "../types";
 
@@ -182,6 +183,18 @@ export class CartResolver {
         relations: { cart: true, variant: true },
       });
       if (orderItems.length > 0) {
+        for (const orderItem of orderItems) {
+          if (
+            (await checkStockByVariantAndStore(
+              orderItem.variant.id,
+              orderItem.store.id ?? 1,
+              orderItem.startsAt,
+              orderItem.endsAt
+            )) === 0
+          ) {
+            throw new Error("Stock indisponible");
+          }
+        }
         const order = new Order();
         const orderData = {
           profileId: cart.profile.id,

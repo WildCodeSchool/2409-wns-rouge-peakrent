@@ -13,6 +13,7 @@ import {
 } from "typeorm";
 import { Cart } from "./Cart";
 import { Order } from "./Order";
+import { Store } from "./Store";
 import { Variant } from "./Variant";
 
 @ObjectType()
@@ -70,6 +71,11 @@ export class OrderItem extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @Field()
+  @ManyToOne(() => Store, (store) => store.orderItems)
+  @JoinColumn({ name: "store_id" })
+  store!: Store;
 }
 
 @InputType()
@@ -107,6 +113,9 @@ export class OrderItemsCreateInput {
   @IsDate()
   @IsNotEmpty({ message: "ends_at must not be empty." })
   endsAt!: Date;
+
+  @Field(() => Int, { nullable: true })
+  storeId!: number;
 }
 
 @InputType()
@@ -135,4 +144,7 @@ export class OrderItemsUpdateInput {
   @Field({ nullable: true })
   @IsDate()
   endsAt?: Date;
+
+  @Field(() => Int, { nullable: true })
+  storeId?: number;
 }
