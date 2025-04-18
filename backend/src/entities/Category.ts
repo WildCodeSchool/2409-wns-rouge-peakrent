@@ -4,6 +4,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
   Length,
   Min,
@@ -112,27 +113,18 @@ export class CategoryCreateInput {
   @Length(2, 50, { message: "Variant must be between 2 and 50 chars." })
   variant!: string;
 
+  @Field(() => ID, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  id?: number;
+
   @Field(() => [CategoryCreateInput], { nullable: true })
   childrens?: CategoryCreateInput[];
 }
 
 @InputType()
-export class CategoryUpdateInput {
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "Name is required." })
-  @Length(2, 50, { message: "Name must be between 2 and 50 chars." })
-  name!: string;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty({ message: "Variant is required." })
-  @Length(2, 50, { message: "Variant must be between 2 and 50 chars." })
-  variant!: string;
-
-  @Field(() => [CategoryUpdateInput], { nullable: true })
-  childrens?: CategoryUpdateInput[];
-}
+export class CategoryUpdateInput extends CategoryCreateInput {}
 
 export enum SortOrder {
   ASC = "ASC",
