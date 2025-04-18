@@ -44,7 +44,7 @@ export const authChecker: AuthChecker<ContextType> = async (
   // @Authorized() → roles = []
   // if the roles are omitted, should be consider as an admin autorization → least privileges security concern
   if (roles.length === 0) {
-    roles = ["admin"];
+    roles = ["admin", "superadmin"];
   }
 
   // user has already been put in context (if found) by the global middleware (see index.ts)
