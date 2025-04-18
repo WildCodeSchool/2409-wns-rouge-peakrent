@@ -67,7 +67,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
 
       if (datas) {
         const { data: updatedCategory } = await updateCategory({
-          variables: { id: datas.id, input },
+          variables: { _id: datas.id, input },
         });
         data = updatedCategory;
       } else {
@@ -194,6 +194,12 @@ export function CategoryForm({ datas }: { datas?: any }) {
                         isPending={createLoading || updateLoading}
                         columns={3}
                         required
+                      />
+                      <StringInput
+                        form={form}
+                        name={`subCategories.${index}.id`}
+                        containerClassName="hidden"
+                        isPending={createLoading || updateLoading}
                       />
                     </div>
                     <Button

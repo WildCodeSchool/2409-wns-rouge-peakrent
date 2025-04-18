@@ -22,6 +22,7 @@ export const categoryBaseSchema = (
       "Badge invalide",
       defaultColor || "default"
     ),
+    id: z.number().int().positive().optional(),
   });
 
 export const categoryWithChildrenSchema = (datas?: any) =>
