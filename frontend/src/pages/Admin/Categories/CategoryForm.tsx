@@ -57,10 +57,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
       const input = {
         name: formData.name,
         variant: formData.variant,
-        childrens: formData.subCategories.map((subCategory) => ({
-          name: subCategory.name,
-          variant: subCategory.variant,
-        })),
+        childrens: formData.subCategories
       };
 
       let data;
@@ -79,7 +76,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
 
       if (data) {
         if (datas) {
-          updateCategoryStore(datas.id, data.updateCategory);
+          updateCategoryStore(Number(datas.id), data.updateCategory);
           toast.success("Catégorie modifiée avec succès");
         } else {
           addCategory(data.createCategory);

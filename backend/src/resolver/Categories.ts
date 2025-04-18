@@ -11,7 +11,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { In } from "typeorm";
+import { In, IsNull } from "typeorm";
 import { dataSource } from "../config/db";
 import {
   CategoriesWithCount,
@@ -34,13 +34,12 @@ export class CategoryResolver {
   ): Promise<CategoriesWithCount> {
     const { page, onPage, sort, order, onlyParent } = input;
 
-    const where = onlyParent ? { parentCategory: null } : undefined;
     const [categories, total] = await Category.findAndCount({
       relations: { products: true, parentCategory: true, childrens: true },
       skip: (page - 1) * onPage,
       take: onPage,
       order: { [sort]: order },
-      where,
+      where: onlyParent ? { parentCategory: IsNull() } : undefined,
     });
     return {
       categories,
