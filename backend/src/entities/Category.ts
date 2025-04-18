@@ -113,7 +113,7 @@ export class CategoryCreateInput {
   @Length(2, 50, { message: "Variant must be between 2 and 50 chars." })
   variant!: string;
 
-  @Field(() => ID, { nullable: true })
+  @Field({ nullable: true })
   @IsOptional()
   @IsInt()
   @IsPositive()
