@@ -19,7 +19,11 @@ export default function CategoriesTable() {
     (state) => state.setCategoriesFetched
   );
 
-  const { data, error, loading } = useQuery(gql(GET_CATEGORIES));
+  const { data, error, loading } = useQuery(gql(GET_CATEGORIES), {
+    variables: {
+      input: { page: 1, onPage: 1000, sort: "idhh", order: "ASC" },
+    },
+  });
 
   const columnConfigs: ColumnConfig[] = [];
 
