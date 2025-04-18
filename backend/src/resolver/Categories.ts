@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -9,10 +10,12 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { dataSource } from "../config/db";
 import {
   CategoriesWithCount,
   Category,
   CategoryCreateInput,
+  CategoryPaginationInput,
   CategoryUpdateInput,
   CategoryWithCount,
 } from "../entities/Category";
@@ -24,14 +27,16 @@ import { AuthContextType } from "../types";
 export class CategoryResolver {
   @Query(() => CategoriesWithCount)
   async getCategories(
-    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 })
-    onPage: number
+    @Arg("input", () => CategoryPaginationInput) input: CategoryPaginationInput
   ): Promise<CategoriesWithCount> {
+    const { page, onPage, sort, order, onlyParent } = input;
+    
     const [categories, total] = await Category.findAndCount({
-      relations: { products: true, parentCategory: true, children: true },
+      relations: { products: true, parentCategory: true, childrens: true },
       skip: (page - 1) * onPage,
       take: onPage,
+      order: { [sort]: order },
+      where: onlyParent ? { parentCategory: null } : undefined,
     });
     return {
       categories,
@@ -59,7 +64,7 @@ export class CategoryResolver {
         products: true,
         createdBy: true,
         parentCategory: true,
-        children: true,
+        childrens: true,
       },
     });
 
@@ -85,32 +90,87 @@ export class CategoryResolver {
     };
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "superadmin"])
   @Mutation(() => Category)
   async createCategory(
-    @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
+    @Arg("input", () => CategoryCreateInput) input: CategoryCreateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category> {
-    const newCategory = new Category();
-    const user = context.user;
+    try {
+      const user = context.user;
 
-    Object.assign(newCategory, data, { created_by: user });
-    newCategory.normalizedName = normalizeString(newCategory.name);
+      const newCategory = new Category();
 
-    const errors = await validate(newCategory);
-    if (errors.length > 0) {
-      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-    } else {
-      await newCategory.save();
+      Object.assign(newCategory, {
+        name: input.name,
+        variant: input.variant,
+        createdBy: user,
+      });
+      newCategory.normalizedName = normalizeString(newCategory.name);
+
+      const errors = await validate(newCategory);
+      if (errors.length > 0) {
+        throw new GraphQLError("Validation error", {
+          extensions: {
+            code: "VALIDATION_ERROR",
+            http: { status: 400 },
+          },
+        });
+      }
+
+      await dataSource.manager.transaction(async () => {
+        await newCategory.save();
+
+        if (input.childrens && input.childrens.length > 0) {
+          const subCategories = input.childrens.map((subCategory) => {
+            const newSubCategory = new Category();
+            Object.assign(newSubCategory, {
+              name: subCategory.name,
+              variant: subCategory.variant,
+              parentCategory: newCategory,
+              createdBy: user,
+            });
+            newSubCategory.normalizedName = normalizeString(
+              newSubCategory.name
+            );
+            return newSubCategory;
+          });
+
+          for (const subCategory of subCategories) {
+            const subErrors = await validate(subCategory);
+            if (subErrors.length > 0) {
+              throw new GraphQLError(
+                `Validation error for subcategory: ${JSON.stringify(subErrors)}`,
+                {
+                  extensions: {
+                    code: "VALIDATION_ERROR",
+                    http: { status: 400 },
+                  },
+                }
+              );
+            }
+            await subCategory.save();
+            Object.assign(newCategory, {
+              childrens:
+                newCategory.childrens && newCategory.childrens.length > 0
+                  ? [...newCategory.childrens, subCategory]
+                  : [subCategory],
+            });
+          }
+        }
+      });
+
       return newCategory;
+    } catch (error) {
+      throw error;
     }
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "superadmin"])
   @Mutation(() => Category, { nullable: true })
   async updateCategory(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => CategoryUpdateInput) data: CategoryUpdateInput,
+    @Arg("input", () => CategoryUpdateInput) input: CategoryUpdateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category | null> {
     const id = Number(_id);
@@ -119,7 +179,7 @@ export class CategoryResolver {
       where: { id, createdBy: { id: context.user.id } },
     });
     if (category !== null) {
-      Object.assign(category, data);
+      Object.assign(category, input);
 
       const errors = await validate(category);
       if (errors.length > 0) {
