@@ -61,7 +61,6 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
 
   assert(userResponse.body.kind === "single");
   testArgs.data.user = userResponse.body.singleResult.data?.createUser;
-  console.log("2", testArgs.data.user);
 
   assert(adminResponse.body.kind === "single");
   testArgs.data.admin = adminResponse.body.singleResult.data?.createUser;
