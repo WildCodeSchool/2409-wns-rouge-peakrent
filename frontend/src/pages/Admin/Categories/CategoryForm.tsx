@@ -57,7 +57,7 @@ export function CategoryForm({ datas }: { datas?: any }) {
       const input = {
         name: formData.name,
         variant: formData.variant,
-        childrens: formData.subCategories
+        childrens: formData.subCategories,
       };
 
       let data;

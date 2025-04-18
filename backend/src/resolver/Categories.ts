@@ -152,12 +152,7 @@ export class CategoryResolver {
             );
           }
           await subCategory.save();
-          Object.assign(newCategory, {
-            childrens:
-              newCategory.childrens && newCategory.childrens.length > 0
-                ? [...newCategory.childrens, subCategory]
-                : [subCategory],
-          });
+          newCategory.childrens.push(subCategory);
         }
       }
     });
@@ -249,12 +244,7 @@ export class CategoryResolver {
             );
           }
           await subCategory.save();
-          Object.assign(category, {
-            childrens:
-              category.childrens && category.childrens.length > 0
-                ? [...category.childrens, subCategory]
-                : [subCategory],
-          });
+          category.childrens.push(subCategory);
         }
       }
     });
