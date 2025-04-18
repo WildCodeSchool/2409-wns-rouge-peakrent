@@ -54,6 +54,7 @@ export const PasswordValidation = ({
                   autoComplete="on"
                   type={passwordVisibility ? "text" : "password"}
                   {...field}
+                  data-testid={name}
                   value={field.value ?? ""}
                 />
                 <Box
