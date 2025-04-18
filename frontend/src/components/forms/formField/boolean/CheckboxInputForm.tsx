@@ -53,7 +53,11 @@ export const CheckboxInput = ({
                 className={cn(className)}
               />
             </FormControl>
-            <LabelSection label={label} required={required} onlyLabel={onlyLabel} />
+            <LabelSection
+              label={label}
+              required={required}
+              onlyLabel={onlyLabel}
+            />
           </div>
           <FormMessage />
         </FormItem>

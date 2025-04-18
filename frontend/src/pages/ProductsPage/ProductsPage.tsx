@@ -29,7 +29,9 @@ const ProductsPage = () => {
     data: getCategoriesData,
     loading: getCategoriesLoading,
     error: getCategoriesError,
-  } = useQuery(gql(GET_CATEGORIES));
+  } = useQuery(gql(GET_CATEGORIES), {
+    variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
+  });
 
   const [
     fetchFilteredProducts,

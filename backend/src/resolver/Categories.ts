@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -8,30 +9,37 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
+import { In, IsNull } from "typeorm";
+import { dataSource } from "../config/db";
 import {
   CategoriesWithCount,
   Category,
   CategoryCreateInput,
+  CategoryPaginationInput,
   CategoryUpdateInput,
   CategoryWithCount,
 } from "../entities/Category";
 import { Product } from "../entities/Product";
 import { normalizeString } from "../helpers/helpers";
+import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
 
 @Resolver(Category)
 export class CategoryResolver {
   @Query(() => CategoriesWithCount)
   async getCategories(
-    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 })
-    onPage: number
+    @Arg("data", () => CategoryPaginationInput) data: CategoryPaginationInput
   ): Promise<CategoriesWithCount> {
+    const { page, onPage, sort, order, onlyParent } = data;
+
     const [categories, total] = await Category.findAndCount({
-      relations: { products: true, parentCategory: true, children: true },
+      relations: { products: true, parentCategory: true, childrens: true },
       skip: (page - 1) * onPage,
       take: onPage,
+      order: { [sort]: order },
+      where: onlyParent ? { parentCategory: IsNull() } : undefined,
     });
     return {
       categories,
@@ -59,7 +67,7 @@ export class CategoryResolver {
         products: true,
         createdBy: true,
         parentCategory: true,
-        children: true,
+        childrens: true,
       },
     });
 
@@ -85,69 +93,212 @@ export class CategoryResolver {
     };
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "superadmin"])
   @Mutation(() => Category)
+  @UseMiddleware(ErrorCatcher)
   async createCategory(
     @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category> {
-    const newCategory = new Category();
     const user = context.user;
 
-    Object.assign(newCategory, data, { created_by: user });
+    const newCategory = new Category();
+
+    Object.assign(newCategory, {
+      name: data.name,
+      variant: data.variant,
+      createdBy: user,
+    });
     newCategory.normalizedName = normalizeString(newCategory.name);
 
     const errors = await validate(newCategory);
     if (errors.length > 0) {
-      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-    } else {
-      await newCategory.save();
-      return newCategory;
+      throw new GraphQLError("Validation error", {
+        extensions: {
+          code: "VALIDATION_ERROR",
+          http: { status: 400 },
+        },
+      });
     }
+
+    await dataSource.manager.transaction(async () => {
+      await newCategory.save();
+      newCategory.childrens = [];
+
+      if (data.childrens && data.childrens.length > 0) {
+        const subCategories = data.childrens.map((subCategory) => {
+          const newSubCategory = new Category();
+          Object.assign(newSubCategory, {
+            name: subCategory.name,
+            variant: subCategory.variant,
+            parentCategory: newCategory,
+            createdBy: user,
+          });
+          newSubCategory.normalizedName = normalizeString(newSubCategory.name);
+          return newSubCategory;
+        });
+
+        for (const subCategory of subCategories) {
+          const subErrors = await validate(subCategory);
+          if (subErrors.length > 0) {
+            throw new GraphQLError(
+              `Validation error for subcategory: ${JSON.stringify(subErrors)}`,
+              {
+                extensions: {
+                  code: "VALIDATION_ERROR",
+                  http: { status: 400 },
+                },
+              }
+            );
+          }
+          await subCategory.save();
+          newCategory.childrens.push(subCategory);
+        }
+      }
+    });
+
+    return newCategory;
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "superadmin"])
   @Mutation(() => Category, { nullable: true })
+  @UseMiddleware(ErrorCatcher)
   async updateCategory(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => CategoryUpdateInput) data: CategoryUpdateInput,
     @Ctx() context: AuthContextType
   ): Promise<Category | null> {
     const id = Number(_id);
+    const user = context.user;
 
     const category = await Category.findOne({
-      where: { id, createdBy: { id: context.user.id } },
+      where: { id, createdBy: { id: user.id } },
     });
-    if (category !== null) {
-      Object.assign(category, data);
 
-      const errors = await validate(category);
-      if (errors.length > 0) {
-        throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-      } else {
-        await category.save();
-        return category;
-      }
-    } else {
+    if (!category) {
       return null;
     }
+
+    Object.assign(category, {
+      name: data.name,
+      variant: data.variant,
+    });
+    category.normalizedName = normalizeString(category.name);
+
+    const errors = await validate(category);
+    if (errors.length > 0) {
+      throw new GraphQLError("Validation error", {
+        extensions: {
+          code: "VALIDATION_ERROR",
+          http: { status: 400 },
+        },
+      });
+    }
+
+    await dataSource.manager.transaction(async () => {
+      await category.save();
+      category.childrens = [];
+
+      if (data.childrens && data.childrens.length > 0) {
+        const existingChildren = await Category.find({
+          where: { parentCategory: { id: category.id } },
+        });
+        const childrenToDelete = existingChildren.filter(
+          (child) =>
+            !data.childrens.some((inputChild) => inputChild.id === child.id)
+        );
+        await Category.remove(childrenToDelete);
+
+        for (const subCategoryInput of data.childrens) {
+          let subCategory: Category;
+          if (subCategoryInput.id) {
+            subCategory = await Category.findOne({
+              where: {
+                id: subCategoryInput.id,
+                parentCategory: { id: category.id },
+              },
+            });
+            if (!subCategory) continue;
+          } else {
+            subCategory = new Category();
+          }
+
+          Object.assign(subCategory, {
+            name: subCategoryInput.name,
+            variant: subCategoryInput.variant,
+            parentCategory: category,
+            createdBy: user,
+          });
+          subCategory.normalizedName = normalizeString(subCategory.name);
+
+          const subErrors = await validate(subCategory);
+          if (subErrors.length > 0) {
+            throw new GraphQLError(
+              `Validation error for subcategory: ${JSON.stringify(subErrors)}`,
+              {
+                extensions: {
+                  code: "VALIDATION_ERROR",
+                  http: { status: 400 },
+                },
+              }
+            );
+          }
+          await subCategory.save();
+          category.childrens.push(subCategory);
+        }
+      }
+    });
+
+    return category;
   }
 
-  @Authorized(["admin"])
+  @Authorized(["admin", "superadmin"])
   @Mutation(() => Category, { nullable: true })
+  @UseMiddleware(ErrorCatcher)
   async deleteCategory(
-    @Arg("id", () => ID) _id: number,
-    @Ctx() context: AuthContextType
+    @Arg("id", () => ID) _id: number
   ): Promise<Category | null> {
     const id = Number(_id);
     const category = await Category.findOne({
-      where: { id, createdBy: { id: context.user.id } },
+      where: { id },
     });
     if (category !== null) {
       await category.remove();
       return category;
     } else {
-      return null;
+      throw new GraphQLError(`La catégorie n'existe pas`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
     }
+  }
+
+  @Authorized(["admin", "superadmin"])
+  @Mutation(() => [ID], { nullable: true })
+  @UseMiddleware(ErrorCatcher)
+  async deleteCategories(
+    @Arg("ids", () => [ID]) ids: number[]
+  ): Promise<number[] | null> {
+    const categories = await Category.find({
+      where: {
+        id: In(ids),
+      },
+    });
+
+    if (categories.length === 0) {
+      throw new GraphQLError("Aucune catégorie trouvée", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    const deletedIds = categories.map((category) => category.id);
+    await Category.remove(categories);
+
+    return deletedIds;
   }
 }
