@@ -80,15 +80,18 @@ export function CategoryForm({ datas }: { datas?: any }) {
       if (data) {
         if (datas) {
           updateCategoryStore(datas.id, data.updateCategory);
+          toast.success("Catégorie modifiée avec succès");
         } else {
           addCategory(data.createCategory);
+          toast.success("Catégorie créée avec succès");
         }
-        toast.success("Catégorie créée avec succès");
         closeModal();
       }
     } catch (error: any) {
       console.error(error);
-      toast.error("Erreur lors de la création de la catégorie");
+      toast.error(
+        `Erreur lors de la ${datas ? "modification" : "création"} de la catégorie`
+      );
     }
   };
 
