@@ -26,6 +26,7 @@ import { IsValidSortField } from "../decorators/IsValidSortField";
 import { Pagination } from "./Pagination";
 import { Product } from "./Product";
 import { User } from "./User";
+import { SortOrder } from "../types";
 
 @ObjectType()
 @Entity()
@@ -125,11 +126,6 @@ export class CategoryCreateInput {
 
 @InputType()
 export class CategoryUpdateInput extends CategoryCreateInput {}
-
-export enum SortOrder {
-  ASC = "ASC",
-  DESC = "DESC",
-}
 
 @InputType()
 export class CategoryPaginationInput {
