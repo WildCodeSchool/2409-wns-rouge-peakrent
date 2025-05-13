@@ -14,10 +14,14 @@ export class ProductActivity extends BaseEntity {
   @PrimaryColumn({ name: "activity_id" })
   activityId!: number;
 
-  @ManyToOne(() => Product, (product) => product.activities)
+  @ManyToOne(() => Product, (product) => product.activities, {
+    onDelete: "CASCADE",
+  })
   product!: Product;
 
-  @ManyToOne(() => Activity, (activity) => activity.products)
+  @ManyToOne(() => Activity, (activity) => activity.products, {
+    onDelete: "CASCADE",
+  })
   activity!: Activity;
 }
 
