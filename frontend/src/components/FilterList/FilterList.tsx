@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
+import { DateRangeSelector } from "../ui/dateRangeSelector";
 import { Label } from "../ui/label";
 
 interface CategoryFilterProps {
@@ -11,6 +12,16 @@ interface CategoryFilterProps {
   categories?: any[];
   selectedCategories?: number[];
   setSelectedCategories?: React.Dispatch<React.SetStateAction<number[]>>;
+
+  selectedStartingDate?: string | undefined;
+  setSelectedStartingDate: React.Dispatch<
+    React.SetStateAction<string | undefined>
+  >;
+
+  selectedEndingDate?: string | undefined;
+  setSelectedEndingDate: React.Dispatch<
+    React.SetStateAction<string | undefined>
+  >;
 
   handleFilter: () => void;
 }
@@ -23,6 +34,10 @@ const FilterList = ({
   selectedCategories,
   setSelectedCategories,
   handleFilter,
+  selectedStartingDate,
+  setSelectedStartingDate,
+  selectedEndingDate,
+  setSelectedEndingDate,
 }: CategoryFilterProps) => {
   const handleCategoriesCheckboxAction = (categoryId: any) => {
     if (!setSelectedCategories) return;
@@ -46,6 +61,12 @@ const FilterList = ({
 
   return (
     <>
+      <DateRangeSelector
+        selectedStartingDate={selectedStartingDate}
+        selectedEndingDate={selectedEndingDate}
+        setSelectedEndingDate={setSelectedEndingDate}
+        setSelectedStartingDate={setSelectedStartingDate}
+      />
       {activities && (
         <div className="space-y-2">
           <h2>Activités :</h2>

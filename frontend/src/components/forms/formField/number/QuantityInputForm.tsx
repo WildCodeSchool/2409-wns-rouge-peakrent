@@ -1,6 +1,3 @@
-import { Minus, Plus } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -9,8 +6,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Minus, Plus } from "lucide-react";
 
-export function Quantity({
+export function QuantityInputForm({
   form,
   isPending = false,
   name = "quantity",
@@ -93,14 +92,9 @@ export function Quantity({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem
-          className={cn(
-            "mx-auto flex max-w-[350px] flex-col items-center justify-between",
-            itemClassName
-          )}
-        >
+        <FormItem className={cn("flex-col justify-between", itemClassName)}>
           <div className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            {label || "quantity"}
+            {label || "quantité"}
             {required ? (
               <span className="text-destructive ml-1">*</span>
             ) : (

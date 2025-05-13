@@ -13,6 +13,13 @@ const ProductsPage = () => {
   const [maxPage, setMaxPage] = useState<number>(0);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+  const [selectedStartingDate, setSelectedStartingDate] = useState<
+    string | undefined
+  >("");
+  const [selectedEndingDate, setSelectedEndingDate] = useState<
+    string | undefined
+  >("");
+
   // const [activities, setActivities] = useState<any[]>([]);
   // const [selectedActivities, setSelectedActivities] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -75,6 +82,12 @@ const ProductsPage = () => {
         onPage: itemsOnPage,
         page: 1,
         categoryIds: selectedCategories,
+        startingDate: selectedStartingDate
+          ? new Date(selectedStartingDate).toISOString()
+          : undefined,
+        endingDate: selectedEndingDate
+          ? new Date(selectedEndingDate).toISOString()
+          : undefined,
         // activitiesId: selectedActivities,
       },
     });
@@ -91,6 +104,10 @@ const ProductsPage = () => {
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
         handleFilter={handleFilter}
+        selectedEndingDate={selectedEndingDate}
+        selectedStartingDate={selectedStartingDate}
+        setSelectedEndingDate={setSelectedEndingDate}
+        setSelectedStartingDate={setSelectedStartingDate}
       />
     ),
   };
@@ -139,6 +156,10 @@ const ProductsPage = () => {
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             handleFilter={handleFilter}
+            selectedEndingDate={selectedEndingDate}
+            selectedStartingDate={selectedStartingDate}
+            setSelectedEndingDate={setSelectedEndingDate}
+            setSelectedStartingDate={setSelectedStartingDate}
           />
         </aside>
         <div className="flex-1 p-4">

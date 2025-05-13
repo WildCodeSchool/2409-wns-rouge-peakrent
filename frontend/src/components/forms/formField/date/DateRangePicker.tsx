@@ -1,9 +1,4 @@
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { enGB as en, fr } from "date-fns/locale";
-import { CalendarIcon, X as CloseIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
-
+import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -17,7 +12,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LabelSection } from "@/components/forms/layout/LabelSection";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { enGB as en, fr } from "date-fns/locale";
+import { CalendarIcon, X as CloseIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
 export function DateRangePicker({
   form,

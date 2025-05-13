@@ -7,7 +7,7 @@ const PageLayout = () => {
   return (
     <>
       <NavBar />
-      <main className="mb-10 mx-auto min-h-[calc(100vh-240px)]">
+      <main className="mb-24 md:mb-0 mx-auto min-h-[calc(100vh-240px)]">
         <Outlet />
       </main>
       <Footer />

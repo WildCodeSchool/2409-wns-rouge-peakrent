@@ -8,23 +8,22 @@ export const seedStoreVariant = async () => {
   const storeRepo = dataSource.getRepository(Store);
   const variantRepo = dataSource.getRepository(Variant);
 
-  const storeVariants = [
-    {
-      variantId: 1,
+  const storeVariants = [];
+
+  for (let i = 1; i <= 30; i++) {
+    let quantity;
+    if (i === 1) {
+      quantity = 1;
+    } else {
+      quantity = Math.floor(Math.random() * 200);
+    }
+
+    storeVariants.push({
+      variantId: i,
       storeId: 1,
-      quantity: 1,
-    },
-    {
-      variantId: 2,
-      storeId: 1,
-      quantity: 100,
-    },
-    {
-      variantId: 3,
-      storeId: 1,
-      quantity: 150,
-    },
-  ];
+      quantity: quantity,
+    });
+  }
 
   for (const storeVariant of storeVariants) {
     const variant = await variantRepo.findOne({
