@@ -2,8 +2,6 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsOptional,
-  IsPositive,
   IsString,
   IsUrl,
   Length,
@@ -109,12 +107,6 @@ export class ActivityCreateInput {
   @Field()
   @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
-  id?: number;
 }
 
 @InputType()
