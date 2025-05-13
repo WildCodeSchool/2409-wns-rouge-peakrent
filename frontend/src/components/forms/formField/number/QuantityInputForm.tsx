@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Minus, Plus } from "lucide-react";
 
-export function QuantityInputForm({
+export function Quantity({
   form,
   isPending = false,
   name = "quantity",
@@ -94,7 +94,7 @@ export function QuantityInputForm({
       render={({ field }) => (
         <FormItem className={cn("flex-col justify-between", itemClassName)}>
           <div className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            {label || "quantité"}
+            {label || "quantity"}
             {required ? (
               <span className="text-destructive ml-1">*</span>
             ) : (

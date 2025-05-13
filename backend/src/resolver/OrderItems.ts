@@ -161,7 +161,7 @@ export class OrderItemsResolver {
       }
 
       if (orderId) {
-        let order = await Order.findOne({
+        const order = await Order.findOne({
           where: { profile: profileId as any },
         });
 

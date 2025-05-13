@@ -1,5 +1,11 @@
 import { GraphQLError } from "graphql";
-import { IsNull, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
+import {
+  FindOperator,
+  IsNull,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+} from "typeorm";
 import { OrderItem } from "../entities/OrderItem";
 import { StoreVariant } from "../entities/StoreVariant";
 import { OrderStatusType } from "../types";
@@ -10,7 +16,19 @@ export const checkStockByVariantAndStore = async (
   startingDate?: Date | null,
   endingDate?: Date | null
 ) => {
-  const where: any = {
+  interface WhereClause {
+    variant: {
+      id: number;
+    };
+    order: {
+      id: number | FindOperator<any>;
+      status: OrderStatusType | FindOperator<any>;
+    };
+    endsAt?: Date | FindOperator<Date>;
+    startsAt?: Date | FindOperator<Date>;
+  }
+
+  const where: WhereClause = {
     variant: { id: variantId },
     order: {
       id: Not(IsNull()),

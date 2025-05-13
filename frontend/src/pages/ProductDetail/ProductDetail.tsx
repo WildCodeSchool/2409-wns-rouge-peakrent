@@ -1,6 +1,6 @@
 import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
 import { GET_VARIANT_QUANTITY_AVAILABLE } from "@/GraphQL/storeVariant";
-import { QuantityInputForm } from "@/components/forms/formField";
+import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
@@ -252,7 +252,7 @@ const ProductDetail = () => {
                 />
               </div>
               <div className="flex flex-col my-5 gap-5 max-w-[600px]">
-                <QuantityInputForm form={form} min={1} label="Quantité" />
+                <Quantity form={form} min={1} label="Quantité" />
                 <DateRangePickerInput
                   form={form}
                   from={form.getValues("date").from}
