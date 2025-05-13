@@ -51,9 +51,7 @@ const ProductDetail = () => {
         message: "Veuillez sélectionner une plage de dates complète.",
       }),
     quantity: z.number().min(1),
-    variants: z
-      .array(z.any())
-      .nonempty("Vous devez selectionner au moins un item"),
+    variants: z.array(z.object({}).passthrough()).min(1),
   });
 
   type productDetailsSchemaValues = z.infer<typeof productDetailsSchema>;
@@ -161,7 +159,7 @@ const ProductDetail = () => {
       setSelectedVariantsPrice(selectedVariantsPrice - variant.pricePerHour);
       form.setValue(
         "variants",
-        currentValue.filter((v) => v.id !== (variant.id as any)) as any
+        currentValue.filter((v: Partial<Variant>) => v.id !== variant.id)
       );
     } else {
       setSelectedVariantsPrice(selectedVariantsPrice + variant.pricePerHour);

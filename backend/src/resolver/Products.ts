@@ -67,19 +67,15 @@ export class ProductResolver {
           });
 
           for (const storeVariant of storeVariants) {
-            try {
-              const Quantity = await checkStockByVariantAndStore(
-                storeVariant.storeId,
-                storeVariant.variantId,
-                startingDate,
-                endingDate
-              );
-              if (Quantity > 0) {
-                availableProductsByDates.push(product);
-                break;
-              }
-            } catch (err) {
-              console.error("Erreur dans checkStockByVariantAndStore:", err);
+            const quantity = await checkStockByVariantAndStore(
+              storeVariant.storeId,
+              storeVariant.variantId,
+              startingDate,
+              endingDate
+            );
+            if (quantity > 0) {
+              availableProductsByDates.push(product);
+              break;
             }
           }
         } catch (err) {

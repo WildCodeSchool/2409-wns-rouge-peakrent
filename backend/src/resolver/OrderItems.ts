@@ -116,7 +116,6 @@ export class OrderItemsResolver {
       endsAt,
       orderId,
       cartId,
-      storeId,
     } = data;
 
     let dataOrderItems: {
@@ -126,66 +125,64 @@ export class OrderItemsResolver {
       endsAt: Date;
       cart?: Cart;
       order?: Order;
-      store: number;
     } = {
       quantity,
       pricePerHour,
       startsAt,
       endsAt,
-      store: storeId ?? 1,
     };
 
-    const isAvailable =
-      (await checkStockByVariantAndStore(
-        storeId ?? 1,
-        variantId,
-        startsAt,
-        endsAt
-      )) > 0;
-
-    if (isAvailable) {
-      if (cartId || !orderId) {
-        let cart = await Cart.findOne({
-          where: { profile: profileId as any },
-          relations: ["profile"],
-        });
-
-        if (!cart) {
-          cart = Cart.create({ profile: profileId as any });
-          await cart.save();
-        }
-        dataOrderItems = {
-          ...dataOrderItems,
-          cart,
-        };
-      }
-
-      if (orderId) {
-        const order = await Order.findOne({
-          where: { profile: profileId as any },
-        });
-
-        if (!order) {
-          throw new GraphQLError("Order does not exist", {
-            extensions: {
-              code: "NOT_FOUND",
-              entity: "Order",
-            },
-          });
-        }
-
-        dataOrderItems = {
-          ...dataOrderItems,
-          order,
-        };
-      }
-    } else {
-      throw new GraphQLError("Store Variant is out of stock", {
-        extensions: {
-          code: "OUT_OF_STOCK",
-          entity: "StoreVariant",
-        },
+    if (cartId || !orderId) {
+      let cart = await Cart.findOne({
+        where: { profile: profileId as any },
+        relations: ["profile"],
       });
+
+      if (!cart) {
+        cart = Cart.create({ profile: profileId as any });
+        await cart.save();
+      }
+      dataOrderItems = {
+        ...dataOrderItems,
+        cart,
+      };
+    }
+
+    if (orderId) {
+      const order = await Order.findOne({
+        where: { profile: profileId as any },
+      });
+
+      const isAvailable =
+        (await checkStockByVariantAndStore(
+          order.store.id ?? 1,
+          variantId,
+          startsAt,
+          endsAt
+        )) > 0;
+
+      if (!isAvailable) {
+        throw new GraphQLError("Store Variant is out of stock", {
+          extensions: {
+            code: "OUT_OF_STOCK",
+            entity: "StoreVariant",
+          },
+        });
+      }
+
+      if (!order) {
+        throw new GraphQLError("Order does not exist", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Order",
+          },
+        });
+      }
+
+      dataOrderItems = {
+        ...dataOrderItems,
+        order,
+      };
     }
 
     const newOrderItem = new OrderItem();

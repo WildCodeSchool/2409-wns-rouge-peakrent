@@ -188,17 +188,20 @@ export class CartResolver {
           if (
             (await checkStockByVariantAndStore(
               orderItem.variant.id,
-              orderItem.store.id ?? 1,
+              data.storeId,
               orderItem.startsAt,
               orderItem.endsAt
             )) === 0
           ) {
-            throw new GraphQLError("Store Variant is out of stock", {
-              extensions: {
-                code: "OUT_OF_STOCK",
-                entity: "StoreVariant",
-              },
-            });
+            throw new GraphQLError(
+              `Store is out of stock for item ${orderItem.id}`,
+              {
+                extensions: {
+                  code: "OUT_OF_STOCK",
+                  entity: "StoreVariant",
+                },
+              }
+            );
           }
         }
         const order = new Order();

@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { OrderItem } from "./OrderItem";
+import { Order } from "./Order";
 import { StoreVariant } from "./StoreVariant";
 
 @ObjectType()
@@ -71,9 +71,9 @@ export class Store extends BaseEntity {
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.store)
   storeVariants!: StoreVariant[];
 
-  @Field(() => [OrderItem])
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.store)
-  orderItems!: OrderItem[];
+  @Field(() => [Order])
+  @OneToMany(() => Order, (order) => order.store)
+  order!: Order[];
 }
 
 @InputType()
