@@ -150,7 +150,8 @@ export class OrderItemsResolver {
 
     if (orderId) {
       const order = await Order.findOne({
-        where: { profile: profileId as any },
+        where: { id: orderId },
+        relations: ["store"],
       });
 
       if (!order) {

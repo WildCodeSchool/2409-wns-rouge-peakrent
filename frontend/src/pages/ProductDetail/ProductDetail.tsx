@@ -84,33 +84,29 @@ const ProductDetail = () => {
     console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
   }
-  const errors = form.formState.errors;
 
-  const checkAvailability = async () => {
+  const checkAvailability = async (variant: Variant) => {
     try {
       if (!isDisabled) {
-        for (const variant of watchedVariants) {
-          const { data } = await checkVariantQuantity({
-            variables: {
-              storeId: 1,
-              variantId: Number(variant.id),
-              startingDate: new Date(selectedStartingDate),
-              endingDate: new Date(selectedEndingDate),
-            },
-          });
+        const { data } = await checkVariantQuantity({
+          variables: {
+            storeId: 1,
+            variantId: Number(variant.id),
+            startingDate: new Date(selectedStartingDate),
+            endingDate: new Date(selectedEndingDate),
+          },
+        });
 
-          const available = data?.checkVariantStock ?? 0;
+        const available = data?.checkVariantStock ?? 0;
 
-          if (available - watchedQuantity < 0) {
-            toast.error(
-              `Quantité indisponible pour le produit ${variant.size}, ${variant.color}`
-            );
-            console.log("Quantité indisponible pour le variant", variant.id);
-            return false;
-          }
+        if (available - watchedQuantity < 0) {
+          toast.error(
+            `Quantité indisponible pour le produit ${variant.size}, ${variant.color}`
+          );
+          return false;
         }
-        return true;
       }
+      return true;
     } catch (err) {
       toast.error(`Une erreur s'est produite`);
       console.error("Erreur vérification disponibilité :", err);
@@ -127,9 +123,9 @@ const ProductDetail = () => {
         `La date de fin ne peut pas être inférieure à celle de début`
       );
     }
-    if (await checkAvailability()) {
-      try {
-        for (const variant of data.variants) {
+    try {
+      for (const variant of data.variants) {
+        if (await checkAvailability(variant as Variant)) {
           await createOrderItem({
             variables: {
               data: {
@@ -142,12 +138,11 @@ const ProductDetail = () => {
               },
             },
           });
+          return toast.success(`Produit(s) ajouté(s) au panier !`);
         }
-        console.log("Produits ajoutés au panier !");
-        return toast.success(`Produit(s) ajouté(s) au panier !`);
-      } catch (err) {
-        console.error("Erreur ajout panier :", err);
       }
+    } catch (err) {
+      console.error("Erreur ajout panier :", err);
     }
   };
 

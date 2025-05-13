@@ -55,7 +55,10 @@ export class OrderResolver {
     if (!profile) {
       throw new Error(`profile not found`);
     }
-    Object.assign(newOrder, data, { profile: data.profileId });
+    Object.assign(newOrder, data, {
+      profile: data.profileId,
+      store: data.storeId,
+    });
     const errors = await validate(newOrder);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
@@ -92,7 +95,10 @@ export class OrderResolver {
       ) {
         throw new Error("Unauthorized");
       }
-      Object.assign(order, data, { profile: data.profileId });
+      Object.assign(order, data, {
+        profile: data.profileId,
+        store: data.storeId,
+      });
       const errors = await validate(order);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);
