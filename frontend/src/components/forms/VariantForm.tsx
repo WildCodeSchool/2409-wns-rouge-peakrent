@@ -8,17 +8,20 @@ import { CREATE_VARIANT } from "@/GraphQL/createVariant";
 import { UPDATE_VARIANT } from "@/GraphQL/updateVariant";
 import { toast } from "sonner";
 import { useModal } from "@/context/modalProvider";
+import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
 
 type VariantFormType = {
   variant?: Variant;
   productId?: number;
   setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
+  refetchProduct?: () => Promise<any>;
 };
 
 export const VariantForm = ({
   variant,
   productId,
   setNewVariants,
+  refetchProduct,
 }: VariantFormType) => {
   const { closeModal } = useModal();
   const [uploading, setUploading] = useState<boolean>(false);
@@ -46,10 +49,7 @@ export const VariantForm = ({
       if (isNewLocalVariant) {
         setNewVariants((prevVariants) => [...prevVariants, commonData]);
         toast.success("Variant ajouté localement !");
-
-        setColor("");
-        setSize("");
-        setPricePerHour(0);
+        closeModal();
       } else {
         if (variant?.id) {
           await updateVariant({
@@ -67,6 +67,11 @@ export const VariantForm = ({
           });
           toast.success("Variant créé avec succès !");
         }
+
+        if (refetchProduct) {
+          await refetchProduct();
+        }
+
         closeModal();
       }
     } catch (error) {

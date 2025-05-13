@@ -14,20 +14,21 @@ import {
   CREATE_PRODUCT,
   CREATE_PRODUCT_WITH_VARIANT,
 } from "@/GraphQL/createProduct";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
 import CreateButton from "../buttons/CreateButton";
 import UpdateButton from "../buttons/UpdateButton";
 import { toast } from "sonner";
-import { cleanFileName } from "@/utils/cleanFileName";
 
 export const ProductForm = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const {
     data: getProductData,
     loading: getProductLoading,
     error: getProductError,
+    refetch,
   } = useQuery(gql(GET_PRODUCT_BY_ID), {
     variables: { param: id },
     skip: !id,
@@ -90,16 +91,8 @@ export const ProductForm = () => {
     setUploading(true);
 
     try {
-      console.log("1", urlImage);
-
       if (image) {
-        const cleanedFileName = cleanFileName(image.name);
-
-        const cleanedImage = new File([image], cleanedFileName, {
-          type: image.type,
-        });
-        urlImage = await uploadImage(cleanedImage);
-        console.log("2", typeof urlImage);
+        urlImage = await uploadImage(image);
       }
 
       const commonData = {
@@ -119,8 +112,9 @@ export const ProductForm = () => {
           },
         });
         toast.success("Produit modifié avec succès !");
+        navigate(`/products/${product.id}`);
       } else if (newVariants.length > 0) {
-        await createProductWithVariant({
+        const { data } = await createProductWithVariant({
           variables: {
             productData: commonData,
             variants: newVariants.map(({ color, size, pricePerHour }) => ({
@@ -130,14 +124,18 @@ export const ProductForm = () => {
             })),
           },
         });
+        console.log("1", data);
         toast.success("Produit créé avec succès !");
+        navigate(`/products/${data.createProductWithVariants.id}`);
       } else {
-        await createProduct({
+        const { data } = await createProduct({
           variables: {
             data: commonData,
           },
         });
+        console.log("2", data);
         toast.success("Produit créé avec succès !");
+        navigate(`/products/${data.createProduct.id}`);
       }
 
       if (!product?.id) {
@@ -164,12 +162,19 @@ export const ProductForm = () => {
     );
   };
 
-  const hasVariants =
-    Array.isArray(product?.variants) && product.variants.length > 0;
+  const displayedVariants = product?.id
+    ? product?.variants || []
+    : newVariants || [];
 
   const renderVariantForm = (variant?: Variant) => {
     if (product?.id) {
-      return <VariantForm productId={Number(product.id)} variant={variant} />;
+      return (
+        <VariantForm
+          productId={Number(product.id)}
+          variant={variant}
+          refetchProduct={refetch}
+        />
+      );
     }
     return <VariantForm setNewVariants={setNewVariants} variant={variant} />;
   };
@@ -258,46 +263,30 @@ export const ProductForm = () => {
             modalTitle="Créer un variant"
           />
         </div>
-        {hasVariants && (
+        {displayedVariants.length > 0 && (
           <div className="flex gap-4">
-            {product?.variants?.map((variant: Variant) => (
-              <div key={variant.id}>
+            {displayedVariants.map((variant, index) => (
+              <div key={(variant as Variant).id ?? index}>
                 <div className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer">
                   <div className="flex flex-col gap-2">
-                    <p>Taille :{variant.size}</p>
-                    <p>Couleur :{variant.color}</p>
+                    <p>Taille : {variant.size}</p>
+                    <p>Couleur : {variant.color}</p>
                     <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
                       {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
                     </p>
                   </div>
                 </div>
-                <UpdateButton
-                  type="button"
-                  modalContent={renderVariantForm(variant)}
-                  ariaLabel={"updateVariantAriaLabel"}
-                  variant="primary"
-                  modalTitle="Modifier un variant"
-                />
+                {product?.id && (variant as Variant).id && (
+                  <UpdateButton
+                    type="button"
+                    modalContent={renderVariantForm(variant as Variant)}
+                    ariaLabel={"updateVariantAriaLabel"}
+                    variant="primary"
+                    modalTitle="Modifier un variant"
+                  />
+                )}
               </div>
             ))}
-            {!product?.id && newVariants.length > 0 && (
-              <div className="flex gap-4">
-                {newVariants.map((variant, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer"
-                  >
-                    <div className="flex flex-col gap-2">
-                      <p>Taille : {variant.size}</p>
-                      <p>Couleur : {variant.color}</p>
-                      <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
-                        {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </div>
