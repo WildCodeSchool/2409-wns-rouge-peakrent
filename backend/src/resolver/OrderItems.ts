@@ -153,6 +153,15 @@ export class OrderItemsResolver {
         where: { profile: profileId as any },
       });
 
+      if (!order) {
+        throw new GraphQLError("Order does not exist", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Order",
+          },
+        });
+      }
+
       const isAvailable =
         (await checkStockByVariantAndStore(
           order.store.id ?? 1,
@@ -162,19 +171,10 @@ export class OrderItemsResolver {
         )) > 0;
 
       if (!isAvailable) {
-        throw new GraphQLError("Store Variant is out of stock", {
+        throw new GraphQLError(`Store is out of stock`, {
           extensions: {
             code: "OUT_OF_STOCK",
             entity: "StoreVariant",
-          },
-        });
-      }
-
-      if (!order) {
-        throw new GraphQLError("Order does not exist", {
-          extensions: {
-            code: "NOT_FOUND",
-            entity: "Order",
           },
         });
       }
