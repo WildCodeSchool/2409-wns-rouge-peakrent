@@ -51,15 +51,14 @@ export const useCategoryStore = create<CategoryStoreState>((set, get) => ({
     })),
 }));
 
-export const deleteCategory = (ids: (string | number)[]) => {
-  const id = ids[0];
+export const deleteCategory = (id: number) => {
   const { deleteCategory } = useCategoryStore.getState();
-  deleteCategory(id as number);
+  deleteCategory(id);
 };
 
-export const deleteMultipleCategories = (ids: (string | number)[]) => {
+export const deleteMultipleCategories = (ids: number[]) => {
   const { deleteMultipleCategories } = useCategoryStore.getState();
-  deleteMultipleCategories(ids as number[]);
+  deleteMultipleCategories(ids);
 };
 
 export const updateCategory = (id: number, category: Partial<Category>) => {

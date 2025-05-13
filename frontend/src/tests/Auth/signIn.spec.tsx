@@ -2,10 +2,19 @@ import { gql } from "@apollo/client";
 import { MockedProvider } from "@apollo/client/testing";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
+import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SIGNIN } from "../../GraphQL/signin";
 import { WHOAMI } from "../../GraphQL/whoami";
 import { SignInPage } from "../../pages/Auth/SignIn";
+
+vi.mock("sonner", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
 
 const mocks = [
   {
@@ -14,7 +23,7 @@ const mocks = [
       variables: {
         datas: {
           email: "test@example.com",
-          password: "password123",
+          password: "Password123*",
         },
       },
     },
@@ -49,7 +58,7 @@ const unauthaurizedMock = [
       variables: {
         datas: {
           email: "test@example.com",
-          password: "password123",
+          password: "Password123*",
         },
       },
     },
@@ -95,61 +104,63 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+const renderWithRouter = (ui: React.ReactElement) => {
+  return render(
+    <MemoryRouter>
+      <MockedProvider mocks={mocks}>{ui}</MockedProvider>
+    </MemoryRouter>
+  );
+};
+
 describe("SignIn Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should render the SignIn form", () => {
-    render(
-      <MockedProvider mocks={mocks}>
-        <SignInPage />
-      </MockedProvider>
-    );
+    renderWithRouter(<SignInPage />);
 
-    expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/mot de passe/i)).toBeInTheDocument();
+    expect(screen.getByTestId("email")).toBeInTheDocument();
+    expect(screen.getByTestId("password")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Se connecter/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Se souvenir de moi/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Mot de passe oublié/i })
     ).toBeInTheDocument();
   });
 
   it("should call onSubmit with email and password", async () => {
-    render(
-      <MockedProvider mocks={mocks}>
-        <SignInPage />
-      </MockedProvider>
+    renderWithRouter(<SignInPage />);
+
+    await userEvent.type(screen.getByTestId("email"), "test@example.com");
+    await userEvent.type(screen.getByTestId("password"), "Password123*");
+    await userEvent.click(
+      screen.getByRole("button", { name: /Se connecter/i })
     );
-
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/mot de passe/i);
-    const button = screen.getByRole("button", { name: /Se connecter/i });
-
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.click(button);
 
     expect(mockedUsedNavigate).toHaveBeenCalledWith("/", { replace: true });
   });
 
   it("should show an error if unauthorized response", async () => {
     render(
-      <MockedProvider mocks={unauthaurizedMock}>
-        <SignInPage />
-      </MockedProvider>
+      <MemoryRouter>
+        <MockedProvider mocks={unauthaurizedMock}>
+          <SignInPage />
+        </MockedProvider>
+      </MemoryRouter>
     );
 
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/mot de passe/i);
-    const button = screen.getByRole("button", { name: /Se connecter/i });
+    await userEvent.type(screen.getByTestId("email"), "test@example.com");
+    await userEvent.type(screen.getByTestId("password"), "Password123*");
+    await userEvent.click(
+      screen.getByRole("button", { name: /Se connecter/i })
+    );
 
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "password123");
-    await userEvent.click(button);
-
-    const errorMessage = screen.getByText("Identification échouée");
-    expect(errorMessage).toBeInTheDocument();
-
-    expect(mockedUsedNavigate).not.toHaveBeenCalledWith("/", { replace: true });
+    expect(toast.error).toHaveBeenCalledWith("Identification échouée");
+    expect(mockedUsedNavigate).not.toHaveBeenCalled();
   });
 });

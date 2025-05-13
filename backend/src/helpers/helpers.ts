@@ -70,7 +70,6 @@ export const getUserFromContext = async (
     console.log("Access authorized");
 
     const user = await Profile.findOneBy({ id: payload.id });
-    console.log("User found:", user);
 
     return user;
   } catch {

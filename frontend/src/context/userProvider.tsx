@@ -1,5 +1,5 @@
 import { Profile, User } from "@/gql/graphql";
-import { GET_PROFILE_BY_USER_ID } from "@/GraphQL/profile";
+import { GET_PROFILE_BY_USER_ID } from "@/GraphQL/profiles";
 import { WHOAMI } from "@/GraphQL/whoami";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { createContext, ReactNode, useContext, useEffect } from "react";

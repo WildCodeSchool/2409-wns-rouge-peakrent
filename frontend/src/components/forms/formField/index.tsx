@@ -10,5 +10,6 @@ export * from "./price/PriceInputForm";
 export * from "./radio/SizeInputForm";
 export * from "./select/MultipleSelectorInputForm";
 export * from "./select/SingleSelectorInputForm";
+export * from "./string/PasswordValidation";
 export * from "./string/StringInput";
 export * from "./string/TextAreaInput";

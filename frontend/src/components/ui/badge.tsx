@@ -184,106 +184,109 @@ const badgeVariants = cva(
   }
 );
 
-export type BadgeVariantType =
-  | "default"
-  | "none"
-  | "secondary"
-  | "destructive"
-  | "red"
-  | "redLight"
-  | "redDark"
-  | "green"
-  | "greenLight"
-  | "greenDark"
-  | "yellow"
-  | "yellowLight"
-  | "yellowDark"
-  | "blue"
-  | "blueLight"
-  | "blueDark"
-  | "pink"
-  | "pinkLight"
-  | "pinkDark"
-  | "purple"
-  | "purpleLight"
-  | "purpleDark"
-  | "indigo"
-  | "indigoLight"
-  | "indigoDark"
-  | "cyan"
-  | "cyanLight"
-  | "cyanDark"
-  | "teal"
-  | "tealLight"
-  | "tealDark"
-  | "white"
-  | "black"
-  | "orange"
-  | "orangeLight"
-  | "orangeDark"
-  | "emerald"
-  | "emeraldLight"
-  | "emeraldDark"
-  | "lime"
-  | "limeLight"
-  | "limeDark"
-  | "amber"
-  | "amberLight"
-  | "amberDark"
-  | "rose"
-  | "roseLight"
-  | "roseDark"
-  | "fuchsia"
-  | "fuchsiaLight"
-  | "fuchsiaDark"
-  | "violet"
-  | "violetLight"
-  | "violetDark"
-  | "warmGray"
-  | "warmGrayLight"
-  | "warmGrayDark"
-  | "coolGray"
-  | "coolGrayLight"
-  | "coolGrayDark"
-  | "trueGray"
-  | "trueGrayLight"
-  | "trueGrayDark"
-  | "blueGray"
-  | "blueGrayLight"
-  | "blueGrayDark"
-  | "stone"
-  | "stoneLight"
-  | "stoneDark"
-  | "zinc"
-  | "zincLight"
-  | "zincDark"
-  | "neutral"
-  | "neutralLight"
-  | "neutralDark"
-  | "slate"
-  | "slateLight"
-  | "slateDark"
-  | "sky"
-  | "skyLight"
-  | "skyDark"
-  | "olive"
-  | "oliveLight"
-  | "oliveDark"
-  | "maroon"
-  | "maroonLight"
-  | "maroonDark"
-  | "lavender"
-  | "lavenderLight"
-  | "lavenderDark"
-  | "turquoise"
-  | "turquoiseLight"
-  | "turquoiseDark"
-  | "gold"
-  | "goldLight"
-  | "goldDark"
-  | "platinum"
-  | "platinumLight"
-  | "platinumDark";
+export const badgeVariantList = [
+  "default",
+  "secondary",
+  "destructive",
+  "redLight",
+  "red",
+  "redDark",
+  "greenLight",
+  "green",
+  "greenDark",
+  "yellowLight",
+  "yellow",
+  "yellowDark",
+  "blueLight",
+  "blue",
+  "blueDark",
+  "pinkLight",
+  "pink",
+  "pinkDark",
+  "purpleLight",
+  "purple",
+  "purpleDark",
+  "indigoLight",
+  "indigo",
+  "indigoDark",
+  "cyanLight",
+  "cyan",
+  "cyanDark",
+  "tealLight",
+  "teal",
+  "tealDark",
+  "white",
+  "black",
+  "none",
+  "orangeLight",
+  "orange",
+  "orangeDark",
+  "emeraldLight",
+  "emerald",
+  "emeraldDark",
+  "limeLight",
+  "lime",
+  "limeDark",
+  "amberLight",
+  "amber",
+  "amberDark",
+  "roseLight",
+  "rose",
+  "roseDark",
+  "fuchsiaLight",
+  "fuchsia",
+  "fuchsiaDark",
+  "violetLight",
+  "violet",
+  "violetDark",
+  "warmGrayLight",
+  "warmGray",
+  "warmGrayDark",
+  "coolGrayLight",
+  "coolGray",
+  "coolGrayDark",
+  "trueGrayLight",
+  "trueGray",
+  "trueGrayDark",
+  "blueGrayLight",
+  "blueGray",
+  "blueGrayDark",
+  "stoneLight",
+  "stone",
+  "stoneDark",
+  "zincLight",
+  "zinc",
+  "zincDark",
+  "neutralLight",
+  "neutral",
+  "neutralDark",
+  "slateLight",
+  "slate",
+  "slateDark",
+  "skyLight",
+  "sky",
+  "skyDark",
+  "oliveLight",
+  "olive",
+  "oliveDark",
+  "maroonLight",
+  "maroon",
+  "maroonDark",
+  "lavenderLight",
+  "lavender",
+  "lavenderDark",
+  "turquoiseLight",
+  "turquoise",
+  "turquoiseDark",
+  "goldLight",
+  "gold",
+  "goldDark",
+  "platinumLight",
+  "platinum",
+  "platinumDark",
+] as const;
+
+export type BadgeVariantType = (typeof badgeVariantList)[number];
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,

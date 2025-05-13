@@ -1,32 +1,39 @@
 services:
   backend:
-    build: ./backend-GraphQL
-    ports:
-      - 5050:5000
-    command: npm run dev
-    volumes:
-      - ./backend-GraphQL/src:/app/src
-      - ./backend-GraphQL/good_corner.sqlite:/app/good_corner.sqlite
-      - ./backend-GraphQL/queries.sql:/app/queries.sql
-      - ./backend-GraphQL/tsconfig.json:/app/tsconfig.json
-    networks:
-      - my_network
+    image: charlotter678/peakrentbackend
+    env_file:
+      - database.env
+      - variables.env
+    command: npm start
+    depends_on:
+      - db
 
   frontend:
-    build: ./frontend
-    ports:
-      - 3000:5173
-    command: npm run dev
+    image: charlotter678/peakrentfrontend
+    command: ["npx", "serve", "dist", "--single"]
     depends_on:
       - backend
-    volumes:
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/vite.config.ts:/app/vite.config.ts
-    networks:
-      - my_network
 
-networks:
-  my_network:
-    driver: bridge
+  db:
+    image: postgres
+    ports:
+      - 5555:5432
+    env_file:
+      - database.env
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+      - ./logs/prod:/var/log/nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  dbdata:
+    driver: local

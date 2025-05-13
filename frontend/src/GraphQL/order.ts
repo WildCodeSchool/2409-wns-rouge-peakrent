@@ -70,8 +70,8 @@ export const GET_ORDERS = `
 `;
 
 export const UPDATE_ORDER = `
-  mutation UpdateOrder($id: Int!, $input: UpdateOrderInput!) {
-    updateOrder(id: $id, input: $input) {
+  mutation UpdateOrder($id: Int!, $data: UpdateOrderInput!) {
+    updateOrder(id: $id, data: $data) {
       id
       status
       total
