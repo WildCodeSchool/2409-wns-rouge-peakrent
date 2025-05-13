@@ -10,14 +10,13 @@ import { useUser } from "@/context/userProvider";
 import { Variant } from "@/gql/graphql";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 
-// ajouter les toasts d'erreur - ne fonctionne pas
 const ProductDetail = () => {
   const {
     user: useUserData,
@@ -27,7 +26,6 @@ const ProductDetail = () => {
   } = useUser();
   const params = useParams();
   const [selectedVariantsPrice, setSelectedVariantsPrice] = useState<number>(0);
-
   const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM));
   const [checkVariantQuantity] = useLazyQuery(
     gql(GET_VARIANT_QUANTITY_AVAILABLE)
@@ -106,7 +104,9 @@ const ProductDetail = () => {
           const available = data?.checkVariantStock ?? 0;
 
           if (available - watchedQuantity < 0) {
-            toast.error(`Quantité indisponible pour le variant ${variant.id}`);
+            toast.error(
+              `Quantité indisponible pour le produit ${variant.size}, ${variant.color}`
+            );
             console.log("Quantité indisponible pour le variant", variant.id);
             return false;
           }
@@ -114,13 +114,10 @@ const ProductDetail = () => {
         return true;
       }
     } catch (err) {
+      toast.error(`Une erreur s'est produite`);
       console.error("Erreur vérification disponibilité :", err);
     }
   };
-
-  useEffect(() => {
-    toast.error(`${errors}`);
-  }, [errors]);
 
   const onSubmit = async (data: productDetailsSchemaValues) => {
     if (await checkAvailability()) {

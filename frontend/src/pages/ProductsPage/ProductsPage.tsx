@@ -44,7 +44,7 @@ const ProductsPage = () => {
   ] = useLazyQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING));
 
   useEffect(() => {
-    if (initialData?.getProducts?.products) {
+    if (!filteredData && initialData?.getProducts?.products) {
       setProducts(initialData.getProducts.products);
       setMaxPage(initialData.getProducts.pagination.totalPages);
     }

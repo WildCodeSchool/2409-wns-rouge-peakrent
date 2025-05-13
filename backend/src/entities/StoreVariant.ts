@@ -1,6 +1,13 @@
 import { Min } from "class-validator";
 import { Field, InputType, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from "typeorm";
 import { Store } from "./Store";
 import { Variant } from "./Variant";
 
@@ -23,11 +30,13 @@ export class StoreVariant extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.storeVariants, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "store_id" })
   store!: Store;
 
   @ManyToOne(() => Variant, (variant) => variant.storeVariants, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "variant_id" })
   variant!: Variant;
 }
 

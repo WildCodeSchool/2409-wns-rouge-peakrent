@@ -55,32 +55,42 @@ export class ProductResolver {
 
     if ((startingDate || endingDate) && products.length > 0) {
       for (const product of products) {
-        const storeVariants = await StoreVariant.find({
-          where: {
-            variant: {
-              product: {
-                id: product.id,
+        try {
+          const storeVariants = await StoreVariant.find({
+            where: {
+              variant: {
+                product: {
+                  id: product.id,
+                },
               },
             },
-          },
-          relations: ["variant", "variant.product"],
-        });
+          });
 
-        for (const storeVariant of storeVariants) {
-          const Quantity = await checkStockByVariantAndStore(
-            storeVariant.variantId,
-            storeVariant.storeId,
-            startingDate,
-            endingDate
-          );
-          if (Quantity > 0) {
-            availableProductsByDates.push(storeVariant.variant.product);
-            break;
+          for (const storeVariant of storeVariants) {
+            try {
+              const Quantity = await checkStockByVariantAndStore(
+                storeVariant.storeId,
+                storeVariant.variantId,
+                startingDate,
+                endingDate
+              );
+              if (Quantity > 0) {
+                availableProductsByDates.push(product);
+                break;
+              }
+            } catch (err) {
+              console.error("Erreur dans checkStockByVariantAndStore:", err);
+            }
           }
+        } catch (err) {
+          console.error(
+            "Erreur lors du traitement du produit:",
+            product.id,
+            err
+          );
         }
       }
     }
-
     return {
       products:
         availableProductsByDates.length > 0
