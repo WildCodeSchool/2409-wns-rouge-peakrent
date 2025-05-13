@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { IsNull, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
 import { OrderItem } from "../entities/OrderItem";
 import { StoreVariant } from "../entities/StoreVariant";
@@ -37,7 +38,12 @@ export const checkStockByVariantAndStore = async (
   });
 
   if (storeVariant === null) {
-    throw new Error("Store Variant not found");
+    throw new GraphQLError("Store Variant not found", {
+      extensions: {
+        code: "NOT_FOUND",
+        entity: "StoreVariant",
+      },
+    });
   }
 
   if (orderItems.length === 0) {

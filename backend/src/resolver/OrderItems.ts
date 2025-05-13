@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -134,12 +135,6 @@ export class OrderItemsResolver {
       store: storeId ?? 1,
     };
 
-    if (!orderId && !cartId) {
-      throw new Error(
-        "Missing required identifier: provide either a cart ID or an order ID."
-      );
-    }
-
     const isAvailable =
       (await checkStockByVariantAndStore(
         storeId ?? 1,
@@ -149,7 +144,7 @@ export class OrderItemsResolver {
       )) > 0;
 
     if (isAvailable) {
-      if (cartId) {
+      if (cartId || !orderId) {
         let cart = await Cart.findOne({
           where: { profile: profileId as any },
           relations: ["profile"],
@@ -171,7 +166,12 @@ export class OrderItemsResolver {
         });
 
         if (!order) {
-          throw new Error("order does not exist");
+          throw new GraphQLError("Order does not exist", {
+            extensions: {
+              code: "NOT_FOUND",
+              entity: "Order",
+            },
+          });
         }
 
         dataOrderItems = {
