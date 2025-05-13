@@ -27,6 +27,21 @@ export const checkStockByVariantAndStore = async (
     endsAt?: Date | FindOperator<Date>;
     startsAt?: Date | FindOperator<Date>;
   }
+  const storeVariant = await StoreVariant.findOne({
+    where: {
+      storeId,
+      variantId,
+    },
+  });
+
+  if (!storeVariant) {
+    throw new GraphQLError("Store Variant not found", {
+      extensions: {
+        code: "NOT_FOUND",
+        entity: "StoreVariant",
+      },
+    });
+  }
 
   const where: WhereClause = {
     variant: { id: variantId },
@@ -44,34 +59,7 @@ export const checkStockByVariantAndStore = async (
     where.startsAt = LessThanOrEqual(endingDate);
   }
 
-  const orderItems = await OrderItem.find({
-    where,
-  });
-
-  const storeVariant = await StoreVariant.findOne({
-    where: {
-      storeId,
-      variantId,
-    },
-  });
-
-  if (storeVariant === null) {
-    throw new GraphQLError("Store Variant not found", {
-      extensions: {
-        code: "NOT_FOUND",
-        entity: "StoreVariant",
-      },
-    });
-  }
-
-  if (orderItems.length === 0) {
-    return storeVariant.quantity;
-  }
-
-  const totalOrderItemsQuantity = orderItems.reduce(
-    (sum, orderItem) => sum + Number(orderItem.quantity),
-    0
-  );
+  const totalOrderItemsQuantity = await OrderItem.sum("quantity", where);
 
   const availableQuantity =
     Number(storeVariant.quantity) - totalOrderItemsQuantity;
