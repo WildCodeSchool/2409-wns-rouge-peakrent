@@ -132,58 +132,53 @@ export class OrderItemsResolver {
       endsAt,
     };
 
-    if (cartId || !orderId) {
-      let cart = await Cart.findOne({
-        where: { profile: profileId as any },
-        relations: ["profile"],
-      });
+    const isAvailable =
+      (await checkStockByVariantAndStore(1, variantId, startsAt, endsAt)) > 0;
 
-      if (!cart) {
-        cart = Cart.create({ profile: profileId as any });
-        await cart.save();
-      }
-      dataOrderItems = {
-        ...dataOrderItems,
-        cart,
-      };
-    }
-
-    if (orderId) {
-      const order = await Order.findOne({
-        where: { id: orderId },
-        relations: ["store"],
-      });
-
-      if (!order) {
-        throw new GraphQLError("Order does not exist", {
-          extensions: {
-            code: "NOT_FOUND",
-            entity: "Order",
-          },
+    if (isAvailable) {
+      if (cartId || !orderId) {
+        let cart = await Cart.findOne({
+          where: { profile: profileId as any },
+          relations: ["profile"],
         });
+
+        if (!cart) {
+          cart = Cart.create({ profile: profileId as any });
+          await cart.save();
+        }
+        dataOrderItems = {
+          ...dataOrderItems,
+          cart,
+        };
       }
 
-      const isAvailable =
-        (await checkStockByVariantAndStore(
-          order.store.id ?? 1,
-          variantId,
-          startsAt,
-          endsAt
-        )) > 0;
-
-      if (!isAvailable) {
-        throw new GraphQLError(`Store is out of stock`, {
-          extensions: {
-            code: "OUT_OF_STOCK",
-            entity: "StoreVariant",
-          },
+      if (orderId) {
+        const order = await Order.findOne({
+          where: { id: orderId },
+          relations: ["store"],
         });
-      }
 
-      dataOrderItems = {
-        ...dataOrderItems,
-        order,
-      };
+        if (!order) {
+          throw new GraphQLError("Order does not exist", {
+            extensions: {
+              code: "NOT_FOUND",
+              entity: "Order",
+            },
+          });
+        }
+
+        dataOrderItems = {
+          ...dataOrderItems,
+          order,
+        };
+      }
+    } else {
+      throw new GraphQLError(`Store is out of stock`, {
+        extensions: {
+          code: "OUT_OF_STOCK",
+          entity: "StoreVariant",
+        },
+      });
     }
 
     const newOrderItem = new OrderItem();

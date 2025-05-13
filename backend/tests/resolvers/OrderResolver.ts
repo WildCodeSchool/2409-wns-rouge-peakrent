@@ -16,7 +16,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     reference: "2562",
     zipCode: "6200",
     paidAt: new Date(),
-    storeId: 1,
   };
 
   it("should not create an order from a regular user", async () => {
@@ -35,7 +34,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
           reference: datas.reference,
           zipCode: datas.zipCode,
           paidAt: datas.paidAt,
-          storeId: 1,
         },
       },
     });
@@ -61,7 +59,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             reference: "Ref122",
             zipCode: datas.zipCode,
             paidAt: datas.paidAt,
-            storeId: 1,
           },
         },
       },
@@ -100,7 +97,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             reference: datas.reference,
             zipCode: datas.zipCode,
             paidAt: datas.paidAt,
-            storeId: 1,
           },
         },
       },
@@ -130,7 +126,6 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             profileId: testArgs.data.user?.id,
             reference: "Ref152",
             zipCode: datas.zipCode,
-            storeId: 1,
           },
         },
       },

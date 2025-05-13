@@ -12,7 +12,6 @@ import {
 } from "typeorm";
 import { OrderPaymentType, OrderStatusType } from "../types";
 import { Profile } from "./Profile";
-import { Store } from "./Store";
 
 @ObjectType()
 @Entity()
@@ -85,11 +84,6 @@ export class Order extends BaseEntity {
   })
   @JoinColumn({ name: "profile_id" })
   profile?: Profile;
-
-  @Field(() => Store)
-  @ManyToOne(() => Store, (store) => store.order)
-  @JoinColumn({ name: "store_id" })
-  store!: Store;
 }
 
 @InputType()
@@ -138,9 +132,6 @@ export class OrderCreateInput {
   @Field({ nullable: true })
   @IsDate()
   paidAt!: Date;
-
-  @Field(() => Int)
-  storeId!: number;
 }
 
 @InputType()
@@ -185,9 +176,6 @@ export class OrderUpdateInput {
   @Field({ nullable: true })
   @IsDate()
   paidAt!: Date;
-
-  @Field(() => Int)
-  storeId?: number;
 }
 
 @InputType()
@@ -200,7 +188,4 @@ export class ValidateCartInput {
   @IsString()
   @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
   reference!: string;
-
-  @Field(() => Int)
-  storeId?: number;
 }

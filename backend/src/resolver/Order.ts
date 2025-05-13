@@ -57,7 +57,6 @@ export class OrderResolver {
     }
     Object.assign(newOrder, data, {
       profile: data.profileId,
-      store: data.storeId,
     });
     const errors = await validate(newOrder);
     if (errors.length > 0) {
@@ -97,7 +96,6 @@ export class OrderResolver {
       }
       Object.assign(order, data, {
         profile: data.profileId,
-        store: data.storeId,
       });
       const errors = await validate(order);
       if (errors.length > 0) {
