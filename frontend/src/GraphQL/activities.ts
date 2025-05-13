@@ -15,8 +15,8 @@ export const GET_ACTIVITIES = `
 `;
 
 export const GET_ACTIVITIES_WITH_COUNT = `
-  query GetActivities($page: Int, $onPage: Int) {
-    getActivities(page: $page, onPage: $onPage) {
+  query GetActivities($data: ActivityPaginationInput!) {
+    getActivities(data: $data) {
       activities {
         id
         name

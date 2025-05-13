@@ -1,6 +1,6 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { Activity as ActivityType } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
-import { CategoryType } from "@/types/types";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -8,14 +8,14 @@ const ActivityItem = ({
   activity,
   index,
 }: {
-  activity: CategoryType;
+  activity: ActivityType;
   index?: number;
 }) => {
   const spans = ["col-start-2", "col-start-4", "col-start-6", "col-start-8"];
   return (
     <NavLink
       key={activity.id}
-      to={`/activities/${activity.name}`}
+      to={`/activities/${activity.normalizedName}`}
       className={cn(
         "aspect-square relative hover:cursor-pointer group overflow-hidden",
         index !== undefined && index !== null && "col-span-2",
@@ -41,7 +41,7 @@ const ActivityItem = ({
 export function ActivitiesSection({
   activities,
 }: {
-  activities: CategoryType[];
+  activities: ActivityType[];
 }) {
   const [windowWidth, setWindowWidth] = useState(0);
 
