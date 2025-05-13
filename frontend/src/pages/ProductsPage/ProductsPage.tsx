@@ -6,6 +6,7 @@ import FilterButton from "@/components/buttons/FilterButton";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const ProductsPage = () => {
   const [itemsOnPage, setItemsOnPage] = useState(15);
@@ -77,6 +78,15 @@ const ProductsPage = () => {
 
   const handleFilter = () => {
     setPageIndex(1);
+    if (
+      selectedStartingDate &&
+      selectedEndingDate &&
+      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+    ) {
+      return toast.error(
+        `La date de fin ne peut pas être inférieure à celle de début`
+      );
+    }
     fetchFilteredProducts({
       variables: {
         onPage: itemsOnPage,

@@ -120,6 +120,15 @@ const ProductDetail = () => {
   };
 
   const onSubmit = async (data: productDetailsSchemaValues) => {
+    if (
+      selectedStartingDate &&
+      selectedEndingDate &&
+      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+    ) {
+      return toast.error(
+        `La date de fin ne peut pas être inférieure à celle de début`
+      );
+    }
     if (await checkAvailability()) {
       try {
         for (const variant of data.variants) {
@@ -137,6 +146,7 @@ const ProductDetail = () => {
           });
         }
         console.log("Produits ajoutés au panier !");
+        return toast.success(`Produit(s) ajouté(s) au panier !`);
       } catch (err) {
         console.error("Erreur ajout panier :", err);
       }

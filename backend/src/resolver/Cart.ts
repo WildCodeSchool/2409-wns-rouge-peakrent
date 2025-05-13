@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -192,7 +193,12 @@ export class CartResolver {
               orderItem.endsAt
             )) === 0
           ) {
-            throw new Error("Stock indisponible");
+            throw new GraphQLError("Store Variant is out of stock", {
+              extensions: {
+                code: "OUT_OF_STOCK",
+                entity: "StoreVariant",
+              },
+            });
           }
         }
         const order = new Order();

@@ -179,6 +179,13 @@ export class OrderItemsResolver {
           order,
         };
       }
+    } else {
+      throw new GraphQLError("Store Variant is out of stock", {
+        extensions: {
+          code: "OUT_OF_STOCK",
+          entity: "StoreVariant",
+        },
+      });
     }
 
     const newOrderItem = new OrderItem();
