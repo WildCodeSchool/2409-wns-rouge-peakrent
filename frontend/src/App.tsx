@@ -2,8 +2,10 @@ import { gql, useQuery } from "@apollo/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Components
+import { ProductForm } from "./components/forms/ProductForm";
 import { UserProvider } from "./context/userProvider";
 import { WHOAMI } from "./GraphQL/whoami";
+import { AdminActivitiesPage } from "./pages/Admin/Activities/AdminActivitiesPage";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminCartsPage } from "./pages/Admin/Carts/AdminCartsPage";
 import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPage";
@@ -19,7 +21,6 @@ import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
-import { ProductForm } from "./components/forms/ProductForm";
 
 enum AuthStates {
   authenticated,
@@ -89,6 +90,7 @@ function App() {
               element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
             >
               <Route index element={<AdminDashboard />} />
+              <Route path="activities" element={<AdminActivitiesPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="stores" element={<AdminStoresPage />} />
               <Route path="categories" element={<AdminCategoriesPage />} />
