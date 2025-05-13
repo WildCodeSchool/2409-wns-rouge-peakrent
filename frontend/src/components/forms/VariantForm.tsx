@@ -13,7 +13,6 @@ type VariantFormType = {
   variant?: Variant;
   productId?: number;
   setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
-  onClose?: () => void;
 };
 
 export const VariantForm = ({
@@ -30,10 +29,11 @@ export const VariantForm = ({
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
 
+  const isNewLocalVariant = !productId && setNewVariants;
+
   const handleVariantFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
-    const isNew = !productId && setNewVariants;
 
     try {
       const commonData = {
@@ -41,11 +41,15 @@ export const VariantForm = ({
         color,
         size,
         pricePerHour,
+        ...(productId && { productId }),
       };
-      if (isNew) {
+      if (isNewLocalVariant) {
         setNewVariants((prevVariants) => [...prevVariants, commonData]);
         toast.success("Variant ajouté localement !");
-        closeModal();
+
+        setColor("");
+        setSize("");
+        setPricePerHour(0);
       } else {
         if (variant?.id) {
           await updateVariant({
@@ -73,24 +77,28 @@ export const VariantForm = ({
   };
 
   return (
-    <form onSubmit={handleVariantFormSubmit}>
+    <form onSubmit={handleVariantFormSubmit} className="flex flex-col gap-4">
       <Input
         type="text"
         placeholder="Variant color"
         value={color}
         onChange={(e) => setColor(e.target.value)}
+        required
       />
       <Input
         type="text"
         placeholder="Variant size"
         value={size}
         onChange={(e) => setSize(e.target.value)}
+        required
       />
       <Input
         type="number"
         placeholder="Price per hour"
         value={pricePerHour}
         onChange={(e) => setPricePerHour(Number(e.target.value))}
+        required
+        min={0}
       />
 
       <Button type="submit" disabled={uploading}>

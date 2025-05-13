@@ -19,6 +19,7 @@ import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
 import CreateButton from "../buttons/CreateButton";
 import UpdateButton from "../buttons/UpdateButton";
 import { toast } from "sonner";
+import { cleanFileName } from "@/utils/cleanFileName";
 
 export const ProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +76,13 @@ export const ProductForm = () => {
     }
   }, [getCategoriesData?.getCategories.categories]);
 
-  if (getProductLoading || getCategoriesLoading) return <p>Chargement...</p>;
+  if (getProductError || getCategoriesError) {
+    return <p>Erreur de chargement des données.</p>;
+  }
+
+  if (getProductLoading || getCategoriesLoading) {
+    return <p>Chargement...</p>;
+  }
 
   let urlImage = product?.urlImage;
   const handleProductFormSubmit = async (e: React.FormEvent) => {
@@ -83,8 +90,16 @@ export const ProductForm = () => {
     setUploading(true);
 
     try {
+      console.log("1", urlImage);
+
       if (image) {
-        urlImage = await uploadImage(image);
+        const cleanedFileName = cleanFileName(image.name);
+
+        const cleanedImage = new File([image], cleanedFileName, {
+          type: image.type,
+        });
+        urlImage = await uploadImage(cleanedImage);
+        console.log("2", typeof urlImage);
       }
 
       const commonData = {
@@ -151,6 +166,13 @@ export const ProductForm = () => {
 
   const hasVariants =
     Array.isArray(product?.variants) && product.variants.length > 0;
+
+  const renderVariantForm = (variant?: Variant) => {
+    if (product?.id) {
+      return <VariantForm productId={Number(product.id)} variant={variant} />;
+    }
+    return <VariantForm setNewVariants={setNewVariants} variant={variant} />;
+  };
 
   return (
     <form onSubmit={handleProductFormSubmit}>
@@ -229,13 +251,8 @@ export const ProductForm = () => {
         <div className="flex justify-between gap-4">
           <h2>Variants :</h2>
           <CreateButton
-            modalContent={
-              product?.id ? (
-                <VariantForm productId={Number(product.id)} />
-              ) : (
-                <VariantForm setNewVariants={setNewVariants} />
-              )
-            }
+            type="button"
+            modalContent={renderVariantForm()}
             ariaLabel={"createVariantAriaLabel"}
             variant="primary"
             modalTitle="Créer un variant"
@@ -255,13 +272,8 @@ export const ProductForm = () => {
                   </div>
                 </div>
                 <UpdateButton
-                  modalContent={
-                    <VariantForm
-                      productId={Number(product?.id)}
-                      // setNewVariants={setNewVariants}
-                      variant={variant}
-                    />
-                  }
+                  type="button"
+                  modalContent={renderVariantForm(variant)}
                   ariaLabel={"updateVariantAriaLabel"}
                   variant="primary"
                   modalTitle="Modifier un variant"
