@@ -1,5 +1,6 @@
 import { buildSchema } from "type-graphql";
 import { authChecker } from "./auth";
+import { ActivityResolver } from "./resolver/Activities";
 import { CartResolver } from "./resolver/Cart";
 import { CategoryResolver } from "./resolver/Categories";
 import { OrderResolver } from "./resolver/Order";
@@ -26,6 +27,7 @@ export async function getSchema() {
       StoreVariantResolver,
       UserResolver,
       VariantResolver,
+      ActivityResolver,
     ],
     authChecker,
     validate: true,
