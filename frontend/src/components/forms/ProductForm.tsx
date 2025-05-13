@@ -26,13 +26,25 @@ export const ProductForm = () => {
 
   const {
     data: getProductData,
-    loading: getProductLoading,
-    error: getProductError,
+    loading: loadingProduct,
+    error: errorProduct,
     refetch,
   } = useQuery(gql(GET_PRODUCT_BY_ID), {
     variables: { param: id },
     skip: !id,
   });
+
+  const {
+    data: getCategoriesData,
+    loading: loadingCategories,
+    error: errorCategories,
+  } = useQuery(gql(GET_CATEGORIES));
+
+  const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
+  const [createProduct] = useMutation(gql(CREATE_PRODUCT));
+  const [createProductWithVariant] = useMutation(
+    gql(CREATE_PRODUCT_WITH_VARIANT)
+  );
 
   const product: Product | null = getProductData?.getProductById;
 
@@ -46,17 +58,9 @@ export const ProductForm = () => {
   const [newVariants, setNewVariants] = useState<Partial<Variant>[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
 
-  const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
-  const [createProduct] = useMutation(gql(CREATE_PRODUCT));
-  const [createProductWithVariant] = useMutation(
-    gql(CREATE_PRODUCT_WITH_VARIANT)
-  );
-
-  const {
-    data: getCategoriesData,
-    loading: getCategoriesLoading,
-    error: getCategoriesError,
-  } = useQuery(gql(GET_CATEGORIES));
+  const displayedVariants = product?.id
+    ? product?.variants || []
+    : newVariants || [];
 
   useEffect(() => {
     if (product) {
@@ -75,25 +79,20 @@ export const ProductForm = () => {
     if (getCategoriesData?.getCategories?.categories) {
       setCategories(getCategoriesData.getCategories.categories);
     }
-  }, [getCategoriesData?.getCategories.categories]);
+  }, [getCategoriesData]);
 
-  if (getProductError || getCategoriesError) {
-    return <p>Erreur de chargement des données.</p>;
-  }
+  if (loadingProduct || loadingCategories)
+    return <p className="text-center my-4">Chargement...</p>;
+  if (errorProduct || errorCategories)
+    return <p className="text-center text-red-500">Erreur de chargement.</p>;
 
-  if (getProductLoading || getCategoriesLoading) {
-    return <p>Chargement...</p>;
-  }
-
-  let urlImage = product?.urlImage;
-  const handleProductFormSubmit = async (e: React.FormEvent) => {
+  // let urlImage = product?.urlImage;
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
 
     try {
-      if (image) {
-        urlImage = await uploadImage(image);
-      }
+      const urlImage = image ? await uploadImage(image) : product?.urlImage;
 
       const commonData = {
         name,
@@ -106,36 +105,36 @@ export const ProductForm = () => {
 
       if (product?.id) {
         await updateProduct({
-          variables: {
-            updateProductId: product.id,
-            data: commonData,
-          },
+          variables: { updateProductId: product.id, data: commonData },
         });
         toast.success("Produit modifié avec succès !");
         navigate(`/products/${product.id}`);
-      } else if (newVariants.length > 0) {
-        const { data } = await createProductWithVariant({
-          variables: {
-            productData: commonData,
-            variants: newVariants.map(({ color, size, pricePerHour }) => ({
-              color,
-              size,
-              pricePerHour,
-            })),
-          },
-        });
-        console.log("1", data);
-        toast.success("Produit créé avec succès !");
-        navigate(`/products/${data.createProductWithVariants.id}`);
       } else {
-        const { data } = await createProduct({
-          variables: {
-            data: commonData,
-          },
-        });
-        console.log("2", data);
-        toast.success("Produit créé avec succès !");
-        navigate(`/products/${data.createProduct.id}`);
+        let createdProductId: number | undefined;
+
+        if (newVariants.length > 0) {
+          const { data } = await createProductWithVariant({
+            variables: {
+              productData: commonData,
+              variants: newVariants.map(({ color, size, pricePerHour }) => ({
+                color,
+                size,
+                pricePerHour,
+              })),
+            },
+          });
+          createdProductId = data?.createProductWithVariants.id;
+        } else {
+          const { data } = await createProduct({
+            variables: { data: commonData },
+          });
+          createdProductId = data?.createProduct.id;
+        }
+
+        if (createdProductId) {
+          toast.success("Produit créé avec succès !");
+          navigate(`/products/${createdProductId}`);
+        }
       }
 
       if (!product?.id) {
@@ -149,12 +148,13 @@ export const ProductForm = () => {
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Une erreur est survenue.");
     } finally {
       setUploading(false);
     }
   };
 
-  const handleCategoriesCheckboxAction = (categoryId: number) => {
+  const handleCategoryToggle = (categoryId: number) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
@@ -162,125 +162,149 @@ export const ProductForm = () => {
     );
   };
 
-  const displayedVariants = product?.id
-    ? product?.variants || []
-    : newVariants || [];
-
-  const renderVariantForm = (variant?: Variant) => {
-    if (product?.id) {
-      return (
-        <VariantForm
-          productId={Number(product.id)}
-          variant={variant}
-          refetchProduct={refetch}
-        />
-      );
-    }
-    return <VariantForm setNewVariants={setNewVariants} variant={variant} />;
-  };
+  const renderVariantForm = (variant?: Variant) =>
+    product?.id ? (
+      <VariantForm
+        productId={Number(product.id)}
+        variant={variant}
+        refetchProduct={refetch}
+      />
+    ) : (
+      <VariantForm setNewVariants={setNewVariants} variant={variant} />
+    );
 
   return (
-    <form onSubmit={handleProductFormSubmit}>
-      <Label htmlFor="name" className="flex items-center gap-2">
-        Name :
-        <Input
-          id="name"
-          type="text"
-          placeholder="Product name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </Label>
-
-      <Label htmlFor="SKU" className="flex items-center gap-2">
-        SKU :
-        <Input
-          id="SKU"
-          type="text"
-          placeholder="SKU"
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-        />
-      </Label>
-
-      <Label htmlFor="description" className="flex items-center gap-2">
-        Description :
-        <Input
-          id="description"
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </Label>
-
-      <Label htmlFor="image" className="flex items-center gap-2">
-        Image :
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-        />
-      </Label>
-
-      <Label htmlFor="isPublished" className="flex items-center gap-2">
-        Publier :
-        <Checkbox
-          checked={isPublished}
-          id="isPublished"
-          onCheckedChange={(checked) => setIsPublished(!!checked)}
-        />
-      </Label>
-
-      <div className="gap-4">
-        <h2>Catégories :</h2>
-        {categories?.map((category) => (
-          <Label
-            htmlFor={`category-${category.id}`}
-            key={category.id}
-            className="flex items-center gap-2"
-          >
-            <Checkbox
-              checked={selectedCategories?.includes(Number(category.id))}
-              id={`category-${category.id}`}
-              onCheckedChange={() =>
-                handleCategoriesCheckboxAction(Number(category.id))
-              }
-            />
-            {category.name}
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-8 max-w-2xl mx-auto p-8 bg-white shadow rounded-2xl"
+    >
+      <div className="grid gap-6">
+        {/* Nom */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="name" className="font-semibold">
+            Nom du produit
           </Label>
-        ))}
-      </div>
-      <div className="gap-4">
-        <div className="flex justify-between gap-4">
-          <h2>Variants :</h2>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Ex: Ski alpin"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        {/* SKU */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="SKU" className="font-semibold">
+            SKU
+          </Label>
+          <Input
+            id="SKU"
+            type="text"
+            placeholder="Ex: SKI-12345"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+          />
+        </div>
+
+        {/* Description */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="description" className="font-semibold">
+            Description
+          </Label>
+          <Input
+            id="description"
+            type="text"
+            placeholder="Ex: Skis performants pour la descente"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+
+        {/* Image */}
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="image" className="font-semibold">
+            Image
+          </Label>
+          <Input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+          />
+        </div>
+
+        {/* Publier */}
+        <div className="flex flex-row justify-center items-center gap-2 mt-4">
+          <Checkbox
+            id="isPublished"
+            checked={isPublished}
+            onCheckedChange={(checked) => setIsPublished(!!checked)}
+          />
+          <Label htmlFor="isPublished" className="font-semibold">
+            Publier ce produit
+          </Label>
+        </div>
+
+        {/* Catégories */}
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-bold">Catégories :</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {categories?.map((category) => (
+              <Label
+                key={category.id}
+                htmlFor={`category-${category.id}`}
+                className="flex items-center gap-2"
+              >
+                <Checkbox
+                  id={`category-${category.id}`}
+                  checked={selectedCategories.includes(Number(category.id))}
+                  onCheckedChange={() =>
+                    handleCategoryToggle(Number(category.id))
+                  }
+                />
+                {category.name}
+              </Label>
+            ))}
+          </div>
+        </div>
+
+        {/* Variants */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-bold">Variants :</h2>
           <CreateButton
             type="button"
             modalContent={renderVariantForm()}
-            ariaLabel={"createVariantAriaLabel"}
+            ariaLabel="createVariantAriaLabel"
             variant="primary"
             modalTitle="Créer un variant"
           />
         </div>
+
         {displayedVariants.length > 0 && (
-          <div className="flex gap-4">
+          <div className="grid gap-4">
             {displayedVariants.map((variant, index) => (
-              <div key={(variant as Variant).id ?? index}>
-                <div className="flex items-center gap-4 border rounded-2xl p-4 shadow hover:shadow-md transition duration-200 cursor-pointer">
-                  <div className="flex flex-col gap-2">
-                    <p>Taille : {variant.size}</p>
-                    <p>Couleur : {variant.color}</p>
-                    <p className="px-2 py-1 text-white bg-primary border border-black rounded text-sm w-fit justify-self-end">
-                      {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
-                    </p>
-                  </div>
+              <div
+                key={(variant as Variant).id ?? index}
+                className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-gray-50"
+              >
+                <div className="flex flex-col">
+                  <p>
+                    <strong>Taille :</strong> {variant.size}
+                  </p>
+                  <p>
+                    <strong>Couleur :</strong> {variant.color}
+                  </p>
+                  <p>
+                    <strong>Prix :</strong>{" "}
+                    {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
+                  </p>
                 </div>
                 {product?.id && (variant as Variant).id && (
                   <UpdateButton
                     type="button"
                     modalContent={renderVariantForm(variant as Variant)}
-                    ariaLabel={"updateVariantAriaLabel"}
+                    ariaLabel="updateVariantAriaLabel"
                     variant="primary"
                     modalTitle="Modifier un variant"
                   />
@@ -291,7 +315,8 @@ export const ProductForm = () => {
         )}
       </div>
 
-      <Button type="submit" disabled={uploading}>
+      {/* Bouton Submit */}
+      <Button type="submit" className="w-full mt-6" disabled={uploading}>
         {uploading ? (
           <LoadIcon size={24} />
         ) : product?.id ? (
