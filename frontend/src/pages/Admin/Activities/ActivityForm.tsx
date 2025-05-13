@@ -4,6 +4,7 @@ import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
+import { Activity as ActivityType } from "@/gql/graphql";
 import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/GraphQL/activities";
 import { activitySchema, ActivitySchemaType } from "@/schemas/activity";
 import {
@@ -13,11 +14,11 @@ import {
 import { getBadgeVariantOptions } from "@/utils/getVariants/getBadgeVariant";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Folder } from "lucide-react";
+import { Activity } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-export function ActivityForm({ datas }: { datas?: any }) {
+export function ActivityForm({ datas }: { datas?: ActivityType }) {
   const { closeModal } = useModal();
   const [createActivity, { loading: createLoading }] = useMutation(
     gql(CREATE_ACTIVITY)
@@ -86,7 +87,7 @@ export function ActivityForm({ datas }: { datas?: any }) {
         noValidate
       >
         <div className="flex items-center gap-2 ">
-          <Folder size={24} className="" />
+          <Activity size={24} className="" />
           <h3 className="text-base sm:text-lg font-bold underline underline-offset-4">
             Activité
           </h3>
@@ -96,6 +97,14 @@ export function ActivityForm({ datas }: { datas?: any }) {
           name="name"
           label="Nom de l'activité"
           placeholder="Nom"
+          isPending={createLoading || updateLoading}
+          required
+        />
+        <StringInput
+          form={form}
+          name="urlImage"
+          label="Url de l'image"
+          placeholder="Url"
           isPending={createLoading || updateLoading}
           required
         />

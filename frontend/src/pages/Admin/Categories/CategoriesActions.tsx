@@ -1,5 +1,6 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
+import { Category as CategoryType } from "@/gql/graphql";
 import { DELETE_MULTIPLE_CATEGORIES } from "@/GraphQL/categories";
 import { deleteCategory } from "@/stores/admin/category.store";
 import { gql, useMutation } from "@apollo/client";
@@ -14,7 +15,7 @@ interface DataTableRowCategoriesActionsProps<TData> {
 export function DataTableRowCategoriesActions<TData>({
   row,
 }: DataTableRowCategoriesActionsProps<TData>) {
-  const category = row.original as any;
+  const category = row.original as CategoryType;
   const [deleteCategories] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
 
   const handleDelete = async (ids: string[] | number[]) => {
@@ -44,7 +45,7 @@ export function DataTableRowCategoriesActions<TData>({
         modalDescription={category.name}
       />
       <DeleteButton
-        onDeleteFunction={() => handleDelete(category.id)}
+        onDeleteFunction={() => handleDelete([category.id])}
         elementIds={[category.id]}
         ariaLabel={"deleteCategoryAriaLabel"}
         modalTitle="Supprimer la catégorie"

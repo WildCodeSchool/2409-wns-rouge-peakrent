@@ -107,7 +107,6 @@ export function ActivitiesTable() {
         id: "name",
         placeholder: `Nom / "id"`,
       }}
-      rowLink="id"
       hideExport
       onDeleteMultipleFunction={onDeleteMultipleFunction}
     />

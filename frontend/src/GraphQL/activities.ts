@@ -5,6 +5,7 @@ export const GET_ACTIVITIES = `
         id
         name
         normalizedName
+        urlImage
         variant
         createdAt
         updatedAt
@@ -20,6 +21,7 @@ export const GET_ACTIVITIES_WITH_COUNT = `
         id
         name
         normalizedName
+        urlImage
         variant
         createdAt
         updatedAt
@@ -39,6 +41,7 @@ export const GET_ACTIVITY = `
       id
       name
       normalizedName
+      urlImage
       variant
       createdAt
       updatedAt
@@ -52,6 +55,7 @@ export const CREATE_ACTIVITY = `
       id
       name
       normalizedName
+      urlImage
       variant
       createdAt
       updatedAt
@@ -65,6 +69,7 @@ export const UPDATE_ACTIVITY = `
       id
       name
       normalizedName
+      urlImage
       variant
       createdAt
       updatedAt

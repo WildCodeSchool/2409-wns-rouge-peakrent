@@ -26,6 +26,15 @@ export const createColumns: ColumnDef<any>[] = [
     enableHiding: true,
   }),
 
+  column.createImageColumn({
+    id: "urlImage",
+    altAccessorKey: "name",
+    accessorKey: "urlImage",
+    title: "Image",
+    enableSorting: true,
+    enableHiding: true,
+  }),
+
   column.createStringColumn({
     id: "name",
     accessorKey: "name",

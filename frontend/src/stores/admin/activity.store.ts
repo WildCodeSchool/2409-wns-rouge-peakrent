@@ -1,18 +1,18 @@
-import { Activity } from "@/gql/graphql";
+import { Activity as ActivityType } from "@/gql/graphql";
 import { create } from "zustand";
 
 export interface ActivityStoreState {
-  activities: Activity[];
+  activities: ActivityType[];
   activitiesFetched: boolean;
 
-  setActivities: (activities: Activity[]) => void;
+  setActivities: (activities: ActivityType[]) => void;
   setActivitiesFetched: (fetched: boolean) => void;
 
   deleteActivity: (id: number) => void;
   deleteMultipleActivities: (ids: number[]) => void;
 
-  updateActivity: (id: number, activity: Partial<Activity>) => void;
-  addActivity: (activity: Activity) => void;
+  updateActivity: (id: number, activity: Partial<ActivityType>) => void;
+  addActivity: (activity: ActivityType) => void;
 }
 
 export const useActivityStore = create<ActivityStoreState>((set, get) => ({
@@ -61,12 +61,12 @@ export const deleteMultipleActivities = (ids: number[]) => {
   deleteMultipleActivities(ids);
 };
 
-export const updateActivity = (id: number, activity: Partial<Activity>) => {
+export const updateActivity = (id: number, activity: Partial<ActivityType>) => {
   const { updateActivity } = useActivityStore.getState();
   updateActivity(id, activity);
 };
 
-export const addActivity = (activity: Activity) => {
+export const addActivity = (activity: ActivityType) => {
   const { addActivity } = useActivityStore.getState();
   addActivity(activity);
 };

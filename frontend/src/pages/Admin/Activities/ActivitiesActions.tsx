@@ -1,5 +1,6 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
+import { Activity as ActivityType } from "@/gql/graphql";
 import { DELETE_MULTIPLE_ACTIVITIES } from "@/GraphQL/activities";
 import { deleteActivity } from "@/stores/admin/activity.store";
 import { gql, useMutation } from "@apollo/client";
@@ -14,7 +15,7 @@ interface DataTableRowActivitiesActionsProps<TData> {
 export function DataTableRowActivitiesActions<TData>({
   row,
 }: DataTableRowActivitiesActionsProps<TData>) {
-  const activity = row.original as any;
+  const activity = row.original as ActivityType;
   const [deleteActivities] = useMutation(gql(DELETE_MULTIPLE_ACTIVITIES));
 
   const handleDelete = async (ids: string[] | number[]) => {
@@ -44,7 +45,7 @@ export function DataTableRowActivitiesActions<TData>({
         modalDescription={activity.name}
       />
       <DeleteButton
-        onDeleteFunction={() => handleDelete(activity.id)}
+        onDeleteFunction={() => handleDelete([activity.id])}
         elementIds={[activity.id]}
         ariaLabel={"deleteActivityAriaLabel"}
         modalTitle="Supprimer l'activité"
