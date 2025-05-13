@@ -201,7 +201,7 @@ export function SignUpPage() {
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-4"
                 >
-                  <div className="flex block gap-2 w-full">
+                  <div className="flex gap-2 w-full">
                     <StringInput
                       form={form}
                       name="firstname"
