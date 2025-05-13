@@ -10,7 +10,6 @@ import {
   deleteMultipleActivities,
   useActivityStore,
 } from "@/stores/admin/activity.store";
-import { deleteMultipleCategories } from "@/stores/admin/category.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
@@ -80,7 +79,7 @@ export function ActivitiesTable() {
         toast.success(
           "Toutes les activités séléctionnées ont été supprimées avec succès"
         );
-        deleteMultipleCategories(idsToRemove);
+        deleteMultipleActivities(idsToRemove);
         return true;
       } else if (data?.deleteActivities && data.deleteActivities.length > 0) {
         toast.success(
