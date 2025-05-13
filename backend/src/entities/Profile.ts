@@ -43,7 +43,7 @@ export class Profile extends BaseEntity {
   @Column({
     type: "enum",
     enum: RoleType,
-    default: RoleType.USER,
+    default: RoleType.user,
   })
   role!: RoleType;
 

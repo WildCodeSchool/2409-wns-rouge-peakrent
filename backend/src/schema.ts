@@ -28,6 +28,7 @@ export async function getSchema() {
       VariantResolver,
     ],
     authChecker,
+    validate: true,
   });
 
   return schema;

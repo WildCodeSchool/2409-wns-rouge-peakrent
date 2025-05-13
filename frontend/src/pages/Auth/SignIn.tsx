@@ -1,47 +1,69 @@
 import { Button } from "@/components/ui/button";
+import { StringInput } from "@/components/forms/formField/string/StringInput";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { gql, useMutation } from "@apollo/client";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Form } from "@/components/ui/form";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { SIGNIN } from "../../GraphQL/signin";
 import { WHOAMI } from "../../GraphQL/whoami";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
+import { CheckboxInput } from "@/components/forms/formField";
+import { toast } from "sonner";
+import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
+import { createPasswordSchema } from "@/schemas/authSchemas";
+
+const signInSchema = z.object({
+  email: createEmailSchema({
+    requiredError: "L'adresse email est requise",
+    invalidFormatError: "Format d'email invalide",
+    maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
+  }),
+  password: createPasswordSchema(),
+  rememberMe: z.boolean().optional(),
+});
+
+type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function SignInPage() {
-  const [email, setEmail] = useState("admin@peakrent.com");
-  const [password, setPassword] = useState("Aadmin123!");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [signinError, setSigninError] = useState("");
   const navigate = useNavigate();
 
   const [doSignin] = useMutation(gql(SIGNIN), {
     refetchQueries: [{ query: gql(WHOAMI) }],
   });
 
-  async function doSubmitSignin() {
+  const form = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  const onSubmit = async (formData: SignInFormValues) => {
     try {
       const { data } = await doSignin({
         variables: {
           datas: {
-            email,
-            password,
+            email: formData.email,
+            password: formData.password,
           },
         },
       });
       if (data.signIn) {
         navigate(`/`, { replace: true });
       } else {
-        setSigninError("Impossible de vous connecter");
+        toast.error("Impossible de vous connecter");
       }
     } catch (e) {
       console.error(e);
-      setSigninError("Identification échouée");
+      toast.error("Identification échouée");
     }
-  }
+  };
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -57,81 +79,58 @@ export function SignInPage() {
               <h2 className="!text-3xl font-semibold mb-8 text-center">
                 Connexion
               </h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  doSubmitSignin();
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <Input
-                    type="email"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <StringInput
+                    label="Email"
+                    form={form}
+                    name="email"
                     placeholder="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full"
+                    required
                   />
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full"
+                  <PasswordValidation
+                    form={form}
+                    label="Mot de passe"
+                    isRequired={true}
+                    name="password"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword ? (
-                      <EyeOffIcon size={20} />
-                    ) : (
-                      <EyeIcon size={20} />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) =>
-                      setRememberMe(checked as boolean)
-                    }
-                  />
-                  <label htmlFor="remember" className="text-sm text-gray-600">
-                    Se souvenir de moi pendant 30 jours
-                  </label>
-                </div>
-                <div className="text-right">
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Mot de passe oublié ?
-                  </Link>
-                </div>
-                {signinError && (
-                  <p className="text-destructive text-sm">{signinError}</p>
-                )}
-                <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-white rounded-lg"
-                    variant="primary"
-                  >
-                    Se connecter
-                  </Button>
-                </div>
-                <div className="sm:block md:hidden text-center text-sm text-gray-600">
-                  Vous n&apos;avez pas de compte ?{" "}
-                  <Link to="/signup" className="text-primary hover:underline">
-                    S&apos;inscrire
-                  </Link>
-                </div>
-              </form>
+                  <div className="flex items-center space-x-2">
+                    <CheckboxInput
+                      form={form}
+                      name="rememberMe"
+                      label="Se souvenir de moi"
+                      onlyLabel={true}
+                    />
+                  </div>
+                  <div className="text-right">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Mot de passe oublié ?
+                    </Link>
+                  </div>
+                  <div className="flex justify-center mt-8 w-1/2 mx-auto">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full text-sm text-white rounded-lg"
+                      variant="primary"
+                    >
+                      Se connecter
+                    </Button>
+                  </div>
+                  <div className="sm:block md:hidden text-center text-sm text-gray-600">
+                    Vous n&apos;avez pas de compte ?{" "}
+                    <Link to="/signup" className="text-primary hover:underline">
+                      S&apos;inscrire
+                    </Link>
+                  </div>
+                </form>
+              </Form>
             </div>
 
             <div
@@ -157,13 +156,15 @@ export function SignInPage() {
                   <p className="text-sm text-slate-200 mb-4">
                     Vous n&apos;avez pas de compte ?
                   </p>
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-black rounded-lg"
-                    variant="outline"
-                  >
-                    <Link to="/signup">S&apos;inscrire</Link>
-                  </Button>
+                  <NavLink to="/signup">
+                    <Button
+                      size="lg"
+                      className="w-full text-sm text-black rounded-lg"
+                      variant="outline"
+                    >
+                      S&apos;inscrire
+                    </Button>
+                  </NavLink>
                 </div>
               </div>
             </div>

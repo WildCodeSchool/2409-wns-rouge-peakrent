@@ -61,7 +61,6 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
 
   assert(userResponse.body.kind === "single");
   testArgs.data.user = userResponse.body.singleResult.data?.createUser;
-  console.log("2", testArgs.data.user);
 
   assert(adminResponse.body.kind === "single");
   testArgs.data.admin = adminResponse.body.singleResult.data?.createUser;
@@ -70,10 +69,10 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
     where: { id: testArgs.data.admin.id },
   });
 
-  adminProfile.role = RoleType.ADMIN;
+  adminProfile.role = RoleType.admin;
   await adminProfile.save();
 
-  testArgs.data.admin.role = RoleType.ADMIN;
+  testArgs.data.admin.role = RoleType.admin;
 };
 
 beforeAll(async () => {
