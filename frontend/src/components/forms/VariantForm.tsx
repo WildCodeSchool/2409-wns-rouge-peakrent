@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
-import { Variant } from "@/gql/graphql";
+import { ApolloQueryResult, gql, useMutation } from "@apollo/client";
+import { Product, Variant } from "@/gql/graphql";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoadIcon } from "@/components/icons/LoadIcon";
@@ -8,13 +8,12 @@ import { CREATE_VARIANT } from "@/GraphQL/createVariant";
 import { UPDATE_VARIANT } from "@/GraphQL/updateVariant";
 import { toast } from "sonner";
 import { useModal } from "@/context/modalProvider";
-import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
 
 type VariantFormType = {
   variant?: Variant;
   productId?: number;
   setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
-  refetchProduct?: () => Promise<any>;
+  refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
 };
 
 export const VariantForm = ({

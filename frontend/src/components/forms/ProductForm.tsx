@@ -86,7 +86,6 @@ export const ProductForm = () => {
   if (errorProduct || errorCategories)
     return <p className="text-center text-red-500">Erreur de chargement.</p>;
 
-  // let urlImage = product?.urlImage;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
