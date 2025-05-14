@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
         <DeleteModalProvider>
           <AdminProvider>
             <App />
-            <Toaster />
+            <Toaster richColors />
           </AdminProvider>
         </DeleteModalProvider>
       </ModalProvider>

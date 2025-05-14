@@ -23,6 +23,7 @@ interface DeleteButtonProps {
   children?: React.ReactNode;
   modalTitle?: string;
   modalDescription?: string;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 export default function DeleteButton({
@@ -36,6 +37,7 @@ export default function DeleteButton({
   children,
   modalTitle,
   modalDescription,
+  type = "button",
 }: DeleteButtonProps) {
   const { setDescription, setTitle, openModal } = useDeleteModal();
 
@@ -51,6 +53,7 @@ export default function DeleteButton({
 
   return (
     <Button
+      type={type}
       onClick={handleClick}
       variant={variant}
       className={cn("size-8 min-h-8 min-w-8", className)}
