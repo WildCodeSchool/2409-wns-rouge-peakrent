@@ -1,4 +1,8 @@
-import { SingleSelectorInput, StringInput } from "@/components/forms/formField";
+import {
+  FileUpload,
+  SingleSelectorInput,
+  StringInput,
+} from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
@@ -12,9 +16,11 @@ import {
   updateActivity as updateActivityStore,
 } from "@/stores/admin/activity.store";
 import { getBadgeVariantOptions } from "@/utils/getVariants/getBadgeVariant";
+import { uploadImage } from "@/utils/uploadImages";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Activity } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -27,7 +33,12 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
     gql(UPDATE_ACTIVITY)
   );
 
-  const formSchema = activitySchema(datas);
+  const [defaultImage, setDefaultImage] = useState<File[] | null>(null);
+
+  const formSchema = activitySchema({
+    ...datas,
+    images: defaultImage ?? null,
+  } as ActivityType & { images?: File[] });
   const defaultValues = getFormDefaultValues(formSchema);
 
   const form = useForm<ActivitySchemaType>({
@@ -35,8 +46,45 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
     defaultValues,
   });
 
+  useEffect(() => {
+    const fetchImage = async () => {
+      if (datas?.urlImage) {
+        try {
+          const response = await fetch(datas.urlImage);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image at ${datas.urlImage}`);
+          }
+          const blob = await response.blob();
+          const fileName = datas.urlImage.split("/").pop() || "image.jpg";
+          const file = new File([blob], fileName, { type: blob.type });
+
+          form.setValue("image", [file]);
+          setDefaultImage([file]);
+        } catch (error) {
+          console.error("Erreur lors du téléchargement de l'image :", error);
+          toast.error("Erreur lors du chargement de l'image");
+        }
+      }
+    };
+
+    fetchImage();
+  }, []);
+
   const onSubmit = async (formData: ActivitySchemaType) => {
     try {
+      const newImage = formData.image?.[0];
+      const isSameImage =
+        defaultImage &&
+        newImage instanceof File &&
+        defaultImage[0]?.name === newImage.name &&
+        defaultImage[0]?.size === newImage.size &&
+        defaultImage[0]?.type === newImage.type &&
+        defaultImage[0]?.lastModified === newImage.lastModified;
+
+      if (newImage && !isSameImage) {
+        const url = await uploadImage(newImage);
+        formData.urlImage = url;
+      }
       const data = {
         name: formData.name,
         variant: formData.variant,
@@ -100,14 +148,6 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
           isPending={createLoading || updateLoading}
           required
         />
-        <StringInput
-          form={form}
-          name="urlImage"
-          label="Url de l'image"
-          placeholder="Url"
-          isPending={createLoading || updateLoading}
-          required
-        />
         <SingleSelectorInput
           form={form}
           name="variant"
@@ -117,6 +157,22 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
           isPending={createLoading || updateLoading}
           columns={3}
           required
+        />
+
+        <StringInput
+          form={form}
+          name="urlImage"
+          label="Url de l'image"
+          placeholder="Url"
+          isPending={createLoading || updateLoading || !!form.watch("image")}
+        />
+
+        <FileUpload
+          form={form}
+          name="image"
+          label="Image"
+          maxFiles={1}
+          files={form.watch("image")}
         />
 
         <div className="ml-auto w-[300px]">
