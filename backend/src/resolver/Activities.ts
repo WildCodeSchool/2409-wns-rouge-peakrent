@@ -5,7 +5,6 @@ import {
   Authorized,
   Ctx,
   ID,
-  Int,
   Mutation,
   Query,
   Resolver,
@@ -18,9 +17,7 @@ import {
   ActivityCreateInput,
   ActivityPaginationInput,
   ActivityUpdateInput,
-  ActivityWithCount,
 } from "../entities/Activity";
-import { Product } from "../entities/Product";
 import { normalizeString } from "../helpers/helpers";
 import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
@@ -49,44 +46,26 @@ export class ActivityResolver {
     };
   }
 
-  @Query(() => ActivityWithCount, { nullable: true })
+  @Query(() => Activity, { nullable: true })
   async getActivityById(
-    @Arg("param", () => String) param: string,
-    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 })
-    onPage: number
-  ): Promise<ActivityWithCount | null> {
-    const isId = !isNaN(Number(param));
-    const whereCondition = isId ? { id: Number(param) } : { name: param };
+    @Arg("id", () => ID) _id: number
+  ): Promise<Activity | null> {
+    const id = Number(_id);
 
     const activity = await Activity.findOne({
-      where: whereCondition,
-      relations: {
-        products: true,
-        createdBy: true,
-      },
+      where: { id },
     });
 
-    if (!activity) return null;
+    if (!activity) {
+      throw new GraphQLError("Activity not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
 
-    const skip = (page - 1) * onPage;
-
-    const [products, total] = await Product.findAndCount({
-      where: { activities: { id: activity.id } },
-      relations: { activities: true, createdBy: true },
-      skip,
-      take: onPage,
-    });
-
-    return {
-      activity,
-      products,
-      pagination: {
-        total,
-        currentPage: page,
-        totalPages: Math.ceil(total / onPage),
-      },
-    };
+    return activity;
   }
 
   @Authorized(["admin", "superadmin"])
