@@ -18,7 +18,7 @@ interface FavItemProps {
 
 //TODO remove & { discount: number } when discount is implemented
 
-export function FavItem({
+export function FavItemCard({
   product,
   onToggleFavorite,
   isFavorite,
@@ -85,7 +85,7 @@ export function FavItem({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Badge
-                    className="rounded-lg text-xs md:text-sm px-2 py-1 hover:bg-none"
+                    className="rounded-lg text-xs md:text-sm px-2 py-1"
                     variant={getProductCategoryVariant(category?.toLowerCase())}
                   >
                     {category}
@@ -93,7 +93,7 @@ export function FavItem({
                 </NavLink>
               ))}
           </div>
-          <div className="flex items-center text-sm md:text-base text-black flex-col">
+          <div className="flex items-center text-sm md:text-base flex-col">
             {product.discount > 0 && (
               <p className="line-through text-muted-foreground mt-1">
                 {getPriceRange(product)}€/j
