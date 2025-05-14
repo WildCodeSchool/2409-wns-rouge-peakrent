@@ -27,6 +27,7 @@ interface UpdateButtonProps {
     | null
     | undefined;
   disabled?: boolean;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 export default function UpdateButton({
@@ -41,6 +42,7 @@ export default function UpdateButton({
   icon = <Pencil size={18} />,
   title = ariaLabel,
   disabled = false,
+  type = "button",
 }: UpdateButtonProps) {
   const { openModal, setDescription, setTitle, setMaxWidth } = useModal();
 
@@ -53,6 +55,7 @@ export default function UpdateButton({
 
   return (
     <Button
+      type={type}
       onClick={handleClick}
       variant={variant}
       className={cn(

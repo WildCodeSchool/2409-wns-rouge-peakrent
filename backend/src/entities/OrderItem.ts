@@ -38,7 +38,7 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: "order_id" })
   order?: Order;
 
-  @Field({ nullable: true })
+  @Field(() => Variant, { nullable: true })
   @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
   @JoinColumn({ name: "variant_id" })
   variant?: Variant;

@@ -6,6 +6,7 @@ import FilterButton from "@/components/buttons/FilterButton";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const ProductsPage = () => {
   const [itemsOnPage, setItemsOnPage] = useState(15);
@@ -13,6 +14,13 @@ const ProductsPage = () => {
   const [maxPage, setMaxPage] = useState<number>(0);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+  const [selectedStartingDate, setSelectedStartingDate] = useState<
+    string | undefined
+  >("");
+  const [selectedEndingDate, setSelectedEndingDate] = useState<
+    string | undefined
+  >("");
+
   // const [activities, setActivities] = useState<any[]>([]);
   // const [selectedActivities, setSelectedActivities] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -39,7 +47,7 @@ const ProductsPage = () => {
   ] = useLazyQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING));
 
   useEffect(() => {
-    if (initialData?.getProducts?.products) {
+    if (!filteredData && initialData?.getProducts?.products) {
       setProducts(initialData.getProducts.products);
       setMaxPage(initialData.getProducts.pagination.totalPages);
     }
@@ -72,11 +80,26 @@ const ProductsPage = () => {
 
   const handleFilter = () => {
     setPageIndex(1);
+    if (
+      selectedStartingDate &&
+      selectedEndingDate &&
+      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+    ) {
+      return toast.error(
+        `La date de fin ne peut pas être inférieure à celle de début`
+      );
+    }
     fetchFilteredProducts({
       variables: {
         onPage: itemsOnPage,
         page: 1,
         categoryIds: selectedCategories,
+        startingDate: selectedStartingDate
+          ? new Date(selectedStartingDate).toISOString()
+          : undefined,
+        endingDate: selectedEndingDate
+          ? new Date(selectedEndingDate).toISOString()
+          : undefined,
         // activitiesId: selectedActivities,
       },
     });
@@ -93,6 +116,10 @@ const ProductsPage = () => {
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
         handleFilter={handleFilter}
+        selectedEndingDate={selectedEndingDate}
+        selectedStartingDate={selectedStartingDate}
+        setSelectedEndingDate={setSelectedEndingDate}
+        setSelectedStartingDate={setSelectedStartingDate}
       />
     ),
   };
@@ -141,6 +168,10 @@ const ProductsPage = () => {
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}
             handleFilter={handleFilter}
+            selectedEndingDate={selectedEndingDate}
+            selectedStartingDate={selectedStartingDate}
+            setSelectedEndingDate={setSelectedEndingDate}
+            setSelectedStartingDate={setSelectedStartingDate}
           />
         </aside>
         <div className="flex-1 p-4">

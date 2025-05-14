@@ -25,6 +25,7 @@ interface FilterButtonProps {
     | null
     | undefined;
   disabled?: boolean;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 export default function FilterButton({
@@ -39,6 +40,7 @@ export default function FilterButton({
   text,
   title = ariaLabel,
   disabled = false,
+  type = "button",
 }: FilterButtonProps) {
   const { openModal, setDescription, setTitle, setMaxWidth } = useModal();
 
@@ -51,6 +53,7 @@ export default function FilterButton({
 
   return (
     <Button
+      type={type}
       onClick={handleClick}
       variant={variant}
       className={cn(

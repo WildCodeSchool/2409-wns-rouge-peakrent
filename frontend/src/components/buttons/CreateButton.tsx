@@ -27,6 +27,7 @@ interface CreateButtonProps {
     | null
     | undefined;
   disabled?: boolean;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 export default function CreateButton({
@@ -41,6 +42,7 @@ export default function CreateButton({
   icon = <Plus size={18} />,
   title = ariaLabel,
   disabled = false,
+  type = "button",
 }: CreateButtonProps) {
   const { openModal, setDescription, setTitle, setMaxWidth } = useModal();
 
@@ -53,6 +55,7 @@ export default function CreateButton({
 
   return (
     <Button
+      type={type}
       onClick={handleClick}
       variant={variant}
       className={cn(

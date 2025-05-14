@@ -2,6 +2,8 @@ import { dataSource } from "../src/config/db";
 import { seedActivities } from "./activity.seed";
 import { seedCategories } from "./category.seed";
 import { seedProducts } from "./product.seed";
+import { seedStores } from "./store.seed";
+import { seedStoreVariant } from "./storeVariant.seed";
 import { seedUsers } from "./user.seed";
 import { seedVariants } from "./variant.seed";
 
@@ -13,6 +15,8 @@ dataSource
     await seedProducts();
     await seedVariants();
     await seedActivities();
+    await seedStores();
+    await seedStoreVariant();
     process.exit(0);
   })
   .catch((error) => {
