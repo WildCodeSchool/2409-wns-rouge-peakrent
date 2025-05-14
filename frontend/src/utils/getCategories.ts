@@ -1,4 +1,7 @@
-import { CategoryType, ProductType } from "@/types/types";
+import {
+  Category as CategoryType,
+  Product as ProductType,
+} from "@/gql/graphql";
 
 /**
  * Retrieves all category names of a product, including child categories
@@ -22,8 +25,8 @@ export function getCategories(product: ProductType) {
  */
 function getAllCategoryNames(category: CategoryType): string[] {
   const names = [category.name];
-  if (category.children && category.children.length > 0) {
-    category.children.forEach((child) => {
+  if (category.childrens && category.childrens.length > 0) {
+    category.childrens.forEach((child) => {
       names.push(...getAllCategoryNames(child));
     });
   }
