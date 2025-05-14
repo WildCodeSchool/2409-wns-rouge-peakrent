@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 // Components
+import { ProductForm } from "./components/forms/ProductForm";
 import { UserProvider } from "./context/userProvider";
 import { WHOAMI } from "./GraphQL/whoami";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
@@ -13,13 +14,14 @@ import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
+import { CartCheckout } from "./pages/Cart/CartCheckout";
+import { CartPage } from "./pages/Cart/CartPage";
 import { HomePage } from "./pages/Home/HomePage";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
-import { ProductForm } from "./components/forms/ProductForm";
 
 enum AuthStates {
   authenticated,
@@ -82,6 +84,10 @@ function App() {
             />
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="products" element={<ProductsPage />} />
+
+            {/* User Connected Routes */}
+            <Route path="cart" element={<CartPage />} />
+            <Route path="cart/checkout" element={<CartCheckout />} />
 
             {/* Admin Routes */}
             <Route
