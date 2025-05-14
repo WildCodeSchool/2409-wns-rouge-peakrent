@@ -10,7 +10,7 @@ import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
 import { Activity as ActivityType } from "@/gql/graphql";
 import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/GraphQL/activities";
-import { activitySchema, ActivitySchemaType } from "@/schemas/activity";
+import { activitySchema, ActivitySchemaType } from "@/schemas/activitySchemas";
 import {
   addActivity,
   updateActivity as updateActivityStore,
