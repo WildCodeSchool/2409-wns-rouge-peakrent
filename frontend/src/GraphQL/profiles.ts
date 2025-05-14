@@ -67,3 +67,12 @@ export const DELETE_PROFILE = `
 //     }
 //   }
 // `;
+
+export const UPDATE_USER_PROFILE = `
+  mutation UpdateUserProfile($data: UserUpdateProfileInput!) {
+    updateUserProfile(data: $data) {
+      firstname
+      lastname
+    }
+  }
+`;
