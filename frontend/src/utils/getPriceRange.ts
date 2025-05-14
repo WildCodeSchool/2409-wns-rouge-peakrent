@@ -1,4 +1,4 @@
-import { ProductType } from "@/types/types";
+import { Product as ProductType } from "@/gql/graphql";
 
 /**
  * Calculates the price range of a product taking into account variants and discounts
@@ -7,8 +7,10 @@ import { ProductType } from "@/types/types";
  * @returns The formatted price range or null if the product has no variants
  */
 
+//TODO remove & { discount: number } when discount is implemented
+
 export function getPriceRange(
-  product: ProductType,
+  product: ProductType & { discount: number },
   isDiscounted: boolean = false
 ) {
   if (!product.variants || product.variants.length === 0) return null;

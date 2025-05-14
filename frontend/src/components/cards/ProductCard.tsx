@@ -55,7 +55,7 @@ export function ProductCard({ product }: { product: any }) {
               onClick={(e) => e.stopPropagation()}
             >
               <Badge
-                className="rounded-lg text-xs md:text-sm px-2 py-1 hover:bg-none"
+                className="rounded-lg text-xs md:text-sm px-2 py-1"
                 variant={getProductCategoryVariant(category?.toLowerCase())}
               >
                 {category}
