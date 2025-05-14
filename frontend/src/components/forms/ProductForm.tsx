@@ -38,7 +38,17 @@ export const ProductForm = () => {
     data: getCategoriesData,
     loading: loadingCategories,
     error: errorCategories,
-  } = useQuery(gql(GET_CATEGORIES));
+  } = useQuery(gql(GET_CATEGORIES), {
+    variables: {
+      data: {
+        page: 1,
+        onPage: 1000,
+        sort: "id",
+        order: "ASC",
+        onlyParent: true,
+      },
+    },
+  });
 
   const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
   const [createProduct] = useMutation(gql(CREATE_PRODUCT));
@@ -246,6 +256,7 @@ export const ProductForm = () => {
         </div>
 
         {/* Catégories */}
+        {/* Gérer les groupes de categorie. Pouvoir ajouter les categories enfants. */}
         <div className="flex flex-col gap-2">
           <h2 className="text-lg font-bold">Catégories :</h2>
           <div className="grid grid-cols-2 gap-2">

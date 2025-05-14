@@ -8,7 +8,6 @@ import { DeleteModalProvider } from "./context/deleteModalProvider.tsx";
 import { ModalProvider } from "./context/modalProvider.tsx";
 import "./styles/global.css";
 import { TailwindIndicator } from "./utils/TailwindIndicator.tsx";
-import { Toaster } from "sonner";
 
 const client = new ApolloClient({
   // uri: "http://localhost:5050/",
