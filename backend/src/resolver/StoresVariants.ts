@@ -4,6 +4,7 @@ import {
   StoreVariantCreateInput,
   StoreVariantUpdateInput,
 } from "../entities/StoreVariant";
+import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 
 @Resolver()
 export class StoreVariantResolver {
@@ -56,5 +57,22 @@ export class StoreVariantResolver {
 
     await storeVariant.remove();
     return true;
+  }
+
+  @Query(() => Number)
+  async checkVariantStock(
+    @Arg("storeId") storeId: number,
+    @Arg("variantId") variantId: number,
+    @Arg("startingDate") startingDate: Date,
+    @Arg("endingDate") endingDate: Date
+  ): Promise<number> {
+    const availableQuantity = checkStockByVariantAndStore(
+      storeId,
+      variantId,
+      startingDate,
+      endingDate
+    );
+
+    return availableQuantity;
   }
 }

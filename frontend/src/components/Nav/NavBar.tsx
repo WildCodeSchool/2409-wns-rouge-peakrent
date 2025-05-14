@@ -64,7 +64,7 @@ const NavBar = () => {
         className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2 h-full"
       >
         <img
-          src="/LogoPeakrent.png"
+          src="/LogoPeakrent.svg"
           className="h-full w-auto max-h-full object-contain"
         />
         <p className="hidden lg:block text-white font-logo text-[2.3vw] ml-1">

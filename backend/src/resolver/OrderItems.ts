@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -17,6 +18,7 @@ import {
   OrderItemsUpdateInput,
 } from "../entities/OrderItem";
 import { Variant } from "../entities/Variant";
+import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { AuthContextType } from "../types";
 
 @Resolver(OrderItem)
@@ -105,27 +107,82 @@ export class OrderItemsResolver {
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput
   ): Promise<OrderItem> {
-    const { profileId, variantId, quantity, pricePerHour, startsAt, endsAt } =
-      data;
-
-    let cart = await Cart.findOne({
-      where: { profile: profileId as any },
-      relations: ["profile"],
-    });
-
-    if (!cart) {
-      cart = Cart.create({ profile: profileId as any });
-      await cart.save();
-    }
-
-    const newOrderItem = new OrderItem();
-    Object.assign(newOrderItem, {
+    const {
+      profileId,
+      variantId,
       quantity,
       pricePerHour,
       startsAt,
       endsAt,
-      cart,
-    });
+      orderId,
+      cartId,
+    } = data;
+
+    let dataOrderItems: {
+      quantity: number;
+      pricePerHour: number;
+      startsAt: Date;
+      endsAt: Date;
+      cart?: Cart;
+      order?: Order;
+    } = {
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+    };
+
+    const isAvailable =
+      (await checkStockByVariantAndStore(1, variantId, startsAt, endsAt)) > 0;
+
+    if (isAvailable) {
+      if (cartId || !orderId) {
+        let cart = await Cart.findOne({
+          where: { profile: profileId as any },
+          relations: ["profile"],
+        });
+
+        if (!cart) {
+          cart = Cart.create({ profile: profileId as any });
+          await cart.save();
+        }
+        dataOrderItems = {
+          ...dataOrderItems,
+          cart,
+        };
+      }
+
+      if (orderId) {
+        const order = await Order.findOne({
+          where: { id: orderId },
+          relations: ["store"],
+        });
+
+        if (!order) {
+          throw new GraphQLError("Order does not exist", {
+            extensions: {
+              code: "NOT_FOUND",
+              entity: "Order",
+            },
+          });
+        }
+
+        dataOrderItems = {
+          ...dataOrderItems,
+          order,
+        };
+      }
+    } else {
+      throw new GraphQLError(`Store is out of stock`, {
+        extensions: {
+          code: "OUT_OF_STOCK",
+          entity: "StoreVariant",
+        },
+      });
+    }
+
+    const newOrderItem = new OrderItem();
+    Object.assign(newOrderItem, dataOrderItems);
     newOrderItem.variant = { id: variantId } as Variant;
 
     const errors = await validate(newOrderItem);
@@ -159,6 +216,7 @@ export class OrderItemsResolver {
       ) {
         throw new Error("Unauthorized");
       }
+
       Object.assign(orderItem, data);
       const errors = await validate(orderItem);
       if (errors.length > 0) {
