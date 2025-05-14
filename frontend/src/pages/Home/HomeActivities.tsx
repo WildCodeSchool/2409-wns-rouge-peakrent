@@ -1,5 +1,5 @@
 import MehSection from "@/components/section/MehSection";
-import { GET_CATEGORIES_WITH_COUNT } from "@/GraphQL/categories";
+import { GET_ACTIVITIES_WITH_COUNT } from "@/GraphQL/activities";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { ActivitiesBentoGrid } from "./ActivitiesBentoGrid";
@@ -10,7 +10,14 @@ import { ActivitiesSectionSkeleton } from "./Skeleton/ActivitiesSectionSkeleton"
 export function HomeActivities() {
   const [showBentoGrid, setShowBentoGrid] = useState(window.innerWidth >= 768);
 
-  const { data, error, loading } = useQuery(gql(GET_CATEGORIES_WITH_COUNT));
+  const { data, error, loading } = useQuery(gql(GET_ACTIVITIES_WITH_COUNT), {
+    variables: {
+      data: {
+        page: 1,
+        onPage: 7,
+      },
+    },
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,9 +47,9 @@ export function HomeActivities() {
   return (
     <>
       {showBentoGrid ? (
-        <ActivitiesBentoGrid activities={data?.getCategories.categories} />
+        <ActivitiesBentoGrid activities={data?.getActivities.activities} />
       ) : (
-        <ActivitiesSection activities={data?.getCategories.categories} />
+        <ActivitiesSection activities={data?.getActivities.activities} />
       )}
     </>
   );

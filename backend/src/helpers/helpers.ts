@@ -23,6 +23,9 @@ export const normalizeString = (string: string) => {
     .replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'")
     .replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"')
     .replace(/[^\w\s-]/g, "")
+    .replace(/[_\s]+/g, "-")
+    .replace(/--+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .trim();
 
   return cleanedStr.toLowerCase();
