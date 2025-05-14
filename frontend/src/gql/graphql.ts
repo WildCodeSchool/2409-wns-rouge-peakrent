@@ -18,6 +18,34 @@ export type Scalars = {
   DateTimeISO: { input: any; output: any; }
 };
 
+export type Activity = {
+  __typename?: 'Activity';
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdBy: User;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  normalizedName: Scalars['String']['output'];
+  products?: Maybe<Array<Product>>;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  urlImage: Scalars['String']['output'];
+  variant: Scalars['String']['output'];
+};
+
+export type AdminCreateUserInput = {
+  email: Scalars['String']['input'];
+  firstname: Scalars['String']['input'];
+  lastname: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  role?: InputMaybe<RoleType>;
+};
+
+export type AdminUpdateUserInput = {
+  email: Scalars['String']['input'];
+  firstname: Scalars['String']['input'];
+  lastname: Scalars['String']['input'];
+  role: RoleType;
+};
+
 export type Cart = {
   __typename?: 'Cart';
   address1?: Maybe<Scalars['String']['output']>;
@@ -49,9 +77,15 @@ export type CartUpdateInput = {
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CategoriesWithCount = {
+  __typename?: 'CategoriesWithCount';
+  categories: Array<Category>;
+  pagination?: Maybe<Pagination>;
+};
+
 export type Category = {
   __typename?: 'Category';
-  children?: Maybe<Array<Category>>;
+  childrens?: Maybe<Array<Category>>;
   createdAt: Scalars['DateTimeISO']['output'];
   createdBy: User;
   id: Scalars['ID']['output'];
@@ -60,17 +94,29 @@ export type Category = {
   parentCategory?: Maybe<Category>;
   products?: Maybe<Array<Product>>;
   updatedAt: Scalars['DateTimeISO']['output'];
-  urlImage: Scalars['String']['output'];
+  variant: Scalars['String']['output'];
 };
 
 export type CategoryCreateInput = {
+  childrens?: InputMaybe<Array<CategoryCreateInput>>;
+  id?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
-  urlImage: Scalars['String']['input'];
+  variant: Scalars['String']['input'];
+};
+
+export type CategoryPaginationInput = {
+  onPage?: Scalars['Int']['input'];
+  onlyParent?: Scalars['Boolean']['input'];
+  order?: Scalars['String']['input'];
+  page?: Scalars['Int']['input'];
+  sort?: Scalars['String']['input'];
 };
 
 export type CategoryUpdateInput = {
+  childrens?: InputMaybe<Array<CategoryCreateInput>>;
+  id?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
-  urlImage: Scalars['String']['input'];
+  variant: Scalars['String']['input'];
 };
 
 export type CategoryWithCount = {
@@ -91,11 +137,14 @@ export type Mutation = {
   createOrder: Order;
   createOrderItems: OrderItem;
   createProduct: Product;
+  createProductWithVariants: Product;
   createStore: Store;
   createStoreVariant: StoreVariant;
   createUser: User;
+  createUserByAdmin: Profile;
   createVariant: Variant;
   deleteCart?: Maybe<Cart>;
+  deleteCategories?: Maybe<Array<Scalars['ID']['output']>>;
   deleteCategory?: Maybe<Category>;
   deleteOrder?: Maybe<Order>;
   deleteOrderItems?: Maybe<OrderItem>;
@@ -109,9 +158,10 @@ export type Mutation = {
   updateCategory?: Maybe<Category>;
   updateOrder?: Maybe<Order>;
   updateOrderItems?: Maybe<OrderItem>;
-  updateProduct: Product;
+  updateProduct?: Maybe<Product>;
   updateStore: Store;
   updateStoreVariant: StoreVariant;
+  updateUserByAdmin: Profile;
   updateVariant?: Maybe<Variant>;
   validateCart?: Maybe<Cart>;
 };
@@ -142,6 +192,12 @@ export type MutationCreateProductArgs = {
 };
 
 
+export type MutationCreateProductWithVariantsArgs = {
+  productData: ProductCreateInput;
+  variants?: InputMaybe<Array<VariantCreateNestedInput>>;
+};
+
+
 export type MutationCreateStoreArgs = {
   data: StoreCreateInput;
 };
@@ -157,6 +213,11 @@ export type MutationCreateUserArgs = {
 };
 
 
+export type MutationCreateUserByAdminArgs = {
+  data: AdminCreateUserInput;
+};
+
+
 export type MutationCreateVariantArgs = {
   data: VariantCreateInput;
 };
@@ -164,6 +225,11 @@ export type MutationCreateVariantArgs = {
 
 export type MutationDeleteCartArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCategoriesArgs = {
+  ids: Array<Scalars['ID']['input']>;
 };
 
 
@@ -246,6 +312,12 @@ export type MutationUpdateStoreArgs = {
 
 export type MutationUpdateStoreVariantArgs = {
   data: StoreVariantUpdateInput;
+};
+
+
+export type MutationUpdateUserByAdminArgs = {
+  data: AdminUpdateUserInput;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -349,6 +421,7 @@ export type Pagination = {
 
 export type Product = {
   __typename?: 'Product';
+  activities?: Maybe<Array<Activity>>;
   categories?: Maybe<Array<Category>>;
   createdAt: Scalars['DateTimeISO']['output'];
   createdBy: User;
@@ -404,7 +477,7 @@ export type Query = {
   getCartById: Cart;
   getCartByProfile?: Maybe<Cart>;
   getCarts: Array<Cart>;
-  getCategories: Array<Category>;
+  getCategories: CategoriesWithCount;
   getCategoryById?: Maybe<CategoryWithCount>;
   getOrderById: Order;
   getOrderItems: Array<OrderItem>;
@@ -435,6 +508,11 @@ export type QueryGetCartByIdArgs = {
 
 export type QueryGetCartByProfileArgs = {
   profileId: Scalars['Int']['input'];
+};
+
+
+export type QueryGetCategoriesArgs = {
+  data: CategoryPaginationInput;
 };
 
 
@@ -471,6 +549,7 @@ export type QueryGetProductByIdArgs = {
 
 
 export type QueryGetProductsArgs = {
+  categoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   onPage?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
 };
@@ -500,6 +579,13 @@ export type QueryStoreVariantArgs = {
   storeId: Scalars['Float']['input'];
   variantId: Scalars['Float']['input'];
 };
+
+/** The role of the user */
+export enum RoleType {
+  Admin = 'admin',
+  Superadmin = 'superadmin',
+  User = 'user'
+}
 
 export type Search = {
   __typename?: 'Search';
@@ -615,6 +701,12 @@ export type VariantCreateInput = {
   color?: InputMaybe<Scalars['String']['input']>;
   pricePerHour: Scalars['Int']['input'];
   productId: Scalars['Int']['input'];
+  size?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type VariantCreateNestedInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  pricePerHour: Scalars['Int']['input'];
   size?: InputMaybe<Scalars['String']['input']>;
 };
 

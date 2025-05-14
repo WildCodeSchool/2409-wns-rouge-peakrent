@@ -1,4 +1,5 @@
 import {
+  Activity,
   Boxes,
   FileBox,
   Home,
@@ -36,6 +37,12 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin",
     icon: <Home className={`size-4 flex-none lg:size-5`} />,
     label: "Tableau de bord",
+  },
+  {
+    title: "Activités",
+    href: "/admin/activities",
+    icon: <Activity className={`size-4 flex-none lg:size-5`} />,
+    label: "Activités",
   },
   {
     title: "Catégories",

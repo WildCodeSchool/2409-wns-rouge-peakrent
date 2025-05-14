@@ -21,6 +21,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Activity } from "./Activity";
 import { Category } from "./Category";
 import { IdInput } from "./Id";
 import { Pagination } from "./Pagination";
@@ -75,6 +76,11 @@ export class Product extends BaseEntity {
   @ManyToMany(() => Category, (category) => category.products)
   @JoinTable({ name: "products_categories" })
   categories!: Category[];
+
+  @Field(() => [Activity], { nullable: true })
+  @ManyToMany(() => Activity, (activity) => activity.products)
+  @JoinTable({ name: "products_activities" })
+  activities!: Activity[];
 
   @Field(() => [Variant], { nullable: true })
   @OneToMany(() => Variant, (variant) => variant.product, { cascade: true })

@@ -176,7 +176,12 @@ export class CategoryResolver {
     });
 
     if (!category) {
-      return null;
+      throw new GraphQLError(`Category not found`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
     }
 
     Object.assign(category, {
@@ -266,7 +271,7 @@ export class CategoryResolver {
       await category.remove();
       return category;
     } else {
-      throw new GraphQLError(`La catégorie n'existe pas`, {
+      throw new GraphQLError(`Category not found`, {
         extensions: {
           code: "NOT_FOUND",
           http: { status: 404 },
@@ -288,7 +293,7 @@ export class CategoryResolver {
     });
 
     if (categories.length === 0) {
-      throw new GraphQLError("Aucune catégorie trouvée", {
+      throw new GraphQLError("No category found", {
         extensions: {
           code: "NOT_FOUND",
           http: { status: 404 },

@@ -1,11 +1,9 @@
 import {
-  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsOptional,
-  IsPositive,
   IsString,
+  IsUrl,
   Length,
   Min,
 } from "class-validator";
@@ -18,7 +16,6 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -30,7 +27,7 @@ import { SortOrder } from "../types";
 
 @ObjectType()
 @Entity()
-export class Category extends BaseEntity {
+export class Activity extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id!: number;
@@ -43,6 +40,11 @@ export class Category extends BaseEntity {
   @Field()
   @Column({ name: "normalized_name" })
   normalizedName!: string;
+
+  @Field()
+  @Column({ name: "url_image" })
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
+  urlImage!: string;
 
   @Field()
   @Column({ name: "variant" })
@@ -58,20 +60,8 @@ export class Category extends BaseEntity {
   updatedAt!: Date;
 
   @Field(() => [Product], { nullable: true })
-  @ManyToMany(() => Product, (product) => product.categories)
+  @ManyToMany(() => Product, (product) => product.activities)
   products!: Product[];
-
-  @ManyToOne(() => Category, (category) => category.childrens, {
-    nullable: true,
-    onDelete: "CASCADE",
-  })
-  @JoinColumn({ name: "parent_category_id" })
-  @Field(() => Category, { nullable: true })
-  parentCategory?: Category;
-
-  @Field(() => [Category], { nullable: true })
-  @OneToMany(() => Category, (category) => category.parentCategory)
-  childrens!: Category[];
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
@@ -80,9 +70,9 @@ export class Category extends BaseEntity {
 }
 
 @ObjectType()
-export class CategoryWithCount {
-  @Field(() => Category)
-  category!: Category;
+export class ActivityWithCount {
+  @Field(() => Activity)
+  activity!: Activity;
 
   @Field(() => [Product])
   products!: Product[];
@@ -92,16 +82,16 @@ export class CategoryWithCount {
 }
 
 @ObjectType()
-export class CategoriesWithCount {
-  @Field(() => [Category])
-  categories!: Category[];
+export class ActivitiesWithCount {
+  @Field(() => [Activity])
+  activities!: Activity[];
 
   @Field(() => Pagination, { nullable: true })
   pagination: Pagination;
 }
 
 @InputType()
-export class CategoryCreateInput {
+export class ActivityCreateInput {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "Name is required." })
@@ -114,21 +104,16 @@ export class CategoryCreateInput {
   @Length(2, 50, { message: "Variant must be between 2 and 50 chars." })
   variant!: string;
 
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
-  id?: number;
-
-  @Field(() => [CategoryCreateInput], { nullable: true })
-  childrens?: CategoryCreateInput[];
+  @Field()
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
+  urlImage!: string;
 }
 
 @InputType()
-export class CategoryUpdateInput extends CategoryCreateInput {}
+export class ActivityUpdateInput extends ActivityCreateInput {}
 
 @InputType()
-export class CategoryPaginationInput {
+export class ActivityPaginationInput {
   @Field(() => Int, { defaultValue: 1 })
   @IsInt()
   @Min(1)
@@ -140,7 +125,7 @@ export class CategoryPaginationInput {
   onPage: number = 15;
 
   @Field(() => String, { defaultValue: "createdAt" })
-  @IsValidSortField(Category)
+  @IsValidSortField(Activity)
   sort: string = "createdAt";
 
   @Field(() => String, { defaultValue: "ASC" })
@@ -148,15 +133,10 @@ export class CategoryPaginationInput {
     message: "Invalid sort order",
   })
   order: SortOrder = SortOrder.ASC;
-
-  @Field(() => Boolean, { defaultValue: false })
-  @IsBoolean()
-  @IsOptional()
-  onlyParent?: boolean;
 }
 
 @ObjectType()
-export class DeleteCategoriesResponse {
+export class DeleteActivitiesResponse {
   @Field(() => [ID])
   deletedIds: number[];
 }

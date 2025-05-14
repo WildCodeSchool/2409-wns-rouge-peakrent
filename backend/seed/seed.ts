@@ -1,4 +1,5 @@
 import { dataSource } from "../src/config/db";
+import { seedActivities } from "./activity.seed";
 import { seedCategories } from "./category.seed";
 import { seedProducts } from "./product.seed";
 import { seedStores } from "./store.seed";
@@ -13,6 +14,7 @@ dataSource
     await seedCategories();
     await seedProducts();
     await seedVariants();
+    await seedActivities();
     await seedStores();
     await seedStoreVariant();
     process.exit(0);
