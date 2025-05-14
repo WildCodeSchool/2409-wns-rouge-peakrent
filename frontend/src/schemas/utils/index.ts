@@ -4,7 +4,6 @@ export * from "./array/createArraySchema";
 export * from "./boolean/createBooleanSchema";
 export * from "./date/createDateSchema";
 export * from "./enum/createEnumSchema";
-export * from "./file/createFileSchema";
 export * from "./number/createDoubleNumberSchema";
 export * from "./number/createNumberSchema";
 export * from "./string/createEmailSchema";
