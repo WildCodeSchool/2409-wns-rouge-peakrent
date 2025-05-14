@@ -18,6 +18,7 @@ import {
   ActivityPaginationInput,
   ActivityUpdateInput,
 } from "../entities/Activity";
+import { deleteImageFromUploadsDir } from "../helpers/deleteImage";
 import { normalizeString } from "../helpers/helpers";
 import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
@@ -126,6 +127,10 @@ export class ActivityResolver {
       });
     }
 
+    if (data.urlImage !== activity.urlImage) {
+      deleteImageFromUploadsDir(activity.urlImage);
+    }
+
     Object.assign(activity, {
       name: data.name,
       variant: data.variant,
@@ -159,6 +164,7 @@ export class ActivityResolver {
       where: { id },
     });
     if (activity !== null) {
+      deleteImageFromUploadsDir(activity.urlImage);
       await activity.remove();
       return activity;
     } else {
@@ -182,6 +188,10 @@ export class ActivityResolver {
         id: In(ids),
       },
     });
+
+    for (const activity of activities) {
+      deleteImageFromUploadsDir(activity.urlImage);
+    }
 
     if (activities.length === 0) {
       throw new GraphQLError("No activity found", {
