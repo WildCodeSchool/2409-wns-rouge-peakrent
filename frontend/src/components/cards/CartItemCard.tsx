@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/selectWithoutForm";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { useModal } from "@/context/modalProvider";
 import { OrderItem as OrderItemType } from "@/gql/graphql";
 import { formatLocaleDate } from "@/utils/getLocaleDateAndTime";
 import { totalDays } from "@/utils/getNumberOfDays";
@@ -25,6 +26,7 @@ export function CartItemCard({
   onRemoveItem,
   onQuantityChange,
 }: CartItemProps) {
+  const { setIsOpen } = useModal();
   const handleRemoveItem = () => {
     if (onRemoveItem) {
       onRemoveItem();
@@ -40,7 +42,6 @@ export function CartItemCard({
   const variant = item.variant;
   const product = variant?.product;
   const numberOfDays = totalDays(item.startsAt, item.endsAt);
-
   return (
     <Card className="grid grid-cols-[1fr_2fr] rounded-md border shadow-sm p-0 gap-2 max-w-screen-sm">
       <ImageHandler
@@ -63,15 +64,18 @@ export function CartItemCard({
 
         <div>
           <div className="w-full max-w-[calc(100%-2.5rem)] pt-2">
-            <h3 className="font-semibold text-lg truncate">
-              <Link
-                to={`/products/${variant?.product.id}`}
-                title={product?.name ?? ""}
-                className="hover:underline"
-              >
+            <Link
+              to={`/products/${variant?.product.id ?? ""}`}
+              title={product?.name ?? ""}
+              className="hover:underline"
+              onClick={() => {
+                setIsOpen(false);
+              }}
+            >
+              <h3 className="font-semibold text-lg truncate">
                 {product?.name ?? ""}
-              </Link>
-            </h3>
+              </h3>
+            </Link>
           </div>
           <div className="w-full max-w-full pb-2">
             <p
