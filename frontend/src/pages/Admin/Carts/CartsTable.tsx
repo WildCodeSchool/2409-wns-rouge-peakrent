@@ -2,12 +2,14 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
+import { useModal } from "@/context/modalProvider";
 import { GET_CARTS } from "@/GraphQL/carts";
 import { useCartStore } from "@/stores/admin/cart.store";
 import { ColumnConfig, SelectFunction } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";
-import { Trash2 } from "lucide-react";
+import { Paintbrush } from "lucide-react";
 import { toast } from "sonner";
+import { CartResume } from "./CartResume";
 import { createColumns } from "./storesColumns";
 
 export function CartsTable() {
@@ -15,7 +17,7 @@ export function CartsTable() {
   const cartsFetched = useCartStore((state) => state.cartsFetched);
   const setCarts = useCartStore((state) => state.setCarts);
   const setCartsFetched = useCartStore((state) => state.setCartsFetched);
-
+  const { openModal, setTitle, setDescription } = useModal();
   const { data, error, loading } = useQuery(gql(GET_CARTS));
 
   const columnConfigs: ColumnConfig[] = [];
@@ -32,6 +34,12 @@ export function CartsTable() {
       setCartsFetched(true);
     }
   }, [data, error, setCarts, setCartsFetched]);
+
+  const handleOpenModalCartDetails = async (row: any) => {
+    setTitle("Panier");
+    setDescription(row.original.id);
+    openModal(<CartResume cart={row.original} />);
+  };
 
   if (loading || !cartsFetched) {
     return (
@@ -50,7 +58,7 @@ export function CartsTable() {
   const multipleSelectFunctions: SelectFunction[] = [
     {
       text: "Vider le(s) panier(s)",
-      icon: <Trash2 className="w-4 h-4" />,
+      icon: <Paintbrush className="w-4 h-4 mr-2" />,
       variant: "orange",
       onTrigger(selectedRows) {
         console.log(selectedRows);
@@ -64,14 +72,14 @@ export function CartsTable() {
       columns={createColumns}
       columnConfigs={columnConfigs}
       filterTextOptions={{
-        id: "name",
-        placeholder: `Nom / Référence / "id"`,
+        id: "email",
+        placeholder: `Email / Nom / Prénom / "id"`,
       }}
       hideColumns={{
         firstname: false,
         lastname: false,
       }}
-      rowLink="id"
+      rowLink={handleOpenModalCartDetails}
       hideExport
       multipleSelectFunctions={multipleSelectFunctions}
     />
