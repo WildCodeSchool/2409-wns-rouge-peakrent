@@ -17,7 +17,7 @@ export function CartsTable() {
   const cartsFetched = useCartStore((state) => state.cartsFetched);
   const setCarts = useCartStore((state) => state.setCarts);
   const setCartsFetched = useCartStore((state) => state.setCartsFetched);
-  const { openModal, setTitle, setDescription } = useModal();
+  const { openModal, setTitle, setDescription, setMaxWidth } = useModal();
   const { data, error, loading } = useQuery(gql(GET_CARTS));
 
   const columnConfigs: ColumnConfig[] = [];
@@ -36,8 +36,11 @@ export function CartsTable() {
   }, [data, error, setCarts, setCartsFetched]);
 
   const handleOpenModalCartDetails = async (row: any) => {
-    setTitle("Panier");
-    setDescription(row.original.id);
+    setTitle(`Panier - ${row.original.id}`);
+    setDescription(
+      `${row.original.profile.lastname} ${row.original.profile.firstname} - ${row.original.profile.email}`
+    );
+    setMaxWidth("max-w-xl");
     openModal(<CartResume cart={row.original} />);
   };
 

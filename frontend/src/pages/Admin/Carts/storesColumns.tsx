@@ -100,7 +100,10 @@ export const createColumns: ColumnDef<any>[] = [
       />
     ),
     cell: ({ row }) => {
-      const nbOrderItems = row.original.orderItems?.length || 0;
+      const nbOrderItems = row.original.orderItems?.reduce(
+        (acc: number, item: any) => acc + item.quantity,
+        0
+      );
       return (
         <div className="flex items-center justify-center">{nbOrderItems}</div>
       );
