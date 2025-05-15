@@ -1,6 +1,7 @@
-import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { ProductCard } from "../cards/ProductCard";
 import { Button } from "../ui/button";
+import { Title } from "../ui/title";
 
 type PropsType = {
   title: string;
@@ -24,7 +25,7 @@ const ProductsList = ({
   return (
     <>
       <div className="flex flex-row items-center justify-between">
-        <h2>{title}</h2>
+        <Title text={title} className="mb-4" />
         <div className="flex flex-row items-center justify-center gap-2.5">
           <p className="text-center text-[15px]">Produits par pages :</p>
           <select

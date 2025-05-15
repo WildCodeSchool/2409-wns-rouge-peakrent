@@ -27,6 +27,19 @@ export enum RoleType {
   superadmin = "superadmin",
 }
 
+export enum OrderItemStatusType {
+  pending = "pending",
+  canceled = "canceled",
+  refunded = "refunded",
+  distributed = "distributed",
+  recovered = "recovered",
+}
+
+registerEnumType(OrderItemStatusType, {
+  name: "OrderItemStatusType",
+  description: "Status of order Items",
+});
+
 export enum SortOrder {
   ASC = "ASC",
   DESC = "DESC",
