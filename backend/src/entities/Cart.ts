@@ -49,12 +49,6 @@ export class Cart extends BaseEntity {
   @Column("varchar", { name: "zip_code", length: 20, nullable: true })
   zipCode?: string;
 
-  @Field(() => [OrderItem], { nullable: true })
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.cart, {
-    cascade: true,
-  })
-  orderItems?: OrderItem[];
-
   @Field()
   @CreateDateColumn({
     name: "created_at",
