@@ -39,7 +39,6 @@ export function CartItemCard({
 
   const variant = item.variant;
   const product = variant?.product;
-
   const numberOfDays = totalDays(item.startsAt, item.endsAt);
 
   return (
