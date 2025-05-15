@@ -25,7 +25,7 @@ export class OrderItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Cart, { nullable: true })
   @ManyToOne(() => Cart, (cart) => cart.id, {
     onDelete: "SET NULL",
     nullable: true,

@@ -6,10 +6,12 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { OrderItem } from "./OrderItem";
 import { Profile } from "./Profile";
 
 @ObjectType()
@@ -46,6 +48,12 @@ export class Cart extends BaseEntity {
   @Field({ nullable: true })
   @Column("varchar", { name: "zip_code", length: 20, nullable: true })
   zipCode?: string;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.cart, {
+    cascade: true,
+  })
+  orderItems?: OrderItem[];
 
   @Field()
   @CreateDateColumn({
