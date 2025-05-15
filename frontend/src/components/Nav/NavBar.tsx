@@ -17,7 +17,7 @@ import { buttonVariants } from "../ui/button";
 import NavCartLink from "./NavCartLink";
 
 const NavBar = () => {
-  const { user: UserData } = useUser();
+  const { user: userData } = useUser();
 
   const [doSignout] = useMutation(gql(SIGNOUT), {
     refetchQueries: [{ query: gql(WHOAMI) }],
@@ -51,7 +51,7 @@ const NavBar = () => {
       path: "/profile",
       ariaLabel: "Navigation vers la page profil",
     },
-    ...(me?.role === "admin" || me?.role === "superadmin"
+    ...(userData?.role === "admin" || userData?.role === "superadmin"
       ? [
           {
             name: "Admin",
@@ -106,7 +106,7 @@ const NavBar = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-5 pr-2 h-full border-b border-light-gray">
-        {UserData?.id ? (
+        {userData?.id ? (
           <>
             <NavCartLink />
             <DropdownMenu>
@@ -159,7 +159,7 @@ const NavBar = () => {
           </NavLink>
         )}
       </div>
-      {(me?.role === "admin" || me?.role === "superadmin") && (
+      {(userData?.role === "admin" || userData?.role === "superadmin") && (
         <div className="flex md:hidden items-center pr-2">
           <NavLink
             to="/admin"
