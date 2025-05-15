@@ -231,6 +231,7 @@ export const ProductForm = () => {
         </div>
 
         {/* Image */}
+        {/* add preview */}
         <div className="flex flex-col gap-1">
           <Label htmlFor="image" className="font-semibold">
             Image
