@@ -68,6 +68,16 @@ export const DELETE_PROFILE = `
 //   }
 // `;
 
+export const GET_MY_PROFILE = `
+  query GetMyProfile {
+    getMyProfile {
+      firstname
+      lastname
+      email
+    }
+  }
+`;
+
 export const UPDATE_USER_PROFILE = `
   mutation UpdateUserProfile($data: UserUpdateProfileInput!) {
     updateUserProfile(data: $data) {

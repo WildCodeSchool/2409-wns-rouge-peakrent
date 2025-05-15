@@ -1,6 +1,6 @@
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { WHOAMI } from "@/GraphQL/whoami";
-import { GET_PROFILE_BY_USER_ID } from "@/GraphQL/profiles";
+import { GET_MY_PROFILE } from "@/GraphQL/profiles";
 import { useNavigate } from "react-router-dom";
 import ProfileCard from "@/components/cards/ProfileCard";
 import { SIGNOUT } from "@/GraphQL/signout";
@@ -15,14 +15,8 @@ export default function ProfileDashboard() {
   const user = userData?.whoami;
 
   // 2. Récupérer le profil lié à cet utilisateur (si besoin)
-  const { data: profileData, loading: loadingProfile } = useQuery(
-    gql(GET_PROFILE_BY_USER_ID),
-    {
-      variables: { userId: user?.id },
-      skip: !user?.id,
-    }
-  );
-  const profile = profileData?.getProfileByUserId;
+  const { data: profileData, loading: loadingProfile } = useQuery(gql(GET_MY_PROFILE));
+  const profile = profileData?.getMyProfile;
 
   const [doSignout] = useMutation(gql(SIGNOUT), {
     refetchQueries: [{ query: gql(WHOAMI) }],

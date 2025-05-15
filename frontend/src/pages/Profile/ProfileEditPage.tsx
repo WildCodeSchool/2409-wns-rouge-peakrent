@@ -1,35 +1,25 @@
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { WHOAMI } from "@/GraphQL/whoami";
-import { GET_PROFILE_BY_USER_ID, UPDATE_USER_PROFILE } from "@/GraphQL/profiles";
+import { GET_MY_PROFILE, UPDATE_USER_PROFILE } from "@/GraphQL/profiles";
 import EditProfile from "@/components/forms/ProfileEditForm";
 
 export default function ProfileEditPage() {
   const navigate = useNavigate();
 
-  // Récupérer l'utilisateur connecté
-  const { data: userData, loading: loadingUser } = useQuery(gql(WHOAMI));
-  const user = userData?.whoami;
+  const { data: profileData, loading: loadingProfile } = useQuery(gql(GET_MY_PROFILE));
+  const profile = profileData?.getMyProfile;
 
-  // Récupérer le profil lié à cet utilisateur
-  const { data: profileData, loading: loadingProfile } = useQuery(gql(GET_PROFILE_BY_USER_ID), {
-    variables: { userId: user?.id },
-    skip: !user?.id,
-  });
-  const profile = profileData?.getProfileByUserId;
-
-  // Mutation pour mettre à jour le profil
   const [updateProfile, { loading: loadingUpdate, error: errorUpdate }] = useMutation(
     gql(UPDATE_USER_PROFILE),
     {
       refetchQueries: [
-        { query: gql(GET_PROFILE_BY_USER_ID), variables: { userId: user?.id } }
+        { query: gql(GET_MY_PROFILE) }
       ],
       awaitRefetchQueries: true,
     }
   );
 
-  if (loadingUser || loadingProfile) {
+  if (loadingProfile) {
     return <div>Chargement…</div>;
   }
   if (!profile) {
@@ -48,7 +38,7 @@ export default function ProfileEditPage() {
       });
       navigate("/profile");
     } catch (e) {
-      // Erreur déjà gérée par errorUpdate
+      console.error(e);
     }
   };
 
