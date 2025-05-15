@@ -1,6 +1,7 @@
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { GET_MY_PROFILE, UPDATE_USER_PROFILE } from "@/GraphQL/profiles";
+import { WHOAMI } from "@/GraphQL/whoami";
 import EditProfile from "@/components/forms/ProfileEditForm";
 
 export default function ProfileEditPage() {
@@ -13,7 +14,7 @@ export default function ProfileEditPage() {
 
   const [updateProfile, { loading: loadingUpdate, error: errorUpdate }] =
     useMutation(gql(UPDATE_USER_PROFILE), {
-      refetchQueries: [{ query: gql(GET_MY_PROFILE) }],
+      refetchQueries: [{ query: gql(GET_MY_PROFILE) }, { query: gql(WHOAMI) }],
       awaitRefetchQueries: true,
     });
 
