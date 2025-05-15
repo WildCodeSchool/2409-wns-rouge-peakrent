@@ -24,6 +24,7 @@ interface DeleteButtonProps {
   modalTitle?: string;
   modalDescription?: string;
   type?: "submit" | "reset" | "button" | undefined;
+  confirmButtonValue?: string;
 }
 
 export default function DeleteButton({
@@ -38,8 +39,10 @@ export default function DeleteButton({
   modalTitle,
   modalDescription,
   type = "button",
+  confirmButtonValue,
 }: DeleteButtonProps) {
-  const { setDescription, setTitle, openModal } = useDeleteModal();
+  const { setDescription, setTitle, openModal, setConfirmButtonValue } =
+    useDeleteModal();
 
   const handleClick = () => {
     if (modalTitle) {
@@ -47,6 +50,9 @@ export default function DeleteButton({
     }
     if (modalDescription) {
       setDescription(modalDescription);
+    }
+    if (confirmButtonValue) {
+      setConfirmButtonValue(confirmButtonValue);
     }
     openModal(elementIds, onDeleteFunction);
   };
