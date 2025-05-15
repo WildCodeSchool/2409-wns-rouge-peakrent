@@ -12,6 +12,7 @@ import {
   SignInInput,
   User,
   UserCreateInput,
+  UserUpdateProfileInput,
 } from "../entities/User";
 import { UserToken } from "../entities/UserToken";
 import { hashPassword, verifyPassword } from "../helpers/helpers";
@@ -288,5 +289,42 @@ export class UserResolver {
       console.error("Error updating user:", error);
       throw new Error("Unable to update user. Please try again.");
     }
+  }
+
+  @Authorized()
+  @Mutation(() => Profile)
+  async updateUserProfile(
+    @Arg("data", () => UserUpdateProfileInput) data: UserUpdateProfileInput,
+    @Ctx() context: ContextType
+  ): Promise<Profile> {
+    if (!context.user?.id) {
+      throw new GraphQLError("Non authentifié", {
+        extensions: { code: "UNAUTHENTICATED", http: { status: 401 } },
+      });
+    }
+    const user = await User.findOne({ where: { id: context.user.id } });
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+    user.firstname = data.firstname;
+    user.lastname = data.lastname;
+    let profile: Profile | null = null;
+    await dataSource.manager.transaction(async () => {
+      await user.save();
+      profile = await Profile.findOne({ where: { id: user.id } });
+      if (profile) {
+        profile.firstname = user.firstname;
+        profile.lastname = user.lastname;
+        await profile.save();
+      }
+    });
+    if (!profile) {
+      throw new GraphQLError("Profil introuvable", {
+        extensions: { code: "PROFILE_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+    return profile;
   }
 }

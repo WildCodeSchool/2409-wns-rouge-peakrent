@@ -66,6 +66,12 @@ export class Cart extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.cart, {
+    cascade: true,
+  })
+  orderItems?: OrderItem[];
 }
 
 @InputType()

@@ -1,6 +1,7 @@
-import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from "react-icons/md";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { ProductCard } from "../cards/ProductCard";
 import { Button } from "../ui/button";
+import { Title } from "../ui/title";
 
 type PropsType = {
   title: string;
@@ -24,7 +25,7 @@ const ProductsList = ({
   return (
     <>
       <div className="flex flex-row items-center justify-between">
-        <h2>{title}</h2>
+        <Title text={title} className="mb-4" />
         <div className="flex flex-row items-center justify-center gap-2.5">
           <p className="text-center text-[15px]">Produits par pages :</p>
           <select
@@ -51,7 +52,7 @@ const ProductsList = ({
           onClick={() => pageIndex > 1 && setPageIndex(pageIndex - 1)}
           disabled={pageIndex <= 1}
         >
-          <MdKeyboardArrowLeft size={20} />
+          <ArrowLeft size={20} />
         </Button>
         <span>
           {pageIndex} / {maxPage}
@@ -60,7 +61,7 @@ const ProductsList = ({
           onClick={() => pageIndex < maxPage && setPageIndex(pageIndex + 1)}
           disabled={pageIndex >= maxPage}
         >
-          <MdKeyboardArrowRight size={20} />
+          <ArrowRight size={20} />
         </Button>
       </div>
     </>

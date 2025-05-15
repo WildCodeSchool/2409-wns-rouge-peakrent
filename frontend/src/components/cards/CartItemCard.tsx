@@ -10,13 +10,14 @@ import {
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { OrderItem as OrderItemType } from "@/gql/graphql";
 import { formatLocaleDate } from "@/utils/getLocaleDateAndTime";
+import { totalDays } from "@/utils/getNumberOfDays";
 import { ChevronsRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CartItemProps {
   item: OrderItemType;
   onRemoveItem?: () => void;
-  onQuantityChange?: () => void;
+  onQuantityChange?: (quantity: number) => void;
 }
 
 export function CartItemCard({
@@ -32,21 +33,13 @@ export function CartItemCard({
 
   const handleChangeQuantity = (quantity: number) => {
     if (onQuantityChange) {
-      onQuantityChange();
+      onQuantityChange(quantity);
     }
   };
 
   const variant = item.variant;
   const product = variant?.product;
-
-  const totalDays =
-    item?.endsAt && item?.startsAt
-      ? Math.floor(
-          (new Date(item?.endsAt).getTime() -
-            new Date(item?.startsAt).getTime()) /
-            (1000 * 60 * 60 * 24)
-        )
-      : 1;
+  const numberOfDays = totalDays(item.startsAt, item.endsAt);
 
   return (
     <Card className="grid grid-cols-[1fr_2fr] rounded-md border shadow-sm p-0 gap-2 max-w-screen-sm">
@@ -104,13 +97,13 @@ export function CartItemCard({
             <p className="text-sm font-normal sm:gap-1 flex flex-col sm:flex-row items-center order-1 sm:order-2">
               <span className="text-muted-foreground">
                 ({item.quantity} x {(item.pricePerHour / 100)?.toFixed(2)}€ x{" "}
-                {totalDays}j)
+                {numberOfDays}j)
               </span>
               <span className="font-bold text-lg self-end">
                 {(
                   (item.pricePerHour / 100) *
                   item.quantity *
-                  totalDays
+                  numberOfDays
                 )?.toFixed(2)}
                 €
               </span>

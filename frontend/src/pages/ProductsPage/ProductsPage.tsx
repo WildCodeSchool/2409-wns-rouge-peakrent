@@ -174,7 +174,7 @@ const ProductsPage = () => {
             setSelectedStartingDate={setSelectedStartingDate}
           />
         </aside>
-        <div className="flex-1 p-4">
+        <div className="flex-1 px-4 pb-4">
           {products.length > 0 ? (
             <ProductsList
               title="Tous les produits"
