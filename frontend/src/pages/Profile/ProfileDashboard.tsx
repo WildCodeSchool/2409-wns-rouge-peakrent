@@ -15,7 +15,9 @@ export default function ProfileDashboard() {
   const user = userData?.whoami;
 
   // 2. Récupérer le profil lié à cet utilisateur (si besoin)
-  const { data: profileData, loading: loadingProfile } = useQuery(gql(GET_MY_PROFILE));
+  const { data: profileData, loading: loadingProfile } = useQuery(
+    gql(GET_MY_PROFILE)
+  );
   const profile = profileData?.getMyProfile;
 
   const [doSignout] = useMutation(gql(SIGNOUT), {

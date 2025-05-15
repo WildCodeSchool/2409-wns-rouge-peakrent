@@ -171,12 +171,12 @@ const NavBar = () => {
           <NavLink
             to="/admin"
             aria-label="Navigation vers la page admin"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            "py-2 px-4 cursor-pointer text-center"
-          )}
-        >
-          <ShieldUser size={30} className="flex-none" />
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
+          >
+            <ShieldUser size={30} className="flex-none" />
           </NavLink>
         </div>
       )}

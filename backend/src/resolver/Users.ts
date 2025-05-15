@@ -328,4 +328,3 @@ export class UserResolver {
     return profile;
   }
 }
-

@@ -85,8 +85,16 @@ function App() {
             />
             <Route path="products/:id" element={<ProductDetail />} />
             <Route path="products" element={<ProductsPage />} />
-            <Route path="profile" element={checkAuth(ProfileDashboard, [AuthStates.authenticated])()} />
-            <Route path="profile/edit" element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()} />
+            <Route
+              path="profile"
+              element={checkAuth(ProfileDashboard, [
+                AuthStates.authenticated,
+              ])()}
+            />
+            <Route
+              path="profile/edit"
+              element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
+            />
             {/* Admin Routes */}
             <Route
               path="/admin"

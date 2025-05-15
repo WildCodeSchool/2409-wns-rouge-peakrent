@@ -6,18 +6,16 @@ import EditProfile from "@/components/forms/ProfileEditForm";
 export default function ProfileEditPage() {
   const navigate = useNavigate();
 
-  const { data: profileData, loading: loadingProfile } = useQuery(gql(GET_MY_PROFILE));
+  const { data: profileData, loading: loadingProfile } = useQuery(
+    gql(GET_MY_PROFILE)
+  );
   const profile = profileData?.getMyProfile;
 
-  const [updateProfile, { loading: loadingUpdate, error: errorUpdate }] = useMutation(
-    gql(UPDATE_USER_PROFILE),
-    {
-      refetchQueries: [
-        { query: gql(GET_MY_PROFILE) }
-      ],
+  const [updateProfile, { loading: loadingUpdate, error: errorUpdate }] =
+    useMutation(gql(UPDATE_USER_PROFILE), {
+      refetchQueries: [{ query: gql(GET_MY_PROFILE) }],
       awaitRefetchQueries: true,
-    }
-  );
+    });
 
   if (loadingProfile) {
     return <div>Chargement…</div>;
@@ -26,7 +24,11 @@ export default function ProfileEditPage() {
     return <div>Profil introuvable.</div>;
   }
 
-  const handleSave = async (data: { firstname: string; lastname: string; email: string }) => {
+  const handleSave = async (data: {
+    firstname: string;
+    lastname: string;
+    email: string;
+  }) => {
     try {
       await updateProfile({
         variables: {
@@ -57,7 +59,9 @@ export default function ProfileEditPage() {
         onCancel={handleCancel}
       />
       {loadingUpdate && <div>Enregistrement…</div>}
-      {errorUpdate && <div className="text-red-500 mt-2">Erreur lors de la sauvegarde.</div>}
+      {errorUpdate && (
+        <div className="text-red-500 mt-2">Erreur lors de la sauvegarde.</div>
+      )}
     </div>
   );
 }
