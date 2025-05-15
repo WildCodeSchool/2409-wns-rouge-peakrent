@@ -1,5 +1,4 @@
 import { OrderItem } from "@/gql/graphql";
-import { useMemo } from "react";
 
 type ResumeType = {
   orderItems: OrderItem[];
@@ -8,7 +7,7 @@ type ResumeType = {
 
 const Resume = ({ orderItems, promo }: ResumeType) => {
   // TO DO : Ajouter subTotal au panier ?
-  const subTotal = useMemo(() => {
+  const calculateSubTotal = () => {
     let result = 0;
     for (const item of orderItems) {
       const totalDays =
@@ -23,9 +22,10 @@ const Resume = ({ orderItems, promo }: ResumeType) => {
       result += totalDays * item.quantity * item.pricePerHour;
     }
     return result;
-  }, [orderItems]);
+  };
 
-  const total = useMemo(() => subTotal - promo, [subTotal, promo]);
+  const subTotal = calculateSubTotal();
+  const total = subTotal - promo;
 
   return (
     <div className="border rounded-xs bg-gray-100 p-4 w-full">

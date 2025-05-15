@@ -29,7 +29,7 @@ export enum RoleType {
 
 export enum OrderItemStatusType {
   pending = "pending",
-  canceled = "canceled",
+  cancelled = "cancelled",
   refunded = "refunded",
   distributed = "distributed",
   recovered = "recovered",

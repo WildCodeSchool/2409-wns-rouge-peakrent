@@ -54,7 +54,7 @@ export function CartPage() {
 
   //TODO Charlotte
   // Vérifier l'availability, changer envoit à l'API, ajouter changement date
-  const handleQuantityChange = (id: string, value: string) => {
+  const handleQuantityChange = (id: string, value: number) => {
     updateOrderItemQuantityStore(Number(id), Number(value));
   };
 

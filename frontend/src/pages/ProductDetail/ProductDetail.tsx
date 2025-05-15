@@ -21,10 +21,10 @@ import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 
 const ProductDetail = () => {
   const {
-    user: useUserData,
-    profile: useUserProfile,
-    loading: useUserLoading,
-    error: useUserError,
+    user: UserData,
+    profile: UserProfile,
+    loading: UserLoading,
+    error: UserError,
   } = useUser();
   const params = useParams();
   const [selectedVariantsPrice, setSelectedVariantsPrice] = useState<number>(0);
@@ -102,7 +102,7 @@ const ProductDetail = () => {
         const newOrderItem = await createOrderItem({
           variables: {
             data: {
-              profileId: Number(useUserProfile?.id),
+              profileId: Number(UserProfile?.id),
               variantId: Number(variant.id),
               quantity: data.quantity,
               pricePerHour: Number(variant.pricePerHour),
@@ -155,7 +155,7 @@ const ProductDetail = () => {
     }
   };
 
-  return getProductLoading || useUserLoading ? (
+  return getProductLoading || UserLoading ? (
     <div className="flex items-center justify-center h-screen">
       <LoadIcon size={60} />
     </div>
@@ -252,7 +252,7 @@ const ProductDetail = () => {
                 className="px-4 mx-auto mt-6 rounded-lg w-full max-w-[600px] text-xl"
                 disabled={isDisabled}
               >
-                {!useUserData?.id
+                {!UserData?.id
                   ? "Se connecter pour ajouter au panier"
                   : "Ajouter au panier"}
               </Button>

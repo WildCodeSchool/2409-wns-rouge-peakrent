@@ -26,7 +26,7 @@ export class OrderItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Cart, { nullable: true })
   @ManyToOne(() => Cart, (cart) => cart.id, {
     onDelete: "SET NULL",
     nullable: true,
@@ -56,7 +56,7 @@ export class OrderItem extends BaseEntity {
     enum: OrderItemStatusType,
     default: OrderItemStatusType.pending,
   })
-  statut: OrderItemStatusType;
+  status: OrderItemStatusType;
 
   @Field()
   @Column({ name: "price_per_hour" })
@@ -148,8 +148,7 @@ export class OrderItemsUpdateInput {
   endsAt?: Date;
 
   @Field({ nullable: true })
-  @IsDate()
-  statut?: Date;
+  status?: OrderItemStatusType;
 }
 
 @InputType()

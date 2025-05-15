@@ -1,4 +1,4 @@
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { ProductCard } from "../cards/ProductCard";
 import { Button } from "../ui/button";
 import { Title } from "../ui/title";
@@ -52,7 +52,7 @@ const ProductsList = ({
           onClick={() => pageIndex > 1 && setPageIndex(pageIndex - 1)}
           disabled={pageIndex <= 1}
         >
-          <MdKeyboardArrowLeft size={20} />
+          <ArrowLeft size={20} />
         </Button>
         <span>
           {pageIndex} / {maxPage}
@@ -61,7 +61,7 @@ const ProductsList = ({
           onClick={() => pageIndex < maxPage && setPageIndex(pageIndex + 1)}
           disabled={pageIndex >= maxPage}
         >
-          <MdKeyboardArrowRight size={20} />
+          <ArrowRight size={20} />
         </Button>
       </div>
     </>

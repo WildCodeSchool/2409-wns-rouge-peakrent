@@ -10,7 +10,6 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { IsNull, Not } from "typeorm";
 import { Cart } from "../entities/Cart";
 import { Order } from "../entities/Order";
 import {
@@ -19,7 +18,6 @@ import {
   OrderItemsUpdateInput,
   OrderItemsUpdateInputForUser,
 } from "../entities/OrderItem";
-import { Profile } from "../entities/Profile";
 import { Variant } from "../entities/Variant";
 import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { AuthContextType, OrderItemStatusType } from "../types";
@@ -78,37 +76,44 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Query(() => [OrderItem])
+  @Query(() => Cart)
   @Authorized()
   async getOrderItemsCartByProfileId(
-    @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
-  ): Promise<OrderItem[] | null> {
-    const id = Number(_id);
-    const profile = await Profile.findOne({ where: { id } });
-    if (!profile) {
-      throw new GraphQLError("profile not found", {
+  ): Promise<Cart | null> {
+    const profileId = context.user.id;
+
+    const cart = await Cart.findOne({
+      where: { profile: { id: profileId } },
+      relations: {
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+      },
+    });
+    // TODO
+    if (!cart) {
+      throw new GraphQLError("NOT", {
         extensions: {
           code: "NOT_FOUND",
-          entity: "Profile",
+          entity: "cart",
           http: { status: 404 },
         },
       });
     }
-    const orderItem = await OrderItem.find({
-      where: { cart: { id: Not(IsNull()), profile: { id } } },
-      relations: {
-        cart: true,
-        variant: {
-          product: true,
-        },
-      },
-    });
+    // const orderItem = await OrderItem.find({
+    //   where: { cart: { id: Not(IsNull()), profile: { id: profileId } } },
+    //   relations: {
+    //     cart: true,
+    //     variant: {
+    //       product: true,
+    //     },
+    //   },
+    // });
     if (
-      !(
-        context.user.role === "admin" ||
-        context.user.id === orderItem[0].cart.profile.id
-      )
+      !(context.user.role === "admin" || context.user.id === cart.profile.id)
     ) {
       throw new GraphQLError("Unauthorized", {
         extensions: {
@@ -117,7 +122,7 @@ export class OrderItemsResolver {
         },
       });
     }
-    return orderItem;
+    return cart;
   }
 
   @Query(() => [OrderItem])
@@ -207,7 +212,7 @@ export class OrderItemsResolver {
       });
     }
 
-    if (cartId || !orderId) {
+    if (!cartId && !orderId) {
       let cart = await Cart.findOne({
         where: { profile: { id: profileId } },
         relations: ["profile"],
@@ -259,7 +264,7 @@ export class OrderItemsResolver {
 
   @Mutation(() => OrderItem, { nullable: true })
   @Authorized("admin")
-  async updateOrderItems(
+  async updateOrderItem(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput
   ): Promise<OrderItem | null> {
@@ -311,7 +316,7 @@ export class OrderItemsResolver {
 
   @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
-  async updateOrderItemsForUser(
+  async updateOrderItemForUser(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInputForUser)
     data: OrderItemsUpdateInputForUser,
@@ -407,7 +412,7 @@ export class OrderItemsResolver {
       });
     }
 
-    orderItem.statut = OrderItemStatusType.canceled;
+    orderItem.status = OrderItemStatusType.cancelled;
     await orderItem.save();
 
     return orderItem;

@@ -8,11 +8,7 @@ import { NavLink } from "react-router-dom";
 import { toast } from "sonner";
 import { buttonVariants } from "../ui/button";
 
-type NavCartLinkProps = {
-  profileId?: number;
-};
-
-const NavCartLink = ({ profileId }: NavCartLinkProps) => {
+const NavCartLink = () => {
   const orderItemsStore = useOrderItemStore((state) => state.orderItems);
   const setOrderItems = useOrderItemStore((state) => state.setOrderItems);
   const setOrderItemsFetched = useOrderItemStore(
@@ -23,14 +19,14 @@ const NavCartLink = ({ profileId }: NavCartLinkProps) => {
   const { data, loading, error } = useQuery(
     gql(GET_ORDER_ITEMS_CART_BY_PROFILE_ID),
     {
-      variables: { profileId },
-      skip: !profileId || ordersFetched,
+      skip: ordersFetched,
     }
   );
+  console.log(data);
 
   useEffect(() => {
     if (error) {
-      toast.error("Erreur lors de la récupération des items du paniers");
+      toast.error("Erreur lors de la récupération des items du panier");
       console.error(
         "Erreur lors de la récupération des items du paniers:",
         error
@@ -39,7 +35,7 @@ const NavCartLink = ({ profileId }: NavCartLinkProps) => {
     }
 
     if (data?.getOrderItemsCartByProfileId) {
-      setOrderItems(data.getOrderItemsCartByProfileId);
+      setOrderItems(data.getOrderItemsCartByProfileId.orderItems);
       setOrderItemsFetched(true);
     }
   }, [data, error, setOrderItems, setOrderItemsFetched]);
@@ -55,7 +51,7 @@ const NavCartLink = ({ profileId }: NavCartLinkProps) => {
     >
       <CiShoppingCart size={30} className="flex-none" />
 
-      {profileId && orderItemsStore.length > 0 && !loading && (
+      {orderItemsStore.length > 0 && !loading && (
         <span className="absolute top-1 right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
           {orderItemsStore.length}
         </span>

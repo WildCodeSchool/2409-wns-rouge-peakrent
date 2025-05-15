@@ -22,25 +22,29 @@ export const CREATE_ORDER_ITEM = `
 `;
 
 export const GET_ORDER_ITEMS_CART_BY_PROFILE_ID = `
-query GetOrderItemsCartByProfileId($profileId: Int!) {
-  getOrderItemsCartByProfileId(id: $profileId) {
+query GetOrderItemsCartByProfileId {
+  getOrderItemsCartByProfileId {
     id
-    variant {
+    orderItems {
+      id
+      quantity
       pricePerHour
-      color
-      size
-      product {
+      startsAt
+      endsAt
+      variant {
+        color
         id
-        name
-        sku
-        urlImage
-        description
+        pricePerHour
+        product {
+          description
+          name
+          sku
+          urlImage
+          id
+        }
+        size
       }
     }
-    pricePerHour
-    quantity
-    startsAt
-    endsAt
   }
 }
 `;

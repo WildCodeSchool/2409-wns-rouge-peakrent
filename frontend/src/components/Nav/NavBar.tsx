@@ -16,12 +16,7 @@ import { buttonVariants } from "../ui/button";
 import NavCartLink from "./NavCartLink";
 
 const NavBar = () => {
-  const {
-    user: useUserData,
-    profile: useUserProfile,
-    loading: useUserLoading,
-    error: useUserError,
-  } = useUser();
+  const { user: UserData } = useUser();
 
   const [doSignout] = useMutation(gql(SIGNOUT), {
     refetchQueries: [{ query: gql(WHOAMI) }],
@@ -106,9 +101,9 @@ const NavBar = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-5 pr-2 h-full border-b border-light-gray">
-        {useUserData?.id ? (
+        {UserData?.id ? (
           <>
-            <NavCartLink profileId={Number(useUserProfile?.id)} />
+            <NavCartLink />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <span
