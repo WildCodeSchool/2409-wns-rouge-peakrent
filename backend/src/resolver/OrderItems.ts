@@ -261,8 +261,7 @@ export class OrderItemsResolver {
   @Authorized("admin")
   async updateOrderItems(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => OrderItemsUpdateInput) data: OrderItemsUpdateInput
   ): Promise<OrderItem | null> {
     const id = Number(_id);
     const orderItem = await OrderItem.findOne({
