@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
+import { ShieldUser } from "lucide-react";
 import { CiHome, CiLogin, CiUser } from "react-icons/ci";
 import { Link, NavLink } from "react-router-dom";
 import { WHOAMI } from "../../GraphQL/whoami";
@@ -46,15 +47,19 @@ const NavBar = () => {
 
   const dropDownItems: { name: string; path: string; ariaLabel: string }[] = [
     {
-      name: "Profile",
-      path: "/account",
-      ariaLabel: "Navigation vers la page profile",
+      name: "Profil",
+      path: "/profile",
+      ariaLabel: "Navigation vers la page profil",
     },
-    {
-      name: "Mes commandes",
-      path: "/orders",
-      ariaLabel: "Navigation vers la page mes commandes",
-    },
+    ...(me?.role === "admin" || me?.role === "superadmin"
+      ? [
+          {
+            name: "Admin",
+            path: "/admin",
+            ariaLabel: "Navigation vers la page admin",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -154,6 +159,20 @@ const NavBar = () => {
           </NavLink>
         )}
       </div>
+      {(me?.role === "admin" || me?.role === "superadmin") && (
+        <div className="flex md:hidden items-center pr-2">
+          <NavLink
+            to="/admin"
+            aria-label="Navigation vers la page admin"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "py-2 px-4 cursor-pointer text-center"
+            )}
+          >
+            <ShieldUser size={30} className="flex-none" />
+          </NavLink>
+        </div>
+      )}
     </header>
   );
 };

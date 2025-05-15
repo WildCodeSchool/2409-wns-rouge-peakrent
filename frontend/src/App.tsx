@@ -23,6 +23,8 @@ import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
+import ProfileDashboard from "./pages/Profile/ProfileDashboard";
+import ProfileEditPage from "./pages/Profile/ProfileEditPage";
 
 enum AuthStates {
   authenticated,
@@ -89,7 +91,16 @@ function App() {
             {/* User Connected Routes */}
             <Route path="cart" element={<CartPage />} />
             <Route path="cart/checkout" element={<CartCheckout />} />
-
+            <Route
+              path="profile"
+              element={checkAuth(ProfileDashboard, [
+                AuthStates.authenticated,
+              ])()}
+            />
+            <Route
+              path="profile/edit"
+              element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
+            />
             {/* Admin Routes */}
             <Route
               path="/admin"

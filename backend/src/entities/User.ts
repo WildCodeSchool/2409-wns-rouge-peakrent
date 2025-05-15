@@ -176,3 +176,14 @@ export class AdminUpdateUserInput {
   @Field(() => RoleType)
   role?: RoleType;
 }
+
+@InputType()
+export class UserUpdateProfileInput {
+  @Field()
+  @IsNotEmpty({ message: "First name is empty" })
+  firstname?: string;
+
+  @Field()
+  @IsNotEmpty({ message: "Last name is empty" })
+  lastname?: string;
+}
