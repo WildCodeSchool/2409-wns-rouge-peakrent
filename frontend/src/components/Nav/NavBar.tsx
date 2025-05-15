@@ -1,22 +1,23 @@
+import { useUser } from "@/context/userProvider";
 import { SIGNOUT } from "@/GraphQL/signout";
 import { cn } from "@/lib/utils";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { CiHome, CiLogin, CiShoppingCart, CiUser } from "react-icons/ci";
+import { ShieldUser } from "lucide-react";
+import { CiHome, CiLogin, CiUser } from "react-icons/ci";
 import { Link, NavLink } from "react-router-dom";
 import { WHOAMI } from "../../GraphQL/whoami";
 import SearchBar from "../SearchBar/SearchBar";
 import { buttonVariants } from "../ui/button";
-import { ShieldUser } from "lucide-react";
+import NavCartLink from "./NavCartLink";
 
 const NavBar = () => {
-  const { data: whoamiData } = useQuery(gql(WHOAMI));
-  const me = whoamiData?.whoami;
+  const { user: userData } = useUser();
 
   const [doSignout] = useMutation(gql(SIGNOUT), {
     refetchQueries: [{ query: gql(WHOAMI) }],
@@ -50,7 +51,7 @@ const NavBar = () => {
       path: "/profile",
       ariaLabel: "Navigation vers la page profil",
     },
-    ...(me?.role === "admin" || me?.role === "superadmin"
+    ...(userData?.role === "admin" || userData?.role === "superadmin"
       ? [
           {
             name: "Admin",
@@ -105,54 +106,46 @@ const NavBar = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-5 pr-2 h-full border-b border-light-gray">
-        <NavLink
-          to="/cart"
-          aria-label="Navigation vers la page panier"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon" }),
-            "py-2 px-4 cursor-pointer text-center"
-          )}
-        >
-          <CiShoppingCart size={30} className="flex-none" />
-        </NavLink>
+        {userData?.id ? (
+          <>
+            <NavCartLink />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <span
+                  className={cn(
+                    buttonVariants({ variant: "primary", size: "icon" }),
+                    "py-2 px-4 cursor-pointer text-center"
+                  )}
+                >
+                  <CiUser size={20} className="flex-none" />
+                </span>
+              </DropdownMenuTrigger>
 
-        {me ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <span
-                className={cn(
-                  buttonVariants({ variant: "primary", size: "icon" }),
-                  "py-2 px-4 cursor-pointer text-center"
-                )}
+              <DropdownMenuContent
+                align="end"
+                className="mt-2 border-1 border-gray-300 rounded-lg bg-white"
               >
-                <CiUser size={20} className="flex-none" />
-              </span>
-            </DropdownMenuTrigger>
+                {dropDownItems.map((item) => (
+                  <div key={item.path}>
+                    <Link to={item.path} aria-label={item.ariaLabel}>
+                      <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white">
+                        {item.name}
+                      </DropdownMenuItem>
+                    </Link>
+                    <div className="border-t border-gray-300"></div>
+                  </div>
+                ))}
 
-            <DropdownMenuContent
-              align="end"
-              className="mt-2 border-1 border-gray-300 rounded-lg bg-white"
-            >
-              {dropDownItems.map((item) => (
-                <div key={item.path}>
-                  <Link to={item.path} aria-label={item.ariaLabel}>
-                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white">
-                      {item.name}
-                    </DropdownMenuItem>
-                  </Link>
-                  <div className="border-t border-gray-300"></div>
-                </div>
-              ))}
-
-              <DropdownMenuItem
-                onClick={onSignout}
-                aria-label="déconnexion"
-                className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white"
-              >
-                Déconnexion
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuItem
+                  onClick={onSignout}
+                  aria-label="déconnexion"
+                  className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white"
+                >
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         ) : (
           <NavLink
             to="/signin"
@@ -166,7 +159,7 @@ const NavBar = () => {
           </NavLink>
         )}
       </div>
-      {(me?.role === "admin" || me?.role === "superadmin") && (
+      {(userData?.role === "admin" || userData?.role === "superadmin") && (
         <div className="flex md:hidden items-center pr-2">
           <NavLink
             to="/admin"
