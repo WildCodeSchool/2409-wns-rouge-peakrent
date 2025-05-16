@@ -21,34 +21,6 @@ export const CREATE_ORDER_ITEM = `
   }
 `;
 
-export const GET_ORDER_ITEMS_CART_BY_PROFILE_ID = `
-query GetOrderItemsCartByProfileId {
-  getOrderItemsCartByProfileId {
-    id
-    orderItems {
-      id
-      quantity
-      pricePerHour
-      startsAt
-      endsAt
-      variant {
-        color
-        id
-        pricePerHour
-        product {
-          description
-          name
-          sku
-          urlImage
-          id
-        }
-        size
-      }
-    }
-  }
-}
-`;
-
 export const DELETE_ORDER_ITEM_CART = `
 mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
   deleteOrderItemForCartForUSer(id: $orderItemId) {

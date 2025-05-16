@@ -49,18 +49,42 @@ export const GET_CARTS = `
 }
 `;
 
-export const GET_CART_BY_PROFILE_ID = `
-  query GetCartByProfile($profileId: Int!) {
-    getCartByProfile(profileId: $profileId) {
+export const GET_CART_BY_USER = `
+query GetCartForUser($withOrderItems: Boolean!) {
+  getCartForUser(withOrderItems: $withOrderItems) {
+    id
+    orderItems {
       id
+      quantity
+      pricePerHour
+      startsAt
+      endsAt
+      variant {
+        color
+        id
+        pricePerHour
+        product {
+          description
+          name
+          sku
+          urlImage
+          id
+        }
+        size
+      }
     }
   }
+}
 `;
 
-export const CREATE_CART = `
-  mutation CreateCart($data: CartCreateInput!) {
-    createCart(data: $data) {
-      id
+export const UPDATE_CART_USER = `
+  mutation Mutation($data: CartUpdateInputUSer!) {
+    updateCartUser(data: $data) {
+      address1
+      address2
+      city
+      country
+      zipCode
     }
   }
 `;

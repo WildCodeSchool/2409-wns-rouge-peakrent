@@ -1,4 +1,4 @@
-import { GET_ORDER_ITEMS_CART_BY_PROFILE_ID } from "@/GraphQL/orderItems";
+import { GET_CART_BY_USER } from "@/GraphQL/carts";
 import { cn } from "@/lib/utils";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useQuery } from "@apollo/client";
@@ -16,12 +16,10 @@ const NavCartLink = () => {
   );
   const ordersFetched = useOrderItemStore((state) => state.ordersFetched);
 
-  const { data, loading, error } = useQuery(
-    gql(GET_ORDER_ITEMS_CART_BY_PROFILE_ID),
-    {
-      skip: ordersFetched,
-    }
-  );
+  const { data, loading, error } = useQuery(gql(GET_CART_BY_USER), {
+    variables: { withOrderItems: true },
+    skip: ordersFetched,
+  });
   console.log(data);
 
   useEffect(() => {
@@ -34,8 +32,8 @@ const NavCartLink = () => {
       return;
     }
 
-    if (data?.getOrderItemsCartByProfileId) {
-      setOrderItems(data.getOrderItemsCartByProfileId.orderItems);
+    if (data?.getCartForUser) {
+      setOrderItems(data.getCartForUser.orderItems);
       setOrderItemsFetched(true);
     }
   }, [data, error, setOrderItems, setOrderItemsFetched]);
