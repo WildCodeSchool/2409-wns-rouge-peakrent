@@ -3,10 +3,10 @@ import { OrderItem } from "@/gql/graphql";
 type ResumeType = {
   orderItems: OrderItem[];
   promo: number;
+  className?: string;
 };
 
-const Resume = ({ orderItems, promo }: ResumeType) => {
-  // TO DO : Ajouter subTotal au panier ?
+const Resume = ({ orderItems, promo, className }: ResumeType) => {
   const calculateSubTotal = () => {
     let result = 0;
     for (const item of orderItems) {
@@ -28,7 +28,9 @@ const Resume = ({ orderItems, promo }: ResumeType) => {
   const total = subTotal - promo;
 
   return (
-    <div className="border rounded-xs bg-gray-100 p-4 w-full">
+    <div
+      className={`border rounded-xs bg-gray-100 p-4 w-full lg:max-w-[350px] ${className}`}
+    >
       <h2 className="text-center">Résumé</h2>
       <p className="flex justify-between">
         Sous-total <span>{(subTotal / 100).toFixed(2)} €</span>

@@ -10,6 +10,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { IsNull, Not } from "typeorm";
 import { Cart } from "../entities/Cart";
 import { Order } from "../entities/Order";
 import {
@@ -76,55 +77,6 @@ export class OrderItemsResolver {
     return orderItem;
   }
 
-  @Query(() => Cart)
-  @Authorized()
-  async getOrderItemsCartByProfileId(
-    @Ctx() context: AuthContextType
-  ): Promise<Cart | null> {
-    const profileId = context.user.id;
-
-    const cart = await Cart.findOne({
-      where: { profile: { id: profileId } },
-      relations: {
-        orderItems: {
-          variant: {
-            product: true,
-          },
-        },
-      },
-    });
-    // TODO
-    if (!cart) {
-      throw new GraphQLError("NOT", {
-        extensions: {
-          code: "NOT_FOUND",
-          entity: "cart",
-          http: { status: 404 },
-        },
-      });
-    }
-    // const orderItem = await OrderItem.find({
-    //   where: { cart: { id: Not(IsNull()), profile: { id: profileId } } },
-    //   relations: {
-    //     cart: true,
-    //     variant: {
-    //       product: true,
-    //     },
-    //   },
-    // });
-    if (
-      !(context.user.role === "admin" || context.user.id === cart.profile.id)
-    ) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: {
-          code: "UNAUTHORIZED",
-          http: { status: 403 },
-        },
-      });
-    }
-    return cart;
-  }
-
   @Query(() => [OrderItem])
   @Authorized()
   async getOrderItemsByOrderId(
@@ -186,6 +138,18 @@ export class OrderItemsResolver {
       relations: ["product"],
     });
 
+    //TODO simplifier en mettant un before update / insert ?
+    if (new Date(startsAt) > new Date(endsAt)) {
+      throw new GraphQLError(
+        "The end date cannot be earlier than the start date.",
+        {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            entity: "OrderItem",
+          },
+        }
+      );
+    }
     if (!variant) {
       throw new GraphQLError("Variant does not exist", {
         extensions: {
@@ -271,13 +235,25 @@ export class OrderItemsResolver {
     const id = Number(_id);
     const orderItem = await OrderItem.findOne({
       where: { id },
-      relations: { cart: true, variant: true, order: true },
+      relations: { variant: { product: true } },
     });
     if (orderItem !== null) {
       const variantId = data.variantId ? data.variantId : orderItem.variant.id;
       const startsAt = data.startsAt ? data.startsAt : orderItem.startsAt;
       const endsAt = data.endsAt ? data.endsAt : orderItem.endsAt;
       const quantity = data.quantity ? data.quantity : orderItem.quantity;
+
+      if (new Date(startsAt) > new Date(endsAt)) {
+        throw new GraphQLError(
+          "The end date cannot be earlier than the start date.",
+          {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              entity: "OrderItem",
+            },
+          }
+        );
+      }
 
       const availableQuantity = await checkStockByVariantAndStore(
         1,
@@ -316,7 +292,7 @@ export class OrderItemsResolver {
 
   @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
-  async updateOrderItemForUser(
+  async updateOrderItemUser(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInputForUser)
     data: OrderItemsUpdateInputForUser,
@@ -324,15 +300,15 @@ export class OrderItemsResolver {
   ): Promise<OrderItem | null> {
     const id = Number(_id);
     const orderItem = await OrderItem.findOne({
-      where: { id },
-      relations: { cart: true, variant: true, order: true },
+      where: { id, cart: { id: Not(IsNull()) } },
+      relations: { variant: { product: true } },
     });
+
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem.cart.profile.user.id ||
-          context.user.id === orderItem.order.profile.user.id
+          context.user.id === orderItem.cart.profile.user.id
         )
       ) {
         throw new GraphQLError("Unauthorized", {
@@ -346,6 +322,18 @@ export class OrderItemsResolver {
       const startsAt = data.startsAt ? data.startsAt : orderItem.startsAt;
       const endsAt = data.endsAt ? data.endsAt : orderItem.endsAt;
       const quantity = data.quantity ? data.quantity : orderItem.quantity;
+
+      if (new Date(startsAt) > new Date(endsAt)) {
+        throw new GraphQLError(
+          "The end date cannot be earlier than the start date.",
+          {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              entity: "OrderItem",
+            },
+          }
+        );
+      }
 
       const availableQuantity = await checkStockByVariantAndStore(
         1,
@@ -420,20 +408,21 @@ export class OrderItemsResolver {
 
   @Mutation(() => OrderItem, { nullable: true })
   @Authorized()
-  async deleteOrderItemForCart(
+  async deleteOrderItemForCartForUSer(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
   ): Promise<Partial<OrderItem> | null> {
     const id = Number(_id);
     const orderItem = await OrderItem.findOne({
-      where: { id },
+      where: { id, cart: { id: Not(IsNull()) } },
+      relations: { variant: { product: true } },
     });
+
     if (orderItem !== null) {
       if (
         !(
           context.user.role === "admin" ||
-          context.user.id === orderItem.cart.profile.user.id ||
-          context.user.id === orderItem.order.profile.user.id
+          context.user.id === orderItem.cart.profile.user.id
         )
       ) {
         throw new GraphQLError("Unauthorized", {

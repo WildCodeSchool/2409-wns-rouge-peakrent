@@ -165,6 +165,7 @@ export type IdInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  cancelOrderItemForOrder?: Maybe<OrderItem>;
   createActivity: Activity;
   createCart: Cart;
   createCategory: Category;
@@ -183,7 +184,7 @@ export type Mutation = {
   deleteCategories?: Maybe<Array<Scalars['ID']['output']>>;
   deleteCategory?: Maybe<Category>;
   deleteOrder?: Maybe<Order>;
-  deleteOrderItems?: Maybe<OrderItem>;
+  deleteOrderItemForCartForUSer?: Maybe<OrderItem>;
   deleteProduct?: Maybe<Product>;
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
@@ -194,13 +195,21 @@ export type Mutation = {
   updateCart?: Maybe<Cart>;
   updateCategory?: Maybe<Category>;
   updateOrder?: Maybe<Order>;
-  updateOrderItems?: Maybe<OrderItem>;
+  updateOrderItem?: Maybe<OrderItem>;
+  updateOrderItemUser?: Maybe<OrderItem>;
   updateProduct?: Maybe<Product>;
   updateStore: Store;
   updateStoreVariant: StoreVariant;
   updateUserByAdmin: Profile;
+  updateUserProfile: Profile;
   updateVariant?: Maybe<Variant>;
   validateCart?: Maybe<Cart>;
+};
+
+
+export type MutationCancelOrderItemForOrderArgs = {
+  orderId: Scalars['ID']['input'];
+  orderItemId: Scalars['ID']['input'];
 };
 
 
@@ -295,7 +304,7 @@ export type MutationDeleteOrderArgs = {
 };
 
 
-export type MutationDeleteOrderItemsArgs = {
+export type MutationDeleteOrderItemForCartForUSerArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -350,8 +359,14 @@ export type MutationUpdateOrderArgs = {
 };
 
 
-export type MutationUpdateOrderItemsArgs = {
+export type MutationUpdateOrderItemArgs = {
   data: OrderItemsUpdateInput;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateOrderItemUserArgs = {
+  data: OrderItemsUpdateInputForUser;
   id: Scalars['ID']['input'];
 };
 
@@ -376,6 +391,11 @@ export type MutationUpdateStoreVariantArgs = {
 export type MutationUpdateUserByAdminArgs = {
   data: AdminUpdateUserInput;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateUserProfileArgs = {
+  data: UserUpdateProfileInput;
 };
 
 
@@ -429,9 +449,19 @@ export type OrderItem = {
   pricePerHour: Scalars['Float']['output'];
   quantity: Scalars['Float']['output'];
   startsAt: Scalars['DateTimeISO']['output'];
+  status: OrderItemStatusType;
   updatedAt: Scalars['DateTimeISO']['output'];
   variant?: Maybe<Variant>;
 };
+
+/** Status of order Items */
+export enum OrderItemStatusType {
+  Cancelled = 'cancelled',
+  Distributed = 'distributed',
+  Pending = 'pending',
+  Recovered = 'recovered',
+  Refunded = 'refunded'
+}
 
 export type OrderItemsCreateInput = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
@@ -451,7 +481,14 @@ export type OrderItemsUpdateInput = {
   pricePerHour?: InputMaybe<Scalars['Int']['input']>;
   quantity?: InputMaybe<Scalars['Int']['input']>;
   startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
   variantId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type OrderItemsUpdateInputForUser = {
+  endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
 };
 
 export enum OrderStatusType {
@@ -540,11 +577,13 @@ export type Query = {
   getCarts: Array<Cart>;
   getCategories: CategoriesWithCount;
   getCategoryById?: Maybe<CategoryWithCount>;
+  getMyProfile?: Maybe<Profile>;
   getOrderById: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
   getOrderItemsByOrderId: Array<OrderItem>;
+  getOrderItemsCartByProfileId?: Maybe<Cart>;
   getOrders: Array<Order>;
   getProductById?: Maybe<Product>;
   getProducts: ProductWithCount;
@@ -761,6 +800,11 @@ export type UserCreateInput = {
   firstname: Scalars['String']['input'];
   lastname: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+export type UserUpdateProfileInput = {
+  firstname: Scalars['String']['input'];
+  lastname: Scalars['String']['input'];
 };
 
 export type ValidateCartInput = {
