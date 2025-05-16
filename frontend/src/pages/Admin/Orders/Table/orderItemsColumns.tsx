@@ -18,16 +18,16 @@ export const createColumns = (): ColumnDef<any>[] => [
   column.createImageColumn({
     id: "Image",
     title: "Image",
-    accessorKey: "url_image",
-    altAccessorKey: "size",
+    accessorKey: "variant.product.urlImage",
+    altAccessorKey: "variant.product.name",
     size: 50,
   }),
 
   column.createNameAndSkuColumn({
     id: "name",
     title: "Nom",
-    accessorKey: "name",
-    skuAccessorKey: "exact_sku",
+    accessorKey: "variant.product.name",
+    skuAccessorKey: "variant.product.sku",
     className: "max-w-[120px] md:max-w-[200px] lg:max-w-[250px]",
     enableHiding: true,
     enableSorting: true,
@@ -36,31 +36,29 @@ export const createColumns = (): ColumnDef<any>[] => [
 
   column.createStringColumn({
     id: "size",
-    accessorKey: "size",
+    accessorKey: "variant.size",
     title: "Taille",
     headerClassName: "max-w-[35px]",
     className: "max-w-[35px] font-medium",
     enableSorting: true,
   }),
 
-  column.createDateColumn({
-    id: "minDate",
-    title: "Date de début",
-    accessorKey: "estimate_date_range.from",
+  column.createTwoDateColumn({
+    id: "dates",
+    title: "Dates",
+    accessorKey: "startsAt",
+    secondAccessorKey: "endsAt",
     divClassName: "mx-auto max-w-[60px]",
     headerClassName: "mx-auto max-w-[60px]",
     enableSorting: true,
     enableHiding: true,
   }),
 
-  column.createDateColumn({
-    id: "maxDate",
-    title: "Date de fin",
-    accessorKey: "estimate_date_range.to",
-    divClassName: "mx-auto max-w-[60px]",
-    headerClassName: "mx-auto max-w-[60px]",
+  column.createStringColumn({
+    id: "quantity",
+    accessorKey: "quantity",
+    title: "Quantité",
     enableSorting: true,
-    enableHiding: true,
   }),
 
   {
