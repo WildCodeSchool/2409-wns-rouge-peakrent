@@ -114,7 +114,7 @@ export function CartPage() {
   };
 
   return (
-    <div className="mx-2 lg:mx-28 max-w-7xl">
+    <div className="mx-2 lg:mx-28 max-w-screen-xl">
       <Title
         text="Panier de commande"
         className="my-4 md:my-6"
@@ -135,8 +135,8 @@ export function CartPage() {
                 </Button>
                 <p>{orderItemsStore.length} items</p>
               </div>
-              {orderItemsStore.map((orderItem: OrderItem) => (
-                <article key={orderItem.id} className="mb-4">
+              <div className="space-y-4">
+                {orderItemsStore.map((orderItem: OrderItem) => (
                   <CartItemCard
                     item={orderItem}
                     onRemoveItem={() => handleDelete(orderItem.id)}
@@ -146,9 +146,10 @@ export function CartPage() {
                     onDateChange={(isStartDate, value) =>
                       handleDateChange(orderItem.id, isStartDate, value)
                     }
+                    key={orderItem.id}
                   />
-                </article>
-              ))}
+                ))}
+              </div>
             </section>
             <aside className="flex flex-col w-full lg:w-1/3 lg:sticky lg:top-16 lg:h-fit gap-4">
               <Resume
