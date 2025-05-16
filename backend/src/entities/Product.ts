@@ -131,6 +131,10 @@ export class ProductCreateInput {
   @Field(() => [IdInput], { nullable: true })
   @IsOptional()
   categories?: IdInput[];
+
+  @Field(() => [IdInput], { nullable: true })
+  @IsOptional()
+  activities?: IdInput[];
 }
 
 @InputType()
@@ -150,7 +154,7 @@ export class ProductUpdateInput {
 
   @Field()
   @IsOptional()
-  @IsUrl({}, { message: "URL must be a valid URL." })
+  @IsUrl({ require_tld: false }, { message: "URL must be a valid URL." })
   urlImage?: string;
 
   @Field()
@@ -167,4 +171,8 @@ export class ProductUpdateInput {
   @Field(() => [IdInput], { nullable: true })
   @IsOptional()
   categories?: IdInput[];
+
+  @Field(() => [IdInput], { nullable: true })
+  @IsOptional()
+  activities?: IdInput[];
 }

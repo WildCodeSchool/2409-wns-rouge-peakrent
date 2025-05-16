@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { uploadImage } from "@/utils/uploadImages";
-import { Category, Product, Variant } from "@/gql/graphql";
+import { Activity, Category, Product, Variant } from "@/gql/graphql";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,6 +19,8 @@ import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
 import CreateButton from "../buttons/CreateButton";
 import UpdateButton from "../buttons/UpdateButton";
 import { toast } from "sonner";
+import { GET_ACTIVITIES } from "@/GraphQL/activities";
+import { ImageHandler } from "../ui/tables/columns/components/ImageHandler";
 
 export const ProductForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +52,21 @@ export const ProductForm = () => {
     },
   });
 
+  const {
+    data: getActivitiesData,
+    loading: loadingActivities,
+    error: errorActivities,
+  } = useQuery(gql(GET_ACTIVITIES), {
+    variables: {
+      data: {
+        page: 1,
+        onPage: 1000,
+        sort: "id",
+        order: "ASC",
+      },
+    },
+  });
+
   const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
   const [createProduct] = useMutation(gql(CREATE_PRODUCT));
   const [createProductWithVariant] = useMutation(
@@ -65,8 +82,10 @@ export const ProductForm = () => {
   const [image, setImage] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [newVariants, setNewVariants] = useState<Partial<Variant>[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [selectedActivities, setSelectedActivities] = useState<number[]>([]);
 
   const displayedVariants = product?.id
     ? product?.variants || []
@@ -82,19 +101,38 @@ export const ProductForm = () => {
         product.categories?.map((category: Category) => Number(category.id)) ??
           []
       );
+      setSelectedActivities(
+        product.activities?.map((activity: Activity) => Number(activity.id)) ??
+          []
+      );
     }
   }, [product]);
 
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
       setCategories(getCategoriesData.getCategories.categories);
+      console.log(categories);
     }
-  }, [getCategoriesData]);
+    if (getActivitiesData?.getActivities?.activities) {
+      setActivities(getActivitiesData.getActivities.activities);
+    }
+  }, [getCategoriesData, getActivitiesData]);
 
-  if (loadingProduct || loadingCategories)
+  if (loadingProduct || loadingCategories || loadingActivities)
     return <p className="text-center my-4">Chargement...</p>;
-  if (errorProduct || errorCategories)
+
+  if (errorProduct || errorCategories || errorActivities) {
+    if (errorProduct) {
+      console.error("Error on product:", errorProduct);
+    }
+    if (errorCategories) {
+      console.error("Error on categories:", errorCategories);
+    }
+    if (errorActivities) {
+      console.error("Error on activities:", errorActivities);
+    }
     return <p className="text-center text-red-500">Erreur de chargement.</p>;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +148,7 @@ export const ProductForm = () => {
         isPublished,
         sku,
         categories: selectedCategories.map((id) => ({ id })),
+        activities: selectedActivities.map((id) => ({ id })),
       };
 
       if (product?.id) {
@@ -153,21 +192,38 @@ export const ProductForm = () => {
         setImage(null);
         setIsPublished(true);
         setSelectedCategories([]);
+        setSelectedActivities([]);
         setNewVariants([]);
       }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Une erreur est survenue.");
+    } catch (error: any) {
+      console.error("GraphQL Error:", error);
+
+      if (error.graphQLErrors?.length > 0) {
+        const validationError = error.graphQLErrors[0].extensions;
+        console.error("Validation details:", validationError);
+        toast.error(
+          "Erreur de validation : " + validationError?.message || "Erreur."
+        );
+      } else {
+        toast.error("Une erreur est survenue.");
+      }
     } finally {
       setUploading(false);
     }
   };
 
-  const handleCategoryToggle = (categoryId: number) => {
+  const handleCategoryToggle = (childId: number) => {
     setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(childId)
+        ? prev.filter((id) => id !== childId)
+        : [...prev, childId]
+    );
+  };
+  const handleActivityToggle = (activityId: number) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activityId)
+        ? prev.filter((id) => id !== activityId)
+        : [...prev, activityId]
     );
   };
 
@@ -231,6 +287,7 @@ export const ProductForm = () => {
         </div>
 
         {/* Image */}
+        {/* add preview */}
         <div className="flex flex-col gap-1">
           <Label htmlFor="image" className="font-semibold">
             Image
@@ -241,6 +298,13 @@ export const ProductForm = () => {
             accept="image/*"
             onChange={(e) => setImage(e.target.files?.[0] || null)}
           />
+          {image && (
+            <ImageHandler
+              src={URL.createObjectURL(image)}
+              alt={"preview"}
+              className="w-full h-full object-cover border-r"
+            />
+          )}
         </div>
 
         {/* Publier */}
@@ -261,19 +325,45 @@ export const ProductForm = () => {
           <h2 className="text-lg font-bold">Catégories :</h2>
           <div className="grid grid-cols-2 gap-2">
             {categories?.map((category) => (
+              <div key={category.id} className="mb-2">
+                <h3 className="font-semibold">{category.name} :</h3>
+                <div className="ml-4 space-y-1">
+                  {category.childrens?.map((child) => (
+                    <Label key={child.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`child-${child.id}`}
+                        checked={selectedCategories.includes(Number(child.id))}
+                        onCheckedChange={() =>
+                          handleCategoryToggle(Number(child.id))
+                        }
+                      />
+                      {child.name}
+                    </Label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Activities */}
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-bold">Activités :</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {activities?.map((activity) => (
               <Label
-                key={category.id}
-                htmlFor={`category-${category.id}`}
+                key={activity.id}
+                htmlFor={`activity-${activity.id}`}
                 className="flex items-center gap-2"
               >
                 <Checkbox
-                  id={`category-${category.id}`}
-                  checked={selectedCategories.includes(Number(category.id))}
+                  id={`activity-${activity.id}`}
+                  checked={selectedActivities.includes(Number(activity.id))}
                   onCheckedChange={() =>
-                    handleCategoryToggle(Number(category.id))
+                    handleActivityToggle(Number(activity.id))
                   }
                 />
-                {category.name}
+                {activity.name}
               </Label>
             ))}
           </div>

@@ -1,14 +1,17 @@
 import axios from "axios";
-export async function uploadImage(imageFile: File): Promise<string> {
-  const cleanedFileName = imageFile.name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9.-]/g, "");
+import imageCompression from "browser-image-compression";
 
-  const cleanedImage = new File([imageFile], cleanedFileName, {
-    type: imageFile.type,
+export async function uploadImage(imageFile: File): Promise<string> {
+  const compressedImage = await imageCompression(imageFile, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1080,
+    useWebWorker: true,
   });
+
+  const cleanedImage = new File([compressedImage], imageFile.name, {
+    type: compressedImage.type,
+  });
+
   const formData = new FormData();
   formData.append("image", cleanedImage);
 
