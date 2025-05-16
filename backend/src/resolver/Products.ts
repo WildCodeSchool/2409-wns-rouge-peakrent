@@ -1,4 +1,5 @@
 import { validate, ValidationError } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -9,7 +10,7 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { In } from "typeorm";
+import { ILike, In } from "typeorm";
 import { Category } from "../entities/Category";
 import {
   Product,
@@ -18,11 +19,10 @@ import {
   ProductWithCount,
 } from "../entities/Product";
 import { StoreVariant } from "../entities/StoreVariant";
+import { Variant, VariantCreateNestedInput } from "../entities/Variant";
 import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
-import { Variant, VariantCreateNestedInput } from "../entities/Variant";
-import { GraphQLError } from "graphql";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -32,7 +32,8 @@ export class ProductResolver {
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
     @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
     @Arg("startingDate", () => Date, { nullable: true }) startingDate?: Date,
-    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date
+    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date,
+    @Arg("search", () => String, { nullable: true }) search?: string
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
     const where: any = {};
@@ -42,6 +43,10 @@ export class ProductResolver {
       where.categories = {
         id: In(categoryIds),
       };
+    }
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
     }
 
     const [products, total] = await Product.findAndCount({
