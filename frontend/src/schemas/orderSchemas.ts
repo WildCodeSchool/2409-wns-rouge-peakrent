@@ -20,7 +20,7 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     address1: createStringSchema({ defaultValue: datas?.address1 ?? "" }),
     address2: createStringSchema({ defaultValue: datas?.address2 ?? "" }),
     country: createStringSchema({ defaultValue: datas?.country ?? "" }),
-    zipCode: createZipCodeSchema({ defaultValue: datas?.zipCode ?? "" }),
+    zipCode: createZipCodeSchema(datas?.zipCode ?? ""),
     city: createStringSchema({ defaultValue: datas?.city ?? "" }),
     phone: createStringSchema({ defaultValue: "" }).optional(),
     orderItems: z

@@ -26,7 +26,7 @@ export default function OrderItemsTable() {
         acc +
         (item.pricePerHour *
           item.quantity *
-          (item.startsAt.getTime() - item.endsAt.getTime())) /
+          (item.endsAt.getTime() - item.startsAt.getTime())) /
           (1000 * 60 * 60 * 24),
       0
     ) || 0;
