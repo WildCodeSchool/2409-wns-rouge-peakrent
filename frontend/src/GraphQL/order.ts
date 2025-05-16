@@ -7,7 +7,6 @@ export const CREATE_ORDER = `
       country
       createdAt
       id
-
       paymentMethod
       reference
       status
@@ -20,23 +19,45 @@ export const CREATE_ORDER = `
 export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {
+      id
       address1
       address2
       city
       country
-      createdAt
-      id
-      paidAt
+      reference
+      zipCode
       paymentMethod
       profile {
+        id
         email
         firstname
         lastname
       }
-      reference
-      status
+      createdAt
       updatedAt
-      zipCode
+      paidAt
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerHour
+        createdAt
+        updatedAt
+        status
+        variant {
+          id
+          pricePerHour
+          size
+          color
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
+        }
+      }
     }
   }
 `;
