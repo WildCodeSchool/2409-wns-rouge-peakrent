@@ -5,12 +5,11 @@ import {
   Authorized,
   Ctx,
   ID,
-  Int,
   Mutation,
   Query,
   Resolver,
 } from "type-graphql";
-import { Cart, CartCreateInput, CartUpdateInput } from "../entities/Cart";
+import { Cart, CartUpdateInput, CartUpdateInputUser } from "../entities/Cart";
 import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
@@ -20,16 +19,7 @@ import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)
 export class CartResolver {
-  @Query(() => [Cart])
-  @Authorized("admin")
-  async getCart(@Ctx() context: AuthContextType): Promise<Cart[]> {
-    const cart = await Cart.find({ relations: { profile: true } });
-    if (!(context.user.role === "admin")) {
-      throw new Error("Unauthorized");
-    }
-    return cart;
-  }
-
+  // Ajouter la création de Cart directement à la création d'un user plutôt qu'à l'ajout des orderItms dans le panier ?
   @Authorized(["admin"])
   @Query(() => [Cart])
   async getCarts(): Promise<Cart[]> {
@@ -48,66 +38,50 @@ export class CartResolver {
     });
   }
 
-  @Authorized("admin", "user")
+  @Authorized("admin")
   @Query(() => Cart)
-  async getCartById(
-    @Arg("id", () => ID) _id: number,
-    @Ctx() context: AuthContextType
-  ): Promise<Cart | null> {
+  async getCartById(@Arg("id", () => ID) _id: number): Promise<Cart | null> {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
       relations: { profile: true },
     });
 
-    if (
-      !(context.user.role === "admin" || context.user.id === cart.profile.id)
-    ) {
-      throw new Error("Unauthorized");
+    return cart;
+  }
+
+  @Query(() => Cart, { nullable: true })
+  @Authorized()
+  async getCartForUser(
+    @Ctx() context: AuthContextType,
+    @Arg("withOrderItems", () => Boolean, { defaultValue: false })
+    withOrderItems?: boolean
+  ): Promise<Cart | null> {
+    const profileId = context.user.id;
+
+    const relations: any = {};
+
+    if (withOrderItems) {
+      relations.orderItems = {
+        variant: {
+          product: true,
+        },
+      };
     }
+
+    const cart = await Cart.findOne({
+      where: { profile: { id: profileId } },
+      relations,
+    });
 
     return cart;
   }
 
-  @Authorized("user", "admin")
-  @Query(() => Cart, { nullable: true })
-  async getCartByProfile(
-    @Arg("profileId", () => Int) profileId: number
-  ): Promise<Cart | null> {
-    return await Cart.findOne({
-      where: { profile: { id: profileId } },
-      relations: { profile: true },
-    });
-  }
-
-  @Authorized("admin", "user")
+  @Authorized("admin")
   @Mutation(() => Cart)
-  async createCart(
-    @Arg("data", () => CartCreateInput) data: CartCreateInput
-  ): Promise<Cart> {
-    const profile = await Profile.findOne({
-      where: { id: data.profileId },
-    });
-    if (!profile) {
-      throw new Error(`profile not found`);
-    }
-    const newCart = new Cart();
-    Object.assign(newCart, data, { profile: data.profileId });
-    const errors = await validate(newCart);
-    if (errors.length > 0) {
-      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-    } else {
-      await newCart.save();
-      return newCart;
-    }
-  }
-
-  @Authorized("admin", "user")
-  @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => CartUpdateInput) data: CartUpdateInput,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => CartUpdateInput) data: CartUpdateInput
   ): Promise<Cart | null> {
     const id = Number(_id);
     if (data.profileId) {
@@ -115,7 +89,13 @@ export class CartResolver {
         where: { id: data.profileId },
       });
       if (!profile) {
-        throw new Error(`profile not found`);
+        throw new GraphQLError("profile not Found", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Profile",
+            http: { status: 404 },
+          },
+        });
       }
     }
     const cart = await Cart.findOne({
@@ -123,11 +103,6 @@ export class CartResolver {
     });
 
     if (cart !== null) {
-      if (
-        !(context.user.role === "admin" || context.user.id === cart.profile.id)
-      ) {
-        throw new Error("Unauthorized");
-      }
       Object.assign(cart, data, { profile: data.profileId });
       const errors = await validate(cart);
       if (errors.length > 0) {
@@ -137,32 +112,71 @@ export class CartResolver {
         return cart;
       }
     } else {
-      throw new Error("cart not found.");
+      throw new GraphQLError("Cart not Found", {
+        extensions: {
+          code: "NOT_FOUND",
+          entity: "Cart",
+          http: { status: 404 },
+        },
+      });
     }
   }
 
   @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
-  async deleteCart(
-    @Arg("id", () => ID) _id: number,
+  async updateCartUser(
+    @Arg("data", () => CartUpdateInputUser) data: CartUpdateInputUser,
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
-    const id = Number(_id);
+    const id = context.user.id;
+
     const cart = await Cart.findOne({
-      where: { id },
+      where: { profile: { id } },
     });
+
     if (cart !== null) {
-      if (
-        !(context.user.role === "admin" || context.user.id === cart.profile.id)
-      ) {
-        throw new Error("Unauthorized");
+      Object.assign(cart, data);
+      const errors = await validate(cart);
+      if (errors.length > 0) {
+        throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+      } else {
+        await cart.save();
+        return cart;
       }
-      await cart.remove();
-      return cart;
     } else {
-      throw new Error("cart not found.");
+      throw new GraphQLError("Cart not Found", {
+        extensions: {
+          code: "NOT_FOUND",
+          entity: "Cart",
+          http: { status: 404 },
+        },
+      });
     }
   }
+
+  // A supprimer ? on peut supprimer les orderItems à 'intérieur mais pas d'intérêt à supprimer le cart
+  // @Authorized("admin", "user")
+  // @Mutation(() => Cart, { nullable: true })
+  // async deleteCart(
+  //   @Arg("id", () => ID) _id: number,
+  //   @Ctx() context: AuthContextType
+  // ): Promise<Cart | null> {
+  //   const id = Number(_id);
+  //   const cart = await Cart.findOne({
+  //     where: { id },
+  //   });
+  //   if (cart !== null) {
+  //     if (
+  //       !(context.user.role === "admin" || context.user.id === cart.profile.id)
+  //     ) {
+  //       throw new Error("Unauthorized");
+  //     }
+  //     await cart.remove();
+  //     return cart;
+  //   } else {
+  //     throw new Error("cart not found.");
+  //   }
+  // }
 
   // a compléter ave Stripe
   @Authorized("admin", "user")
@@ -187,6 +201,19 @@ export class CartResolver {
       ) {
         throw new Error("Unauthorized");
       }
+
+      if (!cart.address1 || !cart.city || !cart.country) {
+        throw new GraphQLError(
+          "The cart must include an address, city, and country to be converted into an order.",
+          {
+            extensions: {
+              code: "INVALID_CART_ADDRESS",
+              entity: "Cart",
+            },
+          }
+        );
+      }
+
       const orderItems = await OrderItem.find({
         where: { cart: { id } },
         relations: { cart: true, variant: true },
@@ -212,6 +239,13 @@ export class CartResolver {
             );
           }
         }
+
+        //A compléter avec stripe, si OrderPaymentType.onSite on valide l'order, sinon on on renvoit vers Stripe
+        // if(data.paymentMethod !== OrderPaymentType.onSite) {
+
+        // }
+
+        // ajouter une référence qui se calcul automatiquement
         const order = new Order();
         const orderData = {
           profileId: cart.profile.id,
@@ -249,26 +283,5 @@ export class CartResolver {
     } else {
       throw new Error("cart not found.");
     }
-  }
-
-  @Query(() => Cart, { nullable: true })
-  @Authorized()
-  async getOrderItemsCartByProfileId(
-    @Ctx() context: AuthContextType
-  ): Promise<Cart | null> {
-    const profileId = context.user.id;
-
-    const cart = await Cart.findOne({
-      where: { profile: { id: profileId } },
-      relations: {
-        orderItems: {
-          variant: {
-            product: true,
-          },
-        },
-      },
-    });
-
-    return cart;
   }
 }
