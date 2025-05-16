@@ -1,14 +1,14 @@
-import express, { Request, Response } from "express";
-import multer from "multer";
-import cors from "cors";
-import "reflect-metadata";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import cors from "cors";
+import express, { Request, Response } from "express";
+import multer from "multer";
+import "reflect-metadata";
 import { dataSource } from "./config/db";
-import { getSchema } from "./schema";
 import { getUserFromContext } from "./helpers/helpers";
+import { getSchema } from "./schema";
 import { ContextType } from "./types";
-
+import path from "path";
 export interface MulterRequest extends Request {
   file: tempType;
 }
@@ -50,7 +50,11 @@ const initialize = async () => {
       file: { originalname: string },
       cb: (arg0: null, arg1: string) => void
     ) => {
-      cb(null, file.originalname);
+      const timestamp = Date.now();
+      const ext = path.extname(file.originalname);
+      const baseName = path.basename(file.originalname, ext);
+      const uniqueName = `${baseName}-${timestamp}${ext}`;
+      cb(null, uniqueName);
     },
   });
   const upload = multer({ storage });

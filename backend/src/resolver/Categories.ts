@@ -5,7 +5,6 @@ import {
   Authorized,
   Ctx,
   ID,
-  Int,
   Mutation,
   Query,
   Resolver,
@@ -19,9 +18,7 @@ import {
   CategoryCreateInput,
   CategoryPaginationInput,
   CategoryUpdateInput,
-  CategoryWithCount,
 } from "../entities/Category";
-import { Product } from "../entities/Product";
 import { normalizeString } from "../helpers/helpers";
 import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
@@ -51,46 +48,25 @@ export class CategoryResolver {
     };
   }
 
-  @Query(() => CategoryWithCount, { nullable: true })
+  @Query(() => Category, { nullable: true })
   async getCategoryById(
-    @Arg("param", () => String) param: string,
-    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
-    @Arg("onPage", () => Int, { defaultValue: 15 })
-    onPage: number
-  ): Promise<CategoryWithCount | null> {
-    const isId = !isNaN(Number(param));
-    const whereCondition = isId ? { id: Number(param) } : { name: param };
-
+    @Arg("id", () => ID) _id: number
+  ): Promise<Category | null> {
+    const id = Number(_id);
     const category = await Category.findOne({
-      where: whereCondition,
-      relations: {
-        products: true,
-        createdBy: true,
-        parentCategory: true,
-        childrens: true,
-      },
+      where: { id },
     });
 
-    if (!category) return null;
+    if (!category) {
+      throw new GraphQLError("Category not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
 
-    const skip = (page - 1) * onPage;
-
-    const [products, total] = await Product.findAndCount({
-      where: { categories: { id: category.id } },
-      relations: { categories: true, createdBy: true },
-      skip,
-      take: onPage,
-    });
-
-    return {
-      category,
-      products,
-      pagination: {
-        total,
-        currentPage: page,
-        totalPages: Math.ceil(total / onPage),
-      },
-    };
+    return category;
   }
 
   @Authorized(["admin", "superadmin"])

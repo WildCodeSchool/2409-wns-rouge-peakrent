@@ -36,6 +36,14 @@ export class CartResolver {
     return await Cart.find({
       relations: {
         profile: true,
+        orderItems: {
+          variant: {
+            product: {
+              categories: true,
+              activities: true,
+            },
+          },
+        },
       },
     });
   }
