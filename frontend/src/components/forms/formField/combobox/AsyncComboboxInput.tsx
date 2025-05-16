@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDown, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -14,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LabelSection } from "@/components/forms/layout/LabelSection";
 
 import { DynamicSearchTemplate } from "./search/DynamicSearchTemplate";
 import { FetchResultsResponse } from "./search/Search";
@@ -84,6 +84,10 @@ export function AsyncComboboxInput<T extends Identifiable>({
     }
   };
 
+  const handleTogglePopover = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   return (
     <div className="flex w-full justify-between gap-2">
       <FormField
@@ -92,9 +96,9 @@ export function AsyncComboboxInput<T extends Identifiable>({
         render={({ field }) => (
           <FormItem className="w-full">
             <LabelSection label={label} required={required} />
-            <Popover open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
-              <PopoverTrigger asChild>
-                <FormControl>
+            <FormControl>
+              <Popover open={isOpen} onOpenChange={handleTogglePopover}>
+                <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
@@ -122,27 +126,27 @@ export function AsyncComboboxInput<T extends Identifiable>({
                       <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                     )}
                   </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <DynamicSearchTemplate
-                  form={form}
-                  name={name}
-                  fetchResults={fetchResults}
-                  handleSelectItem={handleChangeDefault}
-                  setIsOpen={setIsOpen}
-                  setSelected={setSelected}
-                  selected={selected}
-                  renderItem={renderItem}
-                  compareFn={compareFn}
-                  skeletonItems={skeletonItems}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  datas={datas}
-                  setDatas={setDatas}
-                />
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <DynamicSearchTemplate
+                    form={form}
+                    name={name}
+                    fetchResults={fetchResults}
+                    handleSelectItem={handleChangeDefault}
+                    setIsOpen={setIsOpen}
+                    setSelected={setSelected}
+                    selected={selected}
+                    renderItem={renderItem}
+                    compareFn={compareFn}
+                    skeletonItems={skeletonItems}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    datas={datas}
+                    setDatas={setDatas}
+                  />
+                </PopoverContent>
+              </Popover>
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

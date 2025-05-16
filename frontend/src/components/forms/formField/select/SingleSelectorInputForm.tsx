@@ -1,7 +1,7 @@
 import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cva, type VariantProps } from "class-variance-authority";
-import { CheckIcon, ChevronsUpDown, XCircle, XIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDown, XIcon } from "lucide-react";
 import * as React from "react";
 
 import { LabelSection } from "@/components/forms/layout/LabelSection";
@@ -327,13 +327,6 @@ export const SingleSelectorInput = React.forwardRef<
                                   <span className={labelClassName}>
                                     {option?.label}
                                   </span>
-                                  <XCircle
-                                    className="ml-2 size-4 cursor-pointer"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
-                                      toggleOption(field.value);
-                                    }}
-                                  />
                                 </Badge>
                               )}
                             </React.Fragment>
