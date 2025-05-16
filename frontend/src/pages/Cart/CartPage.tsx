@@ -114,7 +114,7 @@ export function CartPage() {
   };
 
   return (
-    <div className="mx-2 lg:mx-28 max-w-8xl">
+    <div className="mx-2 lg:mx-28 max-w-7xl">
       <Title
         text="Panier de commande"
         className="my-4 md:my-6"
