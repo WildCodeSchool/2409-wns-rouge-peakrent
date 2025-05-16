@@ -10,7 +10,7 @@ interface NumberSchemaOptions {
   minError?: string;
   max?: number;
   maxError?: string;
-  defaultValue?: number;
+  defaultValue?: number | null;
 }
 
 export const createNumberSchema = (options: NumberSchemaOptions = {}) => {
@@ -41,7 +41,9 @@ export const createNumberSchema = (options: NumberSchemaOptions = {}) => {
     schema = schema.optional().nullable() as any;
   }
 
-  schema = schema.default(defaultValue) as any;
+  if (defaultValue !== null) {
+    schema = schema.default(defaultValue) as any;
+  }
 
   return schema;
 };
