@@ -18,16 +18,24 @@ interface CartItemProps {
   item: OrderItemType;
   onRemoveItem?: () => void;
   onQuantityChange?: (quantity: number) => void;
+  onDateChange?: (isStartDate: boolean, endDate: string) => void;
 }
 
 export function CartItemCard({
   item,
   onRemoveItem,
   onQuantityChange,
+  onDateChange,
 }: CartItemProps) {
   const handleRemoveItem = () => {
     if (onRemoveItem) {
       onRemoveItem();
+    }
+  };
+
+  const handleDateChange = (isStartDate: boolean, endDate: string) => {
+    if (onDateChange) {
+      onDateChange(isStartDate, endDate);
     }
   };
 
@@ -81,14 +89,37 @@ export function CartItemCard({
             >
               {product?.sku ?? ""}
             </p>
-            <p className="text-sm font-normal flex gap-1 items-center my-3">
-              <time className="text-sm font-normal" dateTime={item.startsAt}>
-                {formatLocaleDate(item.startsAt).date}
-              </time>
-              <ChevronsRight className="size-4" />
-              <time className="text-sm font-normal" dateTime={item.endsAt}>
-                {formatLocaleDate(item.endsAt).date}
-              </time>
+            <p className="text-sm font-normal flex gap-1 items-center my-3 flex-wrap">
+              {!handleDateChange ? (
+                <>
+                  <time
+                    className="text-sm font-normal"
+                    dateTime={item.startsAt}
+                  >
+                    {formatLocaleDate(item.startsAt).date}
+                  </time>
+                  <ChevronsRight className="size-4" />
+                  <time className="text-sm font-normal" dateTime={item.endsAt}>
+                    {formatLocaleDate(item.endsAt).date}
+                  </time>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="date"
+                    className="text-sm font-normal"
+                    value={new Date(item.startsAt).toLocaleDateString("en-CA")}
+                    onChange={(e) => handleDateChange?.(true, e.target.value)}
+                  />
+                  <ChevronsRight className="size-4" />
+                  <input
+                    type="date"
+                    className="text-sm font-normal"
+                    value={new Date(item.endsAt).toLocaleDateString("en-CA")}
+                    onChange={(e) => handleDateChange?.(false, e.target.value)}
+                  />
+                </>
+              )}
             </p>
           </div>
         </div>

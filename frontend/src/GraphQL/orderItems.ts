@@ -49,10 +49,35 @@ query GetOrderItemsCartByProfileId {
 }
 `;
 
-export const DELETE_ORDER_ITEM = `
-mutation DeleteOrderItems($deleteOrderItemsId: ID!) {
-  deleteOrderItems(id: $deleteOrderItemsId) {
+export const DELETE_ORDER_ITEM_CART = `
+mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
+  deleteOrderItemForCartForUSer(id: $orderItemId) {
     id
+  }
+}
+`;
+
+export const UPDATE_ORDER_ITEM_CART = `
+mutation UpdateOrderItemUser($data: OrderItemsUpdateInputForUser!, $orderId: ID!) {
+  updateOrderItemUser(data: $data, id: $orderId) {
+      id
+      quantity
+      pricePerHour
+      startsAt
+      endsAt
+      variant {
+        color
+        id
+        pricePerHour
+        product {
+          description
+          name
+          sku
+          urlImage
+          id
+        }
+        size
+    }
   }
 }
 `;

@@ -1,5 +1,4 @@
 import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
-import { GET_VARIANT_QUANTITY_AVAILABLE } from "@/GraphQL/storeVariant";
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
@@ -10,7 +9,7 @@ import { useUser } from "@/context/userProvider";
 import { Variant } from "@/gql/graphql";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { totalDays } from "@/utils/getNumberOfDays";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -21,17 +20,14 @@ import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 
 const ProductDetail = () => {
   const {
-    user: UserData,
-    profile: UserProfile,
-    loading: UserLoading,
-    error: UserError,
+    user: userData,
+    profile: userProfile,
+    loading: userLoading,
+    error: userError,
   } = useUser();
   const params = useParams();
   const [selectedVariantsPrice, setSelectedVariantsPrice] = useState<number>(0);
   const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM));
-  const [checkVariantQuantity] = useLazyQuery(
-    gql(GET_VARIANT_QUANTITY_AVAILABLE)
-  );
 
   const addOrderItem = useOrderItemStore((state) => state.addOrderItem);
 
@@ -102,7 +98,7 @@ const ProductDetail = () => {
         const newOrderItem = await createOrderItem({
           variables: {
             data: {
-              profileId: Number(UserProfile?.id),
+              profileId: Number(userProfile?.id),
               variantId: Number(variant.id),
               quantity: data.quantity,
               pricePerHour: Number(variant.pricePerHour),
@@ -155,7 +151,7 @@ const ProductDetail = () => {
     }
   };
 
-  return getProductLoading || UserLoading ? (
+  return getProductLoading || userLoading ? (
     <div className="flex items-center justify-center h-screen">
       <LoadIcon size={60} />
     </div>
@@ -252,7 +248,7 @@ const ProductDetail = () => {
                 className="px-4 mx-auto mt-6 rounded-lg w-full max-w-[600px] text-xl"
                 disabled={isDisabled}
               >
-                {!UserData?.id
+                {!userData?.id
                   ? "Se connecter pour ajouter au panier"
                   : "Ajouter au panier"}
               </Button>

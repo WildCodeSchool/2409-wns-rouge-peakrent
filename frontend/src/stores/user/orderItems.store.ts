@@ -7,9 +7,8 @@ export interface OrderItemStoreState {
 
   setOrderItems: (orderItems: OrderItem[]) => void;
   setOrderItemsFetched: (fetched: boolean) => void;
-
   deleteOrderItem: (id: number) => void;
-  updateOrderItemQuantity: (id: number, updatedItemQuantity: number) => void;
+  updateOrderItem: (id: number, orderItem: Partial<OrderItem>) => void;
   addOrderItem: (orderItem: OrderItem) => void;
 }
 
@@ -27,11 +26,11 @@ export const useOrderItemStore = create<OrderItemStoreState>((set, get) => ({
       ),
     })),
 
-  updateOrderItemQuantity: (id, updatedItemQuantity) =>
+  updateOrderItem: (id, updatedOrderItem) =>
     set((state) => ({
       orderItems: state.orderItems.map((orderItem: OrderItem) =>
         Number(orderItem.id) === id
-          ? { ...orderItem, quantity: updatedItemQuantity }
+          ? { ...orderItem, ...updatedOrderItem }
           : orderItem
       ),
     })),
