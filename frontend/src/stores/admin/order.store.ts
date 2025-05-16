@@ -8,7 +8,13 @@ export interface OrderStoreState {
   currentOrder: Order | null;
   currentOrderFetched: boolean;
 
-  orderItems: OrderItem[] | null;
+  orderItemsForm: OrderItem[] | null;
+  defaultOrderItemsForm: OrderItem[] | null;
+  formOrderItem: OrderItem | null;
+
+  setOrderItemsForm: (orderItemsForm: OrderItem[]) => void;
+  setDefaultOrderItemsForm: (defaultOrderItemsForm: OrderItem[]) => void;
+  setFormOrderItem: (formOrderItem: OrderItem | null) => void;
 
   setStore: (store: OrderStoreState) => void;
 
@@ -28,6 +34,7 @@ export interface OrderStoreState {
   updateOrderItem: (id: number, item: Partial<OrderItem>) => void;
 
   addOrder: (newOrder: Order) => void;
+  addOrderItem: (newOrderItem: OrderItem) => void;
 }
 
 export const useOrderStore = create<OrderStoreState>((set, get) => ({
@@ -37,7 +44,14 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
   currentOrder: null,
   currentOrderFetched: false,
 
-  orderItems: null,
+  orderItemsForm: null,
+  defaultOrderItemsForm: [],
+  formOrderItem: null,
+
+  setOrderItemsForm: (orderItemsForm) => set({ orderItemsForm }),
+  setDefaultOrderItemsForm: (defaultOrderItemsForm) =>
+    set({ defaultOrderItemsForm }),
+  setFormOrderItem: (formOrderItem) => set({ formOrderItem }),
 
   setStore: (store) => set(store),
 
@@ -60,7 +74,7 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.orderItems?.filter(
+        orderItems: state.orderItemsForm?.filter(
           (item: OrderItem) => Number(item?.id) !== id
         ),
       },
@@ -70,7 +84,7 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.orderItems?.filter(
+        orderItems: state.orderItemsForm?.filter(
           (item: OrderItem) => !ids.includes(Number(item?.id))
         ),
       },
@@ -98,7 +112,7 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
       currentOrder: state.currentOrder
         ? {
             ...state.currentOrder,
-            order_items: state.orderItems?.map((i: OrderItem) =>
+            order_items: state.orderItemsForm?.map((i: OrderItem) =>
               Number(i.id) === id ? { ...i, ...item } : i
             ),
           }
@@ -108,6 +122,11 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
   addOrder: (newOrder) =>
     set((state) => ({
       orders: [...state.orders, newOrder],
+    })),
+
+  addOrderItem: (newOrderItem) =>
+    set((state) => ({
+      orderItemsForm: [...(state.orderItemsForm || []), newOrderItem],
     })),
 }));
 
@@ -146,4 +165,14 @@ export const updateOrderItem = (id: number, item: Partial<OrderItem>) => {
 export const addOrder = (newOrder: Order) => {
   const { addOrder } = useOrderStore.getState();
   addOrder(newOrder);
+};
+
+export const addOrderItem = (newOrderItem: OrderItem) => {
+  const { addOrderItem } = useOrderStore.getState();
+  addOrderItem(newOrderItem);
+};
+
+export const setFormOrderItem = (orderItem: OrderItem | null) => {
+  const { setFormOrderItem } = useOrderStore.getState();
+  setFormOrderItem(orderItem);
 };
