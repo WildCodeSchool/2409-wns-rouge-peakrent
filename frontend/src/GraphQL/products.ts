@@ -1,6 +1,6 @@
 export const GET_PRODUCTS = `
-  query getProducts($page: Int, $onPage: Int) {
-    getProducts(page: $page, onPage: $onPage) {
+  query getProducts($page: Int, $onPage: Int, $search: String) {
+    getProducts(page: $page, onPage: $onPage, search: $search) {
       products {
         categories {
           id
