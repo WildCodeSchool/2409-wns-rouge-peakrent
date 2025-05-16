@@ -2,6 +2,9 @@ import express, { Request, Response } from "express";
 import multer from "multer";
 import cors from "cors";
 import "reflect-metadata";
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { dataSource } from "./config/db";
@@ -9,15 +12,9 @@ import { getSchema } from "./schema";
 import { getUserFromContext } from "./helpers/helpers";
 import { ContextType } from "./types";
 
-export interface MulterRequest extends Request {
-  file: tempType;
-}
-export interface tempType extends File {
-  filename: string;
-}
-
 const GRAPHQL_PORT = 4000;
 const UPLOAD_PORT = 4001;
+const UPLOADS_DIR = path.join(__dirname, "../uploads");
 
 const initialize = async () => {
   await dataSource.initialize();
@@ -43,29 +40,46 @@ const initialize = async () => {
   app.use(cors());
   app.use(express.json());
 
-  const storage = multer.diskStorage({
-    destination: "uploads/",
-    filename: (
-      req: Request,
-      file: { originalname: string },
-      cb: (arg0: null, arg1: string) => void
-    ) => {
-      cb(null, file.originalname);
-    },
-  });
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+
+  const storage = multer.memoryStorage();
   const upload = multer({ storage });
 
   app.post(
     "/upload",
     upload.single("image"),
-    (req: MulterRequest, res: Response) => {
-      if (!req.file) return res.status(400).send("No file uploaded.");
-      const url = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-      res.json({ url });
+    async (req: Request, res: Response) => {
+      try {
+        if (!req.file) return res.status(400).send("No file uploaded.");
+
+        const originalName = req.file.originalname
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9.-]/g, "");
+
+        const baseName =
+          originalName.substring(0, originalName.lastIndexOf(".")) || "image";
+        const filename = `${baseName}-${Date.now()}.webp`;
+        const outputPath = path.join(UPLOADS_DIR, filename);
+
+        await sharp(req.file.buffer)
+          .resize({ width: 1080 })
+          .webp({ quality: 80 })
+          .toFile(outputPath);
+
+        const url = `${req.protocol}://${req.get("host")}/uploads/${filename}`;
+        res.json({ url });
+      } catch (error) {
+        console.error("Sharp error:", error);
+        res.status(500).send("Image processing failed");
+      }
     }
   );
 
-  app.use("/uploads", express.static("uploads"));
+  app.use("/uploads", express.static(UPLOADS_DIR));
   app.listen(UPLOAD_PORT, () => {
     console.log(
       `📤 Upload server ready at http://localhost:${UPLOAD_PORT}/upload`
