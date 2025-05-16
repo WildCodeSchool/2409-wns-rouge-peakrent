@@ -39,6 +39,7 @@ export const checkStockByVariantAndStore = async (
       extensions: {
         code: "NOT_FOUND",
         entity: "StoreVariant",
+        http: { status: 404 },
       },
     });
   }

@@ -3,6 +3,7 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 
 type ModalContextType = {
   isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   openModal: (initialForm: ReactNode) => void;
   closeModal: () => void;
   modalContent: ReactNode;
@@ -132,6 +133,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     <ModalContext.Provider
       value={{
         isOpen,
+        setIsOpen,
         openModal,
         closeModal,
         modalContent,

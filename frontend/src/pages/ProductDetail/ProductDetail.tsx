@@ -1,5 +1,4 @@
 import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
-import { GET_VARIANT_QUANTITY_AVAILABLE } from "@/GraphQL/storeVariant";
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
@@ -8,7 +7,9 @@ import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useUser } from "@/context/userProvider";
 import { Variant } from "@/gql/graphql";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useOrderItemStore } from "@/stores/user/orderItems.store";
+import { totalDays } from "@/utils/getNumberOfDays";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -19,17 +20,16 @@ import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
 
 const ProductDetail = () => {
   const {
-    user: useUserData,
-    profile: useUserProfile,
-    loading: useUserLoading,
-    error: useUserError,
+    user: userData,
+    profile: userProfile,
+    loading: userLoading,
+    error: userError,
   } = useUser();
   const params = useParams();
   const [selectedVariantsPrice, setSelectedVariantsPrice] = useState<number>(0);
   const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM));
-  const [checkVariantQuantity] = useLazyQuery(
-    gql(GET_VARIANT_QUANTITY_AVAILABLE)
-  );
+
+  const addOrderItem = useOrderItemStore((state) => state.addOrderItem);
 
   const {
     data: getProductData,
@@ -75,43 +75,11 @@ const ProductDetail = () => {
     watchedVariants.length <= 0 ||
     watchedQuantity < 0;
 
-  const numberOfDays =
-    (new Date(selectedEndingDate).getTime() -
-      new Date(selectedStartingDate).getTime()) /
-    (1000 * 60 * 60 * 24);
+  const numberOfDays = totalDays(selectedStartingDate, selectedEndingDate);
 
   if (getProductError) {
-    console.log(getProductError);
     return <div>Impossible de charger l&apos;annonce.</div>;
   }
-
-  const checkAvailability = async (variant: Variant) => {
-    try {
-      if (!isDisabled) {
-        const { data } = await checkVariantQuantity({
-          variables: {
-            storeId: 1,
-            variantId: Number(variant.id),
-            startingDate: new Date(selectedStartingDate),
-            endingDate: new Date(selectedEndingDate),
-          },
-        });
-
-        const available = data?.checkVariantStock ?? 0;
-
-        if (available - watchedQuantity < 0) {
-          toast.error(
-            `Quantité indisponible pour le produit ${variant.size}, ${variant.color}`
-          );
-          return false;
-        }
-      }
-      return true;
-    } catch (err) {
-      toast.error(`Une erreur s'est produite`);
-      console.error("Erreur vérification disponibilité :", err);
-    }
-  };
 
   const onSubmit = async (data: productDetailsSchemaValues) => {
     if (
@@ -123,26 +91,47 @@ const ProductDetail = () => {
         `La date de fin ne peut pas être inférieure à celle de début`
       );
     }
-    try {
-      for (const variant of data.variants) {
-        if (await checkAvailability(variant as Variant)) {
-          await createOrderItem({
-            variables: {
-              data: {
-                profileId: Number(useUserProfile?.id),
-                variantId: Number(variant.id),
-                quantity: data.quantity,
-                pricePerHour: Number(variant.pricePerHour),
-                startsAt: new Date(data.date.from),
-                endsAt: new Date(data.date.to),
-              },
+    const unavailableProducts: { size: string; color: string }[] = [];
+
+    for (const variant of data.variants as Variant[]) {
+      try {
+        const newOrderItem = await createOrderItem({
+          variables: {
+            data: {
+              profileId: Number(userProfile?.id),
+              variantId: Number(variant.id),
+              quantity: data.quantity,
+              pricePerHour: Number(variant.pricePerHour),
+              startsAt: new Date(data.date.from),
+              endsAt: new Date(data.date.to),
             },
+          },
+        });
+        addOrderItem(newOrderItem.data.createOrderItems);
+      } catch (err: any) {
+        const codeError = err.graphQLErrors?.[0]?.extensions?.code;
+        if (codeError === "OUT_OF_STOCK") {
+          unavailableProducts.push({
+            size: variant.size ?? "Inconnu",
+            color: variant.color ?? "Inconnu",
           });
-          return toast.success(`Produit(s) ajouté(s) au panier !`);
+        } else {
+          console.error("erreur lors de l'ajout au panier :", err);
+          toast.error("erreur lors de l'ajout au panier");
         }
       }
-    } catch (err) {
-      console.error("Erreur ajout panier :", err);
+    }
+
+    if (unavailableProducts.length !== data.variants.length) {
+      toast.success(`Produit(s) ajouté(s) au panier !`);
+    }
+
+    if (unavailableProducts.length > 0) {
+      unavailableProducts.forEach((p) => {
+        toast.error(
+          `Quantité indisponible pour le produit : ${p.size}, ${p.color}`
+        );
+      });
     }
   };
 
@@ -162,7 +151,7 @@ const ProductDetail = () => {
     }
   };
 
-  return getProductLoading || useUserLoading ? (
+  return getProductLoading || userLoading ? (
     <div className="flex items-center justify-center h-screen">
       <LoadIcon size={60} />
     </div>
@@ -259,7 +248,7 @@ const ProductDetail = () => {
                 className="px-4 mx-auto mt-6 rounded-lg w-full max-w-[600px] text-xl"
                 disabled={isDisabled}
               >
-                {!useUserData?.id
+                {!userData?.id
                   ? "Se connecter pour ajouter au panier"
                   : "Ajouter au panier"}
               </Button>

@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/context/modalProvider";
 import { CREATE_CATEGORY, UPDATE_CATEGORY } from "@/GraphQL/categories";
-import { categoryWithChildrenSchema } from "@/schemas/category";
+import { categoryWithChildrenSchema } from "@/schemas/categorySchemas";
 import {
   addCategory,
   updateCategory as updateCategoryStore,

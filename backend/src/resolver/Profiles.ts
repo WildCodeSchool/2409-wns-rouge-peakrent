@@ -20,6 +20,7 @@ export class ProfileResolver {
     return await Profile.find();
   }
 
+  @Authorized(["admin", "superadmin"])
   @Query(() => Profile, { nullable: true })
   async getProfileByUserId(
     @Arg("userId", () => ID) userId: number
@@ -31,5 +32,13 @@ export class ProfileResolver {
   @Query(() => Profile, { nullable: true })
   async whoami(@Ctx() context: ContextType): Promise<ProfileType | null> {
     return context.user;
+  }
+
+  @Query(() => Profile, { nullable: true })
+  async getMyProfile(@Ctx() context: ContextType): Promise<Profile | null> {
+    if (!context.user) {
+      return null;
+    }
+    return await Profile.findOneBy({ id: context.user.id });
   }
 }

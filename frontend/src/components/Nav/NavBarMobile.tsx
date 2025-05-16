@@ -60,8 +60,8 @@ const NavBarMobile = () => {
       ))}
       {me ? (
         <NavLink
-          to="/account"
-          aria-label="Navigation vers la page profile"
+          to="/profile"
+          aria-label="Navigation vers la page profil"
           className={({ isActive }) =>
             `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3 text-sm ${
               isActive && "bg-black translate-y-[-20px] text-white"
@@ -69,7 +69,7 @@ const NavBarMobile = () => {
           }
         >
           <CiUser size={20} />
-          Profile
+          Profil
         </NavLink>
       ) : (
         <NavLink

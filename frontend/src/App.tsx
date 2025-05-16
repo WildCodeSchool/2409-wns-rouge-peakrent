@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 // Components
 import { ProductForm } from "./components/forms/ProductForm";
@@ -15,12 +15,16 @@ import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
+import { CartCheckout } from "./pages/Cart/CartCheckout";
+import { CartPage } from "./pages/Cart/CartPage";
 import { HomePage } from "./pages/Home/HomePage";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
+import ProfileDashboard from "./pages/Profile/ProfileDashboard";
+import ProfileEditPage from "./pages/Profile/ProfileEditPage";
 
 enum AuthStates {
   authenticated,
@@ -69,42 +73,51 @@ const checkAuth = (
 function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PageLayout />}>
-            <Route index element={<HomePage />} />
-            <Route
-              path="/signin"
-              element={checkAuth(SignInPage, [AuthStates.unauthenticated])()}
-            />
-            <Route
-              path="/signup"
-              element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
-            />
-            <Route path="products/:id" element={<ProductDetail />} />
-            <Route path="products" element={<ProductsPage />} />
+      <Routes>
+        <Route path="/" element={<PageLayout />}>
+          <Route index element={<HomePage />} />
+          <Route
+            path="/signin"
+            element={checkAuth(SignInPage, [AuthStates.unauthenticated])()}
+          />
+          <Route
+            path="/signup"
+            element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
+          />
+          <Route path="products/:id" element={<ProductDetail />} />
+          <Route path="products" element={<ProductsPage />} />
 
-            {/* Admin Routes */}
-            <Route
-              path="/admin"
-              element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
-            >
-              <Route index element={<AdminDashboard />} />
-              <Route path="activities" element={<AdminActivitiesPage />} />
-              <Route path="orders" element={<AdminOrdersPage />} />
-              <Route path="stores" element={<AdminStoresPage />} />
-              <Route path="categories" element={<AdminCategoriesPage />} />
-              <Route path="products" element={<AdminProductsPage />} />
-              <Route path="products/edit/:id" element={<ProductForm />} />
-              <Route path="products/create" element={<ProductForm />} />
-              <Route path="users" element={<AdminUsersPage />} />
-              <Route path="carts" element={<AdminCartsPage />} />
-              <Route path="*" element={<PageNotFound />} />
-            </Route>
+          {/* User Connected Routes */}
+          <Route path="cart" element={<CartPage />} />
+          <Route path="cart/checkout" element={<CartCheckout />} />
+          <Route
+            path="profile"
+            element={checkAuth(ProfileDashboard, [AuthStates.authenticated])()}
+          />
+          <Route
+            path="profile/edit"
+            element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
+          />
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={checkAuth(AdminLayout, [AuthStates.isAdmin])()}
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="activities" element={<AdminActivitiesPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="stores" element={<AdminStoresPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="products/edit/:id" element={<ProductForm />} />
+            <Route path="products/create" element={<ProductForm />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="carts" element={<AdminCartsPage />} />
+            <Route path="*" element={<PageNotFound />} />
           </Route>
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </BrowserRouter>
+        </Route>
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
     </UserProvider>
   );
 }

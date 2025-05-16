@@ -14,27 +14,6 @@ export const GET_ACTIVITIES = `
   }
 `;
 
-export const GET_ACTIVITIES_WITH_COUNT = `
-  query GetActivities($data: ActivityPaginationInput!) {
-    getActivities(data: $data) {
-      activities {
-        id
-        name
-        normalizedName
-        urlImage
-        variant
-        createdAt
-        updatedAt
-      }
-      pagination {
-        total
-        currentPage
-        totalPages
-      }
-    }
-  }
-`;
-
 export const GET_ACTIVITY = `
   query GetActivity($id: ID!) {
     getActivityById(id: $id) {

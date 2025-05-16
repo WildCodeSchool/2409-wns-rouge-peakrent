@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { OrderItemStatusType } from "../types";
 import { Cart } from "./Cart";
 import { Order } from "./Order";
 import { Variant } from "./Variant";
@@ -25,7 +26,7 @@ export class OrderItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Cart, { nullable: true })
   @ManyToOne(() => Cart, (cart) => cart.id, {
     onDelete: "SET NULL",
     nullable: true,
@@ -46,6 +47,16 @@ export class OrderItem extends BaseEntity {
   @Field()
   @Column()
   quantity!: number;
+
+  @Field(() => OrderItemStatusType, {
+    defaultValue: OrderItemStatusType.pending,
+  })
+  @Column({
+    type: "enum",
+    enum: OrderItemStatusType,
+    default: OrderItemStatusType.pending,
+  })
+  status: OrderItemStatusType;
 
   @Field()
   @Column({ name: "price_per_hour" })
@@ -127,6 +138,24 @@ export class OrderItemsUpdateInput {
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
   pricePerHour?: number;
+
+  @Field({ nullable: true })
+  @IsDate()
+  startsAt?: Date;
+
+  @Field({ nullable: true })
+  @IsDate()
+  endsAt?: Date;
+
+  @Field({ nullable: true })
+  status?: OrderItemStatusType;
+}
+
+@InputType()
+export class OrderItemsUpdateInputForUser {
+  @Field(() => Int, { nullable: true })
+  @Min(0, { message: "quantity should be positive" })
+  quantity: number;
 
   @Field({ nullable: true })
   @IsDate()

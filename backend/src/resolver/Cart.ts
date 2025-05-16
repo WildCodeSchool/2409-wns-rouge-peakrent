@@ -36,6 +36,14 @@ export class CartResolver {
     return await Cart.find({
       relations: {
         profile: true,
+        orderItems: {
+          variant: {
+            product: {
+              categories: true,
+              activities: true,
+            },
+          },
+        },
       },
     });
   }
@@ -241,5 +249,26 @@ export class CartResolver {
     } else {
       throw new Error("cart not found.");
     }
+  }
+
+  @Query(() => Cart, { nullable: true })
+  @Authorized()
+  async getOrderItemsCartByProfileId(
+    @Ctx() context: AuthContextType
+  ): Promise<Cart | null> {
+    const profileId = context.user.id;
+
+    const cart = await Cart.findOne({
+      where: { profile: { id: profileId } },
+      relations: {
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    return cart;
   }
 }

@@ -1,19 +1,26 @@
-import { forwardRef, Fragment, useImperativeHandle, useState } from "react";
 import { Paperclip } from "lucide-react";
+import {
+  forwardRef,
+  Fragment,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 
+import { FileSvgDraw } from "@/components/icons/uploadFileSvg";
 import {
   FileInput,
   FileUploader,
   FileUploaderContent,
   FileUploaderItem,
 } from "@/components/ui/uploadingFile";
-import { FileSvgDraw } from "@/components/icons/uploadFileSvg";
 
 type FileUploaderInputProps = {
   maxFiles?: number;
   maxSize?: number;
   multiple?: boolean;
   setFilesFunction?: (files: File[] | null) => void;
+  formFiles?: File[] | null;
 };
 
 const FileUploaderInput = forwardRef(
@@ -23,16 +30,20 @@ const FileUploaderInput = forwardRef(
       maxSize = 1024 * 1024 * 4,
       multiple = false,
       setFilesFunction,
+      formFiles,
     }: FileUploaderInputProps,
     ref
   ) => {
-    const [files, setFiles] = useState<File[] | null>(null);
-
+    const [files, setFiles] = useState<File[] | null>(formFiles ?? null);
     const dropZoneConfig = {
       maxFiles,
       maxSize,
       multiple,
     };
+
+    useEffect(() => {
+      setFiles(formFiles ?? null);
+    }, [formFiles]);
 
     const handleSetFiles = (files: File[] | null) => {
       if (files && files.length > 0) {
@@ -79,7 +90,7 @@ const FileUploaderInput = forwardRef(
               <Fragment key={i}>
                 <FileUploaderItem key={i} index={i}>
                   <Paperclip className="size-4 stroke-current" />
-                  <span className="max-w-[85%] truncate" title={file.name}>
+                  <span className="max-w-[300px] truncate" title={file.name}>
                     {file.name}
                   </span>
                 </FileUploaderItem>
@@ -89,7 +100,7 @@ const FileUploaderInput = forwardRef(
                     width={320}
                     height={300}
                     alt={file.name}
-                    className="mt-2 h-[300px] w-full rounded border object-contain"
+                    className="mt-2 h-[300px] w-full max-w-[320px] rounded border object-contain mx-auto"
                   />
                 )}
 
@@ -99,7 +110,7 @@ const FileUploaderInput = forwardRef(
                     type="application/pdf"
                     width="100%"
                     height="500px"
-                    className="mt-2 h-64 w-full rounded border object-contain"
+                    className="mt-2 h-64 w-full rounded border object-contain mx-auto"
                   />
                 )}
               </Fragment>
