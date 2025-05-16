@@ -23,6 +23,7 @@ import { normalizeString } from "../helpers/helpers";
 import { AuthContextType } from "../types";
 import { Variant, VariantCreateNestedInput } from "../entities/Variant";
 import { GraphQLError } from "graphql";
+import { Activity } from "../entities/Activity";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -237,6 +238,16 @@ export class ProductResolver {
       const fullTags = await Category.findBy({ id: In(categoryIds) });
 
       product.categories = fullTags;
+    }
+
+    if (data.activities) {
+      const activityIds = data.activities
+        .map((activity) => ("id" in activity ? activity.id : null))
+        .filter((id) => id !== null);
+
+      const fullTags = await Activity.findBy({ id: In(activityIds) });
+
+      product.activities = fullTags;
     }
 
     const validationErrors = await validate(product);
