@@ -74,6 +74,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
           variant: Number(item.variant?.id),
           status: item.status,
           id: item.id,
+          pricePerHour: item.pricePerHour,
         }))
       : [];
     form.setValue("orderItems", updatedOrderItems);

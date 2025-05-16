@@ -34,6 +34,7 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
                 to: new Date(item.endsAt),
               },
               quantity: item.quantity,
+              pricePerHour: item.pricePerHour,
               variant: Number(item.variant?.id),
               status: item.status,
               id: item.id,
@@ -56,7 +57,7 @@ export const generateOrderItemSchema = () => {
           to: z.date(),
         },
         {
-          required_error: "Please select a date range",
+          required_error: "Veuillez sélectionner une période",
         }
       )
       .refine(
@@ -70,23 +71,25 @@ export const generateOrderItemSchema = () => {
           message: "La date de fin doit être après la date de début",
         }
       ),
-    // discountPrice: createNumberSchema(),
-    quantity: createNumberSchema(),
-    product: z.any(),
-    // product: z
-    //   .object({
-    //     id: createNumberSchema(),
-    //     name: createStringSchema(),
-    //     urlImage: createStringSchema(),
-    //     variants: z.array(
-    //       z.object({
-    //         id: createNumberSchema(),
-    //         pricePerHour: createNumberSchema(),
-    //         color: createStringSchema(),
-    //         size: createStringSchema(),
-    //       })
-    //     ),
-    //   }),
+    quantity: createNumberSchema({
+      requiredError: "La quantité est requise",
+      min: 1,
+      max: 99,
+      minError: "La quantité doit être supérieure à {min}",
+      maxError: "La quantité doit être inférieure à {max}",
+      required: true,
+    }),
+    product: z.any().refine(
+      (data) => {
+        if (!data) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: "Le produit est requis",
+      }
+    ),
     id: createStringSchema().optional(),
     status: createEnumSchema(
       [
@@ -98,7 +101,23 @@ export const generateOrderItemSchema = () => {
       ],
       "Le statut est requis"
     ),
-    variant: createNumberSchema(),
+    pricePerHour: createNumberSchema({
+      requiredError: "Le prix par heure est requis",
+      min: 0,
+      minError: "Le prix par heure doit être supérieur à {min}",
+      max: Infinity,
+      maxError: "Le prix par heure doit être inférieur à {max}",
+      required: true,
+    }),
+    variant: createNumberSchema({
+      requiredError: "Le variant est requis",
+      min: 1,
+      minError: "L'id du variant est invalide",
+      max: Infinity,
+      maxError: "L'id du variant est invalide",
+      required: true,
+      defaultValue: null,
+    }),
   });
 };
 
