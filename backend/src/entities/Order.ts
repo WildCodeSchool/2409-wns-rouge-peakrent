@@ -7,10 +7,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { OrderPaymentType, OrderStatusType } from "../types";
+import { OrderItem } from "./OrderItem";
 import { Profile } from "./Profile";
 
 @ObjectType()
@@ -64,6 +66,13 @@ export class Order extends BaseEntity {
   @Field()
   @Column("varchar", { name: "zip_code", length: 20 })
   zipCode!: string;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
+    cascade: true,
+    nullable: true,
+  })
+  orderItems?: OrderItem[];
 
   @Field()
   @CreateDateColumn({

@@ -30,7 +30,7 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profile: true },
+      relations: { profile: true, orderItems: true },
     });
     if (order) {
       if (
