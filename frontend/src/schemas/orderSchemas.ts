@@ -17,6 +17,10 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     customer: createNumberSchema({
       requiredError: "Le client est requis",
       invalidTypeError: "Le client est requis",
+      min: 1,
+      minError: "L'id du client est invalide",
+      max: Infinity,
+      maxError: "L'id du client est invalide",
     }).default(Number(datas?.profile?.id)),
     order_reference_source: createStringSchema({
       required: false,
