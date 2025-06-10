@@ -84,3 +84,32 @@ export const GET_PRODUCT_BY_ID = `
     }
   }
 `;
+
+export const GET_PRODUCT_BY_VARIANT_ID = `
+  query getProductByVariantId($id: ID!) {
+    getProductByVariantId(id: $id) {
+      id
+      name
+      description
+      urlImage
+      isPublished
+      sku
+      variants {
+        id
+        size
+        color
+        pricePerHour
+      }
+      categories {
+        id
+        name
+        variant
+        parentCategory {
+          id
+          name
+          variant
+        }
+      }
+    }
+  }
+`;

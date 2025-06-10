@@ -158,7 +158,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="order_reference"
               label="Référence de la commande"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
               required={false}
             />
@@ -183,7 +183,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="address1"
               label="Adresse"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
               required
             />
@@ -192,7 +192,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="address2"
               label="Complément d'adresse"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
             />
 
@@ -208,7 +208,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="zipCode"
               label="Code postal"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
               required
             />
@@ -217,7 +217,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="city"
               label="Ville"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
               required
             />
@@ -226,7 +226,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="phone"
               label="Téléphone"
-              placeholder=""
+              placeholder="..."
               isPending={isPending}
             />
 

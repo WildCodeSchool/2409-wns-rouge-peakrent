@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 
 import {
   AsyncComboboxInput,
@@ -16,7 +16,7 @@ import type {
   Product as ProductType,
   Variant as VariantType,
 } from "@/gql/graphql";
-import { GET_PRODUCTS } from "@/GraphQL/products";
+import { GET_PRODUCT_BY_VARIANT_ID, GET_PRODUCTS } from "@/GraphQL/products";
 import { cn } from "@/lib/utils";
 import {
   generateOrderItemSchema,
@@ -27,13 +27,13 @@ import {
   updateOrderItem,
   useOrderStore,
 } from "@/stores/admin/order.store";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export function OrderItemForm() {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [variants, setVariants] = useState<
     Array<
       VariantType & {
@@ -49,14 +49,12 @@ export function OrderItemForm() {
 
   const formSchema = generateOrderItemSchema();
 
-  const { data: productsData, loading: productsLoading } = useQuery(
-    gql(GET_PRODUCTS),
-    {
-      variables: {
-        search: formOrderItem?.variant?.product?.name,
+  const [getProductByVariantId, { loading: productsByVariantIdLoadingLazy }] =
+    useLazyQuery(gql(GET_PRODUCT_BY_VARIANT_ID), {
+      onCompleted: (data) => {
+        return data?.getProductByVariantId ?? [];
       },
-    }
-  );
+    });
 
   const [fetchProducts, { loading: productsLoadingLazy }] = useLazyQuery(
     gql(GET_PRODUCTS),
@@ -130,28 +128,40 @@ export function OrderItemForm() {
   useEffect(() => {
     const getProduct = async () => {
       if (formOrderItem) {
-        // startTransition(async () => {
-        //   const { data, success } = await getProductById(
-        //     Number(formOrderItem.product)
-        //   );
-        //   if (success && data) {
-        //     setSelected(data);
-        //     setSizes(
-        //       data.skus.flatMap((sku) =>
-        //         sku.sizes.map((sizeObj) => sizeObj.size)
-        //       )
-        //     );
-        //     form.reset(defaultValues);
-        //     const resetButton = document?.getElementById("resetOrderItemForm");
-        //     if (resetButton) {
-        //       setTimeout(() => resetButton.click(), 200);
-        //     }
-        //   }
-        // });
+        setIsPending(true);
+        form.setValue("product", formOrderItem.variant?.product);
+        form.setValue("pricePerHour", formOrderItem.pricePerHour);
+        form.setValue("quantity", formOrderItem.quantity);
+        form.setValue("date_range", {
+          from: formOrderItem.startsAt,
+          to: formOrderItem.endsAt,
+        });
+        const { data } = await getProductByVariantId({
+          variables: {
+            id: Number(formOrderItem.variant?.id),
+          },
+        });
+        if (
+          data &&
+          data.getProductByVariantId &&
+          data.getProductByVariantId.variants &&
+          data.getProductByVariantId.variants.length > 0
+        ) {
+          setSelected(data.getProductByVariantId);
+          form.setValue("variant", Number(formOrderItem.variant?.id));
+          setVariants(
+            data.getProductByVariantId.variants.map((variant: VariantType) => ({
+              ...variant,
+              label: variant.size as string,
+              value: Number(variant.id),
+            }))
+          );
+        }
+        setIsPending(false);
       }
     };
     getProduct();
-  }, [formOrderItem, defaultValues, form]);
+  }, [formOrderItem]);
 
   const handleCancelUpdate = () => {
     setFormOrderItem(null);
@@ -203,7 +213,7 @@ export function OrderItemForm() {
             }
           : undefined,
       };
-      updateOrderItem(Number(formOrderItem.id), itemsToUpdate);
+      updateOrderItem(formOrderItem.id, itemsToUpdate);
       toast.success("Les produits ont bien été mis à jour");
       setFormOrderItem(null);
     } else {
@@ -293,7 +303,11 @@ export function OrderItemForm() {
                       )?.pricePerHour ?? 0) / 100
                     );
                   }}
-                  isPending={isPending}
+                  isPending={
+                    isPending ||
+                    productsByVariantIdLoadingLazy ||
+                    productsLoadingLazy
+                  }
                   placeholder="Sélectionner une taille"
                   variant="secondary"
                 />
