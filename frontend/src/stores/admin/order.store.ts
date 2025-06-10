@@ -165,6 +165,15 @@ export const updateOrderItem = (id: string, item: Partial<OrderItem>) => {
   updateOrderItem(id, item);
 };
 
+export const updateFormOrderItem = (itemToUpdate: Partial<OrderItem>) => {
+  const { setOrderItemsForm, orderItemsForm } = useOrderStore.getState();
+  setOrderItemsForm(
+    orderItemsForm?.map((item) =>
+      item.id === itemToUpdate.id ? { ...item, ...itemToUpdate } : item
+    ) || []
+  );
+};
+
 // export const addOrder = (newOrder: Order) => {
 //   const { addOrder } = useOrderStore.getState();
 //   addOrder(newOrder);

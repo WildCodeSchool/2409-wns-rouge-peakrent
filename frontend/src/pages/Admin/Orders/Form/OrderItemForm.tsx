@@ -24,7 +24,7 @@ import {
 } from "@/schemas/orderSchemas";
 import {
   setFormOrderItem,
-  updateOrderItem,
+  updateFormOrderItem,
   useOrderStore,
 } from "@/stores/admin/order.store";
 import { gql, useLazyQuery } from "@apollo/client";
@@ -201,8 +201,12 @@ export function OrderItemForm() {
       return;
     }
     if (formOrderItem) {
-      const itemsToUpdate = {
+      console.log("values", values);
+      const itemToUpdate = {
+        ...formOrderItem,
         ...values,
+        startsAt: values.date_range.from,
+        endsAt: values.date_range.to,
         variant: selectedVariant
           ? {
               ...selectedVariant,
@@ -213,9 +217,10 @@ export function OrderItemForm() {
             }
           : undefined,
       };
-      updateOrderItem(formOrderItem.id, itemsToUpdate);
-      toast.success("Les produits ont bien été mis à jour");
+      updateFormOrderItem(itemToUpdate);
+      toast.success("Le produit a bien été mis à jour");
       setFormOrderItem(null);
+      form.reset(defaultEmptyValues);
     } else {
       const { date_range, ...restValues } = values;
       const itemsToAdd = {
