@@ -1,9 +1,10 @@
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import {
+  AsyncComboboxInput,
   DateSinglePicker,
   SingleSelectorInput,
   StringInput,
@@ -14,19 +15,34 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 
-import { Order as OrderType } from "@/gql/graphql";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Order as OrderType, Profile as ProfileType } from "@/gql/graphql";
+import { GET_PROFILE_BY_USER_ID, GET_PROFILES } from "@/GraphQL/profiles";
+import { cn } from "@/lib/utils";
 import {
   generateOrderSchema,
   OrderFormSchemaType,
 } from "@/schemas/orderSchemas";
 import { useOrderStore } from "@/stores/admin/order.store";
+import { gql, useLazyQuery } from "@apollo/client";
+import { toast } from "sonner";
 
 export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
-  const [isPending, startTransition] = useTransition();
-  const [defaultProfileInfos, setDefaultProfileInfos] = useState<{
-    id: number;
-    email: string | null;
-  } | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [defaultCustomerInfos, setDefaultCustomerInfos] =
+    useState<ProfileType | null>(null);
+
+  const [fetchCustomers] = useLazyQuery(gql(GET_PROFILES), {
+    onCompleted: (data) => {
+      return data?.getProfiles ?? [];
+    },
+  });
+
+  const [fetchDefaultCustomer] = useLazyQuery(gql(GET_PROFILE_BY_USER_ID), {
+    onCompleted: (data) => {
+      return data?.getProfileByUserId ?? [];
+    },
+  });
 
   const orderItems = useOrderStore((state) => state.orderItemsForm);
   const setOrderItems = useOrderStore((state) => state.setOrderItemsForm);
@@ -55,8 +71,8 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
   async function handleReset() {
     form.reset(defaultValues);
-    setDefaultProfileInfos(
-      defaultProfileInfos ? { ...defaultProfileInfos } : null
+    setDefaultCustomerInfos(
+      defaultCustomerInfos ? { ...defaultCustomerInfos } : null
     );
     setOrderItems(defaultOrderItems || []);
   }
@@ -79,22 +95,28 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
     form.setValue("orderItems", updatedOrderItems);
   }, [orderItems, form]);
 
-  // useEffect(() => {
-  //   const fetchDefaultCustomer = async () => {
-  //     if (orderInfos) {
-  //       const { success, data, message } = await getUsersById(
-  //         orderInfos.customer_id!
-  //       );
-  //       if (success && data) {
-  //         setDefaultCustomerInfos({ id: data.id, email: data.email });
-  //       } else {
-  //         console.error(message);
-  //         toast.error("Erreur lors de la récupération du client:" + message);
-  //       }
-  //     }
-  //   };
-  //   fetchDefaultCustomer();
-  // }, [orderInfos]);
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      if (orderInfos) {
+        const { success, data, message } = await fetchDefaultCustomer({
+          variables: { userId: orderInfos.id },
+        }).then((res) => {
+          return {
+            success: res.data?.getProfileByUserId?.id,
+            data: res.data?.getProfileByUserId,
+            message: "",
+          };
+        });
+        if (success && data) {
+          setDefaultCustomerInfos(data);
+        } else {
+          console.error(message);
+          toast.error("Erreur lors de la récupération du client:" + message);
+        }
+      }
+    };
+    fetchCustomer();
+  }, []);
 
   return (
     <Card className="my-4 p-0 col-span-4 xl:col-span-3 py-4">
@@ -120,16 +142,29 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               fromYear={2015}
             />
 
-            {/* <AsyncComboboxInput
+            <AsyncComboboxInput
               form={form}
               name="customer"
               label="Client"
               placeholder="Choisir un client"
               defaultSelected={defaultCustomerInfos ?? undefined}
-              fetchResults={(query) => getUsersByEmail(query)}
-              renderItem={(customer) => (
+              fetchResults={(query) =>
+                fetchCustomers({ variables: { search: query } }).then((res) => {
+                  return {
+                    success: res.data?.getProfiles?.length > 0,
+                    message:
+                      res.data?.getProfiles?.length > 0
+                        ? "Client trouvé"
+                        : "Aucun client trouvé",
+                    data: res.data?.getProfiles ?? [],
+                  };
+                })
+              }
+              renderItem={(customer: ProfileType) => (
                 <div className={cn("flex w-full items-center gap-1")}>
-                  {customer?.email}
+                  <span className="normal-case">
+                    {customer?.firstname} {customer?.lastname}
+                  </span>
                 </div>
               )}
               isPending={isPending}
@@ -141,7 +176,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
                   ))}
                 </>
               }
-            /> */}
+            />
 
             {/*<DynamicComboboxInput
               label="Store"

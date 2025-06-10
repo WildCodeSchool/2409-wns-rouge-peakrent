@@ -14,9 +14,9 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     date: createDateSchema().default(() =>
       datas?.createdAt ? new Date(datas?.createdAt) : new Date()
     ),
-    profile: createNumberSchema({
-      requiredError: "Le profil est requis",
-      invalidTypeError: "Le profil est requis",
+    customer: createNumberSchema({
+      requiredError: "Le client est requis",
+      invalidTypeError: "Le client est requis",
     }).default(Number(datas?.profile?.id)),
     order_reference_source: createStringSchema({
       required: false,
