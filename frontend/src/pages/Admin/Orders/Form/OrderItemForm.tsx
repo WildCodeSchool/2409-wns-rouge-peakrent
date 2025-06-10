@@ -178,7 +178,10 @@ export function OrderItemForm() {
   }, [formOrderItem]);
 
   useEffect(() => {
-    return () => setFormOrderItem(null);
+    return () => {
+      setFormOrderItem(null);
+      setOrderItems([]);
+    };
   }, []);
 
   const handleChange = (item: ProductType) => {
