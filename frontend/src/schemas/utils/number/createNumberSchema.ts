@@ -11,6 +11,7 @@ interface NumberSchemaOptions {
   max?: number;
   maxError?: string;
   defaultValue?: number | null;
+  invalidTypeError?: string;
 }
 
 export const createNumberSchema = (options: NumberSchemaOptions = {}) => {
@@ -23,6 +24,7 @@ export const createNumberSchema = (options: NumberSchemaOptions = {}) => {
     max = 9999,
     maxError = dictionnary ? "maxError" : `Must not exceed ${max}`,
     defaultValue = 100,
+    invalidTypeError = dictionnary ? "invalidTypeError" : "Invalid type",
   } = options;
 
   const getMessage = createGetMessage(dictionnary);
@@ -30,6 +32,7 @@ export const createNumberSchema = (options: NumberSchemaOptions = {}) => {
   let schema = z.coerce
     .number({
       required_error: getMessage(requiredError),
+      invalid_type_error: getMessage(invalidTypeError),
     })
     .int();
 

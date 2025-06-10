@@ -77,6 +77,7 @@ export const generateOrderItemSchema = () => {
       max: 99,
       minError: "La quantité doit être supérieure à {min}",
       maxError: "La quantité doit être inférieure à {max}",
+      invalidTypeError: "La quantité est requise ou invalide",
       required: true,
     }),
     product: z.any().refine(
@@ -115,6 +116,7 @@ export const generateOrderItemSchema = () => {
       minError: "L'id du variant est invalide",
       max: Infinity,
       maxError: "L'id du variant est invalide",
+      invalidTypeError: "Le variant est requis",
       required: true,
       defaultValue: null,
     }),

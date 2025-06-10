@@ -12,6 +12,7 @@ import { DateRangePicker } from "@/components/forms/formField/date/DateRangePick
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import type {
   Product as ProductType,
   Variant as VariantType,
@@ -125,6 +126,19 @@ export function OrderItemForm() {
     defaultValues,
   });
 
+  const handleCancelUpdate = () => {
+    setFormOrderItem(null);
+    form.reset(defaultEmptyValues);
+  };
+
+  const handleReset = () => {
+    if (!formOrderItem) {
+      setVariants([]);
+      setSelected(undefined);
+    }
+    form.reset(defaultValues);
+  };
+
   useEffect(() => {
     const getProduct = async () => {
       if (formOrderItem) {
@@ -162,19 +176,6 @@ export function OrderItemForm() {
     };
     getProduct();
   }, [formOrderItem]);
-
-  const handleCancelUpdate = () => {
-    setFormOrderItem(null);
-    form.reset(defaultEmptyValues);
-  };
-
-  const handleReset = () => {
-    if (!formOrderItem) {
-      setVariants([]);
-      setSelected(undefined);
-    }
-    form.reset(defaultValues);
-  };
 
   useEffect(() => {
     return () => setFormOrderItem(null);
@@ -240,6 +241,8 @@ export function OrderItemForm() {
     }
   }
 
+  const productSelected = form.watch("product");
+
   return (
     <Card className="my-4 px-0 py-4">
       <CardHeader>
@@ -278,18 +281,34 @@ export function OrderItemForm() {
                   placeholder="Sélectionner un produit"
                   fetchResults={handleFetchProducts}
                   renderItem={(item: ProductType) => (
-                    <div
-                      className={cn(
-                        "flex w-full items-center justify-between gap-1"
+                    <div className={cn("flex w-full items-center gap-2")}>
+                      {item.urlImage && (
+                        <ImageHandler
+                          className="size-8 object-cover rounded-md border"
+                          width={32}
+                          height={32}
+                          src={item.urlImage}
+                          alt={item.name}
+                        />
                       )}
-                    >
-                      {item.name}
+                      <span>{item.name}</span>
                     </div>
                   )}
                   skeletonItems={
                     <>
                       {[...Array(5)].map((_, index) => (
-                        <Skeleton className="mb-1 h-8 w-full" key={index} />
+                        <div
+                          className={cn(
+                            "my-2 flex w-full items-center justify-between gap-1"
+                          )}
+                          key={index}
+                        >
+                          <div className="flex w-full items-center gap-4">
+                            <Skeleton className="size-4 min-h-4 min-w-4" />
+                            <Skeleton className="size-8 min-h-8 min-w-8" />
+                            <Skeleton className="h-8 w-full" />
+                          </div>
+                        </div>
                       ))}
                     </>
                   }
@@ -311,12 +330,14 @@ export function OrderItemForm() {
                   isPending={
                     isPending ||
                     productsByVariantIdLoadingLazy ||
-                    productsLoadingLazy
+                    productsLoadingLazy ||
+                    !productSelected
                   }
                   placeholder="Sélectionner une taille"
                   variant="secondary"
                 />
               </div>
+
               <div className="space-y-4">
                 <Quantity
                   form={form}
