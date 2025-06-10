@@ -1,12 +1,7 @@
 import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
@@ -16,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { enGB as en, fr } from "date-fns/locale";
 import { CalendarIcon, X as CloseIcon } from "lucide-react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
 export function DateRangePicker({
@@ -46,50 +42,51 @@ export function DateRangePicker({
   toYear?: number;
 }) {
   const localeToUse = locale === "fr" ? fr : en;
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-col">
+        <FormItem>
           <LabelSection label={label} required={required} />
-          <Popover>
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  id="date"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !field.value && "text-muted-foreground"
-                  )}
-                  disabled={isPending}
-                >
-                  {field.value?.from ? (
-                    <>
-                      {field.value.to ? (
-                        <>
-                          {format(new Date(field.value.from), "LLL dd, y")} -{" "}
-                          {format(new Date(field.value.to), "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(new Date(field.value.from), "LLL dd, y")
-                      )}
-                      <CloseIcon
-                        className="ml-auto size-4 cursor-pointer opacity-50"
-                        onClick={() => {
-                          field.onChange({ from: undefined, to: undefined });
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <CalendarIcon className="mr-2 size-4" />
-                      <span>{placeholder}</span>
-                    </>
-                  )}
-                </Button>
-              </FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !field.value && "text-muted-foreground"
+                )}
+                disabled={isPending}
+                onClick={() => setIsOpen(true)}
+              >
+                {field.value?.from ? (
+                  <>
+                    {field.value.to ? (
+                      <>
+                        {format(new Date(field.value.from), "LLL dd, y")} -{" "}
+                        {format(new Date(field.value.to), "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(new Date(field.value.from), "LLL dd, y")
+                    )}
+                    <CloseIcon
+                      className="ml-auto size-4 cursor-pointer opacity-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        field.onChange({ from: undefined, to: undefined });
+                        if (onSelect) onSelect(undefined);
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <CalendarIcon className="mr-2 size-4" />
+                    <span>{placeholder}</span>
+                  </>
+                )}
+              </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
@@ -100,7 +97,11 @@ export function DateRangePicker({
                 toYear={toYear}
                 numberOfMonths={numberOfMonths}
                 selected={field.value as unknown as DateRange}
-                onSelect={field.onChange}
+                onSelect={(value) => {
+                  field.onChange(value);
+                  if (onSelect) onSelect(value);
+                  setIsOpen(false);
+                }}
                 disabled={
                   disabledDates
                     ? disabledDates
