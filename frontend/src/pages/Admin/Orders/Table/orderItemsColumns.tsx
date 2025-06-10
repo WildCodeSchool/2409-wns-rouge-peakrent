@@ -1,6 +1,7 @@
 import * as column from "@/components/ui/tables/columns";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
+import { getDurationInDays } from "@/utils/getDurationInDays";
 import { DataTableRowOrderByIdActions } from "./orderItemActions";
 
 // import { DataTableRowOrderByIdActions } from "./NewOrderByIdActions";
@@ -14,6 +15,17 @@ const multiColumnFilter: FilterFn<any> = (row, columnId, filterValue) => {
 
 export const createColumns = (): ColumnDef<any>[] => [
   column.createSelectColumn(),
+
+  column.createTwoDateColumn({
+    id: "dates",
+    title: "Dates",
+    accessorKey: "startsAt",
+    secondAccessorKey: "endsAt",
+    divClassName: "mx-auto max-w-[60px]",
+    headerClassName: "mx-auto max-w-[60px]",
+    enableSorting: true,
+    enableHiding: true,
+  }),
 
   column.createImageColumn({
     id: "Image",
@@ -43,21 +55,31 @@ export const createColumns = (): ColumnDef<any>[] => [
     enableSorting: true,
   }),
 
-  column.createTwoDateColumn({
-    id: "dates",
-    title: "Dates",
-    accessorKey: "startsAt",
-    secondAccessorKey: "endsAt",
-    divClassName: "mx-auto max-w-[60px]",
-    headerClassName: "mx-auto max-w-[60px]",
-    enableSorting: true,
-    enableHiding: true,
-  }),
-
   column.createStringColumn({
     id: "quantity",
     accessorKey: "quantity",
     title: "Quantité",
+    enableSorting: true,
+  }),
+
+  column.createPriceColumn({
+    id: "pricePerHour",
+    accessorKey: "pricePerHour",
+    title: "Prix par heure",
+    enableSorting: true,
+  }),
+
+  column.createPriceColumn({
+    id: "total",
+    accessorKey: "pricePerHour",
+    title: "Total",
+    priceFn(row) {
+      return (
+        row.original.pricePerHour *
+        row.original.quantity *
+        getDurationInDays(row.original.startsAt, row.original.endsAt)
+      ).toFixed(2);
+    },
     enableSorting: true,
   }),
 

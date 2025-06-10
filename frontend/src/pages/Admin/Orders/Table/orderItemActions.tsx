@@ -4,7 +4,10 @@ import { Row } from "@tanstack/react-table";
 import { Pencil } from "lucide-react";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
-import { setFormOrderItem, useOrderStore } from "@/stores/admin/order.store";
+import {
+  deleteFormOrderItem,
+  setFormOrderItem,
+} from "@/stores/admin/order.store";
 
 interface DataTableRowOrderByIdActionsProps<TData> {
   row: Row<TData>;
@@ -14,10 +17,9 @@ export function DataTableRowOrderByIdActions<TData>({
   row,
 }: DataTableRowOrderByIdActionsProps<TData>) {
   const orderItem = row.original as any;
-  const deleteOrderItem = useOrderStore((state) => state.deleteOrderItem);
 
   const handleDelete = async (id: string | number) => {
-    deleteOrderItem(Number(id));
+    deleteFormOrderItem(id as string);
     return true;
   };
 

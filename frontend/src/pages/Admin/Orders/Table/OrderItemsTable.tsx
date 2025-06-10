@@ -7,16 +7,17 @@ import {
 } from "@/components/ui/card";
 import Table from "@/components/ui/tables/Table";
 import {
-  deleteMultipleOrderItems,
+  deleteMultipleFormOrderItems,
   useOrderStore,
 } from "@/stores/admin/order.store";
+import { getDurationInDays } from "@/utils/getDurationInDays";
 import { createColumns } from "./orderItemsColumns";
 
 export default function OrderItemsTable() {
   const orderItems = useOrderStore((state) => state.orderItemsForm);
 
   const onDeleteMultipleFunction = async (ids: (string | number)[]) => {
-    deleteMultipleOrderItems(ids);
+    deleteMultipleFormOrderItems(ids as string[]);
     return true;
   };
 
@@ -24,10 +25,9 @@ export default function OrderItemsTable() {
     orderItems?.reduce(
       (acc, item) =>
         acc +
-        (item.pricePerHour *
+        item.pricePerHour *
           item.quantity *
-          (item.endsAt.getTime() - item.startsAt.getTime())) /
-          (1000 * 60 * 60 * 24),
+          getDurationInDays(item.startsAt, item.endsAt),
       0
     ) || 0;
 
