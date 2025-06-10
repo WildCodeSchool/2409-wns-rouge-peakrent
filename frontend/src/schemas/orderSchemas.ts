@@ -14,15 +14,37 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     date: createDateSchema().default(() =>
       datas?.createdAt ? new Date(datas?.createdAt) : new Date()
     ),
-    profile: createNumberSchema().default(Number(datas?.profile?.id)),
-    order_reference_source: createStringSchema(),
-    paymentMethod: createStringSchema(),
-    address1: createStringSchema({ defaultValue: datas?.address1 ?? "" }),
-    address2: createStringSchema({ defaultValue: datas?.address2 ?? "" }),
-    country: createStringSchema({ defaultValue: datas?.country ?? "" }),
+    profile: createNumberSchema({
+      requiredError: "Le profil est requis",
+      invalidTypeError: "Le profil est requis",
+    }).default(Number(datas?.profile?.id)),
+    order_reference_source: createStringSchema({
+      required: false,
+    }),
+    paymentMethod: createStringSchema({
+      requiredError: "La méthode de paiement est requise",
+    }),
+    address1: createStringSchema({
+      defaultValue: datas?.address1 ?? "",
+      requiredError: "L'adresse est requise",
+    }),
+    address2: createStringSchema({
+      defaultValue: datas?.address2 ?? "",
+      required: false,
+    }),
+    country: createStringSchema({
+      defaultValue: datas?.country ?? "",
+      requiredError: "Le pays est requis",
+    }),
     zipCode: createZipCodeSchema(datas?.zipCode ?? ""),
-    city: createStringSchema({ defaultValue: datas?.city ?? "" }),
-    phone: createStringSchema({ defaultValue: "" }).optional(),
+    city: createStringSchema({
+      defaultValue: datas?.city ?? "",
+      requiredError: "La ville est requise",
+    }),
+    phone: createStringSchema({
+      defaultValue: "",
+      required: false,
+    }).optional(),
     orderItems: z
       .array(generateOrderItemSchema())
       .min(1, "Vous devez ajouter au moins un produit à la commande")

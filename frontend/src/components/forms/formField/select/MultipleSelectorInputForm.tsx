@@ -1,4 +1,3 @@
-import * as React from "react";
 import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cva, VariantProps } from "class-variance-authority";
@@ -9,8 +8,9 @@ import {
   XCircle,
   XIcon,
 } from "lucide-react";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { LabelSection } from "@/components/forms/layout/LabelSection";
+import { cn } from "@/lib/utils";
 
 /**
  * Variants for the multi-select component to handle different styles.
@@ -412,13 +412,6 @@ export const MultipleSelectorInput = React.forwardRef<
                                       <IconComponent className="mr-2 size-4" />
                                     )}
                                     {option?.label}
-                                    <XCircle
-                                      className="ml-2 size-4 cursor-pointer"
-                                      onClick={(event) => {
-                                        event.stopPropagation();
-                                        toggleOption(value);
-                                      }}
-                                    />
                                   </Badge>
                                 )}
                               </React.Fragment>

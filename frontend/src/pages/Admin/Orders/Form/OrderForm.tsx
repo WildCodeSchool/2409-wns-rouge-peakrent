@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 
 import {
   DateSinglePicker,
-  MultipleSelectorInput,
+  SingleSelectorInput,
   StringInput,
 } from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
@@ -49,8 +49,6 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
   const orderItemsErrors = errors.orderItems?.message;
 
-  // const orderItemsErrors = errors.orderItems?.message;
-
   async function onSubmit(values: OrderFormSchemaType) {
     console.log(values);
   }
@@ -70,6 +68,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
             from: new Date(item.startsAt),
             to: new Date(item.endsAt),
           },
+          product: true,
           quantity: item.quantity,
           variant: Number(item.variant?.id),
           status: item.status,
@@ -163,15 +162,19 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               required={false}
             />
 
-            <MultipleSelectorInput
+            <SingleSelectorInput
               form={form}
               name="paymentMethod"
               label="Mode de paiement"
-              options={[]}
-              isPending={isPending}
               placeholder="Choisir un mode de paiement"
-              maxCount={1}
-              maxSelections={1}
+              options={[
+                { label: "Espèces", value: "cash" },
+                { label: "Chèque", value: "check" },
+                { label: "Carte bancaire", value: "card" },
+              ]}
+              isPending={isPending}
+              columns={1}
+              required
             />
 
             <Separator />
@@ -196,13 +199,14 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               isPending={isPending}
             />
 
-            {/* <CountryInput
-                form={form}
-                name="address_country"
-                label="Pays"
-                isPending={isPending}
-                required
-              /> */}
+            <StringInput
+              form={form}
+              name="country"
+              label="Pays"
+              placeholder="..."
+              isPending={isPending}
+              required
+            />
 
             <StringInput
               form={form}
@@ -253,11 +257,11 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               </div>
             </div>
 
-            {/* {orderItemsErrors && (
+            {orderItemsErrors && (
               <div className="text-destructive font-medium">
                 {orderItemsErrors}
               </div>
-              )} */}
+            )}
           </form>
         </Form>
       </CardContent>

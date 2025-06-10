@@ -202,7 +202,6 @@ export function OrderItemForm() {
       return;
     }
     if (formOrderItem) {
-      console.log("values", values);
       const itemToUpdate = {
         ...formOrderItem,
         ...values,
