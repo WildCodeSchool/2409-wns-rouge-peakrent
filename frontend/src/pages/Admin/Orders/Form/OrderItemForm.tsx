@@ -44,12 +44,13 @@ export function OrderItemForm() {
     >
   >([]);
   const [selected, setSelected] = useState<ProductType | undefined>();
+
+  // store variables + functions
   const setOrderItems = useOrderStore((state) => state.setOrderItemsForm);
   const orderItems = useOrderStore((state) => state.orderItemsForm);
   const formOrderItem = useOrderStore((state) => state.formOrderItem);
 
-  const formSchema = generateOrderItemSchema();
-
+  // gql queries
   const [getProductByVariantId, { loading: productsByVariantIdLoadingLazy }] =
     useLazyQuery(gql(GET_PRODUCT_BY_VARIANT_ID), {
       onCompleted: (data) => {
@@ -66,27 +67,8 @@ export function OrderItemForm() {
     }
   );
 
-  const handleFetchProducts = async (query: string) => {
-    const result = await fetchProducts({
-      variables: {
-        search: query,
-      },
-    });
-
-    if (result.data?.getProducts?.products) {
-      return {
-        success: true,
-        message: "Produits récupérés avec succès",
-        data: result.data?.getProducts?.products,
-      };
-    }
-
-    return {
-      success: false,
-      message: "Aucun produit trouvé",
-      data: [],
-    };
-  };
+  // form initialization + default values
+  const formSchema = generateOrderItemSchema();
 
   const defaultEmptyValues = {
     quantity: 1,
@@ -126,6 +108,9 @@ export function OrderItemForm() {
     defaultValues,
   });
 
+  const productSelected = form.watch("product");
+
+  // form functions
   const handleCancelUpdate = () => {
     setFormOrderItem(null);
     form.reset(defaultEmptyValues);
@@ -138,51 +123,6 @@ export function OrderItemForm() {
     }
     form.reset(defaultValues);
   };
-
-  useEffect(() => {
-    const getProduct = async () => {
-      if (formOrderItem) {
-        setIsPending(true);
-        form.setValue("product", formOrderItem.variant?.product);
-        form.setValue("pricePerHour", formOrderItem.pricePerHour);
-        form.setValue("quantity", formOrderItem.quantity);
-        form.setValue("date_range", {
-          from: formOrderItem.startsAt,
-          to: formOrderItem.endsAt,
-        });
-        const { data } = await getProductByVariantId({
-          variables: {
-            id: Number(formOrderItem.variant?.id),
-          },
-        });
-        if (
-          data &&
-          data.getProductByVariantId &&
-          data.getProductByVariantId.variants &&
-          data.getProductByVariantId.variants.length > 0
-        ) {
-          setSelected(data.getProductByVariantId);
-          form.setValue("variant", Number(formOrderItem.variant?.id));
-          setVariants(
-            data.getProductByVariantId.variants.map((variant: VariantType) => ({
-              ...variant,
-              label: variant.size as string,
-              value: Number(variant.id),
-            }))
-          );
-        }
-        setIsPending(false);
-      }
-    };
-    getProduct();
-  }, [formOrderItem]);
-
-  useEffect(() => {
-    return () => {
-      setFormOrderItem(null);
-      setOrderItems([]);
-    };
-  }, []);
 
   const handleChange = (item: ProductType) => {
     const currentVariants = item.variants?.map((variant) => ({
@@ -243,7 +183,75 @@ export function OrderItemForm() {
     }
   }
 
-  const productSelected = form.watch("product");
+  // fetch products
+  const handleFetchProducts = async (query: string) => {
+    const result = await fetchProducts({
+      variables: {
+        search: query,
+      },
+    });
+
+    if (result.data?.getProducts?.products) {
+      return {
+        success: true,
+        message: "Produits récupérés avec succès",
+        data: result.data?.getProducts?.products,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Aucun produit trouvé",
+      data: [],
+    };
+  };
+
+  // fetch product by variant id on formOrderItem change
+  useEffect(() => {
+    const getProduct = async () => {
+      if (formOrderItem) {
+        setIsPending(true);
+        form.setValue("product", formOrderItem.variant?.product);
+        form.setValue("pricePerHour", formOrderItem.pricePerHour);
+        form.setValue("quantity", formOrderItem.quantity);
+        form.setValue("date_range", {
+          from: formOrderItem.startsAt,
+          to: formOrderItem.endsAt,
+        });
+        const { data } = await getProductByVariantId({
+          variables: {
+            id: Number(formOrderItem.variant?.id),
+          },
+        });
+        if (
+          data &&
+          data.getProductByVariantId &&
+          data.getProductByVariantId.variants &&
+          data.getProductByVariantId.variants.length > 0
+        ) {
+          setSelected(data.getProductByVariantId);
+          form.setValue("variant", Number(formOrderItem.variant?.id));
+          setVariants(
+            data.getProductByVariantId.variants.map((variant: VariantType) => ({
+              ...variant,
+              label: variant.size as string,
+              value: Number(variant.id),
+            }))
+          );
+        }
+        setIsPending(false);
+      }
+    };
+    getProduct();
+  }, [formOrderItem]);
+
+  // reset form on unmount
+  useEffect(() => {
+    return () => {
+      setFormOrderItem(null);
+      setOrderItems([]);
+    };
+  }, []);
 
   return (
     <Card className="my-4 px-0 py-4">

@@ -32,6 +32,14 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   const [defaultCustomerInfos, setDefaultCustomerInfos] =
     useState<ProfileType | null>(null);
 
+  // store variables + functions
+  const orderItems = useOrderStore((state) => state.orderItemsForm);
+  const setOrderItems = useOrderStore((state) => state.setOrderItemsForm);
+  const defaultOrderItems = useOrderStore(
+    (state) => state.defaultOrderItemsForm
+  );
+
+  // gql queries
   const [fetchCustomers] = useLazyQuery(gql(GET_PROFILES), {
     onCompleted: (data) => {
       return data?.getProfiles ?? [];
@@ -44,12 +52,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
     },
   });
 
-  const orderItems = useOrderStore((state) => state.orderItemsForm);
-  const setOrderItems = useOrderStore((state) => state.setOrderItemsForm);
-  const defaultOrderItems = useOrderStore(
-    (state) => state.defaultOrderItemsForm
-  );
-
+  // form initialization + default values
   const formSchema = generateOrderSchema({
     ...orderInfos,
     orderItems: defaultOrderItems ?? [],
@@ -65,6 +68,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
   const orderItemsErrors = errors.orderItems?.message;
 
+  // form functions
   async function onSubmit(values: OrderFormSchemaType) {
     console.log(values);
   }
@@ -77,6 +81,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
     setOrderItems(defaultOrderItems || []);
   }
 
+  // update order items on orderItems change
   useEffect(() => {
     const updatedOrderItems = orderItems
       ? orderItems.map((item) => ({
@@ -95,6 +100,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
     form.setValue("orderItems", updatedOrderItems);
   }, [orderItems, form]);
 
+  // fetch default customer on mount if orderInfos is provided
   useEffect(() => {
     const fetchCustomer = async () => {
       if (orderInfos) {
