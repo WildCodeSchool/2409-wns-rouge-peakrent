@@ -9,6 +9,7 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import { ILike, In } from "typeorm";
 import { Category } from "../entities/Category";
@@ -22,6 +23,7 @@ import { StoreVariant } from "../entities/StoreVariant";
 import { Variant, VariantCreateNestedInput } from "../entities/Variant";
 import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { normalizeString } from "../helpers/helpers";
+import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
 
 @Resolver(Product)
@@ -130,6 +132,42 @@ export class ProductResolver {
       product = await Product.findOne({
         where: { name: param },
         relations: { categories: true, createdBy: true, variants: true },
+      });
+    }
+
+    return product;
+  }
+
+  @Query(() => Product, { nullable: true })
+  @UseMiddleware(ErrorCatcher)
+  async getProductByVariantId(
+    @Arg("id", () => ID) id: number
+  ): Promise<Product | null> {
+    const variant = await Variant.findOne({
+      where: { id },
+      relations: { product: true },
+    });
+
+    if (!variant) {
+      throw new GraphQLError("Variant not found", {
+        extensions: {
+          code: "VARIANT_NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    const product = await Product.findOne({
+      where: { id: variant.product.id },
+      relations: { categories: true, createdBy: true, variants: true },
+    });
+
+    if (!product) {
+      throw new GraphQLError("Product not found", {
+        extensions: {
+          code: "PRODUCT_NOT_FOUND",
+          http: { status: 404 },
+        },
       });
     }
 
