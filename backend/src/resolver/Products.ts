@@ -12,6 +12,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { ILike, In } from "typeorm";
+import { Activity } from "../entities/Activity";
 import { Category } from "../entities/Category";
 import {
   Product,
