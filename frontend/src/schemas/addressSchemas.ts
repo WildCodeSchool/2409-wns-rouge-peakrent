@@ -22,9 +22,9 @@ export const createCitySchema = (data: any = undefined) =>
 export const createZipCodeSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "zipcodeRequired",
+      required_error: "Le code postal est requis",
     })
-    .regex(zipCodeRegex, "zipcodeInvalidFormat")
+    .regex(zipCodeRegex, "Le code postal est invalide")
     .default(data ?? undefined);
 
 export const createAddressSchema = (data: any = undefined) =>
