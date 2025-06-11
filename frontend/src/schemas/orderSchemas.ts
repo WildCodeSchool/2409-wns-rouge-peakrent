@@ -25,7 +25,7 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
       max: Infinity,
       maxError: "L'id du client est invalide",
     }).default(Number(datas?.profile?.id)),
-    order_reference_source: createStringSchema({
+    reference: createStringSchema({
       required: false,
     }),
     paymentMethod: createStringSchema({
@@ -40,9 +40,11 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     zipCode: createZipCodeSchema(datas?.zipCode ?? ""),
     city: createCitySchema(datas?.city ?? ""),
     phone: createStringSchema({
-      defaultValue: "",
       required: false,
-    }).optional(),
+      defaultValue: datas?.phone ?? null,
+    })
+      .optional()
+      .nullable(),
     orderItems: z
       .array(generateOrderItemSchema())
       .min(1, "Vous devez ajouter au moins un produit à la commande")

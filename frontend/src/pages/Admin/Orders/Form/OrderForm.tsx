@@ -17,6 +17,7 @@ import { Form } from "@/components/ui/form";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Order as OrderType, Profile as ProfileType } from "@/gql/graphql";
+import { CREATE_ORDER_WITH_ITEMS } from "@/GraphQL/order";
 import { GET_PROFILE_BY_USER_ID, GET_PROFILES } from "@/GraphQL/profiles";
 import { cn } from "@/lib/utils";
 import {
@@ -24,7 +25,7 @@ import {
   OrderFormSchemaType,
 } from "@/schemas/orderSchemas";
 import { useOrderStore } from "@/stores/admin/order.store";
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
 export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
@@ -52,6 +53,12 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
     },
   });
 
+  const [createOrder] = useMutation(gql(CREATE_ORDER_WITH_ITEMS), {
+    onCompleted: (data) => {
+      return data?.createOrderWithItems ?? null;
+    },
+  });
+
   // form initialization + default values
   const formSchema = generateOrderSchema({
     ...orderInfos,
@@ -72,15 +79,37 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   async function onSubmit(values: OrderFormSchemaType) {
     setIsPending(true);
     try {
-      toast.success(
-        <div className="text-sm truncate">
-          <pre className="max-w-[300px]">{JSON.stringify(values, null, 2)}</pre>
-        </div>,
-        {
-          duration: 10000,
-        }
-      );
-      //TODO add logic + reset form on success
+      const { data, errors } = await createOrder({
+        variables: {
+          data: {
+            profileId: values.customer,
+            reference: values.reference,
+            paymentMethod: values.paymentMethod,
+            address1: values.address1,
+            address2: values.address2,
+            country: values.country,
+            city: values.city,
+            zipCode: values.zipCode,
+            paidAt: null,
+            phone: values.phone,
+            date: values.date,
+          },
+          items: values.orderItems.map((item) => ({
+            ...item,
+            product: undefined,
+            id: undefined,
+          })),
+        },
+      });
+      if (errors) {
+        toast.error("Erreur lors de la création de la commande:" + errors);
+        return;
+      }
+      if (data) {
+        toast.success("Commande créée avec succès");
+        //TODO add to store if store is initialized
+        handleReset();
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la création de la commande:" + error);
@@ -212,7 +241,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
             <StringInput
               form={form}
-              name="order_reference"
+              name="reference"
               label="Référence de la commande"
               placeholder="..."
               isPending={isPending}
@@ -222,7 +251,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
             <SingleSelectorInput
               form={form}
               name="paymentMethod"
-              label="Mode de paiement"
+              label="Moyen de paiement"
               placeholder="Choisir le paiement"
               options={[{ label: "Carte bancaire", value: "card" }]}
               isPending={isPending}

@@ -1,4 +1,5 @@
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -8,9 +9,12 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { dataSource } from "../config/db";
 import { Order, OrderCreateInput, OrderUpdateInput } from "../entities/Order";
+import { OrderItem, OrderItemsFormInput } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
-import { AuthContextType } from "../types";
+import { generateOrderReference } from "../helpers/generateOrderReference";
+import { AuthContextType, OrderItemStatusType } from "../types";
 
 @Resolver(Order)
 export class OrderResolver {
@@ -131,5 +135,87 @@ export class OrderResolver {
     } else {
       throw new Error("Order not found.");
     }
+  }
+
+  @Mutation(() => Order)
+  @Authorized("admin")
+  async createOrderWithItems(
+    @Arg("data", () => OrderCreateInput) data: OrderCreateInput,
+    @Arg("items", () => [OrderItemsFormInput]) items: OrderItemsFormInput[]
+  ): Promise<Order> {
+    return await dataSource.manager.transaction(
+      async (transactionalEntityManager) => {
+        // Check if profile exists
+        const profile = await transactionalEntityManager.findOne(Profile, {
+          where: { id: data.profileId },
+        });
+        if (!profile) {
+          throw new GraphQLError("Profile not found", {
+            extensions: {
+              code: "PROFILE_NOT_FOUND",
+              http: { status: 404 },
+            },
+          });
+        }
+
+        // Create order
+        const newOrder = new Order();
+        Object.assign(newOrder, data, {
+          profile: data.profileId,
+          reference: generateOrderReference(
+            data.date.toISOString(),
+            data.reference
+          ),
+        });
+        const orderErrors = await validate(newOrder);
+        if (orderErrors.length > 0) {
+          throw new GraphQLError("Order validation error", {
+            extensions: {
+              code: "VALIDATION_ERROR",
+              http: { status: 400 },
+            },
+          });
+        }
+        const savedOrder = await transactionalEntityManager.save(newOrder);
+
+        // Create order items
+        for (const item of items) {
+          const orderItem = new OrderItem();
+          Object.assign(orderItem, {
+            order: savedOrder,
+            variant: item.variant,
+            quantity: item.quantity,
+            pricePerHour: item.pricePerHour,
+            status: item.status || OrderItemStatusType.pending,
+            startsAt: item.date_range.from,
+            endsAt: item.date_range.to,
+          });
+
+          const itemErrors = await validate(orderItem);
+          if (itemErrors.length > 0) {
+            throw new GraphQLError("OrderItem validation error", {
+              extensions: {
+                code: "VALIDATION_ERROR",
+                http: { status: 400 },
+              },
+            });
+          }
+          await transactionalEntityManager.save(orderItem);
+        }
+
+        // Return the order with its items
+        return await transactionalEntityManager.findOne(Order, {
+          where: { id: savedOrder.id },
+          relations: {
+            orderItems: {
+              variant: {
+                product: true,
+              },
+            },
+            profile: true,
+          },
+        });
+      }
+    );
   }
 }

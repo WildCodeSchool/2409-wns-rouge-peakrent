@@ -11,6 +11,8 @@ export const CREATE_ORDER = `
       reference
       status
       updatedAt
+      date
+      phone
       zipCode
     }
   }
@@ -74,6 +76,8 @@ export const GET_ORDERS = `
       address2
       country
       city
+      date
+      phone
       zipCode
       createdAt
       updatedAt
@@ -113,6 +117,55 @@ export const UPDATE_ORDER = `
         product {
           id
           name
+        }
+      }
+    }
+  }
+`;
+
+export const CREATE_ORDER_WITH_ITEMS = `
+  mutation CreateOrderWithItems($data: OrderCreateInput!, $items: [OrderItemsFormInput!]!) {
+    createOrderWithItems(data: $data, items: $items) {
+      id
+      reference
+      status
+      paymentMethod
+      paidAt
+      address1
+      address2
+      date
+      phone
+      country
+      city
+      zipCode
+      createdAt
+      updatedAt
+      profile {
+        email
+        firstname
+        lastname
+        id
+        role
+        createdAt
+        updatedAt
+      }
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerHour
+        status
+        variant {
+          id
+          size
+          color
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
         }
       }
     }
