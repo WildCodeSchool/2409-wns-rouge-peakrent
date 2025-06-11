@@ -67,13 +67,13 @@ const NavBar = () => {
       <NavLink
         to="/"
         aria-label="Navigation vers la page d'accueil"
-        className="flex items-center justify-center lg:justify-start bg-primary lg:pr-2 h-full"
+        className="flex items-center justify-center xl:justify-start bg-primary xl:pr-2 h-full"
       >
         <img
           src="/LogoPeakrent.svg"
           className="h-full w-auto max-h-full object-contain"
         />
-        <p className="hidden lg:block text-white font-logo text-[2.3vw] ml-1">
+        <p className="hidden xl:block text-white font-logo text-[2.3vw] ml-1">
           PeakRent
         </p>
       </NavLink>
