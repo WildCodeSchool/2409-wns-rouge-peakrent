@@ -3,6 +3,7 @@ import {
   GET_ORDER_BY_ID,
 } from "../../../frontend/src/GraphQL/order";
 import { Order } from "../../src/entities/Order";
+import { generateOrderReference } from "../../src/helpers/generateOrderReference";
 import { assert, TestArgsType } from "../index.spec";
 import { getQueryFromMutation } from "../utils/getQueryFromMutation";
 
@@ -13,9 +14,10 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     city: "Lyon",
     country: "France",
     paymentMethod: "card",
-    reference: "2562",
+    reference: generateOrderReference(new Date().toISOString()),
     zipCode: "6200",
     paidAt: new Date(),
+    date: new Date(),
   };
 
   it("should not create an order from a regular user", async () => {
@@ -25,15 +27,8 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       query: getQueryFromMutation(CREATE_ORDER),
       variables: {
         data: {
-          address1: datas.address1,
-          address2: datas.address2,
-          city: datas.city,
-          country: datas.country,
-          paymentMethod: datas.paymentMethod,
+          ...datas,
           profileId: testArgs.data.user?.id,
-          reference: datas.reference,
-          zipCode: datas.zipCode,
-          paidAt: datas.paidAt,
         },
       },
     });
@@ -50,15 +45,8 @@ export function OrderResolverTest(testArgs: TestArgsType) {
         query: getQueryFromMutation(CREATE_ORDER),
         variables: {
           data: {
-            address1: datas.address1,
-            address2: datas.address2,
-            city: datas.city,
-            country: datas.country,
-            paymentMethod: datas.paymentMethod,
+            ...datas,
             profileId: testArgs.data.user?.id,
-            reference: "Ref122",
-            zipCode: datas.zipCode,
-            paidAt: datas.paidAt,
           },
         },
       },
@@ -88,15 +76,8 @@ export function OrderResolverTest(testArgs: TestArgsType) {
         query: getQueryFromMutation(CREATE_ORDER),
         variables: {
           data: {
-            address1: datas.address1,
-            address2: datas.address2,
-            city: datas.city,
-            country: datas.country,
-            paymentMethod: datas.paymentMethod,
+            ...datas,
             profileId: testArgs.data.user?.id,
-            reference: datas.reference,
-            zipCode: datas.zipCode,
-            paidAt: datas.paidAt,
           },
         },
       },
@@ -126,6 +107,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
             profileId: testArgs.data.user?.id,
             reference: "Ref152",
             zipCode: datas.zipCode,
+            date: datas.date,
           },
         },
       },
