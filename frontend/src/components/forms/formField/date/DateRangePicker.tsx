@@ -74,9 +74,19 @@ export function DateRangePicker({
                     <CloseIcon
                       className="ml-auto size-4 cursor-pointer opacity-50"
                       onClick={(e) => {
+                        const today = new Date();
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
                         e.stopPropagation();
-                        field.onChange({ from: undefined, to: undefined });
-                        if (onSelect) onSelect(undefined);
+                        field.onChange({
+                          from: today,
+                          to: tomorrow,
+                        });
+                        if (onSelect)
+                          onSelect({
+                            from: today,
+                            to: tomorrow,
+                          });
                       }}
                     />
                   </>

@@ -84,6 +84,7 @@ export const generateOrderItemSchema = () => {
         },
         {
           required_error: "Veuillez sélectionner une période",
+          invalid_type_error: "Veuillez sélectionner une période",
         }
       )
       .refine(

@@ -33,16 +33,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+interface VariantWithLabelI extends VariantType {
+  label: string;
+  value: string;
+}
+
 export function OrderItemForm() {
   const [isPending, setIsPending] = useState(false);
-  const [variants, setVariants] = useState<
-    Array<
-      VariantType & {
-        label: string;
-        value: string;
-      }
-    >
-  >([]);
+  const [variants, setVariants] = useState<VariantWithLabelI[]>([]);
   const [selected, setSelected] = useState<ProductType | undefined>();
 
   // store variables + functions
