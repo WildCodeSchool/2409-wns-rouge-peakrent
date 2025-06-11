@@ -145,6 +145,11 @@ export type CategoryUpdateInput = {
   variant: Scalars['String']['input'];
 };
 
+export type DateRangeInput = {
+  from: Scalars['DateTimeISO']['input'];
+  to: Scalars['DateTimeISO']['input'];
+};
+
 export type IdInput = {
   id: Scalars['ID']['input'];
 };
@@ -157,6 +162,7 @@ export type Mutation = {
   createCategory: Category;
   createOrder: Order;
   createOrderItems: OrderItem;
+  createOrderWithItems: Order;
   createProduct: Product;
   createProductWithVariants: Product;
   createStore: Store;
@@ -221,6 +227,12 @@ export type MutationCreateOrderArgs = {
 
 export type MutationCreateOrderItemsArgs = {
   data: OrderItemsCreateInput;
+};
+
+
+export type MutationCreateOrderWithItemsArgs = {
+  data: OrderCreateInput;
+  items: Array<OrderItemsFormInput>;
 };
 
 
@@ -403,10 +415,12 @@ export type Order = {
   city: Scalars['String']['output'];
   country: Scalars['String']['output'];
   createdAt: Scalars['DateTimeISO']['output'];
+  date: Scalars['DateTimeISO']['output'];
   id: Scalars['ID']['output'];
   orderItems?: Maybe<Array<OrderItem>>;
   paidAt?: Maybe<Scalars['DateTimeISO']['output']>;
   paymentMethod: OrderPaymentType;
+  phone: Scalars['String']['output'];
   profile: Profile;
   reference: Scalars['String']['output'];
   status: OrderStatusType;
@@ -419,10 +433,12 @@ export type OrderCreateInput = {
   address2?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
   country: Scalars['String']['input'];
+  date: Scalars['DateTimeISO']['input'];
   paidAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   paymentMethod: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
   profileId: Scalars['Int']['input'];
-  reference: Scalars['String']['input'];
+  reference?: InputMaybe<Scalars['String']['input']>;
   zipCode: Scalars['String']['input'];
 };
 
@@ -459,6 +475,14 @@ export type OrderItemsCreateInput = {
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
   variantId: Scalars['Int']['input'];
+};
+
+export type OrderItemsFormInput = {
+  date_range: DateRangeInput;
+  pricePerHour: Scalars['Int']['input'];
+  quantity: Scalars['Int']['input'];
+  status?: InputMaybe<OrderItemStatusType>;
+  variant: Scalars['Int']['input'];
 };
 
 export type OrderItemsUpdateInput = {
@@ -573,6 +597,7 @@ export type Query = {
   getOrderItemsCartByProfileId: Cart;
   getOrders: Array<Order>;
   getProductById?: Maybe<Product>;
+  getProductByVariantId?: Maybe<Product>;
   getProducts: ProductWithCount;
   getProductsAndCategories: Search;
   getProfile?: Maybe<Profile>;
@@ -651,11 +676,17 @@ export type QueryGetProductByIdArgs = {
 };
 
 
+export type QueryGetProductByVariantIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetProductsArgs = {
   categoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   endingDate?: InputMaybe<Scalars['DateTimeISO']['input']>;
   onPage?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
   startingDate?: InputMaybe<Scalars['DateTimeISO']['input']>;
 };
 
@@ -667,6 +698,11 @@ export type QueryGetProductsAndCategoriesArgs = {
 
 export type QueryGetProfileByUserIdArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type QueryGetProfilesArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
