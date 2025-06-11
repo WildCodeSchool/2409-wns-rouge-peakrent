@@ -223,7 +223,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               form={form}
               name="paymentMethod"
               label="Mode de paiement"
-              placeholder="Choisir un mode de paiement"
+              placeholder="Choisir le paiement"
               options={[
                 { label: "Espèces", value: "cash" },
                 { label: "Chèque", value: "check" },

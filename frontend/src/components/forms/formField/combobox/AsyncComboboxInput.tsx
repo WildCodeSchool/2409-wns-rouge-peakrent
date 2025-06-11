@@ -112,7 +112,7 @@ export function AsyncComboboxInput<T extends Identifiable>({
                     {field.value ? (
                       renderItem(selected as T)
                     ) : (
-                      <span>{placeholder}</span>
+                      <span className="normal-case">{placeholder}</span>
                     )}
                     {field.value ? (
                       <X

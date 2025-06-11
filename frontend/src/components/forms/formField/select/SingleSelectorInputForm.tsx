@@ -347,7 +347,9 @@ export const SingleSelectorInput = React.forwardRef<
                     </div>
                   ) : (
                     <div className="text-muted-foreground mx-auto flex w-full items-center justify-between">
-                      <span className="max-w-full truncate">{placeholder}</span>
+                      <span className="max-w-full truncate normal-case">
+                        {placeholder}
+                      </span>
                       <ChevronsUpDown className="ml-3 size-4 shrink-0 opacity-50" />
                     </div>
                   )}
