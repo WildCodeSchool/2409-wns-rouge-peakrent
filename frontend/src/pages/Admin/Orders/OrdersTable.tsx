@@ -26,7 +26,7 @@ export default function OrdersTable() {
       return;
     }
 
-    if (data?.getOrders) {
+    if (data?.getOrders && !ordersFetched) {
       setOrders(data.getOrders);
       setOrdersFetched(true);
     }

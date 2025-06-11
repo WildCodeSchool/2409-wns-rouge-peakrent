@@ -24,11 +24,7 @@ import {
   generateOrderSchema,
   OrderFormSchemaType,
 } from "@/schemas/orderSchemas";
-import {
-  addOrderStore,
-  updateOrderStore,
-  useOrderStore,
-} from "@/stores/admin/order.store";
+import { addOrderStore, useOrderStore } from "@/stores/admin/order.store";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
@@ -84,39 +80,51 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   async function onSubmit(values: OrderFormSchemaType) {
     setIsPending(true);
     try {
-      const { data, errors } = await createOrder({
-        variables: {
-          data: {
-            profileId: values.customer,
-            reference: values.reference,
-            paymentMethod: values.paymentMethod,
-            address1: values.address1,
-            address2: values.address2,
-            country: values.country,
-            city: values.city,
-            zipCode: values.zipCode,
-            paidAt: null,
-            phone: values.phone,
-            date: values.date,
+      if (!orderInfos) {
+        //create order
+        const { data, errors } = await createOrder({
+          variables: {
+            data: {
+              profileId: values.customer,
+              reference: values.reference,
+              paymentMethod: values.paymentMethod,
+              address1: values.address1,
+              address2: values.address2,
+              country: values.country,
+              city: values.city,
+              zipCode: values.zipCode,
+              paidAt: null,
+              phone: values.phone,
+              date: values.date,
+            },
+            items: values.orderItems.map((item) => ({
+              ...item,
+              product: undefined,
+              id: undefined,
+            })),
           },
-          items: values.orderItems.map((item) => ({
-            ...item,
-            product: undefined,
-            id: undefined,
-          })),
-        },
-      });
-      if (errors) {
-        toast.error("Erreur lors de la création de la commande:" + errors);
-        return;
-      }
-      if (data) {
+        });
+        if (errors || !data) {
+          throw new Error(errors?.map((error) => error.message).join(", "));
+        }
         toast.success("Commande créée avec succès");
-        //TODO verify for the update order
-        orderInfos
-          ? updateOrderStore(orderInfos.id, data)
-          : addOrderStore(data);
+        addOrderStore(data.createOrderWithItems);
         handleReset();
+      } else {
+        //TODO update order
+        // const { data, errors } = await updateOrder({
+        //   variables: {
+        //     data: {
+        //       ...orderInfos,
+        //       ...values,
+        //     },
+        //   },
+        // });
+        // if (errors || !data) {
+        //   throw new Error(errors?.map((error) => error.message).join(", "));
+        // }
+        // toast.success("Commande modifiée avec succès");
+        //updateOrderStore(orderInfos.id, data.createOrderWithItems)
       }
     } catch (error) {
       console.error(error);

@@ -21,7 +21,17 @@ export class OrderResolver {
   @Query(() => [Order])
   @Authorized("admin")
   async getOrders(): Promise<Order[]> {
-    const order = await Order.find({ relations: { profile: true } });
+    const order = await Order.find({
+      relations: {
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+        profile: true,
+      },
+      order: { date: "DESC" },
+    });
     return order;
   }
 
