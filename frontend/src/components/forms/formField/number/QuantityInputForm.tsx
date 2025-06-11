@@ -92,7 +92,12 @@ export function Quantity({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex-col justify-between", itemClassName)}>
+        <FormItem
+          className={cn(
+            "mx-auto flex flex-col items-center justify-evenly",
+            itemClassName
+          )}
+        >
           <div className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {label || "quantity"}
             {required ? (

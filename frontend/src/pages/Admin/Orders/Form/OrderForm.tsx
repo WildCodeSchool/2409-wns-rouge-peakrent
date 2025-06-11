@@ -70,7 +70,23 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
   // form functions
   async function onSubmit(values: OrderFormSchemaType) {
-    console.log(values);
+    setIsPending(true);
+    try {
+      toast.success(
+        <div className="text-sm truncate">
+          <pre className="max-w-[300px]">{JSON.stringify(values, null, 2)}</pre>
+        </div>,
+        {
+          duration: 10000,
+        }
+      );
+      //TODO add logic + reset form on success
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de la création de la commande:" + error);
+    } finally {
+      setIsPending(false);
+    }
   }
 
   async function handleReset() {

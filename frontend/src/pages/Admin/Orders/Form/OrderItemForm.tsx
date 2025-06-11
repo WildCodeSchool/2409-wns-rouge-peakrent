@@ -353,8 +353,9 @@ export function OrderItemForm() {
                   form={form}
                   isPending={isPending}
                   containerClassName="border-0 w-full max-w-full p-0 h-fit gap-1"
-                  itemClassName="flex-col max-w-full w-full items-start"
-                  inputClassName="w-full max-w-full"
+                  itemClassName="flex-col w-full items-start"
+                  label="Quantité"
+                  inputClassName="w-full max-w-full h-10"
                   buttonsClassName="bg-primary/70 text-primary-foreground disabled:bg-primary/10 disabled:text-primary-foreground hover:bg-primary min-w-12 p-2 hover:ring-0 "
                   dozenClassName="bg-primary/90 text-primary-foreground disabled:bg-primary/10 disabled:text-primary-foreground hover:bg-primary min-w-12 p-2 hover:ring-0 "
                   withDozen
