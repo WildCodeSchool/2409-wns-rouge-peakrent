@@ -24,8 +24,8 @@ import {
   OrderItemFormSchemaType,
 } from "@/schemas/orderSchemas";
 import {
-  setFormOrderItem,
-  updateFormOrderItem,
+  setFormOrderItemStore,
+  updateFormOrderItemStore,
   useOrderStore,
 } from "@/stores/admin/order.store";
 import { gql, useLazyQuery } from "@apollo/client";
@@ -110,7 +110,7 @@ export function OrderItemForm() {
 
   // form functions
   const handleCancelUpdate = () => {
-    setFormOrderItem(null);
+    setFormOrderItemStore(null);
     form.reset(defaultEmptyValues);
   };
 
@@ -158,9 +158,9 @@ export function OrderItemForm() {
             }
           : undefined,
       };
-      updateFormOrderItem(itemToUpdate);
+      updateFormOrderItemStore(itemToUpdate);
       toast.success("Le produit a bien été mis à jour");
-      setFormOrderItem(null);
+      setFormOrderItemStore(null);
       form.reset(defaultEmptyValues);
     } else {
       const { date_range, ...restValues } = values;
@@ -246,7 +246,7 @@ export function OrderItemForm() {
   // reset form on unmount
   useEffect(() => {
     return () => {
-      setFormOrderItem(null);
+      setFormOrderItemStore(null);
       setOrderItems([]);
     };
   }, []);

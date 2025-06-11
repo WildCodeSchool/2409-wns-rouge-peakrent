@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import Table from "@/components/ui/tables/Table";
 import {
-  deleteMultipleFormOrderItems,
+  deleteMultipleFormOrderItemsStore,
   useOrderStore,
 } from "@/stores/admin/order.store";
 import { getDurationInDays } from "@/utils/getDurationInDays";
@@ -17,7 +17,7 @@ export default function OrderItemsTable() {
   const orderItems = useOrderStore((state) => state.orderItemsForm);
 
   const onDeleteMultipleFunction = async (ids: (string | number)[]) => {
-    deleteMultipleFormOrderItems(ids as string[]);
+    deleteMultipleFormOrderItemsStore(ids as string[]);
     return true;
   };
 

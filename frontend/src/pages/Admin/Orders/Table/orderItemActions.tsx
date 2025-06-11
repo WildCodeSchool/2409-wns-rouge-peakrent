@@ -5,8 +5,8 @@ import { Pencil } from "lucide-react";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
 import {
-  deleteFormOrderItem,
-  setFormOrderItem,
+  deleteFormOrderItemStore,
+  setFormOrderItemStore,
 } from "@/stores/admin/order.store";
 
 interface DataTableRowOrderByIdActionsProps<TData> {
@@ -19,12 +19,12 @@ export function DataTableRowOrderByIdActions<TData>({
   const orderItem = row.original as any;
 
   const handleDelete = async (id: string | number) => {
-    deleteFormOrderItem(id as string);
+    deleteFormOrderItemStore(id as string);
     return true;
   };
 
   const handleInitOrderItemForm = (orderItem: OrderItemType) => {
-    setFormOrderItem(orderItem);
+    setFormOrderItemStore(orderItem);
   };
 
   return (

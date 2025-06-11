@@ -90,6 +90,13 @@ export const GET_ORDERS = `
         createdAt
         updatedAt
       }
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerHour
+      }
     }
   }
 `;
@@ -98,25 +105,45 @@ export const UPDATE_ORDER = `
   mutation UpdateOrder($id: Int!, $data: UpdateOrderInput!) {
     updateOrder(id: $id, data: $data) {
       id
+      reference
       status
-      total
+      paymentMethod
+      paidAt
+      address1
+      address2
+      date
+      phone
+      country
+      city
+      zipCode
       createdAt
       updatedAt
-      user {
-        id
+      profile {
         email
-      }
-      store {
+        firstname
+        lastname
         id
-        name
+        role
+        createdAt
+        updatedAt
       }
-      order_items {
+      orderItems {
         id
+        startsAt
+        endsAt
         quantity
-        price
-        product {
+        pricePerHour
+        status
+        variant {
           id
-          name
+          size
+          color
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
         }
       }
     }

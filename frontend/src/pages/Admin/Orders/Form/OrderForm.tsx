@@ -24,7 +24,11 @@ import {
   generateOrderSchema,
   OrderFormSchemaType,
 } from "@/schemas/orderSchemas";
-import { useOrderStore } from "@/stores/admin/order.store";
+import {
+  addOrderStore,
+  updateOrderStore,
+  useOrderStore,
+} from "@/stores/admin/order.store";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
@@ -39,6 +43,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   const defaultOrderItems = useOrderStore(
     (state) => state.defaultOrderItemsForm
   );
+  const ordersFetched = useOrderStore((state) => state.ordersFetched);
 
   // gql queries
   const [fetchCustomers] = useLazyQuery(gql(GET_PROFILES), {
@@ -107,7 +112,10 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
       }
       if (data) {
         toast.success("Commande créée avec succès");
-        //TODO add to store if store is initialized
+        //TODO verify for the update order
+        orderInfos
+          ? updateOrderStore(orderInfos.id, data)
+          : addOrderStore(data);
         handleReset();
       }
     } catch (error) {
