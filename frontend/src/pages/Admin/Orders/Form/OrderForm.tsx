@@ -224,11 +224,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               name="paymentMethod"
               label="Mode de paiement"
               placeholder="Choisir le paiement"
-              options={[
-                { label: "Espèces", value: "cash" },
-                { label: "Chèque", value: "check" },
-                { label: "Carte bancaire", value: "card" },
-              ]}
+              options={[{ label: "Carte bancaire", value: "card" }]}
               isPending={isPending}
               columns={1}
               required
