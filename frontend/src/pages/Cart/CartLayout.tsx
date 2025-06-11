@@ -5,17 +5,23 @@ import { cn } from "@/lib/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { CreditCard, ShoppingBag } from "lucide-react";
+import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
-// Ajouter un utils pour la vérification des dates avant / après et éviter les répétitions (product details, cart côté front
-//  voir pour le côté back si beforInsert / beforeUpdate)
 export default function CartLayout() {
   const orderItems = useOrderItemStore((state) => state.orderItems);
   const orderCommandStatus = useCartStoreUser(
     (state) => state.commandTunnelStatus
   );
+  const setCommandTunnelStatus = useCartStoreUser(
+    (state) => state.setCommandTunnelStatus
+  );
 
-  console.log(orderCommandStatus);
+  useEffect(() => {
+    if (orderItems.length === 0) {
+      setCommandTunnelStatus(CommandStatusEnum.pending);
+    }
+  }, [orderItems]);
 
   return (
     <main className="mx-2 lg:mx-28 max-w-screen-xl">

@@ -73,20 +73,6 @@ const checkAuth = (
   };
 };
 
-// A terminer + pareil pour éléments dans le panier
-// function RequireCartNotEmpty(Component: React.FC) {
-//   const { data, loading } = useQuery(GET_CART);
-
-//   if (loading) return null;
-
-//   const isEmpty = !data ||  data?.cart?.items?.length === 0;
-
-//   // Rediriger vers la page panier si vide
-//   if (isEmpty) return <Navigate to="/cart" replace />;
-
-//   return <Component />;
-// }
-
 function App() {
   return (
     <UserProvider>
@@ -112,7 +98,7 @@ function App() {
             <Route index element={<CartPage />} />
             <Route path="checkout" element={<CartCheckout />} />
             <Route path="checkout/payment" element={<CartPayment />} />
-            <Route path="recap/:orderRef" element={<CartRecap />} />
+            <Route path="recap/:ref" element={<CartRecap />} />
           </Route>
 
           <Route

@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { OrderItem } from "@/gql/graphql";
 import {
   DELETE_ORDER_ITEM_CART,
+  DELETE_ORDER_ITEMS_CART,
   UPDATE_ORDER_ITEM_CART,
 } from "@/GraphQL/orderItems";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation } from "@apollo/client";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export function CartPage() {
@@ -15,15 +17,22 @@ export function CartPage() {
   const deleteOrderItemStore = useOrderItemStore(
     (state) => state.deleteOrderItem
   );
+  const deleteOrderItemsStore = useOrderItemStore(
+    (state) => state.deleteAllOrderItems
+  );
   const updateOrderItemStore = useOrderItemStore(
     (state) => state.updateOrderItem
   );
   const setCommandTunnelStatus = useCartStoreUser(
     (state) => state.setCommandTunnelStatus
   );
-  setCommandTunnelStatus(CommandStatusEnum.pending);
   const [deleteOrderItem] = useMutation(gql(DELETE_ORDER_ITEM_CART));
+  const [deleteOrderItems] = useMutation(gql(DELETE_ORDER_ITEMS_CART));
   const [updateOrderItem] = useMutation(gql(UPDATE_ORDER_ITEM_CART));
+
+  useEffect(() => {
+    setCommandTunnelStatus(CommandStatusEnum.pending);
+  }, []);
 
   const handleUpdateError = (err: any) => {
     const codeError = err.graphQLErrors?.[0]?.extensions?.code;
@@ -35,16 +44,12 @@ export function CartPage() {
     }
   };
 
-  const deleteOrderItemById = async (orderItemId: string) => {
-    await deleteOrderItem({
-      variables: { orderItemId: Number(orderItemId) },
-    });
-    deleteOrderItemStore(Number(orderItemId));
-  };
-
   const handleDelete = async (orderItemId: string) => {
     try {
-      await deleteOrderItemById(orderItemId);
+      await deleteOrderItem({
+        variables: { orderItemId: Number(orderItemId) },
+      });
+      deleteOrderItemStore(Number(orderItemId));
       toast.success("Produit supprimé du panier");
     } catch (err) {
       console.error("Erreur de suppression de l'item :", err);
@@ -54,9 +59,8 @@ export function CartPage() {
 
   const handleDeleteAll = async () => {
     try {
-      for (const orderItem of orderItemsStore) {
-        await deleteOrderItemById(orderItem.id);
-      }
+      await deleteOrderItems();
+      deleteOrderItemsStore();
       toast.success("Produits supprimés du panier");
     } catch (err) {
       console.error("Erreur de suppression d'un item :", err);
@@ -95,7 +99,7 @@ export function CartPage() {
 
       if (start > end) {
         return toast.error(
-          "La date de début ne peut pas être supérieure à la date de fin"
+          "La date de fin ne peut pas être inférieure à celle de début"
         );
       }
     }

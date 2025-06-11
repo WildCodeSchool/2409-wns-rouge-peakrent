@@ -15,3 +15,15 @@ export const GET_STORES = `
     }
   }
 `;
+
+export const GET_STORE_BY_ID = `
+query GetStoreById($param: String!) {
+    getStoreById(param: $param) {
+      address1
+      address2
+      city
+      country
+      zipCode
+    }
+  }
+`;

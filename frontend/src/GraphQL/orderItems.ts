@@ -29,6 +29,12 @@ mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
 }
 `;
 
+export const DELETE_ORDER_ITEMS_CART = `
+  mutation Mutation {
+    deleteOrderItemsCartForUser
+  }
+`;
+
 export const UPDATE_ORDER_ITEM_CART = `
 mutation UpdateOrderItemUser($data: OrderItemsUpdateInputForUser!, $orderId: ID!) {
   updateOrderItemUser(data: $data, id: $orderId) {

@@ -1,26 +1,47 @@
 import { StringInput } from "@/components/forms/formField";
 import { Button } from "@/components/ui/button";
+import { VALIDATE_CART } from "@/GraphQL/carts";
+import { GET_STORE_BY_ID } from "@/GraphQL/stores";
 import { nameRegex, numberRegex } from "@/schemas/regex";
 import { createStringSchema } from "@/schemas/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
+import { useOrderItemStore } from "@/stores/user/orderItems.store";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreditCard, Store } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export function CartPayment() {
+  const cart = useCartStoreUser((state) => state.cart);
+  const updateCartStore = useCartStoreUser((state) => state.updateCart);
+  const deleteOrderItemStore = useOrderItemStore(
+    (state) => state.deleteAllOrderItems
+  );
   const setCommandTunnelStatus = useCartStoreUser(
     (state) => state.setCommandTunnelStatus
   );
-  const [paymentType, setPaymentType] = useState("onSite");
+  const [paymentType, setPaymentType] = useState("card");
   const PaymentTypeList = [
-    { name: "cart", key: "cart", icon: <CreditCard className="size-10" /> },
+    { name: "card", key: "card", icon: <CreditCard className="size-10" /> },
     { name: "sur place", key: "onSite", icon: <Store className="size-10" /> },
   ];
+  const [validateOrder, { loading }] = useMutation(gql(VALIDATE_CART));
+  const navigate = useNavigate();
+  const { data: storeData } = useQuery(gql(GET_STORE_BY_ID), {
+    variables: { param: "1" },
+  });
+  const store = storeData?.getStoreById;
+  const isRequired = paymentType === "card";
 
-  setCommandTunnelStatus(CommandStatusEnum.onPayment);
-  const cartPaymentSchema = z.object({
+  useEffect(() => {
+    setCommandTunnelStatus(CommandStatusEnum.onPayment);
+  }, []);
+
+  let cartPaymentSchema = z.object({
     cardName: createStringSchema({
       minLength: 2,
       minLengthError: "Le nom doit contenir au moins 2 caractères.",
@@ -67,16 +88,48 @@ export function CartPayment() {
     }),
   });
 
+  if (!isRequired) {
+    cartPaymentSchema = cartPaymentSchema.partial();
+  }
+
   type cartPaymentValues = z.infer<typeof cartPaymentSchema>;
   const form = useForm<cartPaymentValues>({
     resolver: zodResolver(cartPaymentSchema),
   });
 
   const onSubmit = async (data: cartPaymentValues) => {
-    // Ajouter le validate Cart
-    console.log("test");
+    if (!cart?.address1) {
+      toast.error("L'adresse est requise pour valider votre commande.");
+      return navigate("/cart/checkout");
+    }
+    try {
+      const response = await validateOrder({
+        variables: {
+          data: {
+            paymentMethod: paymentType,
+          },
+        },
+      });
+      // TODO : pour le moment les informations de la carte de payment ne sont pas envoyés,
+      // voir comment stripe marche pour savoir quels infos envoyés
+
+      deleteOrderItemStore();
+      updateCartStore({
+        address1: null,
+        address2: null,
+        city: null,
+        zipCode: null,
+        country: null,
+      });
+
+      const ref = response.data.validateCartUser.reference;
+      navigate(`/cart/recap/${ref}`);
+    } catch (err) {
+      console.error("Un problème est survenu : ", err);
+      toast.error("un problème est survenu lors du paiement");
+    }
   };
-  // renvoyer vers page avec reference
+
   return (
     <div className="w-full">
       <section className="space-y-2">
@@ -98,74 +151,76 @@ export function CartPayment() {
         </div>
       </section>
       <section>
-        {paymentType === "onSite" ? (
-          <div className="space-y-4 my-4 p-6 bg-gray-100">
-            <div>
-              <p>
-                Vos articles sont à retirer en magasin à l&apos;adresse suivante
-                :
-              </p>
-              <p>
-                123 Rue Exemple, 75000 Paris Du lundi au samedi, de 10h à 19h
-              </p>
-            </div>
-            <p>
-              <span className="font-semibold">
-                Moyens de paiement acceptés :
-              </span>{" "}
-              chèque, carte bancaire et espèces.
-            </p>
-            <p>
-              confirmation de commande et une pièce d’identité à présenter lors
-              du retrait.
-            </p>
-          </div>
-        ) : (
-          <FormProvider {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 my-4 w-full"
-              id="payment-form"
-            >
-              <StringInput
-                form={form}
-                name="cardName"
-                label="Nom sur la carte"
-                placeholder="John Doe"
-                //   isPending={loading}
-                required
-              />
-              <StringInput
-                form={form}
-                name="cardNumber"
-                label="Numéro de carte bancaire"
-                placeholder="1234 5678 9010 1112"
-                //   isPending={loading}
-                required
-              />
-              <div className="flex flex-wrap gap-2 w-full">
-                <StringInput
-                  form={form}
-                  name="expirationDate"
-                  label="Date d'expiration"
-                  placeholder="MM/YY"
-                  //   isPending={loading}
-                  required
-                  className="w-full"
-                />
-                <StringInput
-                  form={form}
-                  name="cvv"
-                  label="CVV"
-                  placeholder="123"
-                  //   isPending={loading}
-                  required
-                  className="w-full"
-                />
+        <FormProvider {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 my-4 w-full"
+            id="payment-form"
+          >
+            {paymentType === "onSite" ? (
+              <div className="space-y-4 my-4 p-6 bg-gray-100">
+                <div>
+                  <p>
+                    Vos articles sont à retirer en magasin à l&apos;adresse
+                    suivante :
+                  </p>
+                  <p>
+                    {store?.address1}
+                    {""}
+                    {store?.address2 ? ", " + store?.address2 : ""},{" "}
+                    {store?.zipCode} {store?.country}
+                  </p>
+                  <p>du lundi au samedi, de 10h à 19h.</p>
+                </div>
+                <p>
+                  <span className="font-semibold">
+                    Moyens de paiement acceptés :
+                  </span>{" "}
+                  chèque, carte bancaire et espèces.
+                </p>
               </div>
-            </form>
-          </FormProvider>
-        )}
+            ) : (
+              <>
+                <StringInput
+                  form={form}
+                  name="cardName"
+                  label="Nom sur la carte"
+                  placeholder="John Doe"
+                  isPending={loading}
+                  required
+                />
+                <StringInput
+                  form={form}
+                  name="cardNumber"
+                  label="Numéro de carte bancaire"
+                  placeholder="1234 5678 9010 1112"
+                  isPending={loading}
+                  required
+                />
+                <div className="flex flex-wrap w-full gap-2">
+                  <StringInput
+                    form={form}
+                    name="expirationDate"
+                    label="Date d'expiration"
+                    placeholder="MM/YY"
+                    isPending={loading}
+                    required
+                    containerClassName="w-[calc(50%-0.25rem)]"
+                  />
+                  <StringInput
+                    form={form}
+                    name="cvv"
+                    label="CVV"
+                    placeholder="123"
+                    isPending={loading}
+                    required
+                    containerClassName="w-[calc(50%-0.25rem)]"
+                  />
+                </div>
+              </>
+            )}
+          </form>
+        </FormProvider>
       </section>
     </div>
   );

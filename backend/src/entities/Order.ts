@@ -183,12 +183,4 @@ export class ValidateCartInput {
   @Field()
   @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod!: OrderPaymentType;
-
-  @Field()
-  @IsString()
-  @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
-  reference!: string;
-
-  @Field(() => Int)
-  storeId?: number;
 }

@@ -56,7 +56,7 @@ export enum OrderStatusType {
 
 export enum OrderPaymentType {
   card = "card",
-  onSite = "OnSite",
+  onSite = "onSite",
 }
 
 registerEnumType(OrderStatusType, {

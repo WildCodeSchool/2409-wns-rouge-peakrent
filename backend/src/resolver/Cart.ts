@@ -19,6 +19,7 @@ import { AuthContextType, OrderStatusType } from "../types";
 
 @Resolver(Cart)
 export class CartResolver {
+  // TODO Voir pour before insert / before update pour la vérification des dates + disponibilité des items ?
   // Ajouter la création de Cart directement à la création d'un user plutôt qu'à l'ajout des orderItms dans le panier ?
   @Authorized(["admin"])
   @Query(() => [Cart])
@@ -154,7 +155,7 @@ export class CartResolver {
     }
   }
 
-  // A supprimer ? on peut supprimer les orderItems à 'intérieur mais pas d'intérêt à supprimer le cart
+  // TODO A supprimer ? on peut supprimer les orderItems à 'intérieur mais pas d'intérêt à supprimer le cart
   // @Authorized("admin", "user")
   // @Mutation(() => Cart, { nullable: true })
   // async deleteCart(
@@ -179,29 +180,22 @@ export class CartResolver {
   // }
 
   // a compléter ave Stripe
+  // TODO dans authorized mettre enum à la place (ex roletype.admin)
   @Authorized("admin", "user")
-  @Mutation(() => Cart, { nullable: true })
-  async validateCart(
-    @Arg("id", () => ID) _id: number,
+  @Mutation(() => Order, { nullable: true })
+  async validateCartUser(
     @Arg("data", () => ValidateCartInput) data: ValidateCartInput,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
-    const id = Number(_id);
+    const profileId = context.user.id;
     const errors = await validate(data);
     if (errors.length > 0) {
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
     }
     const cart = await Cart.findOne({
-      where: { id },
-      relations: { profile: true },
+      where: { profile: { id: profileId } },
     });
     if (cart !== null) {
-      if (
-        !(context.user.role === "admin" || context.user.id === cart.profile.id)
-      ) {
-        throw new Error("Unauthorized");
-      }
-
       if (!cart.address1 || !cart.city || !cart.country) {
         throw new GraphQLError(
           "The cart must include an address, city, and country to be converted into an order.",
@@ -215,15 +209,18 @@ export class CartResolver {
       }
 
       const orderItems = await OrderItem.find({
-        where: { cart: { id } },
+        where: { cart: { id: cart.id } },
         relations: { cart: true, variant: true },
       });
+
+      const storeId = 1;
+
       if (orderItems.length > 0) {
         for (const orderItem of orderItems) {
           if (
             (await checkStockByVariantAndStore(
+              storeId,
               orderItem.variant.id,
-              data.storeId,
               orderItem.startsAt,
               orderItem.endsAt
             )) === 0
@@ -240,18 +237,20 @@ export class CartResolver {
           }
         }
 
-        //A compléter avec stripe, si OrderPaymentType.onSite on valide l'order, sinon on on renvoit vers Stripe
+        // TODO ajouter une référence qui se calcul automatiquement
+        const reference = new Date().toString();
+
+        //TODO A compléter avec stripe, si OrderPaymentType.onSite on valide l'order, sinon on on renvoit vers Stripe
         // if(data.paymentMethod !== OrderPaymentType.onSite) {
 
         // }
 
-        // ajouter une référence qui se calcul automatiquement
         const order = new Order();
         const orderData = {
-          profileId: cart.profile.id,
+          profileId,
           status: OrderStatusType.confirmed,
           paymentMethod: data.paymentMethod,
-          reference: data.reference,
+          reference: reference,
           paidAt: new Date(),
           address1: cart.address1,
           address2: cart.address2,
@@ -275,13 +274,33 @@ export class CartResolver {
           })
         );
 
-        await cart.remove();
+        Object.assign(cart, {
+          address1: null,
+          address2: null,
+          country: null,
+          city: null,
+          zipCode: null,
+        });
+
+        await cart.save();
+
         return order;
       } else {
-        throw new Error("no items found in this cart.");
+        throw new GraphQLError("No items found in this cart", {
+          extensions: {
+            code: "EMPTY_CART",
+            entity: "cart",
+          },
+        });
       }
     } else {
-      throw new Error("cart not found.");
+      throw new GraphQLError("cart not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+          entity: "cart",
+        },
+      });
     }
   }
 }

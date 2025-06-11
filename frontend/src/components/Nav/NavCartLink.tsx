@@ -1,5 +1,6 @@
 import { GET_CART_BY_USER } from "@/GraphQL/carts";
 import { cn } from "@/lib/utils";
+import { useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect } from "react";
@@ -15,12 +16,13 @@ const NavCartLink = () => {
     (state) => state.setOrderItemsFetched
   );
   const ordersFetched = useOrderItemStore((state) => state.ordersFetched);
+  const setCart = useCartStoreUser((state) => state.setCart);
+  const setCatFetched = useCartStoreUser((state) => state.setCartFetched);
 
   const { data, loading, error } = useQuery(gql(GET_CART_BY_USER), {
     variables: { withOrderItems: true },
     skip: ordersFetched,
   });
-  console.log(data);
 
   useEffect(() => {
     if (error) {
@@ -33,10 +35,19 @@ const NavCartLink = () => {
     }
 
     if (data?.getCartForUser) {
+      setCart(data.getCartForUser);
       setOrderItems(data.getCartForUser.orderItems);
       setOrderItemsFetched(true);
+      setCatFetched(true);
     }
-  }, [data, error, setOrderItems, setOrderItemsFetched]);
+  }, [
+    data,
+    error,
+    setOrderItems,
+    setOrderItemsFetched,
+    setCart,
+    setCatFetched,
+  ]);
 
   return (
     <NavLink

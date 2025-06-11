@@ -160,8 +160,10 @@ export class OrderItemsResolver {
       });
     }
 
+    const storeId = 1;
+
     const availableQuantity = await checkStockByVariantAndStore(
-      1,
+      storeId,
       variantId,
       startsAt,
       endsAt
@@ -255,8 +257,10 @@ export class OrderItemsResolver {
         );
       }
 
+      const storeId = 1;
+
       const availableQuantity = await checkStockByVariantAndStore(
-        1,
+        storeId,
         variantId,
         startsAt,
         endsAt
@@ -335,8 +339,10 @@ export class OrderItemsResolver {
         );
       }
 
+      const storeId = 1;
+
       const availableQuantity = await checkStockByVariantAndStore(
-        1,
+        storeId,
         orderItem.variant.id,
         startsAt,
         endsAt
@@ -407,7 +413,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized()
+  @Authorized("admin", "user")
   async deleteOrderItemForCartForUSer(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -436,6 +442,33 @@ export class OrderItemsResolver {
       return { id };
     } else {
       throw new Error("orderItems not found.");
+    }
+  }
+
+  @Mutation(() => [ID], { nullable: true })
+  @Authorized("admin", "user")
+  async deleteOrderItemsCartForUser(
+    @Ctx() context: AuthContextType
+  ): Promise<number[] | null> {
+    const profileId = context.user.id;
+
+    const orderItems = await OrderItem.find({
+      where: { cart: { id: Not(IsNull()), profile: { id: profileId } } },
+    });
+
+    if (orderItems.length > 0) {
+      const deletedIds = orderItems.map((orderItem) => orderItem.id);
+
+      await OrderItem.remove(orderItems);
+      return deletedIds;
+    } else {
+      throw new GraphQLError(`Order item not found for this user`, {
+        extensions: {
+          code: "NOT_FOUND",
+          entity: "orderItem",
+          http: { status: 404 },
+        },
+      });
     }
   }
 }

@@ -1,11 +1,16 @@
 import { StringInput } from "@/components/forms/formField";
 import { UPDATE_CART_USER } from "@/GraphQL/carts";
-import { addressRegex, cityRegex, zipCodeRegex } from "@/schemas/regex";
+import {
+  addressRegex,
+  cityRegex,
+  letterRegex,
+  zipCodeRegex,
+} from "@/schemas/regex";
 import { createStringSchema } from "@/schemas/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
-import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,12 +20,17 @@ export function CartCheckout() {
   const setCommandTunnelStatus = useCartStoreUser(
     (state) => state.setCommandTunnelStatus
   );
-  setCommandTunnelStatus(CommandStatusEnum.validated);
+  const cart = useCartStoreUser((state) => state.cart);
+  const updateCartStore = useCartStoreUser((state) => state.updateCart);
 
   const navigate = useNavigate();
-  const orderItemsStore = useOrderItemStore((state) => state.orderItems);
+
+  useEffect(() => {
+    setCommandTunnelStatus(CommandStatusEnum.validated);
+  }, []);
+
   const [updateCart, { loading }] = useMutation(gql(UPDATE_CART_USER));
-  // TO DO : API Avec la liste des pays / Ville ? A ajouter ici + dans resolver pour check
+  // TODO : API Avec la liste des pays / Ville ? A ajouter ici + dans resolver pour check ?
   const cartCheckoutSchema = z.object({
     address1: createStringSchema({
       minLength: 1,
@@ -37,8 +47,6 @@ export function CartCheckout() {
       minLengthError: "L'adresse 2 doit contenir au moins 1 caractère",
       maxLength: 255,
       maxLengthError: "L'adresse 2 doit contenir au plus 255 caractères",
-      // regex: addressRegex,
-      // regexError: "Format de l'adresse invalide",
       required: false,
     }),
     zipCode: createStringSchema({
@@ -66,8 +74,8 @@ export function CartCheckout() {
       minLengthError: "Le pays doit contenir au moins 1 caractère",
       maxLength: 100,
       maxLengthError: "Le pays doit contenir au plus 100 caractères",
-      // regex: countryRegex,
-      // regexError: "Format du pays invalide",
+      regex: letterRegex,
+      regexError: "Format du pays invalide",
       required: true,
       requiredError: "Le pays est requis",
     }),
@@ -76,13 +84,20 @@ export function CartCheckout() {
   type CartCheckoutValues = z.infer<typeof cartCheckoutSchema>;
   const form = useForm<CartCheckoutValues>({
     resolver: zodResolver(cartCheckoutSchema),
+    defaultValues: {
+      address1: cart?.address1 ?? "",
+      address2: cart?.address2 ?? "",
+      country: cart?.country ?? "",
+      city: cart?.city ?? "",
+      zipCode: cart?.zipCode ?? "",
+    },
   });
 
   const onSubmit = async (data: CartCheckoutValues) => {
     const { address1, address2, city, country, zipCode } = data;
 
     try {
-      await updateCart({
+      const response = await updateCart({
         variables: {
           data: {
             address1,
@@ -93,6 +108,8 @@ export function CartCheckout() {
           },
         },
       });
+      setCommandTunnelStatus(CommandStatusEnum.onPayment);
+      updateCartStore(response.data.updateCartUser);
       navigate("/cart/checkout/payment");
     } catch (err) {
       console.error("Un problème est survenu : ", err);
