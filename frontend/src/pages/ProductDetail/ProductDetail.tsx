@@ -85,7 +85,8 @@ const ProductDetail = () => {
     if (
       selectedStartingDate &&
       selectedEndingDate &&
-      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+      new Date(selectedStartingDate).getTime() >
+        new Date(selectedEndingDate).getTime()
     ) {
       return toast.error(
         `La date de fin ne peut pas être inférieure à celle de début`

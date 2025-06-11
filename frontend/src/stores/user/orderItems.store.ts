@@ -10,6 +10,7 @@ export interface OrderItemStoreState {
   deleteOrderItem: (id: number) => void;
   updateOrderItem: (id: number, orderItem: Partial<OrderItem>) => void;
   addOrderItem: (orderItem: OrderItem) => void;
+  deleteAllOrderItems: () => void;
 }
 
 export const useOrderItemStore = create<OrderItemStoreState>((set, get) => ({
@@ -24,6 +25,11 @@ export const useOrderItemStore = create<OrderItemStoreState>((set, get) => ({
       orderItems: state.orderItems.filter(
         (orderItem) => Number(orderItem.id) !== id
       ),
+    })),
+
+  deleteAllOrderItems: () =>
+    set(() => ({
+      orderItems: [],
     })),
 
   updateOrderItem: (id, updatedOrderItem) =>

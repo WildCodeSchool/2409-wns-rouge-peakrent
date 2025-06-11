@@ -1,17 +1,15 @@
 import { CartItemCard } from "@/components/cards/CartItemCard";
-import Resume from "@/components/resume/Resume";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Title } from "@/components/ui/title";
+import { Button } from "@/components/ui/button";
 import { OrderItem } from "@/gql/graphql";
 import {
   DELETE_ORDER_ITEM_CART,
+  DELETE_ORDER_ITEMS_CART,
   UPDATE_ORDER_ITEM_CART,
 } from "@/GraphQL/orderItems";
-import { cn } from "@/lib/utils";
+import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation } from "@apollo/client";
-import { ShoppingBag } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export function CartPage() {
@@ -19,47 +17,51 @@ export function CartPage() {
   const deleteOrderItemStore = useOrderItemStore(
     (state) => state.deleteOrderItem
   );
+  const deleteOrderItemsStore = useOrderItemStore(
+    (state) => state.deleteAllOrderItems
+  );
   const updateOrderItemStore = useOrderItemStore(
     (state) => state.updateOrderItem
   );
+  const setCommandTunnelStatus = useCartStoreUser(
+    (state) => state.setCommandTunnelStatus
+  );
   const [deleteOrderItem] = useMutation(gql(DELETE_ORDER_ITEM_CART));
+  const [deleteOrderItems] = useMutation(gql(DELETE_ORDER_ITEMS_CART));
   const [updateOrderItem] = useMutation(gql(UPDATE_ORDER_ITEM_CART));
+
+  useEffect(() => {
+    setCommandTunnelStatus(CommandStatusEnum.pending);
+  }, []);
 
   const handleUpdateError = (err: any) => {
     const codeError = err.graphQLErrors?.[0]?.extensions?.code;
     if (codeError === "OUT_OF_STOCK") {
-      toast.error("Quantité indisponible pour ce produit ");
+      toast.error("Quantité indisponible pour ce produit");
     } else {
       console.error("Erreur lors de la modification de l'item :", err);
       toast.error("Erreur lors de la modification de l'item");
     }
   };
 
-  const deleteOrderItembyId = async (orderItemId: string) => {
-    await deleteOrderItem({
-      variables: {
-        orderItemId: Number(orderItemId),
-      },
-    });
-    deleteOrderItemStore(Number(orderItemId));
-  };
-
   const handleDelete = async (orderItemId: string) => {
     try {
-      await deleteOrderItembyId(orderItemId);
-      toast.success(`Produit supprimé du panier`);
+      await deleteOrderItem({
+        variables: { orderItemId: Number(orderItemId) },
+      });
+      deleteOrderItemStore(Number(orderItemId));
+      toast.success("Produit supprimé du panier");
     } catch (err) {
-      toast.error(`Erreur de suppression de l'item`);
       console.error("Erreur de suppression de l'item :", err);
+      toast.error("Erreur de suppression de l'item");
     }
   };
 
   const handleDeleteAll = async () => {
     try {
-      for (const orderItem of orderItemsStore) {
-        await deleteOrderItembyId(orderItem.id);
-      }
-      toast.success(`Produits supprimés du panier`);
+      await deleteOrderItems();
+      deleteOrderItemsStore();
+      toast.success("Produits supprimés du panier");
     } catch (err) {
       console.error("Erreur de suppression d'un item :", err);
       toast.error("Erreur de suppression d'un ou plusieurs items");
@@ -87,17 +89,21 @@ export function CartPage() {
     value: string
   ) => {
     const orderId = Number(id);
-    const item = orderItemsStore.find((el) => Number(el.id) === orderId);
+    const item = orderItemsStore.find(
+      (orderItem) => Number(orderItem.id) === orderId
+    );
+
     if (item) {
       const start = new Date(isStartDate ? value : item.startsAt).getTime();
       const end = new Date(isStartDate ? item.endsAt : value).getTime();
 
       if (start > end) {
         return toast.error(
-          "La date de début ne peut pas être supérieure à la date de fin"
+          "La date de fin ne peut pas être inférieure à celle de début"
         );
       }
     }
+
     try {
       const date = new Date(value).toISOString();
       const data = isStartDate ? { startsAt: date } : { endsAt: date };
@@ -114,65 +120,34 @@ export function CartPage() {
   };
 
   return (
-    <div className="mx-2 lg:mx-28 max-w-screen-xl">
-      <Title
-        text="Panier de commande"
-        className="my-4 md:my-6"
-        icon={<ShoppingBag className="size-8" />}
-      />
-      {orderItemsStore.length > 0 ? (
-        <div className="flex gap-4 flex-col items-center lg:items-start lg:flex-row lg:gap-9">
-          <>
-            <section>
-              <div className="flex gap-1 justify-between items-center">
-                <Button
-                  onClick={() => handleDeleteAll()}
-                  type="button"
-                  className="mb-4"
-                  variant="outline"
-                >
-                  Vider mon panier
-                </Button>
-                <p>{orderItemsStore.length} items</p>
-              </div>
-              <div className="space-y-4">
-                {orderItemsStore.map((orderItem: OrderItem) => (
-                  <CartItemCard
-                    item={orderItem}
-                    onRemoveItem={() => handleDelete(orderItem.id)}
-                    onQuantityChange={(value) =>
-                      handleQuantityChange(orderItem.id, value)
-                    }
-                    onDateChange={(isStartDate, value) =>
-                      handleDateChange(orderItem.id, isStartDate, value)
-                    }
-                    key={orderItem.id}
-                  />
-                ))}
-              </div>
-            </section>
-            <aside className="flex flex-col w-full lg:w-1/3 lg:sticky lg:top-16 lg:h-fit gap-4">
-              <Resume
-                orderItems={orderItemsStore}
-                promo={0}
-                className="lg:self-end"
-              />
-              <NavLink
-                to="checkout"
-                aria-label="Navigation vers la page de paiement"
-                className={cn(
-                  buttonVariants({ variant: "primary" }),
-                  "py-2 px-4 cursor-pointer text-center w-full lg:max-w-[250px] lg:self-end"
-                )}
-              >
-                Continuer vers le paiement
-              </NavLink>
-            </aside>
-          </>
-        </div>
-      ) : (
-        <p>Vous n&apos;avez aucun produit dans votre panier</p>
-      )}
-    </div>
+    <section>
+      <div className="flex gap-1 justify-between items-center">
+        <Button
+          onClick={() => handleDeleteAll()}
+          type="button"
+          className="mb-4"
+          variant="outline"
+        >
+          Vider mon panier
+        </Button>
+        <p>{orderItemsStore.length} items</p>
+      </div>
+
+      <div className="space-y-4">
+        {orderItemsStore.map((orderItem: OrderItem) => (
+          <CartItemCard
+            key={orderItem.id}
+            item={orderItem}
+            onRemoveItem={() => handleDelete(orderItem.id)}
+            onQuantityChange={(value) =>
+              handleQuantityChange(orderItem.id, value)
+            }
+            onDateChange={(isStartDate, value) =>
+              handleDateChange(orderItem.id, isStartDate, value)
+            }
+          />
+        ))}
+      </div>
+    </section>
   );
 }

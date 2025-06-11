@@ -15,3 +15,7 @@ export const cityRegex =
   /^[A-Za-zÀ-ÖØ-öø-ÿĀ-žȘșȚțŁłčęėįųūăîâşţșțäöüßéèêëçîïôûùÿñ\s'-]+$/;
 
 export const addressRegex = /^[A-Za-z0-9À-ÖØ-öø-ÿ\s,.-]+$/;
+
+export const numberRegex = /^\d+$/;
+
+export const letterRegex = /^[A-Za-z]+$/;

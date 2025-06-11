@@ -16,7 +16,10 @@ import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import { CartCheckout } from "./pages/Cart/CartCheckout";
+import CartLayout from "./pages/Cart/CartLayout";
 import { CartPage } from "./pages/Cart/CartPage";
+import { CartPayment } from "./pages/Cart/CartPayment";
+import { CartRecap } from "./pages/Cart/CartRecap";
 import { HomePage } from "./pages/Home/HomePage";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
 import PageLayout from "./pages/Layout/PageLayout";
@@ -88,8 +91,16 @@ function App() {
           <Route path="products" element={<ProductsPage />} />
 
           {/* User Connected Routes */}
-          <Route path="cart" element={<CartPage />} />
-          <Route path="cart/checkout" element={<CartCheckout />} />
+          <Route
+            path="/cart"
+            element={checkAuth(CartLayout, [AuthStates.authenticated])()}
+          >
+            <Route index element={<CartPage />} />
+            <Route path="checkout" element={<CartCheckout />} />
+            <Route path="checkout/payment" element={<CartPayment />} />
+            <Route path="recap/:ref" element={<CartRecap />} />
+          </Route>
+
           <Route
             path="profile"
             element={checkAuth(ProfileDashboard, [AuthStates.authenticated])()}

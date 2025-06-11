@@ -1,16 +1,17 @@
-import { gql, useQuery, useMutation } from "@apollo/client";
-import { WHOAMI } from "@/GraphQL/whoami";
-import { GET_MY_PROFILE } from "@/GraphQL/profiles";
-import { useNavigate } from "react-router-dom";
 import ProfileCard from "@/components/cards/ProfileCard";
-import { SIGNOUT } from "@/GraphQL/signout";
 import { Button } from "@/components/ui/button";
+import { GET_MY_PROFILE } from "@/GraphQL/profiles";
+import { SIGNOUT } from "@/GraphQL/signout";
+import { WHOAMI } from "@/GraphQL/whoami";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { LogOut, ShieldUser } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileDashboard() {
   const navigate = useNavigate();
 
   // 1. Récupérer l'utilisateur connecté
+  // TODO Voir utiliser le store pour whoAmI plutôt pour garder une cohérence ?
   const { data: userData, loading: loadingUser } = useQuery(gql(WHOAMI));
   const user = userData?.whoami;
 
