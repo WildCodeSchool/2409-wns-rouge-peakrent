@@ -176,7 +176,7 @@ export type Mutation = {
   deleteCategories?: Maybe<Array<Scalars['ID']['output']>>;
   deleteCategory?: Maybe<Category>;
   deleteOrder?: Maybe<Order>;
-  deleteOrderItemForCart?: Maybe<OrderItem>;
+  deleteOrderItemForCartForUSer?: Maybe<OrderItem>;
   deleteProduct?: Maybe<Product>;
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
@@ -188,7 +188,7 @@ export type Mutation = {
   updateCategory?: Maybe<Category>;
   updateOrder?: Maybe<Order>;
   updateOrderItem?: Maybe<OrderItem>;
-  updateOrderItemForUser?: Maybe<OrderItem>;
+  updateOrderItemUser?: Maybe<OrderItem>;
   updateProduct?: Maybe<Product>;
   updateStore: Store;
   updateStoreVariant: StoreVariant;
@@ -302,7 +302,7 @@ export type MutationDeleteOrderArgs = {
 };
 
 
-export type MutationDeleteOrderItemForCartArgs = {
+export type MutationDeleteOrderItemForCartForUSerArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -363,7 +363,7 @@ export type MutationUpdateOrderItemArgs = {
 };
 
 
-export type MutationUpdateOrderItemForUserArgs = {
+export type MutationUpdateOrderItemUserArgs = {
   data: OrderItemsUpdateInputForUser;
   id: Scalars['ID']['input'];
 };
@@ -587,14 +587,14 @@ export type Query = {
   getCartByProfile?: Maybe<Cart>;
   getCarts: Array<Cart>;
   getCategories: CategoriesWithCount;
-  getCategoryById?: Maybe<Category>;
+  getCategoryById?: Maybe<CategoryWithCount>;
   getMyProfile?: Maybe<Profile>;
   getOrderById: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
   getOrderItemsByOrderId: Array<OrderItem>;
-  getOrderItemsCartByProfileId: Cart;
+  getOrderItemsCartByProfileId?: Maybe<Cart>;
   getOrders: Array<Order>;
   getProductById?: Maybe<Product>;
   getProductByVariantId?: Maybe<Product>;

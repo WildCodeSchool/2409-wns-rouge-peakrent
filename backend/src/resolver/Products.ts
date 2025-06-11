@@ -282,6 +282,16 @@ export class ProductResolver {
       product.categories = fullTags;
     }
 
+    if (data.activities) {
+      const activityIds = data.activities
+        .map((activity) => ("id" in activity ? activity.id : null))
+        .filter((id) => id !== null);
+
+      const fullTags = await Activity.findBy({ id: In(activityIds) });
+
+      product.activities = fullTags;
+    }
+
     const validationErrors = await validate(product);
     if (validationErrors.length) {
       // return validationErrors;
