@@ -2,6 +2,9 @@ import { z } from "zod";
 
 import { OrderItemStatusType, type Order as OrderType } from "@/gql/graphql";
 import {
+  createAddressSchema,
+  createCitySchema,
+  createComplementAddressSchema,
   createDateSchema,
   createEnumSchema,
   createNumberSchema,
@@ -28,23 +31,14 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
     paymentMethod: createStringSchema({
       requiredError: "La méthode de paiement est requise",
     }),
-    address1: createStringSchema({
-      defaultValue: datas?.address1 ?? "",
-      requiredError: "L'adresse est requise",
-    }),
-    address2: createStringSchema({
-      defaultValue: datas?.address2 ?? "",
-      required: false,
-    }),
+    address1: createAddressSchema(datas?.address1 ?? ""),
+    address2: createComplementAddressSchema(datas?.address2 ?? ""),
     country: createStringSchema({
       defaultValue: datas?.country ?? "",
       requiredError: "Le pays est requis",
     }),
     zipCode: createZipCodeSchema(datas?.zipCode ?? ""),
-    city: createStringSchema({
-      defaultValue: datas?.city ?? "",
-      requiredError: "La ville est requise",
-    }),
+    city: createCitySchema(datas?.city ?? ""),
     phone: createStringSchema({
       defaultValue: "",
       required: false,
