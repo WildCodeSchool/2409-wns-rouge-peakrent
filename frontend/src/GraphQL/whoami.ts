@@ -4,6 +4,8 @@ export const WHOAMI = `
       id
       email
       role
+      firstname
+      lastname
     }
   }
 `;

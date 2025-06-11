@@ -1,12 +1,12 @@
 import { OrderItem } from "@/gql/graphql";
 
-type ResumeType = {
+type TotalResumeType = {
   orderItems: OrderItem[];
   promo: number;
   className?: string;
 };
 
-const Resume = ({ orderItems, promo, className }: ResumeType) => {
+const TotalResume = ({ orderItems, promo, className }: TotalResumeType) => {
   const calculateSubTotal = () => {
     let result = 0;
     for (const item of orderItems) {
@@ -47,4 +47,4 @@ const Resume = ({ orderItems, promo, className }: ResumeType) => {
   );
 };
 
-export default Resume;
+export default TotalResume;

@@ -1,6 +1,8 @@
-import Resume from "@/components/resume/Resume";
+import AdressResume from "@/components/resume/AdressResume";
+import TotalResume from "@/components/resume/TotalResume";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
+import { useUser } from "@/context/userProvider";
 import { cn } from "@/lib/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
@@ -9,6 +11,8 @@ import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
 export default function CartLayout() {
+  const { user: userData } = useUser();
+  const cart = useCartStoreUser((state) => state.cart);
   const orderItems = useOrderItemStore((state) => state.orderItems);
   const orderCommandStatus = useCartStoreUser(
     (state) => state.commandTunnelStatus
@@ -50,8 +54,10 @@ export default function CartLayout() {
           <Outlet />
           <aside className="flex flex-col lg:sticky lg:top-16 lg:h-fit gap-4 w-full justify-center items-center">
             <div className="self-center w-full lg:lg:w-2/3 flex flex-col items-stretch lg:items-end gap-4">
-              <Resume orderItems={orderItems} promo={0} />
-
+              {orderCommandStatus === CommandStatusEnum.onPayment && (
+                <AdressResume cart={cart} user={userData} />
+              )}
+              <TotalResume orderItems={orderItems} promo={0} />
               {orderCommandStatus === CommandStatusEnum.pending && (
                 <NavLink
                   to="checkout"
