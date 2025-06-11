@@ -141,7 +141,7 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   }, []);
 
   return (
-    <Card className="my-4 p-0 col-span-4 xl:col-span-3 py-4">
+    <Card className="my-4 p-0 md:col-span-4 xl:col-span-3 py-4">
       <CardHeader>
         <CardTitle className="text-md">Informations de la commande</CardTitle>
       </CardHeader>
@@ -291,27 +291,25 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               isPending={isPending}
             />
 
-            <div className="ml-auto w-[300px]">
-              <div className="flex w-full justify-between gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isPending}
-                  className="w-full"
-                  onClick={handleReset}
-                >
-                  Réinitialiser
-                </Button>
-                <Button type="submit" disabled={isPending} className="w-full">
-                  {isPending ? (
-                    <LoadIcon size={24} />
-                  ) : orderInfos ? (
-                    "Modifier"
-                  ) : (
-                    "Ajouter"
-                  )}
-                </Button>
-              </div>
+            <div className="ml-auto flex w-full justify-between gap-2 pt-2 max-w-[300px]">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPending}
+                className="flex-1"
+                onClick={handleReset}
+              >
+                Réinitialiser
+              </Button>
+              <Button type="submit" disabled={isPending} className="flex-1">
+                {isPending ? (
+                  <LoadIcon size={24} />
+                ) : orderInfos ? (
+                  "Modifier"
+                ) : (
+                  "Ajouter"
+                )}
+              </Button>
             </div>
 
             {orderItemsErrors && (

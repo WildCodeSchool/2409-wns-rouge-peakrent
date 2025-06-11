@@ -32,7 +32,7 @@ export default function OrderItemsTable() {
     ) || 0;
 
   return (
-    <Card className="px-0 py-4">
+    <Card className="px-0 py-4 md:col-span-6 xl:col-span-7">
       <CardHeader className="pb-2">
         <div className="flex justify-between">
           <CardTitle className="text-md">Produits</CardTitle>

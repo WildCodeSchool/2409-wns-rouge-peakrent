@@ -252,7 +252,7 @@ export function OrderItemForm() {
   }, []);
 
   return (
-    <Card className="my-4 px-0 py-4">
+    <Card className="my-4 px-0 py-4 md:col-span-6 xl:col-span-7">
       <CardHeader>
         <CardTitle className="text-md">
           {formOrderItem ? "Modifier" : "Ajouter"} un produit
@@ -275,7 +275,7 @@ export function OrderItemForm() {
               disabledDates={(date) => date < new Date("2020-01-01")}
             />
 
-            <div className="grid grid-cols-2 gap-4 lg:gap-8 mt-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8 mt-4">
               <div className="space-y-4">
                 <AsyncComboboxInput
                   form={form}
@@ -369,39 +369,37 @@ export function OrderItemForm() {
               </div>
             </div>
 
-            <div className="ml-auto w-[300px]">
-              <div className="flex w-full justify-between gap-2 pt-2">
-                {formOrderItem && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isPending}
-                    className="w-full"
-                    onClick={handleCancelUpdate}
-                  >
-                    Annuler
-                  </Button>
-                )}
+            <div className="flex justify-between gap-2 pt-2 ml-auto w-full max-w-[300px]">
+              {formOrderItem && (
                 <Button
                   type="button"
                   variant="outline"
                   disabled={isPending}
                   className="w-full"
-                  onClick={handleReset}
-                  id="resetOrderItemForm"
+                  onClick={handleCancelUpdate}
                 >
-                  Réinitialiser
+                  Annuler
                 </Button>
-                <Button type="submit" disabled={isPending} className="w-full">
-                  {isPending ? (
-                    <LoadIcon size={24} />
-                  ) : formOrderItem ? (
-                    "Modifier"
-                  ) : (
-                    "Ajouter"
-                  )}
-                </Button>
-              </div>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isPending}
+                className="w-full"
+                onClick={handleReset}
+                id="resetOrderItemForm"
+              >
+                Réinitialiser
+              </Button>
+              <Button type="submit" disabled={isPending} className="w-full">
+                {isPending ? (
+                  <LoadIcon size={24} />
+                ) : formOrderItem ? (
+                  "Modifier"
+                ) : (
+                  "Ajouter"
+                )}
+              </Button>
             </div>
           </form>
         </Form>
