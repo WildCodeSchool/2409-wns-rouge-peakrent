@@ -1,4 +1,5 @@
 import { validate, ValidationError } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -8,8 +9,10 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
-import { In } from "typeorm";
+import { ILike, In } from "typeorm";
+import { Activity } from "../entities/Activity";
 import { Category } from "../entities/Category";
 import {
   Product,
@@ -18,12 +21,11 @@ import {
   ProductWithCount,
 } from "../entities/Product";
 import { StoreVariant } from "../entities/StoreVariant";
+import { Variant, VariantCreateNestedInput } from "../entities/Variant";
 import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
 import { normalizeString } from "../helpers/helpers";
+import { ErrorCatcher } from "../middlewares/errorHandler";
 import { AuthContextType } from "../types";
-import { Variant, VariantCreateNestedInput } from "../entities/Variant";
-import { GraphQLError } from "graphql";
-import { Activity } from "../entities/Activity";
 
 @Resolver(Product)
 export class ProductResolver {
@@ -33,7 +35,8 @@ export class ProductResolver {
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
     @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
     @Arg("startingDate", () => Date, { nullable: true }) startingDate?: Date,
-    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date
+    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date,
+    @Arg("search", () => String, { nullable: true }) search?: string
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
     const where: any = {};
@@ -43,6 +46,10 @@ export class ProductResolver {
       where.categories = {
         id: In(categoryIds),
       };
+    }
+
+    if (search) {
+      where.name = ILike(`%${search}%`);
     }
 
     const [products, total] = await Product.findAndCount({
@@ -126,6 +133,42 @@ export class ProductResolver {
       product = await Product.findOne({
         where: { name: param },
         relations: { categories: true, createdBy: true, variants: true },
+      });
+    }
+
+    return product;
+  }
+
+  @Query(() => Product, { nullable: true })
+  @UseMiddleware(ErrorCatcher)
+  async getProductByVariantId(
+    @Arg("id", () => ID) id: number
+  ): Promise<Product | null> {
+    const variant = await Variant.findOne({
+      where: { id },
+      relations: { product: true },
+    });
+
+    if (!variant) {
+      throw new GraphQLError("Variant not found", {
+        extensions: {
+          code: "VARIANT_NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    const product = await Product.findOne({
+      where: { id: variant.product.id },
+      relations: { categories: true, createdBy: true, variants: true },
+    });
+
+    if (!product) {
+      throw new GraphQLError("Product not found", {
+        extensions: {
+          code: "PRODUCT_NOT_FOUND",
+          http: { status: 404 },
+        },
       });
     }
 

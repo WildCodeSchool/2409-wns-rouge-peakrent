@@ -1,6 +1,6 @@
 export const GET_PROFILES = `
-  query GetProfiles {
-    getProfiles {
+  query GetProfiles($search: String) {
+    getProfiles(search: $search) {
       id
       email
       firstname

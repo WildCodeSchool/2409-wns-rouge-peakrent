@@ -10,6 +10,7 @@ import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminCartsPage } from "./pages/Admin/Carts/AdminCartsPage";
 import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPage";
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
+import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
@@ -117,6 +118,7 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="activities" element={<AdminActivitiesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="orders/new" element={<NewOrderPage />} />
             <Route path="stores" element={<AdminStoresPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="products" element={<AdminProductsPage />} />

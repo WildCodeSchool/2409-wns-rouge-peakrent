@@ -4,47 +4,47 @@ import { addressRegex, cityRegex, nameRegex, zipCodeRegex } from "./regex";
 export const createAdressTitleNameSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "addressTitleRequired",
+      required_error: "Le titre est requis",
     })
-    .max(100, "addressTitleMaxLength")
-    .regex(nameRegex, "addressTitleInvalidFormat")
+    .max(100, "Le titre est trop long")
+    .regex(nameRegex, "Le titre est invalide")
     .default(data ?? undefined);
 
 export const createCitySchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "cityRequired",
+      required_error: "La ville est requise",
     })
-    .max(100, "cityMaxLength")
-    .regex(cityRegex, "cityInvalidFormat")
+    .max(100, "La ville est trop longue")
+    .regex(cityRegex, "La ville est invalide")
     .default(data ?? undefined);
 
 export const createZipCodeSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "zipcodeRequired",
+      required_error: "Le code postal est requis",
     })
-    .regex(zipCodeRegex, "zipcodeInvalidFormat")
+    .regex(zipCodeRegex, "Le code postal est invalide")
     .default(data ?? undefined);
 
 export const createAddressSchema = (data: any = undefined) =>
   z
     .string({
-      required_error: "addressRequired",
+      required_error: "L'adresse est requise",
     })
-    .min(5, { message: "addressTooShort" })
-    .max(255, { message: "addressMaxLength" })
+    .min(5, { message: "L'adresse est trop courte" })
+    .max(255, { message: "L'adresse est trop longue" })
     .regex(addressRegex, {
-      message: "addressInvalidFormat",
+      message: "L'adresse est invalide",
     })
     .default(data ?? undefined);
 
 export const createComplementAddressSchema = (data: any = undefined) =>
   z
     .string()
-    .max(255, { message: "complementAddressMaxLength" })
+    .max(255, { message: "Le complément d'adresse est trop long" })
     .regex(addressRegex, {
-      message: "complementAddressInvalidFormat",
+      message: "Le complément d'adresse est invalide",
     })
     .optional()
     .nullable()

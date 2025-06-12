@@ -110,7 +110,7 @@ export function Price({
       render={({ field }) => (
         <FormItem
           className={cn(
-            "mx-auto flex scale-[0.8] flex-col items-center justify-evenly",
+            "mx-auto flex flex-col items-center justify-evenly",
             itemClassName
           )}
         >
@@ -171,7 +171,7 @@ export function Price({
                   <Input
                     type="text"
                     className={cn(
-                      "hover:ring-ring min-w-[100px] text-center font-bold hover:ring-1",
+                      "hover:ring-ring min-w-[100px] text-center font-bold hover:ring-1 h-10",
                       inputClassName
                     )}
                     {...field}

@@ -1,4 +1,5 @@
-import { Authorized, Arg, Ctx, ID, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Query, Resolver } from "type-graphql";
+import { ILike } from "typeorm";
 import { Profile } from "../entities/Profile";
 import { getUserFromContext } from "../helpers/helpers";
 import { ContextType, ProfileType } from "../types";
@@ -16,8 +17,14 @@ export class ProfileResolver {
 
   @Authorized(["admin"])
   @Query(() => [Profile], { nullable: true })
-  async getProfiles(): Promise<Profile[] | null> {
-    return await Profile.find();
+  async getProfiles(
+    @Arg("search", () => String, { nullable: true }) search?: string
+  ): Promise<Profile[] | null> {
+    const where: any = {};
+    if (search) {
+      where.email = ILike(`%${search}%`);
+    }
+    return await Profile.find({ where });
   }
 
   @Authorized(["admin", "superadmin"])

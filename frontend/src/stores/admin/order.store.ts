@@ -8,7 +8,13 @@ export interface OrderStoreState {
   currentOrder: Order | null;
   currentOrderFetched: boolean;
 
-  orderItems: OrderItem[] | null;
+  orderItemsForm: OrderItem[] | null;
+  defaultOrderItemsForm: OrderItem[] | null;
+  formOrderItem: OrderItem | null;
+
+  setOrderItemsForm: (orderItemsForm: OrderItem[]) => void;
+  setDefaultOrderItemsForm: (defaultOrderItemsForm: OrderItem[]) => void;
+  setFormOrderItem: (formOrderItem: OrderItem | null) => void;
 
   setStore: (store: OrderStoreState) => void;
 
@@ -18,16 +24,17 @@ export interface OrderStoreState {
   setOrders: (orders: NonNullable<Order>[]) => void;
   setCurrentOrder: (order: NonNullable<Order>) => void;
 
-  deleteOrder: (id: number) => void;
-  deleteMultipleOrders: (ids: number[]) => void;
+  deleteOrder: (id: string) => void;
+  deleteMultipleOrders: (ids: string[]) => void;
 
-  deleteOrderItem: (id: number) => void;
-  deleteOrderItems: (ids: number[]) => void;
+  deleteOrderItem: (id: string) => void;
+  deleteOrderItems: (ids: string[]) => void;
 
-  updateOrder: (id: number, order: Partial<Order>) => void;
-  updateOrderItem: (id: number, item: Partial<OrderItem>) => void;
+  updateOrder: (id: string, order: Partial<Order>) => void;
+  updateOrderItem: (id: string, item: Partial<OrderItem>) => void;
 
   addOrder: (newOrder: Order) => void;
+  addOrderItem: (newOrderItem: OrderItem) => void;
 }
 
 export const useOrderStore = create<OrderStoreState>((set, get) => ({
@@ -37,7 +44,14 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
   currentOrder: null,
   currentOrderFetched: false,
 
-  orderItems: null,
+  orderItemsForm: null,
+  defaultOrderItemsForm: [],
+  formOrderItem: null,
+
+  setOrderItemsForm: (orderItemsForm) => set({ orderItemsForm }),
+  setDefaultOrderItemsForm: (defaultOrderItemsForm) =>
+    set({ defaultOrderItemsForm }),
+  setFormOrderItem: (formOrderItem) => set({ formOrderItem }),
 
   setStore: (store) => set(store),
 
@@ -49,41 +63,43 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
 
   deleteOrder: (id) =>
     set((state) => ({
-      orders: state.orders.filter((order) => Number(order.id) !== id),
+      orders: state.orders.filter((order) => order.id !== id),
     })),
   deleteMultipleOrders: (ids) =>
     set((state) => ({
-      orders: state.orders.filter((order) => !ids.includes(Number(order.id))),
+      orders: state.orders.filter((order) => !ids.includes(order.id)),
     })),
 
-  deleteOrderItem: (id) =>
+  deleteOrderItem: (id) => {
+    console.log("id", id, typeof id);
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.orderItems?.filter(
-          (item: OrderItem) => Number(item?.id) !== id
+        orderItems: state.orderItemsForm?.filter(
+          (item: OrderItem) => item.id !== id
         ),
       },
-    })),
+    }));
+  },
 
   deleteOrderItems: (ids) =>
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
-        orderItems: state.orderItems?.filter(
-          (item: OrderItem) => !ids.includes(Number(item?.id))
+        orderItems: state.orderItemsForm?.filter(
+          (item: OrderItem) => !ids.includes(item?.id)
         ),
       },
     })),
 
-  updateOrder: (id: number, order: Partial<Order>) =>
+  updateOrder: (id: string, order: Partial<Order>) =>
     set((state) => {
       const updatedOrders = state.orders.map((o) =>
-        Number(o.id) === id ? { ...o, ...order } : o
+        o.id === id ? { ...o, ...order } : o
       );
 
       const updatedCurrentOrder =
-        Number(state.currentOrder?.id) === id && state.currentOrder
+        state.currentOrder?.id === id && state.currentOrder
           ? { ...state.currentOrder, ...order }
           : state.currentOrder;
 
@@ -98,8 +114,8 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
       currentOrder: state.currentOrder
         ? {
             ...state.currentOrder,
-            order_items: state.orderItems?.map((i: OrderItem) =>
-              Number(i.id) === id ? { ...i, ...item } : i
+            order_items: state.orderItemsForm?.map((i: OrderItem) =>
+              i.id === id ? { ...i, ...item } : i
             ),
           }
         : null,
@@ -107,43 +123,68 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
 
   addOrder: (newOrder) =>
     set((state) => ({
-      orders: [...state.orders, newOrder],
+      orders: [newOrder, ...state.orders],
+    })),
+
+  addOrderItem: (newOrderItem) =>
+    set((state) => ({
+      orderItemsForm: [...(state.orderItemsForm || []), newOrderItem],
     })),
 }));
 
-export const deleteOrder = (ids: (string | number)[]) => {
-  const id = ids[0];
-  const { deleteOrder } = useOrderStore.getState();
-  deleteOrder(id as number);
+// export const deleteOrder = (ids: string[]) => {
+//   const id = ids[0];
+//   const { deleteOrder } = useOrderStore.getState();
+//   deleteOrder(id);
+// };
+
+// export const deleteMultipleOrders = (ids: string[]) => {
+//   const { deleteMultipleOrders } = useOrderStore.getState();
+//   deleteMultipleOrders(ids);
+// };
+
+export const deleteFormOrderItemStore = (id: string) => {
+  const { setOrderItemsForm, orderItemsForm } = useOrderStore.getState();
+  setOrderItemsForm(orderItemsForm?.filter((item) => item.id !== id) || []);
 };
 
-export const deleteMultipleOrders = (ids: (string | number)[]) => {
-  const { deleteMultipleOrders } = useOrderStore.getState();
-  deleteMultipleOrders(ids as number[]);
+export const deleteMultipleFormOrderItemsStore = (ids: string[]) => {
+  const { setOrderItemsForm, orderItemsForm } = useOrderStore.getState();
+  setOrderItemsForm(
+    orderItemsForm?.filter((item) => !ids.includes(item.id)) || []
+  );
 };
 
-export const deleteOrderItem = (ids: (string | number)[]) => {
-  const id = ids[0];
-  const { deleteOrderItem } = useOrderStore.getState();
-  deleteOrderItem(id as number);
-};
-
-export const deleteMultipleOrderItems = (ids: (string | number)[]) => {
-  const { deleteOrderItems } = useOrderStore.getState();
-  deleteOrderItems(ids as number[]);
-};
-
-export const updateOrder = (id: number, order: Partial<Order>) => {
+export const updateOrderStore = (id: string, order: Partial<Order>) => {
   const { updateOrder } = useOrderStore.getState();
   updateOrder(id, order);
 };
 
-export const updateOrderItem = (id: number, item: Partial<OrderItem>) => {
+export const updateOrderItemStore = (id: string, item: Partial<OrderItem>) => {
   const { updateOrderItem } = useOrderStore.getState();
   updateOrderItem(id, item);
 };
 
-export const addOrder = (newOrder: Order) => {
+export const updateFormOrderItemStore = (itemToUpdate: Partial<OrderItem>) => {
+  const { setOrderItemsForm, orderItemsForm } = useOrderStore.getState();
+  setOrderItemsForm(
+    orderItemsForm?.map((item) =>
+      item.id === itemToUpdate.id ? { ...item, ...itemToUpdate } : item
+    ) || []
+  );
+};
+
+export const addOrderStore = (newOrder: Order) => {
   const { addOrder } = useOrderStore.getState();
   addOrder(newOrder);
+};
+
+// export const addOrderItem = (newOrderItem: OrderItem) => {
+//   const { addOrderItem } = useOrderStore.getState();
+//   addOrderItem(newOrderItem);
+// };
+
+export const setFormOrderItemStore = (orderItem: OrderItem | null) => {
+  const { setFormOrderItem } = useOrderStore.getState();
+  setFormOrderItem(orderItem);
 };

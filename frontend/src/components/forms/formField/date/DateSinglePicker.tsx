@@ -1,23 +1,18 @@
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { format, isValid } from "date-fns";
 import { enGB as en, fr } from "date-fns/locale";
 import { CalendarIcon, X as CloseIcon } from "lucide-react";
+import { useState } from "react";
 
+import { LabelSection } from "@/components/forms/layout/LabelSection";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { LabelSection } from "@/components/forms/layout/LabelSection";
 
 export function DateSinglePicker({
   form,
@@ -68,38 +63,36 @@ export function DateSinglePicker({
       render={({ field }) => (
         <FormItem>
           <LabelSection label={label} required={required} />
-          <Popover open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full pl-3 text-left font-normal",
-                    !field.value && "text-muted-foreground"
-                  )}
-                  disabled={isPending}
-                >
-                  {field.value ? (
-                    <>
-                      {formatFieldValue(field.value)}
-                      <CloseIcon
-                        className="ml-auto size-4 cursor-pointer opacity-50"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          field.onChange(undefined);
-                          if (onSelect) onSelect(undefined);
-                          setIsOpen(true);
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <span>{placeholder}</span>
-                      <CalendarIcon className="ml-auto size-4 opacity-50" />
-                    </>
-                  )}
-                </Button>
-              </FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal",
+                  !field.value && "text-muted-foreground"
+                )}
+                disabled={isPending}
+                onClick={() => setIsOpen(true)}
+              >
+                {field.value ? (
+                  <>
+                    {formatFieldValue(field.value)}
+                    <CloseIcon
+                      className="ml-auto size-4 cursor-pointer opacity-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        field.onChange(undefined);
+                        if (onSelect) onSelect(undefined);
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <span>{placeholder}</span>
+                    <CalendarIcon className="ml-auto size-4 opacity-50" />
+                  </>
+                )}
+              </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar

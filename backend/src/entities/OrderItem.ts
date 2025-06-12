@@ -13,6 +13,7 @@ import {
 } from "typeorm";
 import { OrderItemStatusType } from "../types";
 import { Cart } from "./Cart";
+import { DateRangeInput } from "./Date";
 import { Order } from "./Order";
 import { Variant } from "./Variant";
 
@@ -34,15 +35,15 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: "cart_id" })
   cart?: Cart;
 
-  @Field({ nullable: true })
+  @Field(() => Order, { nullable: true })
   @ManyToOne(() => Order, (order) => order.id, { nullable: true })
   @JoinColumn({ name: "order_id" })
   order?: Order;
 
-  @Field(() => Variant, { nullable: true })
-  @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
+  @Field(() => Variant)
+  @ManyToOne(() => Variant, (variant) => variant.id)
   @JoinColumn({ name: "variant_id" })
-  variant?: Variant;
+  variant!: Variant;
 
   @Field()
   @Column()
@@ -164,4 +165,28 @@ export class OrderItemsUpdateInputForUser {
   @Field({ nullable: true })
   @IsDate()
   endsAt?: Date;
+}
+
+// Input for the create order form on back office
+@InputType()
+export class OrderItemsFormInput {
+  @Field(() => OrderItemStatusType, { nullable: true })
+  status?: OrderItemStatusType;
+
+  @Field(() => Int)
+  @Min(0, { message: "Price should be positive" })
+  @IsNotEmpty({ message: "pricPerHour must not be empty." })
+  pricePerHour!: number;
+
+  @Field(() => Int)
+  @Min(0, { message: "Quantity should be positive" })
+  @IsNotEmpty({ message: "Quantity must not be empty." })
+  quantity!: number;
+
+  @Field(() => Int)
+  @IsNotEmpty({ message: "Variant ID must not be empty." })
+  variant!: number;
+
+  @Field(() => DateRangeInput)
+  date_range!: DateRangeInput;
 }

@@ -1,6 +1,6 @@
 export const GET_PRODUCTS = `
-  query getProducts($page: Int, $onPage: Int) {
-    getProducts(page: $page, onPage: $onPage) {
+  query getProducts($page: Int, $onPage: Int, $search: String) {
+    getProducts(page: $page, onPage: $onPage, search: $search) {
       products {
         categories {
           id
@@ -59,6 +59,35 @@ query GetProducts($endingDate: DateTimeISO, $startingDate: DateTimeISO, $categor
 export const GET_PRODUCT_BY_ID = `
   query Query($param: String!) {
     getProductById(param: $param) {
+      id
+      name
+      description
+      urlImage
+      isPublished
+      sku
+      variants {
+        id
+        size
+        color
+        pricePerHour
+      }
+      categories {
+        id
+        name
+        variant
+        parentCategory {
+          id
+          name
+          variant
+        }
+      }
+    }
+  }
+`;
+
+export const GET_PRODUCT_BY_VARIANT_ID = `
+  query getProductByVariantId($id: ID!) {
+    getProductByVariantId(id: $id) {
       id
       name
       description

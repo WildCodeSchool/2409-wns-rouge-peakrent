@@ -1,4 +1,11 @@
-import { IsDate, IsEnum, IsNotEmpty, IsString, Length } from "class-validator";
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -7,10 +14,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { OrderPaymentType, OrderStatusType } from "../types";
+import { OrderItem } from "./OrderItem";
 import { Profile } from "./Profile";
 
 @ObjectType()
@@ -65,6 +74,17 @@ export class Order extends BaseEntity {
   @Column("varchar", { name: "zip_code", length: 20 })
   zipCode!: string;
 
+  @Field({ nullable: true })
+  @Column("varchar", { name: "phone", length: 100, nullable: true })
+  phone?: string;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
+    cascade: true,
+    nullable: true,
+  })
+  orderItems?: OrderItem[];
+
   @Field()
   @CreateDateColumn({
     name: "created_at",
@@ -72,6 +92,10 @@ export class Order extends BaseEntity {
     default: () => "CURRENT_TIMESTAMP",
   })
   createdAt!: Date;
+
+  @Field()
+  @Column({ name: "date", type: "timestamptz" })
+  date!: Date;
 
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
@@ -91,10 +115,10 @@ export class OrderCreateInput {
   @Field(() => Int)
   profileId!: number;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
-  reference!: string;
+  reference?: string;
 
   @Field()
   @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
@@ -107,6 +131,7 @@ export class OrderCreateInput {
   address1!: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
   address2?: string;
@@ -131,7 +156,17 @@ export class OrderCreateInput {
 
   @Field({ nullable: true })
   @IsDate()
-  paidAt!: Date;
+  paidAt?: Date;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 100, { message: "phone must be between 1 and 100 chars." })
+  phone?: string;
+
+  @Field()
+  @IsDate()
+  date!: Date;
 }
 
 @InputType()

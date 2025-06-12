@@ -13,7 +13,7 @@ interface StringSchemaOptions {
   regex?: RegExp;
   regexError?: string;
   trim?: boolean;
-  defaultValue?: string;
+  defaultValue?: string | null;
   invalidFormatError?: string;
 }
 
@@ -63,5 +63,13 @@ export const createStringSchema = (options: StringSchemaOptions = {}) => {
     schema = schema.trim();
   }
 
-  return schema.default(defaultValue) as any;
+  if (!required) {
+    schema = schema.optional().nullable() as unknown as z.ZodString;
+  }
+
+  if (defaultValue !== null) {
+    schema = schema.default(defaultValue) as unknown as z.ZodString;
+  }
+
+  return schema;
 };
