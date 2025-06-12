@@ -24,7 +24,7 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:frontend"
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_STAGING_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_STAGING_REPO }}:${{ github.sha }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:staging, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:${{ github.sha }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
@@ -46,6 +46,6 @@ jobs:
         with:
           push: true
           context: "{{defaultContext}}:backend"
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_STAGING_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_STAGING_REPO }}:${{ github.sha }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_REPO }}:staging, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_BACKEND_REPO }}:${{ github.sha }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
