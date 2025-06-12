@@ -105,7 +105,6 @@ export function CartPayment() {
         variables: {
           data: {
             paymentMethod: paymentType,
-            date: new Date(),
           },
         },
       });
