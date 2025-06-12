@@ -218,4 +218,8 @@ export class ValidateCartInput {
   @Field()
   @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod!: OrderPaymentType;
+
+  @Field()
+  @IsDate()
+  date!: Date;
 }

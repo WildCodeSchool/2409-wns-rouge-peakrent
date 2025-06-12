@@ -41,7 +41,7 @@ export function CartPayment() {
     setCommandTunnelStatus(CommandStatusEnum.onPayment);
   }, []);
 
-  let cartPaymentSchema = z.object({
+  const baseSchema = z.object({
     cardName: createStringSchema({
       minLength: 2,
       minLengthError: "Le nom doit contenir au moins 2 caractères.",
@@ -49,7 +49,7 @@ export function CartPayment() {
       maxLengthError: "Le nom doit contenir au plus 50 caractères.",
       regex: nameRegex,
       regexError: "Le format du nom est invalide.",
-      required: true,
+      required: isRequired,
       requiredError: "Le nom est requis.",
     }),
     cardNumber: createStringSchema({
@@ -61,7 +61,7 @@ export function CartPayment() {
         "Le numéro de carte bancaire ne peut pas dépasser 19 chiffres.",
       regex: numberRegex,
       regexError: "Le numéro de carte bancaire est invalide.",
-      required: true,
+      required: isRequired,
       requiredError: "Le numéro de carte bancaire est requis.",
     }),
     expirationDate: createStringSchema({
@@ -73,7 +73,7 @@ export function CartPayment() {
       regex: /^(0[1-9]|1[0-2])\/?([0-9]{2}|[0-9]{4})$/,
       regexError:
         "Le format de la date d'expiration est invalide (exemple : 05/25).",
-      required: true,
+      required: isRequired,
       requiredError: "La date d'expiration est requise.",
     }),
     cvv: createStringSchema({
@@ -83,14 +83,12 @@ export function CartPayment() {
       maxLengthError: "Le code de sécurité ne peut pas dépasser 4 chiffres.",
       regex: numberRegex,
       regexError: "Le code de sécurité est invalide.",
-      required: true,
+      required: isRequired,
       requiredError: "Le code de sécurité (CVV) est requis.",
     }),
   });
 
-  if (!isRequired) {
-    cartPaymentSchema = cartPaymentSchema.partial();
-  }
+  const cartPaymentSchema = isRequired ? baseSchema : baseSchema.partial();
 
   type cartPaymentValues = z.infer<typeof cartPaymentSchema>;
   const form = useForm<cartPaymentValues>({
@@ -107,6 +105,7 @@ export function CartPayment() {
         variables: {
           data: {
             paymentMethod: paymentType,
+            date: new Date(),
           },
         },
       });

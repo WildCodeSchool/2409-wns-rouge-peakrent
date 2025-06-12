@@ -183,7 +183,7 @@ export class OrderItemsResolver {
         where: { profile: { id: profileId } },
         relations: ["profile"],
       });
-
+      // TODO créer le panier avec le user directement comme il n'est jamais supprimé ?
       if (!cart) {
         cart = Cart.create({ profile: { id: profileId } });
         await cart.save();

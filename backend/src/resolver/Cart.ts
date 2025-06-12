@@ -248,6 +248,7 @@ export class CartResolver {
         const order = new Order();
         const orderData = {
           profileId,
+          date: data.date,
           status: OrderStatusType.confirmed,
           paymentMethod: data.paymentMethod,
           reference: reference,

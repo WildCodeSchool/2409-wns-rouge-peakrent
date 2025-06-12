@@ -85,21 +85,20 @@ export type Cart = {
   zipCode?: Maybe<Scalars['String']['output']>;
 };
 
-export type CartCreateInput = {
-  address1?: InputMaybe<Scalars['String']['input']>;
-  address2?: InputMaybe<Scalars['String']['input']>;
-  city?: InputMaybe<Scalars['String']['input']>;
-  country?: InputMaybe<Scalars['String']['input']>;
-  profileId: Scalars['Int']['input'];
-  zipCode?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type CartUpdateInput = {
   address1?: InputMaybe<Scalars['String']['input']>;
   address2?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   profileId?: InputMaybe<Scalars['Int']['input']>;
+  zipCode?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CartUpdateInputUser = {
+  address1?: InputMaybe<Scalars['String']['input']>;
+  address2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -158,7 +157,6 @@ export type Mutation = {
   __typename?: 'Mutation';
   cancelOrderItemForOrder?: Maybe<OrderItem>;
   createActivity: Activity;
-  createCart: Cart;
   createCategory: Category;
   createOrder: Order;
   createOrderItems: OrderItem;
@@ -172,11 +170,11 @@ export type Mutation = {
   createVariant: Variant;
   deleteActivities?: Maybe<Array<Scalars['ID']['output']>>;
   deleteActivity?: Maybe<Activity>;
-  deleteCart?: Maybe<Cart>;
   deleteCategories?: Maybe<Array<Scalars['ID']['output']>>;
   deleteCategory?: Maybe<Category>;
   deleteOrder?: Maybe<Order>;
   deleteOrderItemForCartForUSer?: Maybe<OrderItem>;
+  deleteOrderItemsCartForUser?: Maybe<Array<Scalars['ID']['output']>>;
   deleteProduct?: Maybe<Product>;
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
@@ -184,7 +182,8 @@ export type Mutation = {
   signIn?: Maybe<User>;
   signOut: Scalars['Boolean']['output'];
   updateActivity?: Maybe<Activity>;
-  updateCart?: Maybe<Cart>;
+  updateCart: Cart;
+  updateCartUser?: Maybe<Cart>;
   updateCategory?: Maybe<Category>;
   updateOrder?: Maybe<Order>;
   updateOrderItem?: Maybe<OrderItem>;
@@ -195,7 +194,7 @@ export type Mutation = {
   updateUserByAdmin: Profile;
   updateUserProfile: Profile;
   updateVariant?: Maybe<Variant>;
-  validateCart?: Maybe<Cart>;
+  validateCartUser?: Maybe<Order>;
 };
 
 
@@ -207,11 +206,6 @@ export type MutationCancelOrderItemForOrderArgs = {
 
 export type MutationCreateActivityArgs = {
   data: ActivityCreateInput;
-};
-
-
-export type MutationCreateCartArgs = {
-  data: CartCreateInput;
 };
 
 
@@ -282,11 +276,6 @@ export type MutationDeleteActivityArgs = {
 };
 
 
-export type MutationDeleteCartArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationDeleteCategoriesArgs = {
   ids: Array<Scalars['ID']['input']>;
 };
@@ -342,6 +331,11 @@ export type MutationUpdateActivityArgs = {
 export type MutationUpdateCartArgs = {
   data: CartUpdateInput;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateCartUserArgs = {
+  data: CartUpdateInputUser;
 };
 
 
@@ -403,9 +397,8 @@ export type MutationUpdateVariantArgs = {
 };
 
 
-export type MutationValidateCartArgs = {
+export type MutationValidateCartUserArgs = {
   data: ValidateCartInput;
-  id: Scalars['ID']['input'];
 };
 
 export type Order = {
@@ -420,7 +413,7 @@ export type Order = {
   orderItems?: Maybe<Array<OrderItem>>;
   paidAt?: Maybe<Scalars['DateTimeISO']['output']>;
   paymentMethod: OrderPaymentType;
-  phone: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
   profile: Profile;
   reference: Scalars['String']['output'];
   status: OrderStatusType;
@@ -543,6 +536,7 @@ export type Product = {
 };
 
 export type ProductCreateInput = {
+  activities?: InputMaybe<Array<IdInput>>;
   categories?: InputMaybe<Array<IdInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
   isPublished: Scalars['Boolean']['input'];
@@ -552,6 +546,7 @@ export type ProductCreateInput = {
 };
 
 export type ProductUpdateInput = {
+  activities?: InputMaybe<Array<IdInput>>;
   categories?: InputMaybe<Array<IdInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
   isPublished: Scalars['Boolean']['input'];
@@ -582,19 +577,17 @@ export type Query = {
   checkVariantStock: Scalars['Float']['output'];
   getActivities: ActivitiesWithCount;
   getActivityById?: Maybe<Activity>;
-  getCart: Array<Cart>;
   getCartById: Cart;
-  getCartByProfile?: Maybe<Cart>;
+  getCartForUser?: Maybe<Cart>;
   getCarts: Array<Cart>;
   getCategories: CategoriesWithCount;
-  getCategoryById?: Maybe<CategoryWithCount>;
+  getCategoryById?: Maybe<Category>;
   getMyProfile?: Maybe<Profile>;
   getOrderById: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
   getOrderItemsByOrderId: Array<OrderItem>;
-  getOrderItemsCartByProfileId?: Maybe<Cart>;
   getOrders: Array<Order>;
   getProductById?: Maybe<Product>;
   getProductByVariantId?: Maybe<Product>;
@@ -636,8 +629,8 @@ export type QueryGetCartByIdArgs = {
 };
 
 
-export type QueryGetCartByProfileArgs = {
-  profileId: Scalars['Int']['input'];
+export type QueryGetCartForUserArgs = {
+  withOrderItems?: Scalars['Boolean']['input'];
 };
 
 
@@ -828,8 +821,6 @@ export type UserUpdateProfileInput = {
 
 export type ValidateCartInput = {
   paymentMethod: Scalars['String']['input'];
-  reference: Scalars['String']['input'];
-  storeId: Scalars['Int']['input'];
 };
 
 export type Variant = {
@@ -865,15 +856,14 @@ export type VariantUpdateInput = {
 };
 
 export enum OrderPaymentType {
-  Card = 'card'
+  Card = 'card',
+  OnSite = 'onSite'
 }
 
-export type GetCartByProfileQueryVariables = Exact<{
-  profileId: Scalars['Int']['input'];
-}>;
+export type WhoamiQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCartByProfileQuery = { __typename?: 'Query', getCartByProfile?: { __typename?: 'Cart', id: string } | null };
+export type WhoamiQuery = { __typename?: 'Query', whoami?: { __typename?: 'Profile', id: string } | null };
 
 
-export const GetCartByProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetCartByProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"profileId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getCartByProfile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"profileId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"profileId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<GetCartByProfileQuery, GetCartByProfileQueryVariables>;
+export const WhoamiDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Whoami"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"whoami"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<WhoamiQuery, WhoamiQueryVariables>;
