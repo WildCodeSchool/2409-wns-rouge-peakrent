@@ -28,7 +28,7 @@ import { AuthContextType, OrderItemStatusType } from "../types";
 export class OrderItemsResolver {
   @Query(() => [OrderItem])
   @Authorized("admin")
-  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItem[]> {
+  async getOrderItems(): Promise<OrderItem[]> {
     const orderItems = await OrderItem.find({
       relations: { cart: true, variant: true, order: true },
     });
