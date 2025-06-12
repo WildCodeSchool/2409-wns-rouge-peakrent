@@ -28,6 +28,9 @@ export const GET_ORDER_BY_ID = `
       country
       reference
       zipCode
+      status
+      date
+      phone
       paymentMethod
       profile {
         id
@@ -192,6 +195,50 @@ export const CREATE_ORDER_WITH_ITEMS = `
             sku
             urlImage
             name
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_MY_ORDERS = `
+  query getMyOrders {
+    getMyOrders {
+      id
+      reference
+      status
+      paymentMethod
+      paidAt
+      address1
+      address2
+      country
+      city
+      zipCode
+      createdAt
+      updatedAt
+      profile {
+        email
+        firstname
+        lastname
+        id
+      }
+        orderItems {
+        id
+        quantity
+        pricePerHour
+        startsAt
+        endsAt
+        status
+        variant {
+          id
+          size
+          pricePerHour
+          product {
+            id
+            name
+            sku
+            urlImage
           }
         }
       }

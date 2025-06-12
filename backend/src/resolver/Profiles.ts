@@ -35,12 +35,13 @@ export class ProfileResolver {
     return await Profile.findOne({ where: { id: userId } });
   }
 
-  // Authorisez()
+  @Authorized(["admin", "superadmin", "user"])
   @Query(() => Profile, { nullable: true })
   async whoami(@Ctx() context: ContextType): Promise<ProfileType | null> {
     return context.user;
   }
 
+  @Authorized(["admin", "superadmin", "user"])
   @Query(() => Profile, { nullable: true })
   async getMyProfile(@Ctx() context: ContextType): Promise<Profile | null> {
     if (!context.user) {

@@ -1,8 +1,8 @@
 import { Profile, User } from "@/gql/graphql";
 import { GET_MY_PROFILE } from "@/GraphQL/profiles";
 import { WHOAMI } from "@/GraphQL/whoami";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { createContext, ReactNode, useContext, useEffect } from "react";
+import { gql, useQuery } from "@apollo/client";
+import { createContext, ReactNode, useContext } from "react";
 
 type UserContextType = {
   user: User | null;
@@ -25,22 +25,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     error: whoamiError,
   } = useQuery(gql(WHOAMI));
 
-  const [
-    getProfileByUserId,
-    { data: profileData, loading: profileLoading, error: profileError },
-  ] = useLazyQuery(gql(GET_MY_PROFILE));
-
-  useEffect(() => {
-    if (whoamiData?.whoami?.id) {
-      getProfileByUserId({
-        variables: { userId: Number(whoamiData.whoami.id) },
-      });
-    }
-  }, [whoamiData, getProfileByUserId]);
+  const {
+    data: profileData,
+    loading: profileLoading,
+    error: profileError,
+  } = useQuery(gql(GET_MY_PROFILE), {
+    skip: !whoamiData?.whoami?.id,
+  });
 
   const value: UserContextType = {
     user: whoamiData?.whoami || null,
-    profile: profileData?.getProfileByUserId,
+    profile: profileData?.getMyProfile || null,
     loading: whoamiLoading || profileLoading,
     error: whoamiError || profileError,
   };

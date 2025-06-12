@@ -37,7 +37,7 @@ const TotalResume = ({ orderItems, promo, className }: TotalResumeType) => {
       </p>
       <hr className="border-t-2 border-gray-300 my-2" />
       <p className="flex justify-between">
-        Promo <span>{promo} €</span>
+        Promo <span>{promo / 100} €</span>
       </p>
       <hr className="border-t-2 border-gray-300 my-2" />
       <p className="flex justify-between">
