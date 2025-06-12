@@ -1,6 +1,6 @@
 services:
   backend:
-    image: charlotter678/peakrentbackend
+    image: charlotter678/peakrentbackend:latest
     env_file:
       - database.env
       - variables.env
@@ -9,7 +9,7 @@ services:
       - db
 
   frontend:
-    image: charlotter678/peakrentfrontend
+    image: charlotter678/peakrentfrontend:latest
     command: ["npx", "serve", "dist", "--single"]
     depends_on:
       - backend
