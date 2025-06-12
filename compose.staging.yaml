@@ -1,6 +1,6 @@
 services:
   backend:
-    image: charlotter678/peakrentbackend_staging
+    image: charlotter678/peakrentbackend:staging
     env_file:
       - database.env
       - variables.env
@@ -9,7 +9,7 @@ services:
       - db
 
   frontend:
-    image: charlotter678/peakrentfrontend_staging
+    image: charlotter678/peakrentfrontend:staging
     command: npm run dev
     depends_on:
       - backend
