@@ -1,4 +1,4 @@
-import { CREATE_ORDER_ITEM } from "@/GraphQL/orderItems";
+import { CREATE_ORDER_ITEM_USER } from "@/GraphQL/orderItems";
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
@@ -27,7 +27,7 @@ const ProductDetail = () => {
   } = useUser();
   const params = useParams();
   const [selectedVariantsPrice, setSelectedVariantsPrice] = useState<number>(0);
-  const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM));
+  const [createOrderItem] = useMutation(gql(CREATE_ORDER_ITEM_USER));
 
   const addOrderItem = useOrderItemStore((state) => state.addOrderItem);
 
@@ -99,7 +99,6 @@ const ProductDetail = () => {
         const newOrderItem = await createOrderItem({
           variables: {
             data: {
-              profileId: Number(userProfile?.id),
               variantId: Number(variant.id),
               quantity: data.quantity,
               pricePerHour: Number(variant.pricePerHour),
@@ -108,7 +107,7 @@ const ProductDetail = () => {
             },
           },
         });
-        addOrderItem(newOrderItem.data.createOrderItems);
+        addOrderItem(newOrderItem.data.createOrderItemsUser);
       } catch (err: any) {
         const codeError = err.graphQLErrors?.[0]?.extensions?.code;
         if (codeError === "OUT_OF_STOCK") {

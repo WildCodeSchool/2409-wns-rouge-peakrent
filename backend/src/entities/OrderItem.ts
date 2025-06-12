@@ -85,11 +85,7 @@ export class OrderItem extends BaseEntity {
 }
 
 @InputType()
-export class OrderItemsCreateInput {
-  @Field(() => Int)
-  @IsNotEmpty({ message: "profileId must not be empty." })
-  profileId!: number;
-
+export class OrderItemsCreateInputUser {
   @Field(() => Int, { nullable: true })
   orderId?: number;
 
@@ -119,6 +115,13 @@ export class OrderItemsCreateInput {
   @IsDate()
   @IsNotEmpty({ message: "ends_at must not be empty." })
   endsAt!: Date;
+}
+
+@InputType()
+export class OrderItemsCreateInput extends OrderItemsCreateInputUser {
+  @Field(() => Int)
+  @IsNotEmpty({ message: "profileId must not be empty." })
+  profileId!: number;
 }
 
 @InputType()

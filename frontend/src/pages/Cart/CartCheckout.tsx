@@ -22,6 +22,7 @@ export function CartCheckout() {
   );
   const cart = useCartStoreUser((state) => state.cart);
   const updateCartStore = useCartStoreUser((state) => state.updateCart);
+  const setCart = useCartStoreUser((state) => state.setCart);
 
   const navigate = useNavigate();
 
@@ -109,7 +110,9 @@ export function CartCheckout() {
         },
       });
       setCommandTunnelStatus(CommandStatusEnum.onPayment);
-      updateCartStore(response.data.updateCartUser);
+      cart
+        ? updateCartStore(response.data.updateCartUser)
+        : setCart(response.data.updateCartUser);
       navigate("/cart/checkout/payment");
     } catch (err) {
       console.error("Un problème est survenu : ", err);
