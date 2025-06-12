@@ -14,6 +14,7 @@ import { Order, ValidateCartInput } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
 import { Profile } from "../entities/Profile";
 import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
+import { generateOrderReference } from "../helpers/generateOrderReference";
 import { getTotalOrderPrice } from "../helpers/getTotalOrderPrice";
 import { AuthContextType, OrderStatusType } from "../types";
 
@@ -237,8 +238,7 @@ export class CartResolver {
           }
         }
 
-        // TODO ajouter une référence qui se calcul automatiquement
-        const reference = new Date().toString();
+        const reference = generateOrderReference(new Date().toString());
 
         //TODO A compléter avec stripe, si OrderPaymentType.onSite on valide l'order, sinon on on renvoit vers Stripe
         // if(data.paymentMethod !== OrderPaymentType.onSite) {
@@ -248,6 +248,7 @@ export class CartResolver {
         const order = new Order();
         const orderData = {
           profileId,
+          date: new Date(),
           status: OrderStatusType.confirmed,
           paymentMethod: data.paymentMethod,
           reference: reference,
