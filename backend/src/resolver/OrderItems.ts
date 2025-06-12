@@ -16,6 +16,7 @@ import { Order } from "../entities/Order";
 import {
   OrderItem,
   OrderItemsCreateInput,
+  OrderItemsCreateInputUser,
   OrderItemsUpdateInput,
   OrderItemsUpdateInputForUser,
 } from "../entities/OrderItem";
@@ -26,19 +27,16 @@ import { AuthContextType, OrderItemStatusType } from "../types";
 @Resolver(OrderItem)
 export class OrderItemsResolver {
   @Query(() => [OrderItem])
-  @Authorized()
-  async getOrderItems(@Ctx() context: AuthContextType): Promise<OrderItem[]> {
+  @Authorized("admin")
+  async getOrderItems(): Promise<OrderItem[]> {
     const orderItems = await OrderItem.find({
       relations: { cart: true, variant: true, order: true },
     });
-    if (!(context.user.role === "admin")) {
-      throw new Error("Unauthorized");
-    }
     return orderItems;
   }
 
   @Query(() => OrderItem)
-  @Authorized()
+  @Authorized("user", "admin")
   async getOrderItemsById(
     @Arg("id", () => ID) _id: number
   ): Promise<OrderItem | null> {
@@ -52,7 +50,7 @@ export class OrderItemsResolver {
   }
 
   @Query(() => [OrderItem])
-  @Authorized()
+  @Authorized("user", "admin")
   async getOrderItemsByCartId(
     @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
@@ -78,7 +76,7 @@ export class OrderItemsResolver {
   }
 
   @Query(() => [OrderItem])
-  @Authorized()
+  @Authorized("admin")
   async getOrderItemsByOrderId(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -105,12 +103,107 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem)
-  @Authorized()
+  @Authorized("admin")
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput) data: OrderItemsCreateInput
   ): Promise<OrderItem> {
     const {
       profileId,
+      variantId,
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+      orderId,
+      cartId,
+    } = data;
+
+    let dataOrderItems: {
+      quantity: number;
+      pricePerHour: number;
+      startsAt: Date;
+      endsAt: Date;
+      cart?: Cart;
+      order?: Order;
+    } = {
+      quantity,
+      pricePerHour,
+      startsAt,
+      endsAt,
+    };
+    const variant = await Variant.findOne({
+      where: { id: variantId },
+      relations: ["product"],
+    });
+
+    if (!variant) {
+      throw new GraphQLError("Variant does not exist", {
+        extensions: {
+          code: "NOT_FOUND",
+          entity: "Variant",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    if (!cartId && !orderId) {
+      let cart = await Cart.findOne({
+        where: { profile: { id: profileId } },
+        relations: ["profile"],
+      });
+      // TODO créer le panier avec le user directement comme il n'est jamais supprimé ?
+      if (!cart) {
+        cart = Cart.create({ profile: { id: profileId } });
+        await cart.save();
+      }
+      dataOrderItems = {
+        ...dataOrderItems,
+        cart,
+      };
+    }
+
+    if (orderId) {
+      const order = await Order.findOne({
+        where: { id: orderId },
+      });
+
+      if (!order) {
+        throw new GraphQLError("Order does not exist", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Order",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      dataOrderItems = {
+        ...dataOrderItems,
+        order,
+      };
+    }
+
+    const newOrderItem = new OrderItem();
+    Object.assign(newOrderItem, dataOrderItems);
+    newOrderItem.variant = variant;
+
+    const errors = await validate(newOrderItem);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    }
+
+    await newOrderItem.save();
+    return newOrderItem;
+  }
+
+  @Mutation(() => OrderItem)
+  @Authorized("user", "admin")
+  async createOrderItemsUser(
+    @Arg("data", () => OrderItemsCreateInputUser) data: OrderItemsCreateInput,
+    @Ctx() context: AuthContextType
+  ): Promise<OrderItem> {
+    const profileId = context.user.id;
+    const {
       variantId,
       quantity,
       pricePerHour,
@@ -295,7 +388,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized()
+  @Authorized("user", "admin")
   async updateOrderItemUser(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInputForUser)
@@ -303,26 +396,16 @@ export class OrderItemsResolver {
     @Ctx() context: AuthContextType
   ): Promise<OrderItem | null> {
     const id = Number(_id);
+    const profileId = context.user.id;
     const orderItem = await OrderItem.findOne({
-      where: { id, cart: { id: Not(IsNull()) } },
+      where: {
+        id,
+        cart: { id: Not(IsNull()), profile: { id: profileId } },
+      },
       relations: { variant: { product: true } },
     });
 
     if (orderItem !== null) {
-      if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === orderItem.cart.profile.user.id
-        )
-      ) {
-        throw new GraphQLError("Unauthorized", {
-          extensions: {
-            code: "UNAUTHORIZED",
-            http: { status: 403 },
-          },
-        });
-      }
-
       const startsAt = data.startsAt ? data.startsAt : orderItem.startsAt;
       const endsAt = data.endsAt ? data.endsAt : orderItem.endsAt;
       const quantity = data.quantity ? data.quantity : orderItem.quantity;
@@ -419,25 +502,16 @@ export class OrderItemsResolver {
     @Ctx() context: AuthContextType
   ): Promise<Partial<OrderItem> | null> {
     const id = Number(_id);
+    const profileId = context.user.id;
     const orderItem = await OrderItem.findOne({
-      where: { id, cart: { id: Not(IsNull()) } },
+      where: {
+        id,
+        cart: { id: Not(IsNull()), profile: { id: profileId } },
+      },
       relations: { variant: { product: true } },
     });
 
     if (orderItem !== null) {
-      if (
-        !(
-          context.user.role === "admin" ||
-          context.user.id === orderItem.cart.profile.user.id
-        )
-      ) {
-        throw new GraphQLError("Unauthorized", {
-          extensions: {
-            code: "UNAUTHORIZED",
-            http: { status: 403 },
-          },
-        });
-      }
       await orderItem.remove();
       return { id };
     } else {

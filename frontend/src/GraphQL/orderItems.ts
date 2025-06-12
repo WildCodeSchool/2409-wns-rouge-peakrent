@@ -21,6 +21,29 @@ export const CREATE_ORDER_ITEM = `
   }
 `;
 
+export const CREATE_ORDER_ITEM_USER = `
+  mutation createOrderItemsUser($data: OrderItemsCreateInputUser!) {
+    createOrderItemsUser(data: $data) {
+      id
+      variant {
+        pricePerHour
+        color
+        size
+        product {
+          name
+          sku
+          urlImage
+          description
+        }
+      }
+      pricePerHour
+      quantity
+      startsAt
+      endsAt
+    }
+  }
+`;
+
 export const DELETE_ORDER_ITEM_CART = `
 mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
   deleteOrderItemForCartForUSer(id: $orderItemId) {

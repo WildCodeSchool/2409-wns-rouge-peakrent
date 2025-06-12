@@ -53,7 +53,7 @@ export class CartResolver {
   }
 
   @Query(() => Cart, { nullable: true })
-  @Authorized()
+  @Authorized("admin", "user")
   async getCartForUser(
     @Ctx() context: AuthContextType,
     @Arg("withOrderItems", () => Boolean, { defaultValue: false })
