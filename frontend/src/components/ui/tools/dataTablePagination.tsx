@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,6 +13,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
+import { useEffect, useState } from "react";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -85,14 +85,14 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex items-center justify-end px-2 sm:justify-between">
       <div className="text-muted-foreground flex-1 text-left text-sm max-sm:hidden">
-        {table.getCenterRows().length} {"of"}{" "}
+        {table.getCenterRows().length} {"sur"}{" "}
         {table.getFilteredRowModel().rows.length}{" "}
-        {viewMode === "card" ? "element" : "row"}(s).
+        {viewMode === "card" ? "element" : "ligne"}(s).
       </div>
       <div className="flex items-center space-x-2 lg:space-x-6">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium max-sm:hidden lg:hidden xl:block">
-            {viewMode === "card" ? "elementPerPage" : "rowPerPage"}
+            {viewMode === "card" ? "Elements" : "Lignes"} par page
           </p>
           <Select
             value={`${pageSize}`}
@@ -113,7 +113,7 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          {"page"} {pageIndex + 1} {"of"} {table.getPageCount()}
+          {"page"} {pageIndex + 1} {"sur"} {table.getPageCount()}
         </div>
         <div className="relative flex items-center space-x-2">
           <Button

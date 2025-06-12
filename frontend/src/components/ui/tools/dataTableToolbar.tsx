@@ -18,6 +18,7 @@ export function DataTableToolbar<TData>({
   onDeleteMultipleFunction,
   multipleSelectFunctions,
   hideExport,
+  hideViewOptions,
   showViewMode,
   viewMode,
   setViewMode,
@@ -75,7 +76,12 @@ export function DataTableToolbar<TData>({
               multipleSelectFunctions={multipleSelectFunctions}
               hideExport={hideExport}
             />
-            {viewMode !== "card" && <DataTableViewOptions table={table} />}
+            {viewMode !== "card" && (
+              <DataTableViewOptions
+                table={table}
+                hideViewOptions={hideViewOptions}
+              />
+            )}
             {showViewMode && (
               <Tabs
                 defaultValue="table"
