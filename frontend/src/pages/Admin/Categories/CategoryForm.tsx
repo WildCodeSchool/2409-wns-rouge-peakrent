@@ -28,10 +28,10 @@ export type CategoryFormSchema = z.infer<
 
 export function CategoryForm({ datas }: { datas?: any }) {
   const { closeModal } = useModal();
-  const [createCategory, { loading: createLoading }] = useMutation(
+  const [createCategoryAdmin, { loading: createLoading }] = useMutation(
     gql(CREATE_CATEGORY)
   );
-  const [updateCategory, { loading: updateLoading }] = useMutation(
+  const [updateCategoryAdmin, { loading: updateLoading }] = useMutation(
     gql(UPDATE_CATEGORY)
   );
 
@@ -63,23 +63,26 @@ export function CategoryForm({ datas }: { datas?: any }) {
       let savedCategory;
 
       if (datas) {
-        const { data: updatedCategory } = await updateCategory({
+        const { data: updatedCategoryAdmin } = await updateCategoryAdmin({
           variables: { id: datas.id, data },
         });
-        savedCategory = updatedCategory;
+        savedCategory = updatedCategoryAdmin;
       } else {
-        const { data: createdCategory } = await createCategory({
+        const { data: createdCategoryAdmin } = await createCategoryAdmin({
           variables: { data },
         });
-        savedCategory = createdCategory;
+        savedCategory = createdCategoryAdmin;
       }
 
       if (savedCategory) {
         if (datas) {
-          updateCategoryStore(Number(datas.id), savedCategory.updateCategory);
+          updateCategoryStore(
+            Number(datas.id),
+            savedCategory.updateCategoryAdmin
+          );
           toast.success("Catégorie modifiée avec succès");
         } else {
-          addCategory(savedCategory.createCategory);
+          addCategory(savedCategory.createCategoryAdmin);
           toast.success("Catégorie créée avec succès");
         }
         closeModal();

@@ -22,7 +22,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
 
   it("should not create an order from a regular user", async () => {
     const response = await testArgs.server.executeOperation<{
-      createOrder: Order;
+      createOrderAdmin: Order;
     }>({
       query: getQueryFromMutation(CREATE_ORDER),
       variables: {
@@ -34,12 +34,12 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     });
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeDefined();
-    expect(response.body.singleResult.data?.createOrder).toBeUndefined();
+    expect(response.body.singleResult.data?.createOrderAdmin).toBeUndefined();
   });
 
   it("should create an order for admin", async () => {
     const response = await testArgs.server.executeOperation<{
-      createOrder: Order;
+      createOrderAdmin: Order;
     }>(
       {
         query: getQueryFromMutation(CREATE_ORDER),
@@ -58,10 +58,10 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.createOrder?.id).toBeDefined();
+    expect(response.body.singleResult.data?.createOrderAdmin?.id).toBeDefined();
 
     const orderFromDb = await Order.findOne({
-      where: { id: response.body.singleResult.data?.createOrder?.id },
+      where: { id: response.body.singleResult.data?.createOrderAdmin?.id },
       relations: { profile: true },
     });
 
@@ -70,7 +70,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
 
   it("should not create an order for a connected user", async () => {
     const response = await testArgs.server.executeOperation<{
-      createOrder: Order;
+      createOrderAdmin: Order;
     }>(
       {
         query: getQueryFromMutation(CREATE_ORDER),
@@ -89,12 +89,12 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeDefined();
-    expect(response.body.singleResult.data?.createOrder).toBeUndefined();
+    expect(response.body.singleResult.data?.createOrderAdmin).toBeUndefined();
   });
 
   it("should create an order for admin with empty adress2 and paidAt", async () => {
     const response = await testArgs.server.executeOperation<{
-      createOrder: Order;
+      createOrderAdmin: Order;
     }>(
       {
         query: getQueryFromMutation(CREATE_ORDER),
@@ -119,7 +119,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.createOrder?.id).toBeDefined();
+    expect(response.body.singleResult.data?.createOrderAdmin?.id).toBeDefined();
   });
 
   it("should display order information for a user from an order", async () => {

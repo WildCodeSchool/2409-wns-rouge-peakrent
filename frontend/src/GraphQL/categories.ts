@@ -38,8 +38,8 @@ export const GET_CATEGORY = `
 `;
 
 export const CREATE_CATEGORY = `
-  mutation CreateCategory($data: CategoryCreateInput!) {
-    createCategory(data: $data) {
+  mutation CreateCategoryAdmin($data: CategoryCreateInputAdmin!) {
+    createCategoryAdmin(data: $data) {
       id
       name
       normalizedName
@@ -62,8 +62,8 @@ export const CREATE_CATEGORY = `
 `;
 
 export const UPDATE_CATEGORY = `
-  mutation UpdateCategory($id: ID!, $data: CategoryUpdateInput!) {
-    updateCategory(id: $id, data: $data) {
+  mutation UpdateCategoryAdmin($id: ID!, $data: CategoryUpdateInputAdmin!) {
+    updateCategoryAdmin(id: $id, data: $data) {
       id
       name
       normalizedName
@@ -86,15 +86,15 @@ export const UPDATE_CATEGORY = `
 `;
 
 export const DELETE_CATEGORY = `
-  mutation DeleteCategory($id: ID!) {
-    deleteCategory(id: $id) {
+  mutation DeleteCategoryAdmin($id: ID!) {
+    deleteCategoryAdmin(id: $id) {
       id
     }
   }
 `;
 
 export const DELETE_MULTIPLE_CATEGORIES = `
-  mutation DeleteMultipleCategories($ids: [ID!]!) {
-    deleteCategories(ids: $ids)
+  mutation DeleteMultipleCategoriesAdmin($ids: [ID!]!) {
+    deleteCategoriesAdmin(ids: $ids)
   }
 `;

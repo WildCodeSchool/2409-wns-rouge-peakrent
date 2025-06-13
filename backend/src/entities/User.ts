@@ -1,3 +1,4 @@
+import { RoleType } from "@/types";
 import { IsEmail, IsNotEmpty, IsStrongPassword, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
@@ -9,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { RoleType } from "../types";
 
 @ObjectType()
 @Entity({ name: "user" })
@@ -132,7 +132,7 @@ export class SignInInput {
 }
 
 @InputType()
-export class AdminCreateUserInput {
+export class CreateUserInputAdmin {
   @Field()
   @IsEmail({}, { message: "Please provide a valid email." })
   email!: string;
@@ -160,7 +160,7 @@ export class AdminCreateUserInput {
 }
 
 @InputType()
-export class AdminUpdateUserInput {
+export class UpdateUserInputAdmin {
   @Field()
   @IsEmail({}, { message: "Please provide a valid email." })
   email?: string;

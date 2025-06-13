@@ -27,7 +27,7 @@ export const GET_PROFILE_BY_USER_ID = `
 `;
 
 export const CREATE_PROFILE = `
-  mutation createUserByAdmin($data: AdminCreateUserInput!) {
+  mutation createUserByAdmin($data: CreateUserInputAdmin!) {
     createUserByAdmin(data: $data) {
       email
       firstname

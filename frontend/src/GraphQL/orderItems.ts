@@ -1,6 +1,6 @@
 export const CREATE_ORDER_ITEM = `
-  mutation CreateOrderItem($data: OrderItemsCreateInput!) {
-    createOrderItems(data: $data) {
+  mutation CreateOrderItemsAdmin($data: OrderItemsCreateInput!) {
+    createOrderItemsAdmin(data: $data) {
       id
       variant {
         pricePerHour

@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Pagination } from "./Pagination";
+import { Pagination } from "../commonInput/Pagination";
 import { Product } from "./Product";
 import { StoreVariant } from "./StoreVariant";
 import { User } from "./User";
@@ -77,7 +77,7 @@ export class VariantWithCount {
 }
 
 @InputType()
-export class VariantCreateInput {
+export class VariantCreateInputAdmin {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
@@ -100,7 +100,7 @@ export class VariantCreateInput {
 }
 
 @InputType()
-export class VariantUpdateInput {
+export class VariantUpdateInputAdmin {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
@@ -124,7 +124,7 @@ export class VariantUpdateInput {
 }
 
 @InputType()
-export class VariantCreateNestedInput {
+export class VariantCreateNestedInputAdmin {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

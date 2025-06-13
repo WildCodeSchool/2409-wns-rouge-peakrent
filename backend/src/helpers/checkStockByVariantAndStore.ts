@@ -1,3 +1,6 @@
+import { OrderItem } from "@/entities/OrderItem";
+import { StoreVariant } from "@/entities/StoreVariant";
+import { OrderStatusType } from "@/types";
 import { GraphQLError } from "graphql";
 import {
   FindOperator,
@@ -6,9 +9,6 @@ import {
   MoreThanOrEqual,
   Not,
 } from "typeorm";
-import { OrderItem } from "../entities/OrderItem";
-import { StoreVariant } from "../entities/StoreVariant";
-import { OrderStatusType } from "../types";
 
 export const checkStockByVariantAndStore = async (
   storeId: number,

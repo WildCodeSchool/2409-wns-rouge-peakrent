@@ -29,8 +29,8 @@ export const GET_ACTIVITY = `
 `;
 
 export const CREATE_ACTIVITY = `
-  mutation CreateActivity($data: ActivityCreateInput!) {
-    createActivity(data: $data) {
+  mutation CreateActivityAdmin($data: ActivityCreateInputAdmin!) {
+    createActivityAdmin(data: $data) {
       id
       name
       normalizedName
@@ -43,8 +43,8 @@ export const CREATE_ACTIVITY = `
 `;
 
 export const UPDATE_ACTIVITY = `
-  mutation UpdateActivity($id: ID!, $data: ActivityUpdateInput!) {
-    updateActivity(id: $id, data: $data) {
+  mutation UpdateActivityAdmin($id: ID!, $data: ActivityUpdateInputAdmin!) {
+    updateActivityAdmin(id: $id, data: $data) {
       id
       name
       normalizedName
@@ -57,15 +57,15 @@ export const UPDATE_ACTIVITY = `
 `;
 
 export const DELETE_ACTIVITY = `
-  mutation DeleteActivity($id: ID!) {
-    deleteActivity(id: $id) {
+  mutation DeleteActivityAdmin($id: ID!) {
+    deleteActivityAdmin(id: $id) {
       id
     }
   }
 `;
 
 export const DELETE_MULTIPLE_ACTIVITIES = `
-  mutation DeleteMultipleActivities($ids: [ID!]!) {
-    deleteActivities(ids: $ids)
+  mutation DeleteMultipleActivitiesAdmin($ids: [ID!]!) {
+    deleteActivitiesAdmin(ids: $ids)
   }
 `;

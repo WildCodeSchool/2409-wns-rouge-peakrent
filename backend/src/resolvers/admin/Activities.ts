@@ -1,3 +1,12 @@
+import {
+  Activity,
+  ActivityCreateInputAdmin,
+  ActivityUpdateInputAdmin,
+} from "@/entities/Activity";
+import { deleteImageFromUploadsDir } from "@/helpers/deleteImage";
+import { normalizeString } from "@/helpers/helpers";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
+import { AuthContextType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -6,74 +15,18 @@ import {
   Ctx,
   ID,
   Mutation,
-  Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
 import { In } from "typeorm";
-import {
-  ActivitiesWithCount,
-  Activity,
-  ActivityCreateInput,
-  ActivityPaginationInput,
-  ActivityUpdateInput,
-} from "../entities/Activity";
-import { deleteImageFromUploadsDir } from "../helpers/deleteImage";
-import { normalizeString } from "../helpers/helpers";
-import { ErrorCatcher } from "../middlewares/errorHandler";
-import { AuthContextType } from "../types";
 
 @Resolver(Activity)
-export class ActivityResolver {
-  @Query(() => ActivitiesWithCount)
-  async getActivities(
-    @Arg("data", () => ActivityPaginationInput) data: ActivityPaginationInput
-  ): Promise<ActivitiesWithCount> {
-    const { page, onPage, sort, order } = data;
-
-    const [activities, total] = await Activity.findAndCount({
-      relations: { products: true },
-      skip: (page - 1) * onPage,
-      take: onPage,
-      order: { [sort]: order },
-    });
-    return {
-      activities,
-      pagination: {
-        total,
-        currentPage: page,
-        totalPages: Math.ceil(total / onPage),
-      },
-    };
-  }
-
-  @Query(() => Activity, { nullable: true })
-  async getActivityById(
-    @Arg("id", () => ID) _id: number
-  ): Promise<Activity | null> {
-    const id = Number(_id);
-
-    const activity = await Activity.findOne({
-      where: { id },
-    });
-
-    if (!activity) {
-      throw new GraphQLError("Activity not found", {
-        extensions: {
-          code: "NOT_FOUND",
-          http: { status: 404 },
-        },
-      });
-    }
-
-    return activity;
-  }
-
+export class ActivityResolverAdmin {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Activity)
   @UseMiddleware(ErrorCatcher)
-  async createActivity(
-    @Arg("data", () => ActivityCreateInput) data: ActivityCreateInput,
+  async createActivityAdmin(
+    @Arg("data", () => ActivityCreateInputAdmin) data: ActivityCreateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Activity> {
     const user = context.user;
@@ -106,9 +59,9 @@ export class ActivityResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Activity, { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async updateActivity(
+  async updateActivityAdmin(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => ActivityUpdateInput) data: ActivityUpdateInput,
+    @Arg("data", () => ActivityUpdateInputAdmin) data: ActivityUpdateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Activity | null> {
     const id = Number(_id);
@@ -156,7 +109,7 @@ export class ActivityResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Activity, { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async deleteActivity(
+  async deleteActivityAdmin(
     @Arg("id", () => ID) _id: number
   ): Promise<Activity | null> {
     const id = Number(_id);
@@ -180,7 +133,7 @@ export class ActivityResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => [ID], { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async deleteActivities(
+  async deleteActivitiesAdmin(
     @Arg("ids", () => [ID]) ids: number[]
   ): Promise<number[] | null> {
     const activities = await Activity.find({

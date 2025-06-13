@@ -1,8 +1,8 @@
+import { Profile } from "@/entities/Profile";
+import { ContextType } from "@/types";
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
-import { Profile } from "../entities/Profile";
-import { ContextType } from "../types";
 
 export const formattedDate = (date: Date): string => {
   const year = date.getFullYear();

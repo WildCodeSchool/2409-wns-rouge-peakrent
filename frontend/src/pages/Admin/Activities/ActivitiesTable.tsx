@@ -24,7 +24,7 @@ export function ActivitiesTable() {
   const setActivitiesFetched = useActivityStore(
     (state) => state.setActivitiesFetched
   );
-  const [deleteActivities] = useMutation(gql(DELETE_MULTIPLE_ACTIVITIES));
+  const [deleteActivitiesAdmin] = useMutation(gql(DELETE_MULTIPLE_ACTIVITIES));
 
   const { data, error, loading } = useQuery(gql(GET_ACTIVITIES), {
     variables: {
@@ -68,22 +68,25 @@ export function ActivitiesTable() {
 
   const onDeleteMultipleFunction = async (ids: string[] | number[]) => {
     try {
-      const { data } = await deleteActivities({ variables: { ids } });
-      const idsToRemove = data?.deleteActivities?.map((id: string | number) =>
-        Number(id)
+      const { data } = await deleteActivitiesAdmin({ variables: { ids } });
+      const idsToRemove = data?.deleteActivitiesAdmin?.map(
+        (id: string | number) => Number(id)
       );
       if (
-        data?.deleteActivities &&
-        data.deleteActivities.length === ids.length
+        data?.deleteActivitiesAdmin &&
+        data.deleteActivitiesAdmin.length === ids.length
       ) {
         toast.success(
           "Toutes les activités séléctionnées ont été supprimées avec succès"
         );
         deleteMultipleActivities(idsToRemove);
         return true;
-      } else if (data?.deleteActivities && data.deleteActivities.length > 0) {
+      } else if (
+        data?.deleteActivitiesAdmin &&
+        data.deleteActivitiesAdmin.length > 0
+      ) {
         toast.success(
-          `${data.deleteActivities.length} activité(s) ont été supprimée(s) avec succès`
+          `${data.deleteActivitiesAdmin.length} activité(s) ont été supprimée(s) avec succès`
         );
         deleteMultipleActivities(idsToRemove);
         return true;

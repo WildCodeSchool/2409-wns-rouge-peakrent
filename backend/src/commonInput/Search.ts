@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "type-graphql";
-import { Category } from "./Category";
-import { Product } from "./Product";
+import { Category } from "../entities/Category";
+import { Product } from "../entities/Product";
 
 @ObjectType()
 export class Search {

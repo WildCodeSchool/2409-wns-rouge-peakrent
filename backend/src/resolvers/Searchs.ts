@@ -1,9 +1,9 @@
+import { Search } from "@/commonInput/Search";
+import { dataSource } from "@/config/db";
+import { Category } from "@/entities/Category";
+import { Product } from "@/entities/Product";
 import { Arg, Query, Resolver } from "type-graphql";
 import { Like } from "typeorm";
-import { dataSource } from "../config/db";
-import { Category } from "../entities/Category";
-import { Product } from "../entities/Product";
-import { Search } from "../entities/Search";
 
 @Resolver()
 export class SearchResolver {

@@ -1,10 +1,10 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
 import {
   StoreVariant,
-  StoreVariantCreateInput,
-  StoreVariantUpdateInput,
-} from "../entities/StoreVariant";
-import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
+  StoreVariantCreateInputAdmin,
+  StoreVariantUpdateInputAdmin,
+} from "@/entities/StoreVariant";
+import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { Arg, Mutation, Query, Resolver } from "type-graphql";
 
 @Resolver()
 export class StoreVariantResolver {
@@ -23,7 +23,7 @@ export class StoreVariantResolver {
 
   @Mutation(() => StoreVariant)
   async createStoreVariant(
-    @Arg("data") data: StoreVariantCreateInput
+    @Arg("data") data: StoreVariantCreateInputAdmin
   ): Promise<StoreVariant> {
     const newStoreVariant = new StoreVariant();
     Object.assign(newStoreVariant, data);
@@ -33,7 +33,7 @@ export class StoreVariantResolver {
 
   @Mutation(() => StoreVariant)
   async updateStoreVariant(
-    @Arg("data") data: StoreVariantUpdateInput
+    @Arg("data") data: StoreVariantUpdateInputAdmin
   ): Promise<StoreVariant> {
     const storeVariant = await StoreVariant.findOneBy({
       storeId: data.storeId,

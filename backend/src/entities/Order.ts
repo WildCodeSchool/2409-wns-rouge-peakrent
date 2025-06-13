@@ -111,7 +111,7 @@ export class Order extends BaseEntity {
 }
 
 @InputType()
-export class OrderCreateInput {
+export class OrderCreateInputAdmin {
   @Field(() => Int)
   profileId!: number;
 
@@ -170,7 +170,7 @@ export class OrderCreateInput {
 }
 
 @InputType()
-export class OrderUpdateInput {
+export class OrderUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   profileId?: number;
 
@@ -210,7 +210,7 @@ export class OrderUpdateInput {
 
   @Field({ nullable: true })
   @IsDate()
-  paidAt!: Date;
+  paidAt?: Date;
 }
 
 @InputType()

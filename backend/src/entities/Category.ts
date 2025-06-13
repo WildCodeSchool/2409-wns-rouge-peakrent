@@ -1,15 +1,13 @@
 import {
   IsBoolean,
-  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
   Length,
-  Min,
 } from "class-validator";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -22,11 +20,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Pagination } from "../commonInput/Pagination";
+import { PaginationInput } from "../commonInput/PaginationInput";
 import { IsValidSortField } from "../decorators/IsValidSortField";
-import { Pagination } from "./Pagination";
 import { Product } from "./Product";
 import { User } from "./User";
-import { SortOrder } from "../types";
 
 @ObjectType()
 @Entity()
@@ -101,7 +99,7 @@ export class CategoriesWithCount {
 }
 
 @InputType()
-export class CategoryCreateInput {
+export class CategoryCreateInputAdmin {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "Name is required." })
@@ -120,43 +118,21 @@ export class CategoryCreateInput {
   @IsPositive()
   id?: number;
 
-  @Field(() => [CategoryCreateInput], { nullable: true })
-  childrens?: CategoryCreateInput[];
+  @Field(() => [CategoryCreateInputAdmin], { nullable: true })
+  childrens?: CategoryCreateInputAdmin[];
 }
 
 @InputType()
-export class CategoryUpdateInput extends CategoryCreateInput {}
+export class CategoryUpdateInputAdmin extends CategoryCreateInputAdmin {}
 
 @InputType()
-export class CategoryPaginationInput {
-  @Field(() => Int, { defaultValue: 1 })
-  @IsInt()
-  @Min(1)
-  page: number = 1;
-
-  @Field(() => Int, { defaultValue: 15 })
-  @IsInt()
-  @Min(1)
-  onPage: number = 15;
-
+export class CategoryPaginationInput extends PaginationInput {
   @Field(() => String, { defaultValue: "createdAt" })
   @IsValidSortField(Category)
   sort: string = "createdAt";
-
-  @Field(() => String, { defaultValue: "ASC" })
-  @IsEnum(SortOrder, {
-    message: "Invalid sort order",
-  })
-  order: SortOrder = SortOrder.ASC;
 
   @Field(() => Boolean, { defaultValue: false })
   @IsBoolean()
   @IsOptional()
   onlyParent?: boolean;
-}
-
-@ObjectType()
-export class DeleteCategoriesResponse {
-  @Field(() => [ID])
-  deletedIds: number[];
 }

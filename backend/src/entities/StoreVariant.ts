@@ -41,7 +41,7 @@ export class StoreVariant extends BaseEntity {
 }
 
 @InputType()
-export class StoreVariantCreateInput {
+export class StoreVariantCreateInputAdmin {
   @Field(() => Int)
   storeId!: number;
 
@@ -54,7 +54,7 @@ export class StoreVariantCreateInput {
 }
 
 @InputType()
-export class StoreVariantUpdateInput {
+export class StoreVariantUpdateInputAdmin {
   @Field(() => Int)
   storeId!: number;
 

@@ -1,29 +1,17 @@
+import {
+  Store,
+  StoreCreateInputAdmin,
+  StoreUpdateInputAdmin,
+} from "@/entities/Store";
 import { validate } from "class-validator";
-import { Arg, Authorized, ID, Mutation, Query, Resolver } from "type-graphql";
-import { Store, StoreCreateInput, StoreUpdateInput } from "../entities/Store";
+import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
 
 @Resolver(Store)
-export class StoreResolver {
-  @Query(() => [Store])
-  async getStores(): Promise<Store[]> {
-    return Store.find();
-  }
-
-  @Query(() => Store, { nullable: true })
-  async getStoreById(
-    @Arg("param", () => String) param: string
-  ): Promise<Store | null> {
-    const isId = !isNaN(Number(param));
-    const whereCondition = isId ? { id: Number(param) } : { name: param };
-    return Store.findOne({
-      where: whereCondition,
-    });
-  }
-
+export class StoreResolverAdmin {
   @Authorized("super_admin") //TODO add super admin role
   @Mutation(() => Store)
-  async createStore(
-    @Arg("data", () => StoreCreateInput) data: StoreCreateInput
+  async createStoreAdmin(
+    @Arg("data", () => StoreCreateInputAdmin) data: StoreCreateInputAdmin
   ): Promise<Store> {
     const newStore = new Store();
 
@@ -42,7 +30,7 @@ export class StoreResolver {
   @Mutation(() => Store)
   async updateStore(
     @Arg("id", () => ID) id: number,
-    @Arg("data", () => StoreUpdateInput) data: StoreUpdateInput
+    @Arg("data", () => StoreUpdateInputAdmin) data: StoreUpdateInputAdmin
   ): Promise<Store> {
     const store = await Store.findOneBy({ id });
     if (store !== null) {

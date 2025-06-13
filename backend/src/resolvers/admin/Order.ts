@@ -1,3 +1,13 @@
+import { dataSource } from "@/config/db";
+import {
+  Order,
+  OrderCreateInputAdmin,
+  OrderUpdateInputAdmin,
+} from "@/entities/Order";
+import { OrderItem, OrderItemsFormInputAdmin } from "@/entities/OrderItem";
+import { Profile } from "@/entities/Profile";
+import { generateOrderReference } from "@/helpers/generateOrderReference";
+import { AuthContextType, OrderItemStatusType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -9,18 +19,12 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { dataSource } from "../config/db";
-import { Order, OrderCreateInput, OrderUpdateInput } from "../entities/Order";
-import { OrderItem, OrderItemsFormInput } from "../entities/OrderItem";
-import { Profile } from "../entities/Profile";
-import { generateOrderReference } from "../helpers/generateOrderReference";
-import { AuthContextType, OrderItemStatusType } from "../types";
 
 @Resolver(Order)
-export class OrderResolver {
+export class OrderResolverAdmin {
   @Query(() => [Order])
   @Authorized("admin")
-  async getOrders(): Promise<Order[]> {
+  async getOrdersAdmin(): Promise<Order[]> {
     const order = await Order.find({
       relations: {
         orderItems: {
@@ -35,39 +39,10 @@ export class OrderResolver {
     return order;
   }
 
-  @Query(() => Order)
-  @Authorized("admin", "user")
-  async getOrderById(
-    @Arg("id", () => ID) _id: number,
-    @Ctx() context: AuthContextType
-  ): Promise<Order | null> {
-    const id = Number(_id);
-    const order = await Order.findOne({
-      where: { id },
-      relations: {
-        profile: true,
-        orderItems: {
-          variant: {
-            product: true,
-          },
-        },
-      },
-    });
-    if (order) {
-      if (
-        !(context.user.role === "admin" || context.user.id === order.profile.id)
-      ) {
-        throw new Error("Unauthorized");
-      }
-      return order;
-    }
-    throw new Error("order not found");
-  }
-
   @Mutation(() => Order)
   @Authorized("admin")
-  async createOrder(
-    @Arg("data", () => OrderCreateInput) data: OrderCreateInput
+  async createOrderAdmin(
+    @Arg("data", () => OrderCreateInputAdmin) data: OrderCreateInputAdmin
   ): Promise<Order> {
     const newOrder = new Order();
     const profile = await Profile.findOne({
@@ -90,9 +65,9 @@ export class OrderResolver {
 
   @Mutation(() => Order, { nullable: true })
   @Authorized("admin")
-  async updateOrder(
+  async updateOrderAdmin(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => OrderUpdateInput) data: OrderUpdateInput,
+    @Arg("data", () => OrderUpdateInputAdmin) data: OrderUpdateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const id = Number(_id);
@@ -132,7 +107,7 @@ export class OrderResolver {
 
   @Mutation(() => Order, { nullable: true })
   @Authorized("admin")
-  async deleteOrder(
+  async deleteOrderAdmin(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
@@ -156,9 +131,10 @@ export class OrderResolver {
 
   @Mutation(() => Order)
   @Authorized("admin")
-  async createOrderWithItems(
-    @Arg("data", () => OrderCreateInput) data: OrderCreateInput,
-    @Arg("items", () => [OrderItemsFormInput]) items: OrderItemsFormInput[]
+  async createOrderWithItemsAdmin(
+    @Arg("data", () => OrderCreateInputAdmin) data: OrderCreateInputAdmin,
+    @Arg("items", () => [OrderItemsFormInputAdmin])
+    items: OrderItemsFormInputAdmin[]
   ): Promise<Order> {
     return await dataSource.manager.transaction(
       async (transactionalEntityManager) => {
@@ -234,28 +210,5 @@ export class OrderResolver {
         });
       }
     );
-  }
-
-  @Query(() => [Order])
-  @Authorized("user", "admin")
-  async getMyOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
-    if (!context.user) {
-      throw new Error("User not authenticated");
-    }
-
-    const orders = await Order.find({
-      where: { profile: { user: { id: context.user.id } } },
-      relations: {
-        profile: true,
-        orderItems: {
-          variant: {
-            product: true,
-          },
-        },
-      },
-      order: { date: "DESC" },
-    });
-
-    return orders;
   }
 }

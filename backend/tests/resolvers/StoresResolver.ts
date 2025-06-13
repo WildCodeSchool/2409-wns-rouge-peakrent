@@ -1,4 +1,4 @@
-import { Store } from "../../src/entities/Store";
+import { Store } from "@/entities/Store";
 import { mutationCreateStore } from "../api/createStore";
 import { assert, TestArgsType } from "../index.spec";
 
@@ -16,7 +16,7 @@ export function StoresResolverTest(testArgs: TestArgsType) {
   // pentest create store
   it("should not create a store from a regular user", async () => {
     const response = await testArgs.server.executeOperation<{
-      createStore: Store;
+      createStoreAdmin: Store;
     }>(
       {
         query: mutationCreateStore,
@@ -36,12 +36,12 @@ export function StoresResolverTest(testArgs: TestArgsType) {
     expect(response.body.singleResult.errors[0].extensions.code).toBe(
       "UNAUTHORIZED"
     );
-    expect(response.body.singleResult.data?.createStore).toBeUndefined();
+    expect(response.body.singleResult.data?.createStoreAdmin).toBeUndefined();
   });
 
   it("should not create a store from an admin", async () => {
     const response = await testArgs.server.executeOperation<{
-      createStore: Store;
+      createStoreAdmin: Store;
     }>(
       {
         query: mutationCreateStore,
@@ -61,13 +61,13 @@ export function StoresResolverTest(testArgs: TestArgsType) {
     expect(response.body.singleResult.errors[0].extensions.code).toBe(
       "UNAUTHORIZED"
     );
-    expect(response.body.singleResult.data?.createStore).toBeUndefined();
+    expect(response.body.singleResult.data?.createStoreAdmin).toBeUndefined();
   });
 
   //TODO add super admin role
   it("should create a store from a super admin", async () => {
     const response = await testArgs.server.executeOperation<{
-      createStore: Store;
+      createStoreAdmin: Store;
     }>(
       {
         query: mutationCreateStore,
@@ -84,6 +84,6 @@ export function StoresResolverTest(testArgs: TestArgsType) {
 
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.createStore?.id).toBeDefined();
+    expect(response.body.singleResult.data?.createStoreAdmin?.id).toBeDefined();
   });
 }

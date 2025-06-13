@@ -67,9 +67,9 @@ export const GET_ORDER_BY_ID = `
   }
 `;
 
-export const GET_ORDERS = `
-  query getOrders {
-    getOrders {
+export const GET_ORDERS_ADMIN = `
+  query getOrdersAdmin {
+    getOrdersAdmin {
       id
       reference
       status

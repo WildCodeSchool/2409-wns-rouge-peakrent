@@ -1,11 +1,11 @@
+import { dataSource } from "@/config/db";
+import { Profile } from "@/entities/Profile";
+import { User } from "@/entities/User";
+import { getSchema } from "@/schema";
+import { RoleType } from "@/types";
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
 import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
-import { dataSource } from "../src/config/db";
-import { Profile } from "../src/entities/Profile";
-import { User } from "../src/entities/User";
-import { getSchema } from "../src/schema";
-import { RoleType } from "../src/types";
 import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { OrderResolverTest } from "./resolvers/OrderResolver";
 import { StoresResolverTest } from "./resolvers/StoresResolver";

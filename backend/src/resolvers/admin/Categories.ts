@@ -1,3 +1,12 @@
+import { dataSource } from "@/config/db";
+import {
+  Category,
+  CategoryCreateInputAdmin,
+  CategoryUpdateInputAdmin,
+} from "@/entities/Category";
+import { normalizeString } from "@/helpers/helpers";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
+import { AuthContextType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -6,74 +15,18 @@ import {
   Ctx,
   ID,
   Mutation,
-  Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { In, IsNull } from "typeorm";
-import { dataSource } from "../config/db";
-import {
-  CategoriesWithCount,
-  Category,
-  CategoryCreateInput,
-  CategoryPaginationInput,
-  CategoryUpdateInput,
-} from "../entities/Category";
-import { normalizeString } from "../helpers/helpers";
-import { ErrorCatcher } from "../middlewares/errorHandler";
-import { AuthContextType } from "../types";
+import { In } from "typeorm";
 
 @Resolver(Category)
-export class CategoryResolver {
-  @Query(() => CategoriesWithCount)
-  async getCategories(
-    @Arg("data", () => CategoryPaginationInput) data: CategoryPaginationInput
-  ): Promise<CategoriesWithCount> {
-    const { page, onPage, sort, order, onlyParent } = data;
-
-    const [categories, total] = await Category.findAndCount({
-      relations: { products: true, parentCategory: true, childrens: true },
-      skip: (page - 1) * onPage,
-      take: onPage,
-      order: { [sort]: order },
-      where: onlyParent ? { parentCategory: IsNull() } : undefined,
-    });
-    return {
-      categories,
-      pagination: {
-        total,
-        currentPage: page,
-        totalPages: Math.ceil(total / onPage),
-      },
-    };
-  }
-
-  @Query(() => Category, { nullable: true })
-  async getCategoryById(
-    @Arg("id", () => ID) _id: number
-  ): Promise<Category | null> {
-    const id = Number(_id);
-    const category = await Category.findOne({
-      where: { id },
-    });
-
-    if (!category) {
-      throw new GraphQLError("Category not found", {
-        extensions: {
-          code: "NOT_FOUND",
-          http: { status: 404 },
-        },
-      });
-    }
-
-    return category;
-  }
-
+export class CategoryResolverAdmin {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Category)
   @UseMiddleware(ErrorCatcher)
-  async createCategory(
-    @Arg("data", () => CategoryCreateInput) data: CategoryCreateInput,
+  async createCategoryAdmin(
+    @Arg("data", () => CategoryCreateInputAdmin) data: CategoryCreateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Category> {
     const user = context.user;
@@ -139,9 +92,9 @@ export class CategoryResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Category, { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async updateCategory(
+  async updateCategoryAdmin(
     @Arg("id", () => ID) _id: number,
-    @Arg("data", () => CategoryUpdateInput) data: CategoryUpdateInput,
+    @Arg("data", () => CategoryUpdateInputAdmin) data: CategoryUpdateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Category | null> {
     const id = Number(_id);
@@ -236,7 +189,7 @@ export class CategoryResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => Category, { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async deleteCategory(
+  async deleteCategoryAdmin(
     @Arg("id", () => ID) _id: number
   ): Promise<Category | null> {
     const id = Number(_id);
@@ -259,7 +212,7 @@ export class CategoryResolver {
   @Authorized(["admin", "superadmin"])
   @Mutation(() => [ID], { nullable: true })
   @UseMiddleware(ErrorCatcher)
-  async deleteCategories(
+  async deleteCategoriesAdmin(
     @Arg("ids", () => [ID]) ids: number[]
   ): Promise<number[] | null> {
     const categories = await Category.find({

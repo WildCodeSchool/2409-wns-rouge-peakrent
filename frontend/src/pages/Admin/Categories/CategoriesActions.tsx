@@ -16,14 +16,17 @@ export function DataTableRowCategoriesActions<TData>({
   row,
 }: DataTableRowCategoriesActionsProps<TData>) {
   const category = row.original as CategoryType;
-  const [deleteCategories] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
+  const [deleteCategoriesAdmin] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
 
   const handleDelete = async (ids: string[] | number[]) => {
     try {
-      const { data } = await deleteCategories({ variables: { ids } });
-      if (data?.deleteCategories && data.deleteCategories.length === 1) {
+      const { data } = await deleteCategoriesAdmin({ variables: { ids } });
+      if (
+        data?.deleteCategoriesAdmin &&
+        data.deleteCategoriesAdmin.length === 1
+      ) {
         toast.success("Catégorie supprimée avec succès");
-        deleteCategory(Number(data.deleteCategories[0]));
+        deleteCategory(Number(data.deleteCategoriesAdmin[0]));
         return true;
       }
       toast.error("Erreur lors de la suppression de la catégorie");

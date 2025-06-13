@@ -1,4 +1,4 @@
-import { OrderItem } from "../entities/OrderItem";
+import { OrderItem } from "@/entities/OrderItem";
 
 export const getTotalOrderPrice = (orderItems: OrderItem[]) => {
   return orderItems.reduce((sum, item) => {

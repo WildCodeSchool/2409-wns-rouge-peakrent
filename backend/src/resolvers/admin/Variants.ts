@@ -1,3 +1,10 @@
+import { Product } from "@/entities/Product";
+import {
+  Variant,
+  VariantCreateInputAdmin,
+  VariantUpdateInputAdmin,
+} from "@/entities/Variant";
+import { AuthContextType } from "@/types";
 import { validate } from "class-validator";
 import {
   Arg,
@@ -8,16 +15,9 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { Product } from "../entities/Product";
-import {
-  Variant,
-  VariantCreateInput,
-  VariantUpdateInput,
-} from "../entities/Variant";
-import { AuthContextType } from "../types";
 
 @Resolver(Variant)
-export class VariantResolver {
+export class VariantResolverAdmin {
   @Query(() => [Variant])
   async getVariants(): Promise<Variant[]> {
     return await Variant.find({
@@ -38,7 +38,7 @@ export class VariantResolver {
   @Authorized(["admin"])
   @Mutation(() => Variant)
   async createVariant(
-    @Arg("data", () => VariantCreateInput) data: VariantCreateInput,
+    @Arg("data", () => VariantCreateInputAdmin) data: VariantCreateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Variant> {
     const product = await Product.findOne({ where: { id: data.productId } });
@@ -65,7 +65,7 @@ export class VariantResolver {
   @Mutation(() => Variant, { nullable: true })
   async updateVariant(
     @Arg("id", () => ID) id: number,
-    @Arg("data", () => VariantUpdateInput) data: VariantUpdateInput,
+    @Arg("data", () => VariantUpdateInputAdmin) data: VariantUpdateInputAdmin,
     @Ctx() context: AuthContextType
   ): Promise<Variant | null> {
     const variant = await Variant.findOne({

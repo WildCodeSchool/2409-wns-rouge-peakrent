@@ -1,13 +1,6 @@
-import {
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  IsUrl,
-  Length,
-  Min,
-} from "class-validator";
-import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
+import { Pagination } from "@/commonInput/Pagination";
+import { IsNotEmpty, IsString, IsUrl, Length } from "class-validator";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -19,11 +12,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { PaginationInput } from "../commonInput/PaginationInput";
 import { IsValidSortField } from "../decorators/IsValidSortField";
-import { Pagination } from "./Pagination";
 import { Product } from "./Product";
 import { User } from "./User";
-import { SortOrder } from "../types";
 
 @ObjectType()
 @Entity()
@@ -91,7 +83,7 @@ export class ActivitiesWithCount {
 }
 
 @InputType()
-export class ActivityCreateInput {
+export class ActivityCreateInputAdmin {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "Name is required." })
@@ -110,33 +102,11 @@ export class ActivityCreateInput {
 }
 
 @InputType()
-export class ActivityUpdateInput extends ActivityCreateInput {}
+export class ActivityUpdateInputAdmin extends ActivityCreateInputAdmin {}
 
 @InputType()
-export class ActivityPaginationInput {
-  @Field(() => Int, { defaultValue: 1 })
-  @IsInt()
-  @Min(1)
-  page: number = 1;
-
-  @Field(() => Int, { defaultValue: 15 })
-  @IsInt()
-  @Min(1)
-  onPage: number = 15;
-
+export class ActivityPaginationInput extends PaginationInput {
   @Field(() => String, { defaultValue: "createdAt" })
   @IsValidSortField(Activity)
   sort: string = "createdAt";
-
-  @Field(() => String, { defaultValue: "ASC" })
-  @IsEnum(SortOrder, {
-    message: "Invalid sort order",
-  })
-  order: SortOrder = SortOrder.ASC;
-}
-
-@ObjectType()
-export class DeleteActivitiesResponse {
-  @Field(() => [ID])
-  deletedIds: number[];
 }

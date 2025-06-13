@@ -68,7 +68,7 @@ export class Cart extends BaseEntity {
   orderItems?: OrderItem[];
 }
 @InputType()
-export class CartUpdateInputUser {
+export class CartUpdateInput {
   @Field({ nullable: true })
   @ValidateIf((request) => request.address1 !== "")
   @IsString()
@@ -101,7 +101,7 @@ export class CartUpdateInputUser {
 }
 
 @InputType()
-export class CartUpdateInput extends CartUpdateInputUser {
+export class CartUpdateInputAdmin extends CartUpdateInput {
   @Field(() => Int, { nullable: true })
   profileId?: number;
 }

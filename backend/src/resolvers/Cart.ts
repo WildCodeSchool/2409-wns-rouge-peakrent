@@ -1,60 +1,22 @@
+import { Cart, CartUpdateInput } from "@/entities/Cart";
+import { Order, ValidateCartInput } from "@/entities/Order";
+import { OrderItem } from "@/entities/OrderItem";
+import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { generateOrderReference } from "@/helpers/generateOrderReference";
+import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
+import { AuthContextType, OrderStatusType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  ID,
-  Mutation,
-  Query,
-  Resolver,
-} from "type-graphql";
-import { Cart, CartUpdateInput, CartUpdateInputUser } from "../entities/Cart";
-import { Order, ValidateCartInput } from "../entities/Order";
-import { OrderItem } from "../entities/OrderItem";
-import { Profile } from "../entities/Profile";
-import { checkStockByVariantAndStore } from "../helpers/checkStockByVariantAndStore";
-import { generateOrderReference } from "../helpers/generateOrderReference";
-import { getTotalOrderPrice } from "../helpers/getTotalOrderPrice";
-import { AuthContextType, OrderStatusType } from "../types";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 
 @Resolver(Cart)
 export class CartResolver {
   // TODO Voir pour before insert / before update pour la vérification des dates + disponibilité des items ?
   // Ajouter la création de Cart directement à la création d'un user plutôt qu'à l'ajout des orderItms dans le panier ?
-  @Authorized(["admin"])
-  @Query(() => [Cart])
-  async getCarts(): Promise<Cart[]> {
-    return await Cart.find({
-      relations: {
-        profile: true,
-        orderItems: {
-          variant: {
-            product: {
-              categories: true,
-              activities: true,
-            },
-          },
-        },
-      },
-    });
-  }
-
-  @Authorized("admin")
-  @Query(() => Cart)
-  async getCartById(@Arg("id", () => ID) _id: number): Promise<Cart | null> {
-    const id = Number(_id);
-    const cart = await Cart.findOne({
-      where: { id },
-      relations: { profile: true },
-    });
-
-    return cart;
-  }
 
   @Query(() => Cart, { nullable: true })
   @Authorized("admin", "user")
-  async getCartForUser(
+  async getCart(
     @Ctx() context: AuthContextType,
     @Arg("withOrderItems", () => Boolean, { defaultValue: false })
     withOrderItems?: boolean
@@ -79,55 +41,10 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized("admin")
-  @Mutation(() => Cart)
-  async updateCart(
-    @Arg("id", () => ID) _id: number,
-    @Arg("data", () => CartUpdateInput) data: CartUpdateInput
-  ): Promise<Cart | null> {
-    const id = Number(_id);
-    if (data.profileId) {
-      const profile = await Profile.findOne({
-        where: { id: data.profileId },
-      });
-      if (!profile) {
-        throw new GraphQLError("profile not Found", {
-          extensions: {
-            code: "NOT_FOUND",
-            entity: "Profile",
-            http: { status: 404 },
-          },
-        });
-      }
-    }
-    const cart = await Cart.findOne({
-      where: { id },
-    });
-
-    if (cart !== null) {
-      Object.assign(cart, data, { profile: data.profileId });
-      const errors = await validate(cart);
-      if (errors.length > 0) {
-        throw new Error(`Validation error: ${JSON.stringify(errors)}`);
-      } else {
-        await cart.save();
-        return cart;
-      }
-    } else {
-      throw new GraphQLError("Cart not Found", {
-        extensions: {
-          code: "NOT_FOUND",
-          entity: "Cart",
-          http: { status: 404 },
-        },
-      });
-    }
-  }
-
   @Authorized("admin", "user")
   @Mutation(() => Cart, { nullable: true })
-  async updateCartUser(
-    @Arg("data", () => CartUpdateInputUser) data: CartUpdateInputUser,
+  async updateCart(
+    @Arg("data", () => CartUpdateInput) data: CartUpdateInput,
     @Ctx() context: AuthContextType
   ): Promise<Cart | null> {
     const id = context.user.id;
@@ -184,7 +101,7 @@ export class CartResolver {
   // TODO dans authorized mettre enum à la place (ex roletype.admin)
   @Authorized("admin", "user")
   @Mutation(() => Order, { nullable: true })
-  async validateCartUser(
+  async validateCart(
     @Arg("data", () => ValidateCartInput) data: ValidateCartInput,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
