@@ -51,7 +51,11 @@ registerEnumType(RoleType, {
 });
 
 export enum OrderStatusType {
+  pending = "pending",
   confirmed = "confirmed",
+  completed = "completed",
+  cancelled = "cancelled",
+  refunded = "refunded",
 }
 
 export enum OrderPaymentType {

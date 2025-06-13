@@ -20,6 +20,9 @@ const NavBar = () => {
   const { user: userData } = useUser();
 
   const [doSignout] = useMutation(gql(SIGNOUT), {
+    onCompleted: () => {
+      window.location.href = "/";
+    },
     refetchQueries: [{ query: gql(WHOAMI) }],
   });
 

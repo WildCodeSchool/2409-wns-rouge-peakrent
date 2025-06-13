@@ -27,6 +27,7 @@ import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
+import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
 
@@ -109,6 +110,10 @@ function App() {
           <Route
             path="profile/edit"
             element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
+          />
+          <Route
+            path="profile/order/:id"
+            element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
           {/* Admin Routes */}
           <Route

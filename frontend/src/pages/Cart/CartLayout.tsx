@@ -28,46 +28,69 @@ export default function CartLayout() {
   }, [orderItems]);
 
   return (
-    <main className="mx-2 lg:mx-28 max-w-screen-xl">
-      {orderCommandStatus === CommandStatusEnum.pending && (
-        <Title
-          text="Panier de commande"
-          className="my-4 md:my-6"
-          icon={<ShoppingBag className="size-8" />}
-        />
-      )}
-      {(orderCommandStatus === CommandStatusEnum.validated ||
-        orderCommandStatus === CommandStatusEnum.onPayment) && (
-        <>
-          <Title
-            text="Checkout"
-            className="my-4 md:my-6"
-            icon={<CreditCard className="size-8" />}
-          />
-          <p>Adresse de facturation et informations de paiement</p>
-          <hr className="border-t-2 border-gray-300 my-2" />
-        </>
-      )}
+    <div className="container mx-auto max-w-6xl py-6 px-4">
+      {/* Header Section */}
+      <div className="mb-6">
+        {orderCommandStatus === CommandStatusEnum.pending && (
+          <>
+            <Title
+              text="Panier de commande"
+              className="my-4 md:my-6"
+              icon={<ShoppingBag className="size-8 text-primary" />}
+            />
+            <p className="text-slate-600 mb-2">
+              Récapitulatif de votre panier de commande
+            </p>
+            <hr className="border-t border-slate-200 mb-6" />
+          </>
+        )}
+
+        {(orderCommandStatus === CommandStatusEnum.validated ||
+          orderCommandStatus === CommandStatusEnum.onPayment) && (
+          <>
+            <Title
+              text="Checkout"
+              className="my-4 md:my-6"
+              icon={<CreditCard className="size-8 text-primary" />}
+            />
+            <p className="text-slate-600 mb-2">
+              Adresse de facturation et informations de paiement
+            </p>
+            <hr className="border-t border-slate-200 mb-6" />
+          </>
+        )}
+      </div>
 
       {orderItems.length > 0 ? (
-        <div className="lg:grid lg:grid-cols-2 flex flex-col items-center lg:items-start gap-6 mb-4">
-          <Outlet />
-          <aside className="flex flex-col lg:sticky lg:top-16 lg:h-fit gap-4 w-full justify-center items-center">
-            <div className="self-center w-full lg:lg:w-2/3 flex flex-col items-stretch lg:items-end gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Content Section - scrollable */}
+          <div className="lg:col-span-8 space-y-4">
+            <Outlet />
+          </div>
+
+          {/* Sidebar Section - STICKY */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-6 space-y-6">
               {orderCommandStatus === CommandStatusEnum.onPayment && (
-                <AdressResume cart={cart} user={userData} />
+                <AdressResume cart={cart} user={userData} className="w-full" />
               )}
-              <TotalResume orderItems={orderItems} promo={0} />
+
+              <TotalResume
+                orderItems={orderItems}
+                promo={0}
+                className="w-full"
+              />
+
+              {/* Action Buttons */}
               {orderCommandStatus === CommandStatusEnum.pending && (
                 <NavLink
                   to="checkout"
                   aria-label="Navigation vers la page de paiement"
                   className={cn(
                     buttonVariants({ variant: "primary" }),
-                    "py-2 px-4 cursor-pointer text-center w-full lg:max-w-[250px]"
+                    "py-2 px-4 cursor-pointer text-center w-full block"
                   )}
                 >
-                  {" "}
                   Continuer vers le paiement
                 </NavLink>
               )}
@@ -83,7 +106,7 @@ export default function CartLayout() {
                   type="submit"
                   aria-label="Navigation vers la page de paiement"
                   variant="primary"
-                  className="py-2 px-4 cursor-pointer text-center w-full lg:max-w-[250px]"
+                  className="w-full"
                 >
                   {orderCommandStatus === CommandStatusEnum.validated
                     ? "Valider ma commande"
@@ -91,13 +114,16 @@ export default function CartLayout() {
                 </Button>
               )}
             </div>
-          </aside>
+          </div>
         </div>
       ) : (
-        <p className="text-gray-500 mt-10">
-          Vous n&apos;avez aucun produit dans votre panier.
-        </p>
+        <div className="text-center py-12">
+          <ShoppingBag className="size-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500 text-lg">
+            Vous n&apos;avez aucun produit dans votre panier.
+          </p>
+        </div>
       )}
-    </main>
+    </div>
   );
 }

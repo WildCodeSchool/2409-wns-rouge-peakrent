@@ -12,6 +12,7 @@ const Table = <TData, TValue>({
   hideColumns,
   multipleSelectFunctions,
   hideExport,
+  hideViewOptions,
   devEditAllRowsFunction,
   devEditOneRowFunction,
   CardComponent,
@@ -28,6 +29,7 @@ const Table = <TData, TValue>({
         rowLink={rowLink}
         onDeleteMultipleFunction={onDeleteMultipleFunction}
         hideColumns={hideColumns}
+        hideViewOptions={hideViewOptions}
         multipleSelectFunctions={multipleSelectFunctions}
         hideExport={hideExport}
         devEditAllRowsFunction={devEditAllRowsFunction}

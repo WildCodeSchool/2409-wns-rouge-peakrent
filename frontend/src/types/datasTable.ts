@@ -43,6 +43,7 @@ export interface DataTableProps<TData, TValue> {
   hideColumns?: VisibilityState;
   multipleSelectFunctions?: SelectFunction[];
   hideExport?: boolean;
+  hideViewOptions?: boolean;
   devEditOneRowFunction?: (row: any) => void;
   devEditAllRowsFunction?: (rows: any[]) => void;
   CardComponent?: React.ComponentType<any>;
@@ -57,6 +58,7 @@ export interface DataTableToolbarProps<TData> {
   onDeleteMultipleFunction?: (ids: string[] | number[]) => Promise<boolean>;
   multipleSelectFunctions?: SelectFunction[];
   hideExport?: boolean;
+  hideViewOptions?: boolean;
   showViewMode?: boolean;
   viewMode?: "table" | "card";
   setViewMode?: React.Dispatch<React.SetStateAction<"table" | "card">>;

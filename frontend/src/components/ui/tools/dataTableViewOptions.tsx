@@ -12,11 +12,17 @@ import { Table } from "@tanstack/react-table";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
+  hideViewOptions?: boolean;
 }
 
 export function DataTableViewOptions<TData>({
   table,
+  hideViewOptions = false,
 }: DataTableViewOptionsProps<TData>) {
+  if (hideViewOptions) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

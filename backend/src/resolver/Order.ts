@@ -44,7 +44,14 @@ export class OrderResolver {
     const id = Number(_id);
     const order = await Order.findOne({
       where: { id },
-      relations: { profile: true, orderItems: true },
+      relations: {
+        profile: true,
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+      },
     });
     if (order) {
       if (
@@ -227,5 +234,28 @@ export class OrderResolver {
         });
       }
     );
+  }
+
+  @Query(() => [Order])
+  @Authorized("user", "admin")
+  async getMyOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
+    if (!context.user) {
+      throw new Error("User not authenticated");
+    }
+
+    const orders = await Order.find({
+      where: { profile: { user: { id: context.user.id } } },
+      relations: {
+        profile: true,
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+      },
+      order: { date: "DESC" },
+    });
+
+    return orders;
   }
 }

@@ -40,6 +40,7 @@ export function DataTable<TData, TValue>({
   multipleSelectFunctions,
   hideColumns,
   hideExport,
+  hideViewOptions,
   CardComponent,
   viewMode,
   setViewMode,
@@ -139,6 +140,7 @@ export function DataTable<TData, TValue>({
         onDeleteMultipleFunction={onDeleteMultipleFunction}
         multipleSelectFunctions={multipleSelectFunctions}
         hideExport={hideExport}
+        hideViewOptions={hideViewOptions}
         showViewMode={!!CardComponent}
         viewMode={viewMode}
         setViewMode={setViewMode}
