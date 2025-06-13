@@ -3,7 +3,9 @@ import AdressResume from "@/components/resume/AdressResume";
 import TotalResume from "@/components/resume/TotalResume";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { OrderItem } from "@/gql/graphql";
 import { GET_ORDER_BY_ID } from "@/GraphQL/order";
+import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
 import { gql, useQuery } from "@apollo/client";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,7 +14,6 @@ const translateStatus = (status: string) => {
   const statusTranslations = {
     pending: "En attente",
     confirmed: "Confirmée",
-    in_progress: "En cours",
     completed: "Terminée",
     cancelled: "Annulée",
     refunded: "Remboursée",
@@ -23,25 +24,21 @@ const translateStatus = (status: string) => {
 };
 
 const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    pending: { variant: "blueDark" as const },
-    confirmed: { variant: "default" as const },
-    in_progress: { variant: "default" as const },
-    completed: { variant: "green" as const },
-    cancelled: { variant: "destructive" as const },
-    refunded: { variant: "secondary" as const },
-  };
-
-  const config = statusConfig[status as keyof typeof statusConfig] || {
-    variant: "secondary" as const,
-  };
-
-  return <Badge variant={config.variant}>{translateStatus(status)}</Badge>;
+  return (
+    <Badge variant={getStatusBadgeVariant(status)}>
+      {translateStatus(status)}
+    </Badge>
+  );
 };
 
 export default function OrderDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
+
+  //TODO Remplacer par une page 404
+  if (!id || isNaN(Number(id))) {
+    return <div>Identifiant de commande manquant.</div>;
+  }
 
   const { data: orderData, loading: loadingOrder } = useQuery(
     gql(GET_ORDER_BY_ID),
@@ -83,7 +80,7 @@ export default function OrderDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-4">
           {" "}
-          {order.orderItems.map((item: any) => (
+          {order.orderItems.map((item: OrderItem) => (
             <div key={item.id} className="w-full">
               <CartItemCard item={item} />
             </div>

@@ -139,11 +139,11 @@ export default function ProfileDashboard() {
 
     switch (tabValue) {
       case "en-cours":
-        return formattedOrders.filter((order: any) =>
+        return formattedOrders.filter((order: Order) =>
           ["pending", "confirmed"].includes(order.status)
         );
       case "passees":
-        return formattedOrders.filter((order: any) =>
+        return formattedOrders.filter((order: Order) =>
           ["completed", "cancelled", "refunded"].includes(order.status)
         );
       default:

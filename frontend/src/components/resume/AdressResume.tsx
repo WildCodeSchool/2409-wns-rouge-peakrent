@@ -59,27 +59,25 @@ const AdressResume = ({
           </div>
         </div>
         {paymentMethod && (
-          <>
-            <div className="border-t border-slate-100 pt-4 mt-6">
-              <div className="flex items-start gap-3">
-                <div className="mt-1">
-                  <CreditCard className="size-4 text-green-600" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-semibold text-slate-800 text-base">
-                    Méthode de paiement
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <p className="text-slate-600 capitalize">
-                      {paymentMethod === "card"
-                        ? "Carte bancaire"
-                        : capitalize(paymentMethod)}
-                    </p>
-                  </div>
+          <div className="border-t border-slate-100 pt-4 mt-6">
+            <div className="flex items-start gap-3">
+              <div className="mt-1">
+                <CreditCard className="size-4 text-green-600" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-slate-800 text-base">
+                  Méthode de paiement
+                </h4>
+                <div className="flex items-center gap-2">
+                  <p className="text-slate-600 capitalize">
+                    {paymentMethod === "card"
+                      ? "Carte bancaire"
+                      : capitalize(paymentMethod)}
+                  </p>
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

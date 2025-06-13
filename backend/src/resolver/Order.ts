@@ -253,7 +253,7 @@ export class OrderResolver {
           },
         },
       },
-      order: { createdAt: "DESC" },
+      order: { date: "DESC" },
     });
 
     return orders;
