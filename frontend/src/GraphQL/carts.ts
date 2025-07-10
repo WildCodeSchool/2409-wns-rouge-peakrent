@@ -50,8 +50,8 @@ export const GET_CARTS = `
 `;
 
 export const GET_CART_BY_USER = `
-query GetCartForUser($withOrderItems: Boolean!) {
-  getCartForUser(withOrderItems: $withOrderItems) {
+query getCart($withOrderItems: Boolean!) {
+  getCart(withOrderItems: $withOrderItems) {
     id
     address1
     address2
@@ -84,7 +84,7 @@ query GetCartForUser($withOrderItems: Boolean!) {
 
 export const UPDATE_CART_USER = `
   mutation Mutation($data: CartUpdateInputUser!) {
-    updateCartUser(data: $data) {
+    updateCart(data: $data) {
       address1
       address2
       city
@@ -96,7 +96,7 @@ export const UPDATE_CART_USER = `
 
 export const VALIDATE_CART = `
 mutation Mutation($data: ValidateCartInput!) {
-  validateCartUser(data: $data) {
+  validateCart(data: $data) {
     reference
   }
 }

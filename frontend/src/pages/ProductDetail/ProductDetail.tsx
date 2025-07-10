@@ -107,7 +107,7 @@ const ProductDetail = () => {
             },
           },
         });
-        addOrderItem(newOrderItem.data.createOrderItemsUser);
+        addOrderItem(newOrderItem.data.createOrderItems);
       } catch (err: any) {
         const codeError = err.graphQLErrors?.[0]?.extensions?.code;
         if (codeError === "OUT_OF_STOCK") {

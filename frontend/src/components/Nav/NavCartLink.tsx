@@ -34,9 +34,9 @@ const NavCartLink = () => {
       return;
     }
 
-    if (data?.getCartForUser) {
-      setCart(data.getCartForUser);
-      setOrderItems(data.getCartForUser.orderItems);
+    if (data?.getCart) {
+      setCart(data.getCart);
+      setOrderItems(data.getCart.orderItems);
       setOrderItemsFetched(true);
       setCatFetched(true);
     }

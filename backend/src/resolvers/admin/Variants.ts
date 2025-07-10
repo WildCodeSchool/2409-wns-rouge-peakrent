@@ -4,7 +4,7 @@ import {
   VariantCreateInputAdmin,
   VariantUpdateInputAdmin,
 } from "@/entities/Variant";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import {
   Arg,
@@ -35,7 +35,7 @@ export class VariantResolverAdmin {
     });
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin])
   @Mutation(() => Variant)
   async createVariant(
     @Arg("data", () => VariantCreateInputAdmin) data: VariantCreateInputAdmin,
@@ -61,7 +61,7 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin])
   @Mutation(() => Variant, { nullable: true })
   async updateVariant(
     @Arg("id", () => ID) id: number,
@@ -92,7 +92,7 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin])
   @Mutation(() => Variant, { nullable: true })
   async deleteVariant(
     @Arg("id", () => ID) id: number,

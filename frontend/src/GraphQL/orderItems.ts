@@ -22,8 +22,8 @@ export const CREATE_ORDER_ITEM = `
 `;
 
 export const CREATE_ORDER_ITEM_USER = `
-  mutation createOrderItemsUser($data: OrderItemsCreateInputUser!) {
-    createOrderItemsUser(data: $data) {
+  mutation createOrderItems($data: OrderItemsCreateInputUser!) {
+    createOrderItems(data: $data) {
       id
       variant {
         pricePerHour
@@ -45,8 +45,8 @@ export const CREATE_ORDER_ITEM_USER = `
 `;
 
 export const DELETE_ORDER_ITEM_CART = `
-mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
-  deleteOrderItemForCartForUSer(id: $orderItemId) {
+mutation deleteOrderItemForCart($orderItemId: ID!) {
+  deleteOrderItemForCart(id: $orderItemId) {
     id
   }
 }
@@ -54,13 +54,13 @@ mutation DeleteOrderItemForCartForUSer($orderItemId: ID!) {
 
 export const DELETE_ORDER_ITEMS_CART = `
   mutation Mutation {
-    deleteOrderItemsCartForUser
+    deleteOrderItemsCart
   }
 `;
 
 export const UPDATE_ORDER_ITEM_CART = `
-mutation UpdateOrderItemUser($data: OrderItemsUpdateInputForUser!, $orderId: ID!) {
-  updateOrderItemUser(data: $data, id: $orderId) {
+mutation updateOrderItem($data: OrderItemsUpdateInputForUser!, $orderId: ID!) {
+  updateOrderItem(data: $data, id: $orderId) {
       id
       quantity
       pricePerHour

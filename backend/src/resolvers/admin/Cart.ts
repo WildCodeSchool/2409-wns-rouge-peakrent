@@ -1,12 +1,13 @@
 import { Cart, CartUpdateInputAdmin } from "@/entities/Cart";
 import { Profile } from "@/entities/Profile";
+import { RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import { Arg, Authorized, ID, Mutation, Query, Resolver } from "type-graphql";
 
 @Resolver(Cart)
 export class CartResolverAdmin {
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin])
   @Query(() => [Cart])
   async getCarts(): Promise<Cart[]> {
     return await Cart.find({
@@ -24,7 +25,7 @@ export class CartResolverAdmin {
     });
   }
 
-  @Authorized("admin")
+  @Authorized(RoleType.admin)
   @Query(() => Cart)
   async getCartByIdAdmin(
     @Arg("id", () => ID) _id: number
@@ -38,7 +39,7 @@ export class CartResolverAdmin {
     return cart;
   }
 
-  @Authorized("admin")
+  @Authorized(RoleType.admin)
   @Mutation(() => Cart)
   async updateCartAdmin(
     @Arg("id", () => ID) _id: number,

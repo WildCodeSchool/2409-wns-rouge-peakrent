@@ -7,7 +7,7 @@ import {
 } from "@/entities/Product";
 import { Variant, VariantCreateNestedInputAdmin } from "@/entities/Variant";
 import { normalizeString } from "@/helpers/helpers";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { validate, ValidationError } from "class-validator";
 import { GraphQLError } from "graphql";
 import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
@@ -15,7 +15,7 @@ import { In } from "typeorm";
 
 @Resolver(Product)
 export class ProductResolverAdmin {
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Product)
   async createProductAdmin(
     @Arg("data", () => ProductCreateInputAdmin) data: ProductCreateInputAdmin,
@@ -38,7 +38,7 @@ export class ProductResolverAdmin {
     }
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Product)
   async createProductWithVariantsAdmin(
     @Arg("productData", () => ProductCreateInputAdmin)
@@ -89,7 +89,7 @@ export class ProductResolverAdmin {
     return productWithVariants;
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Product, { nullable: true })
   async updateProductAdmin(
     @Arg("id", () => String) _id: string,
@@ -151,7 +151,7 @@ export class ProductResolverAdmin {
     return product;
   }
 
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Product, { nullable: true })
   async deleteProductAdmin(
     @Arg("id", () => ID) _id: number,

@@ -120,7 +120,7 @@ export function CartPayment() {
         country: null,
       });
 
-      const ref = response.data.validateCartUser.reference;
+      const ref = response.data.validateCart.reference;
       navigate(`/cart/recap/${ref}`);
     } catch (err) {
       console.error("Un problème est survenu : ", err);

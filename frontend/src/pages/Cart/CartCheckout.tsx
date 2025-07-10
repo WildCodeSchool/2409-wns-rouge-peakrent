@@ -111,8 +111,8 @@ export function CartCheckout() {
       });
       setCommandTunnelStatus(CommandStatusEnum.onPayment);
       cart
-        ? updateCartStore(response.data.updateCartUser)
-        : setCart(response.data.updateCartUser);
+        ? updateCartStore(response.data.updateCart)
+        : setCart(response.data.updateCart);
       navigate("/cart/checkout/payment");
     } catch (err) {
       console.error("Un problème est survenu : ", err);

@@ -77,7 +77,7 @@ export function CartPage() {
           data: { quantity: value },
         },
       });
-      updateOrderItemStore(orderId, updatedOrderItem.data.updateOrderItemUser);
+      updateOrderItemStore(orderId, updatedOrderItem.data.updateOrderItem);
     } catch (err: any) {
       handleUpdateError(err);
     }
@@ -113,7 +113,7 @@ export function CartPage() {
           data,
         },
       });
-      updateOrderItemStore(orderId, updatedOrderItem.data.updateOrderItemUser);
+      updateOrderItemStore(orderId, updatedOrderItem.data.updateOrderItem);
     } catch (err: any) {
       handleUpdateError(err);
     }

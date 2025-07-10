@@ -6,7 +6,7 @@ import {
 import { deleteImageFromUploadsDir } from "@/helpers/deleteImage";
 import { normalizeString } from "@/helpers/helpers";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -22,7 +22,7 @@ import { In } from "typeorm";
 
 @Resolver(Activity)
 export class ActivityResolverAdmin {
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity)
   @UseMiddleware(ErrorCatcher)
   async createActivityAdmin(
@@ -56,7 +56,7 @@ export class ActivityResolverAdmin {
     return newActivity;
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity, { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async updateActivityAdmin(
@@ -106,7 +106,7 @@ export class ActivityResolverAdmin {
     return activity;
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity, { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async deleteActivityAdmin(
@@ -130,7 +130,7 @@ export class ActivityResolverAdmin {
     }
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => [ID], { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async deleteActivitiesAdmin(

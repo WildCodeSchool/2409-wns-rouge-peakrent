@@ -7,7 +7,7 @@ import {
 import { OrderItem, OrderItemsFormInputAdmin } from "@/entities/OrderItem";
 import { Profile } from "@/entities/Profile";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
-import { AuthContextType, OrderItemStatusType } from "@/types";
+import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -23,7 +23,7 @@ import {
 @Resolver(Order)
 export class OrderResolverAdmin {
   @Query(() => [Order])
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async getOrdersAdmin(): Promise<Order[]> {
     const order = await Order.find({
       relations: {
@@ -40,7 +40,7 @@ export class OrderResolverAdmin {
   }
 
   @Mutation(() => Order)
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async createOrderAdmin(
     @Arg("data", () => OrderCreateInputAdmin) data: OrderCreateInputAdmin
   ): Promise<Order> {
@@ -64,7 +64,7 @@ export class OrderResolverAdmin {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async updateOrderAdmin(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderUpdateInputAdmin) data: OrderUpdateInputAdmin,
@@ -106,7 +106,7 @@ export class OrderResolverAdmin {
   }
 
   @Mutation(() => Order, { nullable: true })
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async deleteOrderAdmin(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -130,7 +130,7 @@ export class OrderResolverAdmin {
   }
 
   @Mutation(() => Order)
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async createOrderWithItemsAdmin(
     @Arg("data", () => OrderCreateInputAdmin) data: OrderCreateInputAdmin,
     @Arg("items", () => [OrderItemsFormInputAdmin])

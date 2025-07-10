@@ -1,11 +1,11 @@
 import { Order } from "@/entities/Order";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { Arg, Authorized, Ctx, ID, Query, Resolver } from "type-graphql";
 
 @Resolver(Order)
 export class OrderResolver {
   @Query(() => Order)
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   async getOrderById(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -24,7 +24,10 @@ export class OrderResolver {
     });
     if (order) {
       if (
-        !(context.user.role === "admin" || context.user.id === order.profile.id)
+        !(
+          context.user.role === RoleType.admin ||
+          context.user.id === order.profile.id
+        )
       ) {
         throw new Error("Unauthorized");
       }
@@ -34,7 +37,7 @@ export class OrderResolver {
   }
 
   @Query(() => [Order])
-  @Authorized("user", "admin")
+  @Authorized(RoleType.user, RoleType.admin)
   async getMyOrders(@Ctx() context: AuthContextType): Promise<Order[]> {
     if (!context.user) {
       throw new Error("User not authenticated");

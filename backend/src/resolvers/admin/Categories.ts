@@ -6,7 +6,7 @@ import {
 } from "@/entities/Category";
 import { normalizeString } from "@/helpers/helpers";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -22,7 +22,7 @@ import { In } from "typeorm";
 
 @Resolver(Category)
 export class CategoryResolverAdmin {
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category)
   @UseMiddleware(ErrorCatcher)
   async createCategoryAdmin(
@@ -89,7 +89,7 @@ export class CategoryResolverAdmin {
     return newCategory;
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category, { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async updateCategoryAdmin(
@@ -186,7 +186,7 @@ export class CategoryResolverAdmin {
     return category;
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category, { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async deleteCategoryAdmin(
@@ -209,7 +209,7 @@ export class CategoryResolverAdmin {
     }
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => [ID], { nullable: true })
   @UseMiddleware(ErrorCatcher)
   async deleteCategoriesAdmin(

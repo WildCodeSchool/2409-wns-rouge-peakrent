@@ -3,12 +3,13 @@ import {
   StoreCreateInputAdmin,
   StoreUpdateInputAdmin,
 } from "@/entities/Store";
+import { RoleType } from "@/types";
 import { validate } from "class-validator";
 import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
 
 @Resolver(Store)
 export class StoreResolverAdmin {
-  @Authorized("super_admin") //TODO add super admin role
+  @Authorized(RoleType.superadmin) //TODO add super admin role
   @Mutation(() => Store)
   async createStoreAdmin(
     @Arg("data", () => StoreCreateInputAdmin) data: StoreCreateInputAdmin
@@ -26,7 +27,7 @@ export class StoreResolverAdmin {
     }
   }
 
-  @Authorized("admin")
+  @Authorized([RoleType.admin])
   @Mutation(() => Store)
   async updateStore(
     @Arg("id", () => ID) id: number,
@@ -48,7 +49,7 @@ export class StoreResolverAdmin {
     }
   }
 
-  @Authorized("admin")
+  @Authorized([RoleType.admin])
   @Mutation(() => Store, { nullable: true })
   async deleteStore(@Arg("id", () => ID) id: number): Promise<Store | null> {
     const store = await Store.findOneBy({ id });

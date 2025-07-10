@@ -1,10 +1,11 @@
 import { Profile } from "@/entities/Profile";
+import { RoleType } from "@/types";
 import { Arg, Authorized, ID, Query, Resolver } from "type-graphql";
 import { ILike } from "typeorm";
 
 @Resolver(Profile)
 export class ProfileResolverAdmin {
-  @Authorized(["admin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Query(() => [Profile], { nullable: true })
   async getProfilesAdmin(
     @Arg("search", () => String, { nullable: true }) search?: string
@@ -16,7 +17,7 @@ export class ProfileResolverAdmin {
     return await Profile.find({ where });
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Query(() => Profile, { nullable: true })
   async getProfileByUserId(
     @Arg("userId", () => ID) userId: number

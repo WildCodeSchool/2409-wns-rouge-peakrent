@@ -4,7 +4,7 @@ import { OrderItem } from "@/entities/OrderItem";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
 import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
-import { AuthContextType, OrderStatusType } from "@/types";
+import { AuthContextType, OrderStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
@@ -15,7 +15,7 @@ export class CartResolver {
   // Ajouter la création de Cart directement à la création d'un user plutôt qu'à l'ajout des orderItms dans le panier ?
 
   @Query(() => Cart, { nullable: true })
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   async getCart(
     @Ctx() context: AuthContextType,
     @Arg("withOrderItems", () => Boolean, { defaultValue: false })
@@ -41,7 +41,7 @@ export class CartResolver {
     return cart;
   }
 
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   @Mutation(() => Cart, { nullable: true })
   async updateCart(
     @Arg("data", () => CartUpdateInput) data: CartUpdateInput,
@@ -74,7 +74,7 @@ export class CartResolver {
   }
 
   // TODO A supprimer ? on peut supprimer les orderItems à 'intérieur mais pas d'intérêt à supprimer le cart
-  // @Authorized("admin", "user")
+  // @Authorized(RoleType.admin, RoleType.user)
   // @Mutation(() => Cart, { nullable: true })
   // async deleteCart(
   //   @Arg("id", () => ID) _id: number,
@@ -98,8 +98,7 @@ export class CartResolver {
   // }
 
   // a compléter ave Stripe
-  // TODO dans authorized mettre enum à la place (ex roletype.admin)
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   @Mutation(() => Order, { nullable: true })
   async validateCart(
     @Arg("data", () => ValidateCartInput) data: ValidateCartInput,

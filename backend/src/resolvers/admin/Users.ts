@@ -14,7 +14,7 @@ import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 
 @Resolver(User)
 export class UserResolverAdmin {
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Profile)
   async createUserByAdmin(
     @Arg("data", () => CreateUserInputAdmin) data: CreateUserInputAdmin,
@@ -77,7 +77,7 @@ export class UserResolverAdmin {
     }
   }
 
-  @Authorized(["admin", "superadmin"])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Profile)
   async updateUserByAdmin(
     @Arg("id", () => ID) id: number,

@@ -7,7 +7,7 @@ import {
 } from "@/entities/OrderItem";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
-import { AuthContextType } from "@/types";
+import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -25,7 +25,7 @@ import { IsNull, Not } from "typeorm";
 @Resolver(OrderItem)
 export class OrderItemsResolver {
   @Query(() => OrderItem)
-  @Authorized("user", "admin")
+  @Authorized(RoleType.user, RoleType.admin)
   async getOrderItemsById(
     @Arg("id", () => ID) _id: number
   ): Promise<OrderItem | null> {
@@ -39,7 +39,7 @@ export class OrderItemsResolver {
   }
 
   @Query(() => [OrderItem])
-  @Authorized("user", "admin")
+  @Authorized(RoleType.user, RoleType.admin)
   async getOrderItemsByCartId(
     @Arg("id", () => Int) _id: number,
     @Ctx() context: AuthContextType
@@ -55,7 +55,7 @@ export class OrderItemsResolver {
     });
     if (
       !(
-        context.user.role === "admin" ||
+        context.user.role === RoleType.admin ||
         context.user.id === orderItem[0].cart.profile.id
       )
     ) {
@@ -65,7 +65,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem)
-  @Authorized("user", "admin")
+  @Authorized(RoleType.user, RoleType.admin)
   async createOrderItems(
     @Arg("data", () => OrderItemsCreateInput)
     data: OrderItemsCreateInput,
@@ -191,7 +191,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized("user", "admin")
+  @Authorized(RoleType.user, RoleType.admin)
   async updateOrderItem(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInput)
@@ -263,7 +263,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   async deleteOrderItemForCart(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -287,7 +287,7 @@ export class OrderItemsResolver {
   }
 
   @Mutation(() => [ID], { nullable: true })
-  @Authorized("admin", "user")
+  @Authorized(RoleType.admin, RoleType.user)
   async deleteOrderItemsCart(
     @Ctx() context: AuthContextType
   ): Promise<number[] | null> {

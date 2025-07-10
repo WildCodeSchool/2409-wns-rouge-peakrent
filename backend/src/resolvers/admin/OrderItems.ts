@@ -7,7 +7,7 @@ import {
 } from "@/entities/OrderItem";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
-import { AuthContextType, OrderItemStatusType } from "@/types";
+import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -23,7 +23,7 @@ import {
 @Resolver(OrderItem)
 export class OrderItemsResolverAdmin {
   @Query(() => [OrderItem])
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async getOrderItems(): Promise<OrderItem[]> {
     const orderItems = await OrderItem.find({
       relations: { cart: true, variant: true, order: true },
@@ -32,7 +32,7 @@ export class OrderItemsResolverAdmin {
   }
 
   @Query(() => [OrderItem])
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async getOrderItemsByOrderIdAdmin(
     @Arg("id", () => ID) _id: number,
     @Ctx() context: AuthContextType
@@ -59,7 +59,7 @@ export class OrderItemsResolverAdmin {
   }
 
   @Mutation(() => OrderItem)
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async createOrderItemsAdmin(
     @Arg("data", () => OrderItemsCreateInputAdmin)
     data: OrderItemsCreateInputAdmin
@@ -154,7 +154,7 @@ export class OrderItemsResolverAdmin {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async updateOrderItemAdmin(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => OrderItemsUpdateInputAdmin)
@@ -221,7 +221,7 @@ export class OrderItemsResolverAdmin {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
-  @Authorized("admin")
+  @Authorized([RoleType.admin, RoleType.superadmin])
   async cancelOrderItemForOrderAdmin(
     @Arg("orderItemId", () => ID) orderItemId: number,
     @Arg("orderId", () => ID) orderId: number
