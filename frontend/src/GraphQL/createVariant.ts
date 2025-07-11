@@ -5,11 +5,3 @@ mutation CreateVariant($data: VariantCreateInput!) {
   }
 }
 `;
-// {
-//   "data": {
-//     "productId": 1,
-//     "color": "gris",
-//     "size": "XL",
-//     "pricePerHour": 10000
-//   }
-// }

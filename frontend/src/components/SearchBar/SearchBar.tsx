@@ -5,7 +5,7 @@ import { debounce } from "lodash";
 import { useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { Link } from "react-router-dom";
-import { GET_PRODUCTS_AND_CATEGORIES } from "../../GraphQL/search";
+import { GET_PRODUCTS_AND_CATEGORIES } from "../../graphQL/search";
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");

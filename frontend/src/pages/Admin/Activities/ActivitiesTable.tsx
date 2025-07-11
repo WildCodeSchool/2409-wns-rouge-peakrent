@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import {
   DELETE_MULTIPLE_ACTIVITIES,
   GET_ACTIVITIES,
-} from "@/GraphQL/activities";
+} from "@/graphQL/activities";
 import {
   deleteMultipleActivities,
   useActivityStore,

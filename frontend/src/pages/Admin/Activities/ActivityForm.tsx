@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
 import { Activity as ActivityType } from "@/gql/graphql";
-import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/GraphQL/activities";
+import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/graphQL/activities";
 import { activitySchema, ActivitySchemaType } from "@/schemas/activitySchemas";
 import {
   addActivity,
@@ -46,6 +46,7 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
     defaultValues,
   });
 
+  // TODO create hook for this
   useEffect(() => {
     const fetchImage = async () => {
       if (datas?.urlImage) {

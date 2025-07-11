@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_ORDERS_ADMIN } from "@/GraphQL/order";
+import { GET_ORDERS_ADMIN } from "@/graphQL/order";
 import { useOrderStore } from "@/stores/admin/order.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";

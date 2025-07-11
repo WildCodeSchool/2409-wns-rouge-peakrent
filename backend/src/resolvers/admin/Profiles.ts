@@ -25,3 +25,6 @@ export class ProfileResolverAdmin {
     return await Profile.findOne({ where: { id: userId } });
   }
 }
+
+// TODO
+// Ajouter un soft delete pour profile

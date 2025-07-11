@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/context/modalProvider";
-import { CREATE_CATEGORY, UPDATE_CATEGORY } from "@/GraphQL/categories";
+import { CREATE_CATEGORY, UPDATE_CATEGORY } from "@/graphQL/categories";
 import { categoryWithChildrenSchema } from "@/schemas/categorySchemas";
 import {
   addCategory,

@@ -5,7 +5,7 @@ import {
   DELETE_ORDER_ITEM_CART,
   DELETE_ORDER_ITEMS_CART,
   UPDATE_ORDER_ITEM_CART,
-} from "@/GraphQL/orderItems";
+} from "@/graphQL/orderItems";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation } from "@apollo/client";

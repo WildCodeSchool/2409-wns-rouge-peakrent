@@ -1,18 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { activitiesSectionSpans } from "../homeDatas";
 
 export function ActivitiesSectionSkeleton() {
   const [windowWidth, setWindowWidth] = useState(0);
 
-  const spans = [
-    "col-start-2",
-    "col-start-4",
-    "col-start-6",
-    "col-start-8",
-    "col-start-10",
-  ];
-
+  // TODO create hook for this
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     handleResize();
@@ -48,7 +42,7 @@ export function ActivitiesSectionSkeleton() {
                 key={index}
                 className={cn(
                   "aspect-square relative overflow-hidden rounded-full border col-span-2",
-                  spans[index]
+                  activitiesSectionSpans[index]
                 )}
               >
                 <Skeleton className="w-full h-full" />

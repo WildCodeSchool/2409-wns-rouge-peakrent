@@ -1,7 +1,7 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
 import { Activity as ActivityType } from "@/gql/graphql";
-import { DELETE_MULTIPLE_ACTIVITIES } from "@/GraphQL/activities";
+import { DELETE_MULTIPLE_ACTIVITIES } from "@/graphQL/activities";
 import { deleteActivity } from "@/stores/admin/activity.store";
 import { gql, useMutation } from "@apollo/client";
 import { Row } from "@tanstack/react-table";

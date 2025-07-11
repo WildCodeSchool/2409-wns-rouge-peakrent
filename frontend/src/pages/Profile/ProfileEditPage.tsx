@@ -1,7 +1,7 @@
-import { UPDATE_USER_PROFILE } from "@/GraphQL/profiles";
-import { WHOAMI } from "@/GraphQL/whoami";
 import EditProfile from "@/components/forms/ProfileEditForm";
 import { useUser } from "@/context/userProvider";
+import { UPDATE_USER_PROFILE } from "@/graphQL/profiles";
+import { WHOAMI } from "@/graphQL/whoami";
 import { gql, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 

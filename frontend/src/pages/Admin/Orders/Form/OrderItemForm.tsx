@@ -17,7 +17,7 @@ import type {
   Product as ProductType,
   Variant as VariantType,
 } from "@/gql/graphql";
-import { GET_PRODUCT_BY_VARIANT_ID, GET_PRODUCTS } from "@/GraphQL/products";
+import { GET_PRODUCT_BY_VARIANT_ID, GET_PRODUCTS } from "@/graphQL/products";
 import { cn } from "@/lib/utils";
 import {
   generateOrderItemSchema,

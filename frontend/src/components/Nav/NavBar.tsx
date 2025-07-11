@@ -1,5 +1,5 @@
 import { useUser } from "@/context/userProvider";
-import { SIGNOUT } from "@/GraphQL/signout";
+import { SIGNOUT } from "@/graphQL/signout";
 import { cn } from "@/lib/utils";
 import { gql, useMutation } from "@apollo/client";
 import {
@@ -11,8 +11,8 @@ import {
 import { ShieldUser } from "lucide-react";
 import { CiHome, CiLogin, CiUser } from "react-icons/ci";
 import { Link, NavLink } from "react-router-dom";
-import { WHOAMI } from "../../GraphQL/whoami";
-import SearchBar from "../SearchBar/SearchBar";
+import { WHOAMI } from "../../graphQL/whoami";
+import SearchBar from "../searchBar/SearchBar";
 import { buttonVariants } from "../ui/button";
 import NavCartLink from "./NavCartLink";
 

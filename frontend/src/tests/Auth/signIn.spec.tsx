@@ -5,8 +5,8 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SIGNIN } from "../../GraphQL/signin";
-import { WHOAMI } from "../../GraphQL/whoami";
+import { SIGNIN } from "../../graphQL/signin";
+import { WHOAMI } from "../../graphQL/whoami";
 import { SignInPage } from "../../pages/Auth/SignIn";
 
 vi.mock("sonner", () => ({

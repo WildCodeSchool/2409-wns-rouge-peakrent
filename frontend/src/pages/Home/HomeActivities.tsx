@@ -1,11 +1,11 @@
 import MehSection from "@/components/section/MehSection";
-import { GET_ACTIVITIES } from "@/GraphQL/activities";
+import { GET_ACTIVITIES } from "@/graphQL/activities";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { ActivitiesBentoGrid } from "./ActivitiesBentoGrid";
 import { ActivitiesSection } from "./ActivitiesSection";
-import { ActivitiesBentoGridSkeleton } from "./Skeleton/ActivitiesBentoGridSkeleton";
-import { ActivitiesSectionSkeleton } from "./Skeleton/ActivitiesSectionSkeleton";
+import { ActivitiesBentoGridSkeleton } from "./skeleton/ActivitiesBentoGridSkeleton";
+import { ActivitiesSectionSkeleton } from "./skeleton/ActivitiesSectionSkeleton";
 
 export function HomeActivities() {
   const [showBentoGrid, setShowBentoGrid] = useState(window.innerWidth >= 768);
@@ -19,6 +19,7 @@ export function HomeActivities() {
     },
   });
 
+  // TODO create hook for this
   useEffect(() => {
     const handleResize = () => {
       setShowBentoGrid(window.innerWidth >= 768);

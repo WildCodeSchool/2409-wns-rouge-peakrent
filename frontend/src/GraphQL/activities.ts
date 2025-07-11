@@ -56,14 +56,6 @@ export const UPDATE_ACTIVITY = `
   }
 `;
 
-export const DELETE_ACTIVITY = `
-  mutation DeleteActivityAdmin($id: ID!) {
-    deleteActivityAdmin(id: $id) {
-      id
-    }
-  }
-`;
-
 export const DELETE_MULTIPLE_ACTIVITIES = `
   mutation DeleteMultipleActivitiesAdmin($ids: [ID!]!) {
     deleteActivitiesAdmin(ids: $ids)

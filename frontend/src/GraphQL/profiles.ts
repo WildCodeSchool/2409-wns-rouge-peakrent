@@ -52,13 +52,16 @@ export const UPDATE_PROFILE = `
   }
 `;
 
-export const DELETE_PROFILE = `
-  mutation DeleteProfile($id: ID!) {
-    deleteProfile(id: $id) {
-      id
-    }
-  }
-`;
+// TODO
+// Ajouter un delete pour profile, à ajouter à l'admin et page profilde de l'utilisateur
+
+// export const DELETE_PROFILE = `
+//   mutation DeleteProfile($id: ID!) {
+//     deleteProfile(id: $id) {
+//       id
+//     }
+//   }
+// `;
 
 // export const DELETE_MULTIPLE_USERS = `
 //   mutation DeleteMultipleProfiles($ids: [ID!]!) {

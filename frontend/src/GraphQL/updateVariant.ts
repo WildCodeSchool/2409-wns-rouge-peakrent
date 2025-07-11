@@ -5,11 +5,3 @@ mutation UpdateVariant($data: VariantUpdateInput!, $updateVariantId: ID!) {
   }
 }
 `;
-// {  "data": {
-//   "size": "L",
-//   "color": "black",
-//   "pricePerHour": 100000,
-//   "productId": 1
-// },
-// "updateVariantId": "1"
-// }

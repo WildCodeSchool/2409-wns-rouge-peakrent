@@ -1,6 +1,6 @@
 import { Profile, User } from "@/gql/graphql";
-import { GET_MY_PROFILE } from "@/GraphQL/profiles";
-import { WHOAMI } from "@/GraphQL/whoami";
+import { GET_MY_PROFILE } from "@/graphQL/profiles";
+import { WHOAMI } from "@/graphQL/whoami";
 import { gql, useQuery } from "@apollo/client";
 import { createContext, ReactNode, useContext } from "react";
 

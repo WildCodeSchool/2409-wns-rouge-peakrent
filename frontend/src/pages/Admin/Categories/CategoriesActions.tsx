@@ -1,7 +1,7 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
 import { Category as CategoryType } from "@/gql/graphql";
-import { DELETE_MULTIPLE_CATEGORIES } from "@/GraphQL/categories";
+import { DELETE_MULTIPLE_CATEGORIES } from "@/graphQL/categories";
 import { deleteCategory } from "@/stores/admin/category.store";
 import { gql, useMutation } from "@apollo/client";
 import { Row } from "@tanstack/react-table";

@@ -113,3 +113,35 @@ export const GET_PRODUCT_BY_VARIANT_ID = `
     }
   }
 `;
+
+export const CREATE_PRODUCT = `
+mutation CreateProduct($data: ProductCreateInput!) {
+  createProduct(data: $data) {
+    id
+    name
+  }
+}
+`;
+
+export const CREATE_PRODUCT_WITH_VARIANT = `
+mutation CreateProductWithVariants($productData: ProductCreateInput!, $variants: [VariantCreateNestedInput!]) {
+  createProductWithVariants(productData: $productData, variants: $variants) {
+    id
+    name
+    variants {
+      id
+      color
+      size
+    }
+  }
+}
+`;
+
+export const UPDATE_PRODUCT = `
+mutation UpdateProduct($updateProductId: String!, $data: ProductUpdateInput!) {
+  updateProduct(id: $updateProductId, data: $data) {
+    id
+    name
+  }
+}
+`;

@@ -9,15 +9,13 @@ import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
-import { CREATE_PROFILE, UPDATE_PROFILE } from "@/GraphQL/profiles";
+import { Profile } from "@/gql/graphql";
+import { CREATE_PROFILE, UPDATE_PROFILE } from "@/graphQL/profiles";
+import { generateUserFormSchema, UserFormSchema } from "@/schemas/userSchemas";
+
 import { addUser, updateUser } from "@/stores/admin/user.store";
 import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";
 import { gql, useMutation } from "@apollo/client";
-import {
-  generateUserFormSchema,
-  UserFormSchema,
-} from "./generateUserFormSchema";
-import { Profile } from "@/gql/graphql";
 
 export function UserForm({ datas }: { datas?: Profile }) {
   const { closeModal } = useModal();

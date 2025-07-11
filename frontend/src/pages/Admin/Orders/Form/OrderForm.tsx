@@ -17,8 +17,8 @@ import { Form } from "@/components/ui/form";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Order as OrderType, Profile as ProfileType } from "@/gql/graphql";
-import { CREATE_ORDER_WITH_ITEMS } from "@/GraphQL/order";
-import { GET_PROFILE_BY_USER_ID, GET_PROFILES } from "@/GraphQL/profiles";
+import { CREATE_ORDER_WITH_ITEMS } from "@/graphQL/order";
+import { GET_PROFILE_BY_USER_ID, GET_PROFILES } from "@/graphQL/profiles";
 import { cn } from "@/lib/utils";
 import {
   generateOrderSchema,

@@ -1,4 +1,4 @@
-import { GET_CART_BY_USER } from "@/GraphQL/carts";
+import { GET_CART_BY_USER } from "@/graphQL/carts";
 import { cn } from "@/lib/utils";
 import { useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";

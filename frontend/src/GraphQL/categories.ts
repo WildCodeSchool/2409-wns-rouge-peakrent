@@ -85,14 +85,6 @@ export const UPDATE_CATEGORY = `
   }
 `;
 
-export const DELETE_CATEGORY = `
-  mutation DeleteCategoryAdmin($id: ID!) {
-    deleteCategoryAdmin(id: $id) {
-      id
-    }
-  }
-`;
-
 export const DELETE_MULTIPLE_CATEGORIES = `
   mutation DeleteMultipleCategoriesAdmin($ids: [ID!]!) {
     deleteCategoriesAdmin(ids: $ids)

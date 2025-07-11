@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
 import { useModal } from "@/context/modalProvider";
-import { GET_CARTS } from "@/GraphQL/carts";
+import { GET_CARTS } from "@/graphQL/carts";
 import { useCartStore } from "@/stores/admin/cart.store";
 import { ColumnConfig, SelectFunction } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";

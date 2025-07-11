@@ -1,4 +1,4 @@
-import { WHOAMI } from "@/GraphQL/whoami";
+import { WHOAMI } from "@/graphQL/whoami";
 import { gql, useQuery } from "@apollo/client";
 import {
   CiBoxList,

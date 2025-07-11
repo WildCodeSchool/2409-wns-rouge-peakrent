@@ -4,7 +4,7 @@ import TotalResume from "@/components/resume/TotalResume";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OrderItem } from "@/gql/graphql";
-import { GET_ORDER_BY_ID } from "@/GraphQL/order";
+import { GET_ORDER_BY_ID } from "@/graphQL/order";
 import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
 import { gql, useQuery } from "@apollo/client";
 import { ArrowLeft } from "lucide-react";

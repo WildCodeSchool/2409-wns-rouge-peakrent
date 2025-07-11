@@ -175,3 +175,20 @@ export const rentalProcessSteps = [
     description: "Retournez les équipements dans le magasin de votre choix.",
   },
 ];
+
+export const bentoGridSpans = [
+  "row-span-2 col-span-3",
+  "col-span-3",
+  "col-span-2",
+  "col-span-2",
+  "col-span-2",
+  "col-span-2",
+  "col-span-3",
+];
+
+export const activitiesSectionSpans = [
+  "col-start-2",
+  "col-start-4",
+  "col-start-6",
+  "col-start-8",
+];

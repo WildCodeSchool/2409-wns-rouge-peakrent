@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_PROFILES } from "@/GraphQL/profiles";
+import { GET_PROFILES } from "@/graphQL/profiles";
 import { useUserStore } from "@/stores/admin/user.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";

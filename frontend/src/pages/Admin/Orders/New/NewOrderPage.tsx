@@ -1,6 +1,6 @@
-import { OrderForm } from "../Form/OrderForm";
-import { OrderItemForm } from "../Form/OrderItemForm";
-import OrderItemsTable from "../Table/OrderItemsTable";
+import { OrderForm } from "../form/OrderForm";
+import { OrderItemForm } from "../form/OrderItemForm";
+import OrderItemsTable from "../orderItemsTable/OrderItemsTable";
 
 export function NewOrderPage() {
   return (

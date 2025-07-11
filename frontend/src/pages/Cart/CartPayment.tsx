@@ -1,9 +1,8 @@
 import { StringInput } from "@/components/forms/formField";
 import { Button } from "@/components/ui/button";
-import { VALIDATE_CART } from "@/GraphQL/carts";
-import { GET_STORE_BY_ID } from "@/GraphQL/stores";
-import { nameRegex, numberRegex } from "@/schemas/regex";
-import { createStringSchema } from "@/schemas/utils";
+import { VALIDATE_CART } from "@/graphQL/carts";
+import { GET_STORE_BY_ID } from "@/graphQL/stores";
+import { cartPaymentSchemaBase } from "@/schemas/cartSchemas";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -41,61 +40,16 @@ export function CartPayment() {
     setCommandTunnelStatus(CommandStatusEnum.onPayment);
   }, []);
 
-  const baseSchema = z.object({
-    cardName: createStringSchema({
-      minLength: 2,
-      minLengthError: "Le nom doit contenir au moins 2 caractères.",
-      maxLength: 50,
-      maxLengthError: "Le nom doit contenir au plus 50 caractères.",
-      regex: nameRegex,
-      regexError: "Le format du nom est invalide.",
-      required: isRequired,
-      requiredError: "Le nom est requis.",
-    }),
-    cardNumber: createStringSchema({
-      minLength: 13,
-      minLengthError:
-        "Le numéro de carte bancaire doit contenir au minimum 13 chiffres.",
-      maxLength: 19,
-      maxLengthError:
-        "Le numéro de carte bancaire ne peut pas dépasser 19 chiffres.",
-      regex: numberRegex,
-      regexError: "Le numéro de carte bancaire est invalide.",
-      required: isRequired,
-      requiredError: "Le numéro de carte bancaire est requis.",
-    }),
-    expirationDate: createStringSchema({
-      minLength: 5,
-      minLengthError:
-        "La date d'expiration doit contenir au minimum 5 caractères (exemple : 05/25).",
-      maxLength: 7,
-      maxLengthError: "La date d'expiration ne peut pas dépasser 7 caractères.",
-      regex: /^(0[1-9]|1[0-2])\/?([0-9]{2}|[0-9]{4})$/,
-      regexError:
-        "Le format de la date d'expiration est invalide (exemple : 05/25).",
-      required: isRequired,
-      requiredError: "La date d'expiration est requise.",
-    }),
-    cvv: createStringSchema({
-      minLength: 3,
-      minLengthError: "Le code de sécurité doit contenir au moins 3 chiffres.",
-      maxLength: 4,
-      maxLengthError: "Le code de sécurité ne peut pas dépasser 4 chiffres.",
-      regex: numberRegex,
-      regexError: "Le code de sécurité est invalide.",
-      required: isRequired,
-      requiredError: "Le code de sécurité (CVV) est requis.",
-    }),
-  });
+  const baseSchema = cartPaymentSchemaBase(isRequired);
 
   const cartPaymentSchema = isRequired ? baseSchema : baseSchema.partial();
 
-  type cartPaymentValues = z.infer<typeof cartPaymentSchema>;
-  const form = useForm<cartPaymentValues>({
+  type CartPaymentType = z.infer<typeof cartPaymentSchema>;
+  const form = useForm<CartPaymentType>({
     resolver: zodResolver(cartPaymentSchema),
   });
 
-  const onSubmit = async (data: cartPaymentValues) => {
+  const onSubmit = async (data: CartPaymentType) => {
     if (!cart?.address1) {
       toast.error("L'adresse est requise pour valider votre commande.");
       return navigate("/cart/checkout");

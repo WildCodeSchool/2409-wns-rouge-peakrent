@@ -3,17 +3,19 @@ import { ProductCardSkeleton } from "@/components/cards/ProductCardSkeleton";
 import MehSection from "@/components/section/MehSection";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
-import { ProductType } from "@/types/types";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+// import { ProductType } from "@/types/types";
+import { Product as ProductType } from "@/gql/graphql";
 import { gql, useQuery } from "@apollo/client";
 import { Meh } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { forwardProducts } from "./fakeData";
+import { forwardProducts } from "./homeDatas";
 
 export function ForwardProducts() {
   const [windowWidth, setWindowWidth] = useState(0);
 
+  // TODO create hook for this
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     handleResize();
