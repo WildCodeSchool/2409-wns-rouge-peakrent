@@ -1,4 +1,5 @@
 import { Store } from "@/entities/Store";
+import { RoleType } from "@/types";
 import { mutationCreateStore } from "../api/createStore";
 import { assert, TestArgsType } from "../index.spec";
 
@@ -77,7 +78,7 @@ export function StoresResolverTest(testArgs: TestArgsType) {
       },
       {
         contextValue: {
-          user: { user: testArgs.data.user, role: "super_admin" },
+          user: { user: testArgs.data.user, role: RoleType.superadmin },
         },
       }
     );

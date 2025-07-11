@@ -1,6 +1,6 @@
 export const CREATE_ORDER = `
-  mutation Mutation($data: OrderCreateInput!) {
-    createOrder(data: $data) {
+  mutation Mutation($data: OrderCreateInputAdmin!) {
+    createOrderAdmin(data: $data) {
       address1
       address2
       city

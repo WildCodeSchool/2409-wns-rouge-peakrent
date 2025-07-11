@@ -5,7 +5,7 @@ import { getSchema } from "@/schema";
 import { RoleType } from "@/types";
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
-import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
+import { CREATE_USER } from "../../frontend/src/graphQL/user";
 import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { OrderResolverTest } from "./resolvers/OrderResolver";
 import { StoresResolverTest } from "./resolvers/StoresResolver";

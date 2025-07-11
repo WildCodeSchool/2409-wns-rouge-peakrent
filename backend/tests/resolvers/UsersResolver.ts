@@ -1,5 +1,5 @@
-import { CREATE_USER } from "../../../frontend/src/GraphQL/createUser";
 import { SIGNIN } from "../../../frontend/src/GraphQL/signin";
+import { CREATE_USER } from "../../../frontend/src/graphQL/user";
 import { WHOAMI } from "../../../frontend/src/GraphQL/whoami";
 import { Profile } from "../../src/entities/Profile";
 import { User } from "../../src/entities/User";

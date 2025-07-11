@@ -1,4 +1,4 @@
-import { CREATE_USER } from "../../../frontend/src/GraphQL/createUser";
+import { CREATE_USER } from "../../../frontend/src/graphQL/user";
 import { User } from "../../src/entities/User";
 import { assert, TestArgsType } from "../index.spec";
 import { findErrorWithCode } from "../utils/findErrorWithCode";
