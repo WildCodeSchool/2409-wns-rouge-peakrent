@@ -20,6 +20,7 @@ import { OrderItemsResolverAdmin } from "./resolvers/admin/OrderItems";
 import { ProductResolverAdmin } from "./resolvers/admin/Products";
 import { ProfileResolverAdmin } from "./resolvers/admin/Profiles";
 import { StoreResolverAdmin } from "./resolvers/admin/Stores";
+import { StoreVariantResolverAdmin } from "./resolvers/admin/StoresVariants";
 import { UserResolverAdmin } from "./resolvers/admin/Users";
 
 export async function getSchema() {
@@ -34,6 +35,7 @@ export async function getSchema() {
     ProfileResolverAdmin,
     StoreResolverAdmin,
     UserResolverAdmin,
+    StoreVariantResolverAdmin,
   ];
 
   const schema = await buildSchema({

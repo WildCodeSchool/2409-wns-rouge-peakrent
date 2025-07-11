@@ -83,7 +83,7 @@ query getCart($withOrderItems: Boolean!) {
 `;
 
 export const UPDATE_CART_USER = `
-  mutation Mutation($data: CartUpdateInputUser!) {
+  mutation Mutation($data: CartUpdateInput!) {
     updateCart(data: $data) {
       address1
       address2

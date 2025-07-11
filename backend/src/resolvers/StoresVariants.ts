@@ -1,10 +1,6 @@
-import {
-  StoreVariant,
-  StoreVariantCreateInputAdmin,
-  StoreVariantUpdateInputAdmin,
-} from "@/entities/StoreVariant";
+import { StoreVariant } from "@/entities/StoreVariant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Query, Resolver } from "type-graphql";
 
 @Resolver()
 export class StoreVariantResolver {
@@ -19,44 +15,6 @@ export class StoreVariantResolver {
     @Arg("variantId") variantId: number
   ): Promise<StoreVariant | null> {
     return await StoreVariant.findOneBy({ storeId, variantId });
-  }
-
-  @Mutation(() => StoreVariant)
-  async createStoreVariant(
-    @Arg("data") data: StoreVariantCreateInputAdmin
-  ): Promise<StoreVariant> {
-    const newStoreVariant = new StoreVariant();
-    Object.assign(newStoreVariant, data);
-    await newStoreVariant.save();
-    return newStoreVariant;
-  }
-
-  @Mutation(() => StoreVariant)
-  async updateStoreVariant(
-    @Arg("data") data: StoreVariantUpdateInputAdmin
-  ): Promise<StoreVariant> {
-    const storeVariant = await StoreVariant.findOneBy({
-      storeId: data.storeId,
-      variantId: data.variantId,
-    });
-
-    if (!storeVariant) throw new Error("StoreVariant not found");
-
-    Object.assign(storeVariant, data);
-    await storeVariant.save();
-    return storeVariant;
-  }
-
-  @Mutation(() => Boolean)
-  async deleteStoreVariant(
-    @Arg("storeId") storeId: number,
-    @Arg("variantId") variantId: number
-  ): Promise<boolean> {
-    const storeVariant = await StoreVariant.findOneBy({ storeId, variantId });
-    if (!storeVariant) return false;
-
-    await storeVariant.remove();
-    return true;
   }
 
   @Query(() => Number)

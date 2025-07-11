@@ -22,7 +22,7 @@ export const CREATE_ORDER_ITEM = `
 `;
 
 export const CREATE_ORDER_ITEM_USER = `
-  mutation createOrderItems($data: OrderItemsCreateInputUser!) {
+  mutation createOrderItems($data: OrderItemsCreateInput!) {
     createOrderItems(data: $data) {
       id
       variant {
@@ -59,7 +59,7 @@ export const DELETE_ORDER_ITEMS_CART = `
 `;
 
 export const UPDATE_ORDER_ITEM_CART = `
-mutation updateOrderItem($data: OrderItemsUpdateInputForUser!, $orderId: ID!) {
+mutation updateOrderItem($data: OrderItemsUpdateInput!, $orderId: ID!) {
   updateOrderItem(data: $data, id: $orderId) {
       id
       quantity
