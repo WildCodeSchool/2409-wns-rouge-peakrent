@@ -37,7 +37,7 @@ export type Activity = {
   variant: Scalars['String']['output'];
 };
 
-export type ActivityCreateInput = {
+export type ActivityCreateInputAdmin = {
   name: Scalars['String']['input'];
   urlImage: Scalars['String']['input'];
   variant: Scalars['String']['input'];
@@ -50,25 +50,10 @@ export type ActivityPaginationInput = {
   sort?: Scalars['String']['input'];
 };
 
-export type ActivityUpdateInput = {
+export type ActivityUpdateInputAdmin = {
   name: Scalars['String']['input'];
   urlImage: Scalars['String']['input'];
   variant: Scalars['String']['input'];
-};
-
-export type AdminCreateUserInput = {
-  email: Scalars['String']['input'];
-  firstname: Scalars['String']['input'];
-  lastname: Scalars['String']['input'];
-  password: Scalars['String']['input'];
-  role?: InputMaybe<RoleType>;
-};
-
-export type AdminUpdateUserInput = {
-  email: Scalars['String']['input'];
-  firstname: Scalars['String']['input'];
-  lastname: Scalars['String']['input'];
-  role: RoleType;
 };
 
 export type Cart = {
@@ -90,15 +75,15 @@ export type CartUpdateInput = {
   address2?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
-  profileId?: InputMaybe<Scalars['Int']['input']>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type CartUpdateInputUser = {
+export type CartUpdateInputAdmin = {
   address1?: InputMaybe<Scalars['String']['input']>;
   address2?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
+  profileId?: InputMaybe<Scalars['Int']['input']>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -122,8 +107,8 @@ export type Category = {
   variant: Scalars['String']['output'];
 };
 
-export type CategoryCreateInput = {
-  childrens?: InputMaybe<Array<CategoryCreateInput>>;
+export type CategoryCreateInputAdmin = {
+  childrens?: InputMaybe<Array<CategoryCreateInputAdmin>>;
   id?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
   variant: Scalars['String']['input'];
@@ -137,11 +122,19 @@ export type CategoryPaginationInput = {
   sort?: Scalars['String']['input'];
 };
 
-export type CategoryUpdateInput = {
-  childrens?: InputMaybe<Array<CategoryCreateInput>>;
+export type CategoryUpdateInputAdmin = {
+  childrens?: InputMaybe<Array<CategoryCreateInputAdmin>>;
   id?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
   variant: Scalars['String']['input'];
+};
+
+export type CreateUserInputAdmin = {
+  email: Scalars['String']['input'];
+  firstname: Scalars['String']['input'];
+  lastname: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  role?: InputMaybe<RoleType>;
 };
 
 export type DateRangeInput = {
@@ -155,67 +148,65 @@ export type IdInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  cancelOrderItemForOrder?: Maybe<OrderItem>;
-  createActivity: Activity;
-  createCategory: Category;
-  createOrder: Order;
+  cancelOrderItemForOrderAdmin?: Maybe<OrderItem>;
+  createActivityAdmin: Activity;
+  createCategoryAdmin: Category;
+  createOrderAdmin: Order;
   createOrderItems: OrderItem;
-  createOrderWithItems: Order;
-  createProduct: Product;
-  createProductWithVariants: Product;
-  createStore: Store;
+  createOrderItemsAdmin: OrderItem;
+  createOrderWithItemsAdmin: Order;
+  createProductAdmin: Product;
+  createProductWithVariantsAdmin: Product;
+  createStoreAdmin: Store;
   createStoreVariant: StoreVariant;
   createUser: User;
   createUserByAdmin: Profile;
-  createVariant: Variant;
-  deleteActivities?: Maybe<Array<Scalars['ID']['output']>>;
-  deleteActivity?: Maybe<Activity>;
-  deleteCategories?: Maybe<Array<Scalars['ID']['output']>>;
-  deleteCategory?: Maybe<Category>;
-  deleteOrder?: Maybe<Order>;
-  deleteOrderItemForCartForUSer?: Maybe<OrderItem>;
-  deleteOrderItemsCartForUser?: Maybe<Array<Scalars['ID']['output']>>;
-  deleteProduct?: Maybe<Product>;
+  deleteActivitiesAdmin?: Maybe<Array<Scalars['ID']['output']>>;
+  deleteActivityAdmin?: Maybe<Activity>;
+  deleteCategoriesAdmin?: Maybe<Array<Scalars['ID']['output']>>;
+  deleteCategoryAdmin?: Maybe<Category>;
+  deleteOrderAdmin?: Maybe<Order>;
+  deleteOrderItemForCart?: Maybe<OrderItem>;
+  deleteOrderItemsCart?: Maybe<Array<Scalars['ID']['output']>>;
+  deleteProductAdmin?: Maybe<Product>;
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
-  deleteVariant?: Maybe<Variant>;
   signIn?: Maybe<User>;
   signOut: Scalars['Boolean']['output'];
-  updateActivity?: Maybe<Activity>;
-  updateCart: Cart;
-  updateCartUser?: Maybe<Cart>;
-  updateCategory?: Maybe<Category>;
-  updateOrder?: Maybe<Order>;
+  updateActivityAdmin?: Maybe<Activity>;
+  updateCart?: Maybe<Cart>;
+  updateCartAdmin: Cart;
+  updateCategoryAdmin?: Maybe<Category>;
+  updateOrderAdmin?: Maybe<Order>;
   updateOrderItem?: Maybe<OrderItem>;
-  updateOrderItemUser?: Maybe<OrderItem>;
-  updateProduct?: Maybe<Product>;
+  updateOrderItemAdmin?: Maybe<OrderItem>;
+  updateProductAdmin?: Maybe<Product>;
   updateStore: Store;
   updateStoreVariant: StoreVariant;
   updateUserByAdmin: Profile;
   updateUserProfile: Profile;
-  updateVariant?: Maybe<Variant>;
-  validateCartUser?: Maybe<Order>;
+  validateCart?: Maybe<Order>;
 };
 
 
-export type MutationCancelOrderItemForOrderArgs = {
+export type MutationCancelOrderItemForOrderAdminArgs = {
   orderId: Scalars['ID']['input'];
   orderItemId: Scalars['ID']['input'];
 };
 
 
-export type MutationCreateActivityArgs = {
-  data: ActivityCreateInput;
+export type MutationCreateActivityAdminArgs = {
+  data: ActivityCreateInputAdmin;
 };
 
 
-export type MutationCreateCategoryArgs = {
-  data: CategoryCreateInput;
+export type MutationCreateCategoryAdminArgs = {
+  data: CategoryCreateInputAdmin;
 };
 
 
-export type MutationCreateOrderArgs = {
-  data: OrderCreateInput;
+export type MutationCreateOrderAdminArgs = {
+  data: OrderCreateInputAdmin;
 };
 
 
@@ -224,30 +215,35 @@ export type MutationCreateOrderItemsArgs = {
 };
 
 
-export type MutationCreateOrderWithItemsArgs = {
-  data: OrderCreateInput;
-  items: Array<OrderItemsFormInput>;
+export type MutationCreateOrderItemsAdminArgs = {
+  data: OrderItemsCreateInputAdmin;
 };
 
 
-export type MutationCreateProductArgs = {
-  data: ProductCreateInput;
+export type MutationCreateOrderWithItemsAdminArgs = {
+  data: OrderCreateInputAdmin;
+  items: Array<OrderItemsFormInputAdmin>;
 };
 
 
-export type MutationCreateProductWithVariantsArgs = {
-  productData: ProductCreateInput;
-  variants?: InputMaybe<Array<VariantCreateNestedInput>>;
+export type MutationCreateProductAdminArgs = {
+  data: ProductCreateInputAdmin;
 };
 
 
-export type MutationCreateStoreArgs = {
-  data: StoreCreateInput;
+export type MutationCreateProductWithVariantsAdminArgs = {
+  productData: ProductCreateInputAdmin;
+  variants?: InputMaybe<Array<VariantCreateNestedInputAdmin>>;
+};
+
+
+export type MutationCreateStoreAdminArgs = {
+  data: StoreCreateInputAdmin;
 };
 
 
 export type MutationCreateStoreVariantArgs = {
-  data: StoreVariantCreateInput;
+  data: StoreVariantCreateInputAdmin;
 };
 
 
@@ -257,46 +253,41 @@ export type MutationCreateUserArgs = {
 
 
 export type MutationCreateUserByAdminArgs = {
-  data: AdminCreateUserInput;
+  data: CreateUserInputAdmin;
 };
 
 
-export type MutationCreateVariantArgs = {
-  data: VariantCreateInput;
-};
-
-
-export type MutationDeleteActivitiesArgs = {
+export type MutationDeleteActivitiesAdminArgs = {
   ids: Array<Scalars['ID']['input']>;
 };
 
 
-export type MutationDeleteActivityArgs = {
+export type MutationDeleteActivityAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationDeleteCategoriesArgs = {
+export type MutationDeleteCategoriesAdminArgs = {
   ids: Array<Scalars['ID']['input']>;
 };
 
 
-export type MutationDeleteCategoryArgs = {
+export type MutationDeleteCategoryAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationDeleteOrderArgs = {
+export type MutationDeleteOrderAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationDeleteOrderItemForCartForUSerArgs = {
+export type MutationDeleteOrderItemForCartArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationDeleteProductArgs = {
+export type MutationDeleteProductAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -312,41 +303,36 @@ export type MutationDeleteStoreVariantArgs = {
 };
 
 
-export type MutationDeleteVariantArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
 export type MutationSignInArgs = {
   datas: SignInInput;
 };
 
 
-export type MutationUpdateActivityArgs = {
-  data: ActivityUpdateInput;
+export type MutationUpdateActivityAdminArgs = {
+  data: ActivityUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationUpdateCartArgs = {
   data: CartUpdateInput;
+};
+
+
+export type MutationUpdateCartAdminArgs = {
+  data: CartUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationUpdateCartUserArgs = {
-  data: CartUpdateInputUser;
-};
-
-
-export type MutationUpdateCategoryArgs = {
-  data: CategoryUpdateInput;
+export type MutationUpdateCategoryAdminArgs = {
+  data: CategoryUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationUpdateOrderArgs = {
-  data: OrderUpdateInput;
+export type MutationUpdateOrderAdminArgs = {
+  data: OrderUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
@@ -357,31 +343,31 @@ export type MutationUpdateOrderItemArgs = {
 };
 
 
-export type MutationUpdateOrderItemUserArgs = {
-  data: OrderItemsUpdateInputForUser;
+export type MutationUpdateOrderItemAdminArgs = {
+  data: OrderItemsUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
 
-export type MutationUpdateProductArgs = {
-  data: ProductUpdateInput;
+export type MutationUpdateProductAdminArgs = {
+  data: ProductUpdateInputAdmin;
   id: Scalars['String']['input'];
 };
 
 
 export type MutationUpdateStoreArgs = {
-  data: StoreUpdateInput;
+  data: StoreUpdateInputAdmin;
   id: Scalars['ID']['input'];
 };
 
 
 export type MutationUpdateStoreVariantArgs = {
-  data: StoreVariantUpdateInput;
+  data: StoreVariantUpdateInputAdmin;
 };
 
 
 export type MutationUpdateUserByAdminArgs = {
-  data: AdminUpdateUserInput;
+  data: UpdateUserInputAdmin;
   id: Scalars['ID']['input'];
 };
 
@@ -391,13 +377,7 @@ export type MutationUpdateUserProfileArgs = {
 };
 
 
-export type MutationUpdateVariantArgs = {
-  data: VariantUpdateInput;
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationValidateCartUserArgs = {
+export type MutationValidateCartArgs = {
   data: ValidateCartInput;
 };
 
@@ -421,7 +401,7 @@ export type Order = {
   zipCode: Scalars['String']['output'];
 };
 
-export type OrderCreateInput = {
+export type OrderCreateInputAdmin = {
   address1: Scalars['String']['input'];
   address2?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
@@ -464,13 +444,23 @@ export type OrderItemsCreateInput = {
   endsAt: Scalars['DateTimeISO']['input'];
   orderId?: InputMaybe<Scalars['Int']['input']>;
   pricePerHour: Scalars['Int']['input'];
+  quantity: Scalars['Int']['input'];
+  startsAt: Scalars['DateTimeISO']['input'];
+  variantId: Scalars['Int']['input'];
+};
+
+export type OrderItemsCreateInputAdmin = {
+  cartId?: InputMaybe<Scalars['Int']['input']>;
+  endsAt: Scalars['DateTimeISO']['input'];
+  orderId?: InputMaybe<Scalars['Int']['input']>;
+  pricePerHour: Scalars['Int']['input'];
   profileId: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
   variantId: Scalars['Int']['input'];
 };
 
-export type OrderItemsFormInput = {
+export type OrderItemsFormInputAdmin = {
   date_range: DateRangeInput;
   pricePerHour: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
@@ -479,6 +469,12 @@ export type OrderItemsFormInput = {
 };
 
 export type OrderItemsUpdateInput = {
+  endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  quantity?: InputMaybe<Scalars['Int']['input']>;
+  startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+};
+
+export type OrderItemsUpdateInputAdmin = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   orderId?: InputMaybe<Scalars['Int']['input']>;
@@ -489,17 +485,15 @@ export type OrderItemsUpdateInput = {
   variantId?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type OrderItemsUpdateInputForUser = {
-  endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
-  quantity?: InputMaybe<Scalars['Int']['input']>;
-  startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
-};
-
 export enum OrderStatusType {
-  Confirmed = 'confirmed'
+  Cancelled = 'cancelled',
+  Completed = 'completed',
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Refunded = 'refunded'
 }
 
-export type OrderUpdateInput = {
+export type OrderUpdateInputAdmin = {
   address1?: InputMaybe<Scalars['String']['input']>;
   address2?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
@@ -535,7 +529,7 @@ export type Product = {
   variants?: Maybe<Array<Variant>>;
 };
 
-export type ProductCreateInput = {
+export type ProductCreateInputAdmin = {
   activities?: InputMaybe<Array<IdInput>>;
   categories?: InputMaybe<Array<IdInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -545,7 +539,7 @@ export type ProductCreateInput = {
   urlImage: Scalars['String']['input'];
 };
 
-export type ProductUpdateInput = {
+export type ProductUpdateInputAdmin = {
   activities?: InputMaybe<Array<IdInput>>;
   categories?: InputMaybe<Array<IdInput>>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -577,25 +571,26 @@ export type Query = {
   checkVariantStock: Scalars['Float']['output'];
   getActivities: ActivitiesWithCount;
   getActivityById?: Maybe<Activity>;
-  getCartById: Cart;
-  getCartForUser?: Maybe<Cart>;
+  getCart?: Maybe<Cart>;
+  getCartByIdAdmin: Cart;
   getCarts: Array<Cart>;
   getCategories: CategoriesWithCount;
   getCategoryById?: Maybe<Category>;
+  getMyOrders: Array<Order>;
   getMyProfile?: Maybe<Profile>;
   getOrderById: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
-  getOrderItemsByOrderId: Array<OrderItem>;
-  getOrders: Array<Order>;
+  getOrderItemsByOrderIdAdmin: Array<OrderItem>;
+  getOrdersAdmin: Array<Order>;
   getProductById?: Maybe<Product>;
   getProductByVariantId?: Maybe<Product>;
   getProducts: ProductWithCount;
   getProductsAndCategories: Search;
   getProfile?: Maybe<Profile>;
   getProfileByUserId?: Maybe<Profile>;
-  getProfiles?: Maybe<Array<Profile>>;
+  getProfilesAdmin?: Maybe<Array<Profile>>;
   getStoreById?: Maybe<Store>;
   getStores: Array<Store>;
   getVariantById?: Maybe<Variant>;
@@ -624,13 +619,13 @@ export type QueryGetActivityByIdArgs = {
 };
 
 
-export type QueryGetCartByIdArgs = {
-  id: Scalars['ID']['input'];
+export type QueryGetCartArgs = {
+  withOrderItems?: Scalars['Boolean']['input'];
 };
 
 
-export type QueryGetCartForUserArgs = {
-  withOrderItems?: Scalars['Boolean']['input'];
+export type QueryGetCartByIdAdminArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -659,7 +654,7 @@ export type QueryGetOrderItemsByIdArgs = {
 };
 
 
-export type QueryGetOrderItemsByOrderIdArgs = {
+export type QueryGetOrderItemsByOrderIdAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -694,7 +689,7 @@ export type QueryGetProfileByUserIdArgs = {
 };
 
 
-export type QueryGetProfilesArgs = {
+export type QueryGetProfilesAdminArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -747,7 +742,7 @@ export type Store = {
   zipCode: Scalars['String']['output'];
 };
 
-export type StoreCreateInput = {
+export type StoreCreateInputAdmin = {
   address1: Scalars['String']['input'];
   address2?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
@@ -758,7 +753,7 @@ export type StoreCreateInput = {
   zipCode: Scalars['String']['input'];
 };
 
-export type StoreUpdateInput = {
+export type StoreUpdateInputAdmin = {
   address1: Scalars['String']['input'];
   address2?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
@@ -777,16 +772,23 @@ export type StoreVariant = {
   variantId: Scalars['Int']['output'];
 };
 
-export type StoreVariantCreateInput = {
+export type StoreVariantCreateInputAdmin = {
   quantity?: Scalars['Int']['input'];
   storeId: Scalars['Int']['input'];
   variantId: Scalars['Int']['input'];
 };
 
-export type StoreVariantUpdateInput = {
+export type StoreVariantUpdateInputAdmin = {
   quantity?: InputMaybe<Scalars['Int']['input']>;
   storeId: Scalars['Int']['input'];
   variantId: Scalars['Int']['input'];
+};
+
+export type UpdateUserInputAdmin = {
+  email: Scalars['String']['input'];
+  firstname: Scalars['String']['input'];
+  lastname: Scalars['String']['input'];
+  role: RoleType;
 };
 
 export type User = {
@@ -835,23 +837,9 @@ export type Variant = {
   updatedAt: Scalars['DateTimeISO']['output'];
 };
 
-export type VariantCreateInput = {
+export type VariantCreateNestedInputAdmin = {
   color?: InputMaybe<Scalars['String']['input']>;
   pricePerHour: Scalars['Int']['input'];
-  productId: Scalars['Int']['input'];
-  size?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type VariantCreateNestedInput = {
-  color?: InputMaybe<Scalars['String']['input']>;
-  pricePerHour: Scalars['Int']['input'];
-  size?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type VariantUpdateInput = {
-  color?: InputMaybe<Scalars['String']['input']>;
-  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
-  productId: Scalars['Int']['input'];
   size?: InputMaybe<Scalars['String']['input']>;
 };
 
