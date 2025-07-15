@@ -19,7 +19,13 @@ export const RESET_PASSWORD = `
 `;
 
 export const VERIFY_RESET_TOKEN = `
-  mutation VerifyResetToken($token: String!) {
-    verifyResetToken(token: $token)
-  }
-`;
+    mutation VerifyResetToken($token: String!) {
+      verifyResetToken(token: $token)
+    }
+  `;
+
+export const VERIFY_CONFIRM_EMAIL_TOKEN = `
+    mutation VerifyConfirmEmailToken($token: String!) {
+      verifyConfirmEmailToken(token: $token)
+    }
+  `;

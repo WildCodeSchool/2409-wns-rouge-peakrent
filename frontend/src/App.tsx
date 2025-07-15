@@ -14,6 +14,7 @@ import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
+import { ConfirmEmailPage } from "./pages/Auth/ConfirmEmail";
 import { ForgotPasswordPage } from "./pages/Auth/ForgotPassword";
 import { RecoverPasswordPage } from "./pages/Auth/RecoverPassword";
 import { SignInPage } from "./pages/Auth/SignIn";
@@ -100,6 +101,12 @@ function App() {
           <Route
             path="/reset-password"
             element={checkAuth(RecoverPasswordPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route
+            path="/validate-email"
+            element={checkAuth(ConfirmEmailPage, [
               AuthStates.unauthenticated,
             ])()}
           />

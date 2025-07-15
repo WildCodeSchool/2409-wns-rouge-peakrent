@@ -12,6 +12,7 @@ import { UserToken } from "@/entities/UserToken";
 import { hashPassword, verifyPassword } from "@/helpers/helpers";
 import { validateInput } from "@/helpers/validateInput";
 import { sendRecoverEmail } from "@/lib/email/recoverPassword";
+import { sendConfirmEmail } from "@/lib/email/validationEmail";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { ContextType, RoleType } from "@/types";
 import { UserInputError } from "apollo-server-errors";
@@ -74,10 +75,18 @@ export class UserResolver {
         profile.lastname = newUser.lastname;
         profile.id = newUser.id;
         profile.role = newUser.role;
-
+        const confirmToken = jsonwebtoken.sign(
+          { id: newUser.id },
+          process.env.JWT_SECRET_RECOVER_KEY,
+          { expiresIn: "24h" }
+        );
+        newUser.emailToken = confirmToken;
+        newUser.emailSentAt = new Date();
+        await newUser.save();
         await profile.save();
+        await sendConfirmEmail(newUser.email, confirmToken);
       });
-      //TODO send email for validation
+
       return newUser;
     } catch (error) {
       console.error("Error creating user:", error);
@@ -115,6 +124,30 @@ export class UserResolver {
           },
         });
       }
+
+      if (!user.emailVerifiedAt) {
+        if (
+          user.emailSentAt &&
+          user.emailSentAt > new Date(Date.now() - 1000 * 60 * 60 * 24)
+        ) {
+          throw new GraphQLError("Email already sent", {
+            extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 401 } },
+          });
+        }
+        const confirmToken = jsonwebtoken.sign(
+          { id: user.id },
+          process.env.JWT_SECRET_RECOVER_KEY,
+          { expiresIn: "24h" }
+        );
+        user.emailToken = confirmToken;
+        user.emailSentAt = new Date();
+        await sendConfirmEmail(user.email, confirmToken);
+        await user.save();
+        throw new GraphQLError("Email not verified", {
+          extensions: { code: "EMAIL_NOT_VERIFIED", http: { status: 401 } },
+        });
+      }
+
       //TODO replace 3d per 1h when refresh token is fully implemented
       const token = jsonwebtoken.sign(
         { id: user.id },
@@ -298,6 +331,42 @@ export class UserResolver {
         extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
       });
     }
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async verifyConfirmEmailToken(@Arg("token") token: string): Promise<boolean> {
+    const decoded = jsonwebtoken.verify(
+      token,
+      process.env.JWT_SECRET_RECOVER_KEY
+    ) as { id: number };
+
+    const user = await User.findOne({ where: { id: decoded.id } });
+
+    if (user?.emailVerifiedAt) {
+      throw new GraphQLError("Email déjà validé", {
+        extensions: { code: "EMAIL_ALREADY_VERIFIED", http: { status: 400 } },
+      });
+    }
+
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    if (user.emailToken !== token) {
+      throw new GraphQLError("Token invalide", {
+        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
+      });
+    }
+
+    user.emailToken = null;
+    user.emailSentAt = null;
+    user.emailVerifiedAt = new Date();
+    await user.save();
 
     return true;
   }
