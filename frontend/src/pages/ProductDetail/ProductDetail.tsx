@@ -1,4 +1,3 @@
-import { CREATE_ORDER_ITEM_USER } from "@/GraphQL/orderItems";
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
@@ -7,6 +6,7 @@ import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useUser } from "@/context/userProvider";
 import { Variant } from "@/gql/graphql";
+import { CREATE_ORDER_ITEM_USER } from "@/graphQL/orderItems";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { totalDays } from "@/utils/getNumberOfDays";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -16,7 +16,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { GET_PRODUCT_BY_ID } from "../../GraphQL/products";
+import { GET_PRODUCT_BY_ID } from "../../graphQL/products";
 
 const ProductDetail = () => {
   const {
@@ -107,7 +107,7 @@ const ProductDetail = () => {
             },
           },
         });
-        addOrderItem(newOrderItem.data.createOrderItemsUser);
+        addOrderItem(newOrderItem.data.createOrderItems);
       } catch (err: any) {
         const codeError = err.graphQLErrors?.[0]?.extensions?.code;
         if (codeError === "OUT_OF_STOCK") {

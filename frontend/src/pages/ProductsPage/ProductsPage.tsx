@@ -1,19 +1,25 @@
-import { GET_CATEGORIES } from "@/GraphQL/categories";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
-import FilterList from "@/components/FilterList/FilterList";
-import ProductsList from "@/components/ProductsList/ProductsList";
 import FilterButton from "@/components/buttons/FilterButton";
+import FilterList from "@/components/filterList/FilterList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import ProductsList from "@/components/productsList/ProductsList";
+import {
+  Category as CategoryType,
+  Product as ProductType,
+} from "@/gql/graphql";
+import { GET_CATEGORIES } from "@/graphQL/categories";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const ProductsPage = () => {
+  // TODO export if used on activityPage
   const [itemsOnPage, setItemsOnPage] = useState(15);
   const [pageIndex, setPageIndex] = useState(1);
   const [maxPage, setMaxPage] = useState<number>(0);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  // TODO rename this in selectedCategoryIds (change FilterList props too )
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedStartingDate, setSelectedStartingDate] = useState<
     string | undefined
   >("");
@@ -21,9 +27,9 @@ const ProductsPage = () => {
     string | undefined
   >("");
 
-  // const [activities, setActivities] = useState<any[]>([]);
-  // const [selectedActivities, setSelectedActivities] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  // const [activities, setActivities] = useState<ActivityType[]>([]);
+  // const [selectedActivityIds, setSelectedActivityIds] = useState<number[]>([]);
+  const [products, setProducts] = useState<ProductType[]>([]);
 
   const {
     data: initialData,
@@ -100,7 +106,7 @@ const ProductsPage = () => {
         endingDate: selectedEndingDate
           ? new Date(selectedEndingDate).toISOString()
           : undefined,
-        // activitiesId: selectedActivities,
+        // activitiesId: selectedActivityIds,
       },
     });
   };
@@ -110,8 +116,8 @@ const ProductsPage = () => {
     content: (
       <FilterList
         // activities={activities}
-        // selectedActivities={selectedActivities}
-        // setSelectedActivities={setSelectedActivities}
+        // selectedActivityIds={selectedActivityIds}
+        // setSelectedActivityIds={setSelectedActivityIds}
         categories={categories}
         selectedCategories={selectedCategories}
         setSelectedCategories={setSelectedCategories}
@@ -162,8 +168,8 @@ const ProductsPage = () => {
         <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
           <FilterList
             // activities={activities}
-            // selectedActivities={selectedActivities}
-            // setSelectedActivities={setSelectedActivities}
+            // selectedActivityIds={selectedActivityIds}
+            // setSelectedActivityIds={setSelectedActivityIds}
             categories={categories}
             selectedCategories={selectedCategories}
             setSelectedCategories={setSelectedCategories}

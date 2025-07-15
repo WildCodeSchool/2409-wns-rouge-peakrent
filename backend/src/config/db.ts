@@ -9,5 +9,5 @@ export const dataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   entities: ["src/entities/*.ts"],
   synchronize: true,
-  logging: true,
+  logging: false,
 });

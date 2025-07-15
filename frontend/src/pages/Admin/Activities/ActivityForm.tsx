@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
 import { Activity as ActivityType } from "@/gql/graphql";
-import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/GraphQL/activities";
+import { CREATE_ACTIVITY, UPDATE_ACTIVITY } from "@/graphQL/activities";
 import { activitySchema, ActivitySchemaType } from "@/schemas/activitySchemas";
 import {
   addActivity,
@@ -26,10 +26,10 @@ import { toast } from "sonner";
 
 export function ActivityForm({ datas }: { datas?: ActivityType }) {
   const { closeModal } = useModal();
-  const [createActivity, { loading: createLoading }] = useMutation(
+  const [createActivityAdmin, { loading: createLoading }] = useMutation(
     gql(CREATE_ACTIVITY)
   );
-  const [updateActivity, { loading: updateLoading }] = useMutation(
+  const [updateActivityAdmin, { loading: updateLoading }] = useMutation(
     gql(UPDATE_ACTIVITY)
   );
 
@@ -46,6 +46,7 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
     defaultValues,
   });
 
+  // TODO create hook for this
   useEffect(() => {
     const fetchImage = async () => {
       if (datas?.urlImage) {
@@ -94,23 +95,26 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
       let savedActivity;
 
       if (datas) {
-        const { data: updatedActivity } = await updateActivity({
+        const { data: updatedActivityAdmin } = await updateActivityAdmin({
           variables: { id: datas.id, data },
         });
-        savedActivity = updatedActivity;
+        savedActivity = updatedActivityAdmin;
       } else {
-        const { data: createdActivity } = await createActivity({
+        const { data: createdActivityAdmin } = await createActivityAdmin({
           variables: { data },
         });
-        savedActivity = createdActivity;
+        savedActivity = createdActivityAdmin;
       }
 
       if (savedActivity) {
         if (datas) {
-          updateActivityStore(Number(datas.id), savedActivity.updateActivity);
+          updateActivityStore(
+            Number(datas.id),
+            savedActivity.updateActivityAdmin
+          );
           toast.success("Activité modifiée avec succès");
         } else {
-          addActivity(savedActivity.createActivity);
+          addActivity(savedActivity.createActivityAdmin);
           toast.success("Activité créée avec succès");
         }
         closeModal();

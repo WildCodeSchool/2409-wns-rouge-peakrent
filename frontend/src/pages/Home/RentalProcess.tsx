@@ -1,4 +1,4 @@
-import { rentalProcessSteps } from "./fakeData";
+import { rentalProcessSteps } from "./homeDatas";
 
 interface ProcessStepProps {
   icon: React.ReactNode;

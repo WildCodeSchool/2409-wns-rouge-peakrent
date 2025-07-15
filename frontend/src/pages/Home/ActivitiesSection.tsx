@@ -3,6 +3,7 @@ import { Activity as ActivityType } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { activitiesSectionSpans } from "./homeDatas";
 
 const ActivityItem = ({
   activity,
@@ -11,7 +12,6 @@ const ActivityItem = ({
   activity: ActivityType;
   index?: number;
 }) => {
-  const spans = ["col-start-2", "col-start-4", "col-start-6", "col-start-8"];
   return (
     <NavLink
       key={activity.id}
@@ -19,7 +19,7 @@ const ActivityItem = ({
       className={cn(
         "aspect-square relative hover:cursor-pointer group overflow-hidden",
         index !== undefined && index !== null && "col-span-2",
-        index !== undefined && index !== null && spans[index]
+        index !== undefined && index !== null && activitiesSectionSpans[index]
       )}
     >
       <div className="w-full h-full overflow-hidden rounded-full border">
@@ -45,6 +45,7 @@ export function ActivitiesSection({
 }) {
   const [windowWidth, setWindowWidth] = useState(0);
 
+  // TODO create hook for this
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     handleResize();

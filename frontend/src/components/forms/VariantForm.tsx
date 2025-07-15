@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
-import { Maybe, Product, Variant } from "@/gql/graphql";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { LoadIcon } from "@/components/icons/LoadIcon";
-import { CREATE_VARIANT } from "@/GraphQL/createVariant";
-import { UPDATE_VARIANT } from "@/GraphQL/updateVariant";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useModal } from "@/context/modalProvider";
+import { Product, Variant } from "@/gql/graphql";
+import {
+  CREATE_VARIANT,
+  GET_VARIANTS,
+  UPDATE_VARIANT,
+} from "@/graphQL/variants";
+import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
 import { MoreHorizontal } from "lucide-react";
-import { GET_VARIANTS } from "@/GraphQL/variants";
-import { Checkbox } from "../ui/checkbox";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Label } from "../ui/label";
 import { MultiSelect } from "../ui/multiple-selector";
 

@@ -11,7 +11,8 @@
     "test": "vitest",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen",
+    "generate-barrels": "node generate-barrels.js"
   },
   "dependencies": {
     "@apollo/client": "^3.11.10",

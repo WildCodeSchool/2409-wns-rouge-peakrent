@@ -1,7 +1,7 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
 import { Category as CategoryType } from "@/gql/graphql";
-import { DELETE_MULTIPLE_CATEGORIES } from "@/GraphQL/categories";
+import { DELETE_MULTIPLE_CATEGORIES } from "@/graphQL/categories";
 import { deleteCategory } from "@/stores/admin/category.store";
 import { gql, useMutation } from "@apollo/client";
 import { Row } from "@tanstack/react-table";
@@ -16,14 +16,17 @@ export function DataTableRowCategoriesActions<TData>({
   row,
 }: DataTableRowCategoriesActionsProps<TData>) {
   const category = row.original as CategoryType;
-  const [deleteCategories] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
+  const [deleteCategoriesAdmin] = useMutation(gql(DELETE_MULTIPLE_CATEGORIES));
 
   const handleDelete = async (ids: string[] | number[]) => {
     try {
-      const { data } = await deleteCategories({ variables: { ids } });
-      if (data?.deleteCategories && data.deleteCategories.length === 1) {
+      const { data } = await deleteCategoriesAdmin({ variables: { ids } });
+      if (
+        data?.deleteCategoriesAdmin &&
+        data.deleteCategoriesAdmin.length === 1
+      ) {
         toast.success("Catégorie supprimée avec succès");
-        deleteCategory(Number(data.deleteCategories[0]));
+        deleteCategory(Number(data.deleteCategoriesAdmin[0]));
         return true;
       }
       toast.error("Erreur lors de la suppression de la catégorie");

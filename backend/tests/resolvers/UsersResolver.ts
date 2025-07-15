@@ -1,6 +1,6 @@
-import { CREATE_USER } from "../../../frontend/src/GraphQL/createUser";
-import { SIGNIN } from "../../../frontend/src/GraphQL/signin";
-import { WHOAMI } from "../../../frontend/src/GraphQL/whoami";
+import { SIGNIN } from "../../../frontend/src/graphQL/signin";
+import { CREATE_USER } from "../../../frontend/src/graphQL/user";
+import { WHOAMI } from "../../../frontend/src/graphQL/whoami";
 import { Profile } from "../../src/entities/Profile";
 import { User } from "../../src/entities/User";
 import { UserToken } from "../../src/entities/UserToken";

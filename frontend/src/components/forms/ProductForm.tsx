@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { uploadImage } from "@/utils/uploadImages";
-import { Activity, Category, Product, Variant } from "@/gql/graphql";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { GET_CATEGORIES } from "@/GraphQL/categories";
-import { Button } from "@/components/ui/button";
-import { LoadIcon } from "@/components/icons/LoadIcon";
-import { UPDATE_PRODUCT } from "@/GraphQL/updateProduct";
-import { VariantForm } from "./VariantForm";
+import { Activity, Category, Product, Variant } from "@/gql/graphql";
+import { GET_ACTIVITIES } from "@/graphQL/activities";
+import { GET_CATEGORIES } from "@/graphQL/categories";
 import {
   CREATE_PRODUCT,
   CREATE_PRODUCT_WITH_VARIANT,
-} from "@/GraphQL/createProduct";
+  GET_PRODUCT_BY_ID,
+  UPDATE_PRODUCT,
+} from "@/graphQL/products";
+import { uploadImage } from "@/utils/uploadImages";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { GET_PRODUCT_BY_ID } from "@/GraphQL/products";
+import { toast } from "sonner";
 import CreateButton from "../buttons/CreateButton";
 import UpdateButton from "../buttons/UpdateButton";
-import { toast } from "sonner";
-import { GET_ACTIVITIES } from "@/GraphQL/activities";
 import { ImageHandler } from "../ui/tables/columns/components/ImageHandler";
+import { VariantForm } from "./VariantForm";
 
 export const ProductForm = () => {
   const { id } = useParams<{ id: string }>();

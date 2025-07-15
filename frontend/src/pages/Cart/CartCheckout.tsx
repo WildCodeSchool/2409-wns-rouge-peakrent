@@ -1,12 +1,7 @@
 import { StringInput } from "@/components/forms/formField";
-import { UPDATE_CART_USER } from "@/GraphQL/carts";
-import {
-  addressRegex,
-  cityRegex,
-  letterRegex,
-  zipCodeRegex,
-} from "@/schemas/regex";
-import { createStringSchema } from "@/schemas/utils";
+import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
+import { UPDATE_CART_USER } from "@/graphQL/carts";
+import { cartCheckoutSchema, CartCheckoutType } from "@/schemas/cartSchemas";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +9,6 @@ import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { z } from "zod";
 
 export function CartCheckout() {
   const setCommandTunnelStatus = useCartStoreUser(
@@ -31,70 +25,13 @@ export function CartCheckout() {
   }, []);
 
   const [updateCart, { loading }] = useMutation(gql(UPDATE_CART_USER));
-  // TODO : API Avec la liste des pays / Ville ? A ajouter ici + dans resolver pour check ?
-  const cartCheckoutSchema = z.object({
-    address1: createStringSchema({
-      minLength: 1,
-      minLengthError: "L'adresse doit contenir au moins 1 caractère",
-      maxLength: 255,
-      maxLengthError: "L'adresse doit contenir au plus 255 caractères",
-      regex: addressRegex,
-      regexError: "Format de l'adresse invalide",
-      required: true,
-      requiredError: "L'adresse est requise",
-    }),
-    address2: createStringSchema({
-      minLength: 1,
-      minLengthError: "L'adresse 2 doit contenir au moins 1 caractère",
-      maxLength: 255,
-      maxLengthError: "L'adresse 2 doit contenir au plus 255 caractères",
-      required: false,
-    }),
-    zipCode: createStringSchema({
-      minLength: 1,
-      minLengthError: "Le code postale doit contenir au moins 1 caractère",
-      maxLength: 20,
-      maxLengthError: "Le code postale doit contenir au plus 20 caractères",
-      regex: zipCodeRegex,
-      regexError: "Format du code postale invalide",
-      required: true,
-      requiredError: "Le code postale est requis",
-    }),
-    city: createStringSchema({
-      minLength: 1,
-      minLengthError: "La ville doit contenir au moins 1 caractère",
-      maxLength: 100,
-      maxLengthError: "La ville doit contenir au plus 100 caractères",
-      regex: cityRegex,
-      regexError: "Format de la ville invalide",
-      required: true,
-      requiredError: "La ville est requise",
-    }),
-    country: createStringSchema({
-      minLength: 1,
-      minLengthError: "Le pays doit contenir au moins 1 caractère",
-      maxLength: 100,
-      maxLengthError: "Le pays doit contenir au plus 100 caractères",
-      regex: letterRegex,
-      regexError: "Format du pays invalide",
-      required: true,
-      requiredError: "Le pays est requis",
-    }),
-  });
 
-  type CartCheckoutValues = z.infer<typeof cartCheckoutSchema>;
-  const form = useForm<CartCheckoutValues>({
+  const form = useForm<CartCheckoutType>({
     resolver: zodResolver(cartCheckoutSchema),
-    defaultValues: {
-      address1: cart?.address1 ?? "",
-      address2: cart?.address2 ?? "",
-      country: cart?.country ?? "",
-      city: cart?.city ?? "",
-      zipCode: cart?.zipCode ?? "",
-    },
+    defaultValues: getFormDefaultValues(cartCheckoutSchema),
   });
 
-  const onSubmit = async (data: CartCheckoutValues) => {
+  const onSubmit = async (data: CartCheckoutType) => {
     const { address1, address2, city, country, zipCode } = data;
 
     try {
@@ -111,8 +48,8 @@ export function CartCheckout() {
       });
       setCommandTunnelStatus(CommandStatusEnum.onPayment);
       cart
-        ? updateCartStore(response.data.updateCartUser)
-        : setCart(response.data.updateCartUser);
+        ? updateCartStore(response.data.updateCart)
+        : setCart(response.data.updateCart);
       navigate("/cart/checkout/payment");
     } catch (err) {
       console.error("Un problème est survenu : ", err);

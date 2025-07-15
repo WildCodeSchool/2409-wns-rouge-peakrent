@@ -5,7 +5,7 @@ import Table from "@/components/ui/tables/Table";
 import {
   DELETE_MULTIPLE_CATEGORIES,
   GET_CATEGORIES,
-} from "@/GraphQL/categories";
+} from "@/graphQL/categories";
 import {
   deleteMultipleCategories,
   useCategoryStore,

@@ -1,3 +1,4 @@
+import { RoleType } from "@/types";
 import { IsEmail, Length } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
@@ -10,7 +11,6 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { RoleType } from "../types";
 import { User } from "./User";
 
 @ObjectType()

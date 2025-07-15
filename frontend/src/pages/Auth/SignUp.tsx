@@ -1,23 +1,23 @@
+import { CheckboxInput } from "@/components/forms/formField";
 import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
 import { StringInput } from "@/components/forms/formField/string/StringInput";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import {
+  createFirstnameSchema,
+  createLastnameSchema,
+  createPasswordSchema,
+} from "@/schemas/authSchemas";
+import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CREATE_USER } from "../../GraphQL/createUser";
-import { CheckboxInput } from "@/components/forms/formField";
-import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
-import {
-  createFirstnameSchema,
-  createLastnameSchema,
-  createPasswordSchema,
-} from "@/schemas/authSchemas";
+import { CREATE_USER } from "../../graphQL/user";
 
 const signUpSchema = z
   .object({

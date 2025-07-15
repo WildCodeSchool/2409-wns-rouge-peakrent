@@ -11,9 +11,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { DateRangeInput } from "../commonInput/Date";
 import { OrderItemStatusType } from "../types";
 import { Cart } from "./Cart";
-import { DateRangeInput } from "./Date";
 import { Order } from "./Order";
 import { Variant } from "./Variant";
 
@@ -57,7 +57,7 @@ export class OrderItem extends BaseEntity {
     enum: OrderItemStatusType,
     default: OrderItemStatusType.pending,
   })
-  status: OrderItemStatusType;
+  status!: OrderItemStatusType;
 
   @Field()
   @Column({ name: "price_per_hour" })
@@ -85,7 +85,7 @@ export class OrderItem extends BaseEntity {
 }
 
 @InputType()
-export class OrderItemsCreateInputUser {
+export class OrderItemsCreateInput {
   @Field(() => Int, { nullable: true })
   orderId?: number;
 
@@ -118,14 +118,14 @@ export class OrderItemsCreateInputUser {
 }
 
 @InputType()
-export class OrderItemsCreateInput extends OrderItemsCreateInputUser {
+export class OrderItemsCreateInputAdmin extends OrderItemsCreateInput {
   @Field(() => Int)
   @IsNotEmpty({ message: "profileId must not be empty." })
   profileId!: number;
 }
 
 @InputType()
-export class OrderItemsUpdateInput {
+export class OrderItemsUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   orderId?: number;
 
@@ -137,7 +137,7 @@ export class OrderItemsUpdateInput {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })
-  quantity: number;
+  quantity?: number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
@@ -156,10 +156,10 @@ export class OrderItemsUpdateInput {
 }
 
 @InputType()
-export class OrderItemsUpdateInputForUser {
+export class OrderItemsUpdateInput {
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })
-  quantity: number;
+  quantity?: number;
 
   @Field({ nullable: true })
   @IsDate()
@@ -172,7 +172,7 @@ export class OrderItemsUpdateInputForUser {
 
 // Input for the create order form on back office
 @InputType()
-export class OrderItemsFormInput {
+export class OrderItemsFormInputAdmin {
   @Field(() => OrderItemStatusType, { nullable: true })
   status?: OrderItemStatusType;
 

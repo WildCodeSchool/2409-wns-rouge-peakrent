@@ -5,11 +5,13 @@ import {
   createAddressSchema,
   createCitySchema,
   createComplementAddressSchema,
+  createZipCodeSchema,
+} from "./addressSchemas";
+import {
   createDateSchema,
   createEnumSchema,
   createNumberSchema,
   createStringSchema,
-  createZipCodeSchema,
 } from "./utils";
 
 export const generateOrderSchema = (datas?: Partial<OrderType>) => {

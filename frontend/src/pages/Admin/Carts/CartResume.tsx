@@ -1,11 +1,9 @@
-import { useModal } from "@/context/modalProvider";
-
-import { Button } from "@/components/ui/button";
-
 import { CartItemCard } from "@/components/cards/CartItemCard";
 import MehSection from "@/components/section/MehSection";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { useModal } from "@/context/modalProvider";
 import type { Cart as CartType } from "@/gql/graphql";
 import { getDurationInDays } from "@/utils/getDurationInDays";
 import { Home } from "lucide-react";

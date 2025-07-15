@@ -21,10 +21,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { IdInput } from "../commonInput/Id";
+import { Pagination } from "../commonInput/Pagination";
 import { Activity } from "./Activity";
 import { Category } from "./Category";
-import { IdInput } from "./Id";
-import { Pagination } from "./Pagination";
 import { User } from "./User";
 import { Variant } from "./Variant";
 
@@ -102,7 +102,7 @@ export class ProductWithCount {
 }
 
 @InputType()
-export class ProductCreateInput {
+export class ProductCreateInputAdmin {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "Name is required." })
@@ -138,7 +138,7 @@ export class ProductCreateInput {
 }
 
 @InputType()
-export class ProductUpdateInput {
+export class ProductUpdateInputAdmin {
   @Field()
   @IsString()
   @IsOptional()

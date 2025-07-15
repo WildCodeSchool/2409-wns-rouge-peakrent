@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_ORDERS } from "@/GraphQL/order";
+import { GET_ORDERS_ADMIN } from "@/graphQL/order";
 import { useOrderStore } from "@/stores/admin/order.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";
@@ -15,7 +15,7 @@ export default function OrdersTable() {
   const setOrders = useOrderStore((state) => state.setOrders);
   const setOrdersFetched = useOrderStore((state) => state.setOrdersFetched);
 
-  const { data, error, loading } = useQuery(gql(GET_ORDERS));
+  const { data, error, loading } = useQuery(gql(GET_ORDERS_ADMIN));
 
   const columnConfigs: ColumnConfig[] = [];
 
@@ -26,8 +26,8 @@ export default function OrdersTable() {
       return;
     }
 
-    if (data?.getOrders && !ordersFetched) {
-      setOrders(data.getOrders);
+    if (data?.getOrdersAdmin && !ordersFetched) {
+      setOrders(data.getOrdersAdmin);
       setOrdersFetched(true);
     }
   }, [data, error, setOrders, setOrdersFetched]);

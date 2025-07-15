@@ -1,7 +1,7 @@
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
 import { Activity as ActivityType } from "@/gql/graphql";
-import { DELETE_MULTIPLE_ACTIVITIES } from "@/GraphQL/activities";
+import { DELETE_MULTIPLE_ACTIVITIES } from "@/graphQL/activities";
 import { deleteActivity } from "@/stores/admin/activity.store";
 import { gql, useMutation } from "@apollo/client";
 import { Row } from "@tanstack/react-table";
@@ -16,14 +16,17 @@ export function DataTableRowActivitiesActions<TData>({
   row,
 }: DataTableRowActivitiesActionsProps<TData>) {
   const activity = row.original as ActivityType;
-  const [deleteActivities] = useMutation(gql(DELETE_MULTIPLE_ACTIVITIES));
+  const [deleteActivitiesAdmin] = useMutation(gql(DELETE_MULTIPLE_ACTIVITIES));
 
   const handleDelete = async (ids: string[] | number[]) => {
     try {
-      const { data } = await deleteActivities({ variables: { ids } });
-      if (data?.deleteActivities && data.deleteActivities.length === 1) {
+      const { data } = await deleteActivitiesAdmin({ variables: { ids } });
+      if (
+        data?.deleteActivitiesAdmin &&
+        data.deleteActivitiesAdmin.length === 1
+      ) {
         toast.success("Activité supprimée avec succès");
-        deleteActivity(Number(data.deleteActivities[0]));
+        deleteActivity(Number(data.deleteActivitiesAdmin[0]));
         return true;
       }
       toast.error("Erreur lors de la suppression de l'activité");

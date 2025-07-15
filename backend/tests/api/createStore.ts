@@ -1,6 +1,6 @@
 export const mutationCreateStore = `#graphql
-  mutation createStore($data: StoreCreateInput!) {
-    createStore(data: $data) {
+  mutation createStoreAdmin($data: StoreCreateInputAdmin!) {
+    createStoreAdmin(data: $data) {
       id
     }
   }

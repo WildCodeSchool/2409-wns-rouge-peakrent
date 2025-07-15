@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_STORES } from "@/GraphQL/stores";
+import { GET_STORES } from "@/graphQL/stores";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";
 import { toast } from "sonner";

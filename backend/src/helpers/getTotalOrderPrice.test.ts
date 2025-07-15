@@ -1,4 +1,4 @@
-import { OrderItem } from "../entities/OrderItem";
+import { OrderItem } from "@/entities/OrderItem";
 import { getTotalOrderPrice } from "./getTotalOrderPrice";
 
 const now = Date.now();

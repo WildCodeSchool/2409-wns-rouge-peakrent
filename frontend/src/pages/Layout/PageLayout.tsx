@@ -1,6 +1,6 @@
-import Footer from "@/components/Footer/Footer";
-import NavBar from "@/components/Nav/NavBar";
-import NavBarMobile from "@/components/Nav/NavBarMobile";
+import Footer from "@/components/footer/Footer";
+import NavBar from "@/components/nav/NavBar";
+import NavBarMobile from "@/components/nav/NavBarMobile";
 import { Outlet } from "react-router-dom";
 
 const PageLayout = () => {
