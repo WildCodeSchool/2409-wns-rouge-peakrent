@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { SIGNIN, WHOAMI } from "@/graphQL";
 import { createPasswordSchema } from "@/schemas/authSchemas";
 import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
 import { gql, useMutation } from "@apollo/client";
@@ -14,8 +15,6 @@ import { useForm } from "react-hook-form";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { SIGNIN } from "../../graphQL/signin";
-import { WHOAMI } from "../../graphQL/whoami";
 
 const signInSchema = z.object({
   email: createEmailSchema({

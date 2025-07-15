@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { InvalidTokenCard } from "../../components/cards/InvalidTokenCard";
+import { VerificationTokenCard } from "../../components/cards/VerificationTokenCard";
 
 export function RecoverPasswordPage() {
   const navigate = useNavigate();
@@ -100,39 +102,17 @@ export function RecoverPasswordPage() {
   };
 
   if (isValidating) {
-    return (
-      <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-        <CardHeader>
-          <CardTitle className="text-2xl">Vérification du token...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center">
-            <LoadIcon size={24} />
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <VerificationTokenCard />;
   }
 
   if (!token || !isTokenValid) {
     return (
-      <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-        <CardHeader>
-          <CardTitle className="text-2xl text-destructive">
-            Token invalide
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Le lien de réinitialisation est invalide ou a expiré.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Link to="/forgot-password" className="text-primary underline">
-            Demander un nouveau lien
-          </Link>
-        </CardFooter>
-      </Card>
+      <InvalidTokenCard
+        title="Token invalide"
+        description="Le lien de réinitialisation est invalide ou a expiré."
+        link="/forgot-password"
+        linkText="Demander un nouveau lien"
+      />
     );
   }
 

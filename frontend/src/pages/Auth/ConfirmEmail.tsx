@@ -1,18 +1,13 @@
-import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { VERIFY_CONFIRM_EMAIL_TOKEN } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { InvalidTokenCard } from "../../components/cards/InvalidTokenCard";
+import { VerificationTokenCard } from "../../components/cards/VerificationTokenCard";
 
 export function ConfirmEmailPage() {
   const [searchParams] = useSearchParams();
@@ -53,39 +48,17 @@ export function ConfirmEmailPage() {
   }, [token, verifyAccount]);
 
   if (isValidating) {
-    return (
-      <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-        <CardHeader>
-          <CardTitle className="text-2xl">Vérification du token...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center">
-            <LoadIcon size={24} />
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <VerificationTokenCard />;
   }
 
   if (!token || !isTokenValid) {
     return (
-      <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-        <CardHeader>
-          <CardTitle className="text-2xl text-destructive">
-            Token invalide
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Le lien de confirmation d&apos;email est invalide ou a expiré.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Link to="/signin" className="text-primary underline">
-            Demander un nouveau lien en vous connectant
-          </Link>
-        </CardFooter>
-      </Card>
+      <InvalidTokenCard
+        title="Token invalide"
+        description="Le lien de confirmation d'email est invalide ou a expiré."
+        link="/signin"
+        linkText="Demander un nouveau lien en vous connectant"
+      />
     );
   }
 
@@ -97,10 +70,10 @@ export function ConfirmEmailPage() {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Email validé avec succès</h1>
+          <h1 className="text-2xl font-bold">Email vérifié avec succès</h1>
           <p className="text-muted-foreground text-sm">
-            Votre adresse email a été confirmée. Vous pouvez maintenant accéder
-            à votre compte.
+            Votre adresse email a été vérifiée avec succès. Vous pouvez
+            maintenant accéder à votre compte.
           </p>
         </div>
 
