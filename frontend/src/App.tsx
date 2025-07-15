@@ -15,6 +15,7 @@ import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { ForgotPasswordPage } from "./pages/Auth/ForgotPassword";
+import { RecoverPasswordPage } from "./pages/Auth/RecoverPassword";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import { CartCheckout } from "./pages/Cart/CartCheckout";
@@ -93,6 +94,12 @@ function App() {
           <Route
             path="/forgot-password"
             element={checkAuth(ForgotPasswordPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route
+            path="/reset-password"
+            element={checkAuth(RecoverPasswordPage, [
               AuthStates.unauthenticated,
             ])()}
           />
