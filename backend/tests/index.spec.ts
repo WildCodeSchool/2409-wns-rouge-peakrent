@@ -72,6 +72,22 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
   adminProfile.role = RoleType.admin;
   await adminProfile.save();
 
+  const adminUser = await User.findOne({
+    where: { id: testArgs.data.admin.id },
+  });
+  adminUser.emailVerifiedAt = new Date();
+  adminUser.emailToken = null;
+  adminUser.emailSentAt = null;
+  await adminUser.save();
+
+  const userUser = await User.findOne({
+    where: { id: testArgs.data.user.id },
+  });
+  userUser.emailVerifiedAt = new Date();
+  userUser.emailToken = null;
+  userUser.emailSentAt = null;
+  await userUser.save();
+
   testArgs.data.admin.role = RoleType.admin;
 };
 
