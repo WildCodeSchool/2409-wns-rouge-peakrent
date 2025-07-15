@@ -1,6 +1,5 @@
-"use client";
-
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui";
 import {
   Card,
   CardContent,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { VERIFY_CONFIRM_EMAIL_TOKEN } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -90,15 +90,27 @@ export function ConfirmEmailPage() {
   }
 
   return (
-    <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-      <CardHeader>
-        <CardTitle className="text-2xl">Email validé avec succès</CardTitle>
-        <CardContent>
-          <Link to="/signin" className="text-primary underline ">
+    <Card className="max-w-md mx-auto mt-8 py-4">
+      <CardContent className="p-8 text-center space-y-6">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+          <CheckCircle className="w-10 h-10 text-green-600" />
+        </div>
+
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">Email validé avec succès</h1>
+          <p className="text-muted-foreground text-sm">
+            Votre adresse email a été confirmée. Vous pouvez maintenant accéder
+            à votre compte.
+          </p>
+        </div>
+
+        <Link to="/signin">
+          <Button className="w-full" size="lg" variant="primary">
             Se connecter
-          </Link>
-        </CardContent>
-      </CardHeader>
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
+      </CardContent>
     </Card>
   );
 }
