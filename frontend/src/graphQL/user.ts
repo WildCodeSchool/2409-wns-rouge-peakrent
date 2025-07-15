@@ -11,3 +11,15 @@ export const FORGOT_PASSWORD = `
     forgotPassword(data: $data)
   }
 `;
+
+export const RESET_PASSWORD = `
+  mutation ResetPassword($data: ResetPasswordInput!) {
+    resetPassword(data: $data)
+  }
+`;
+
+export const VERIFY_RESET_TOKEN = `
+  mutation VerifyResetToken($token: String!) {
+    verifyResetToken(token: $token)
+  }
+`;
