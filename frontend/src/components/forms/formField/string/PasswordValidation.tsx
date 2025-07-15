@@ -17,6 +17,7 @@ interface PasswordValidationProps {
   isRequired?: boolean;
   name: string;
   needValidation?: boolean;
+  isPending?: boolean;
 }
 
 export const PasswordValidation = ({
@@ -25,6 +26,7 @@ export const PasswordValidation = ({
   label,
   isRequired,
   needValidation,
+  isPending,
 }: PasswordValidationProps) => {
   const password = form.watch(name);
   const isLengthValid = (password?.length ?? 0) >= 8;
@@ -56,6 +58,7 @@ export const PasswordValidation = ({
                   {...field}
                   data-testid={name}
                   value={field.value ?? ""}
+                  disabled={isPending}
                 />
                 <Box
                   className="text-muted-foreground absolute inset-y-0 right-0 flex cursor-pointer items-center p-3"

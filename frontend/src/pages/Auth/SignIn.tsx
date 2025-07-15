@@ -9,6 +9,7 @@ import { createPasswordSchema } from "@/schemas/authSchemas";
 import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ type SignInFormValues = z.infer<typeof signInSchema>;
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const [isPending, setIsPending] = useState(false);
 
   const [doSignin] = useMutation(gql(SIGNIN), {
     refetchQueries: [{ query: gql(WHOAMI) }],
@@ -46,6 +48,7 @@ export function SignInPage() {
 
   const onSubmit = async (formData: SignInFormValues) => {
     try {
+      setIsPending(true);
       const { data } = await doSignin({
         variables: {
           datas: {
@@ -59,9 +62,19 @@ export function SignInPage() {
       } else {
         toast.error("Impossible de vous connecter");
       }
-    } catch (e) {
-      console.error(e);
-      toast.error("Identification échouée");
+    } catch (error: any) {
+      toast.error(
+        error?.networkError?.result.errors[0]?.extensions?.code ===
+          "EMAIL_ALREADY_SENT"
+          ? "Veuillez vérifier votre email avant de vous connecter"
+          : error?.networkError?.result.errors[0]?.extensions?.code ===
+              "EMAIL_NOT_VERIFIED"
+            ? "Un email de vérification a été envoyé à votre adresse email"
+            : "Identifiant ou mot de passe incorrect",
+        { duration: 7000 }
+      );
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -90,12 +103,14 @@ export function SignInPage() {
                     name="email"
                     placeholder="email"
                     required
+                    isPending={isPending}
                   />
                   <PasswordValidation
                     form={form}
                     label="Mot de passe"
                     isRequired={true}
                     name="password"
+                    isPending={isPending}
                   />
                   <div className="flex items-center space-x-2">
                     <CheckboxInput
@@ -103,6 +118,7 @@ export function SignInPage() {
                       name="rememberMe"
                       label="Se souvenir de moi"
                       onlyLabel={true}
+                      isPending={isPending}
                     />
                   </div>
                   <div className="text-right">
@@ -119,11 +135,12 @@ export function SignInPage() {
                       size="lg"
                       className="w-full text-sm text-white rounded-lg"
                       variant="primary"
+                      disabled={isPending}
                     >
-                      Se connecter
+                      {isPending ? "Connexion..." : "Se connecter"}
                     </Button>
                   </div>
-                  <div className="sm:block md:hidden text-center text-sm text-gray-600">
+                  <div className="sm:block md:hidden text-center text-sm text-muted-foreground">
                     Vous n&apos;avez pas de compte ?{" "}
                     <Link to="/signup" className="text-primary hover:underline">
                       S&apos;inscrire
@@ -161,6 +178,7 @@ export function SignInPage() {
                       size="lg"
                       className="w-full text-sm text-black rounded-lg"
                       variant="outline"
+                      disabled={isPending}
                     >
                       S&apos;inscrire
                     </Button>

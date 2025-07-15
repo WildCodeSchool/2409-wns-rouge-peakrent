@@ -1,5 +1,3 @@
-"use client";
-
 import { PasswordValidation } from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
