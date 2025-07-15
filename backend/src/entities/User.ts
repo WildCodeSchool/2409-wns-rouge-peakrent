@@ -187,3 +187,10 @@ export class UserUpdateProfileInput {
   @IsNotEmpty({ message: "Last name is empty" })
   lastname?: string;
 }
+
+@InputType()
+export class ForgotPasswordInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  email!: string;
+}

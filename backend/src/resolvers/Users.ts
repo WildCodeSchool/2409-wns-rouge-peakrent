@@ -1,6 +1,7 @@
 import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import {
+  ForgotPasswordInput,
   SignInInput,
   User,
   UserCreateInput,
@@ -9,13 +10,21 @@ import {
 import { UserToken } from "@/entities/UserToken";
 import { hashPassword, verifyPassword } from "@/helpers/helpers";
 import { validateInput } from "@/helpers/validateInput";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { ContextType, RoleType } from "@/types";
 import { UserInputError } from "apollo-server-errors";
 import { ValidationError } from "class-validator";
 import Cookies from "cookies";
 import { GraphQLError } from "graphql";
 import * as jsonwebtoken from "jsonwebtoken";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Mutation,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 
 @Resolver(User)
 export class UserResolver {
@@ -157,6 +166,7 @@ export class UserResolver {
 
   @Authorized()
   @Mutation(() => Profile)
+  @UseMiddleware(ErrorCatcher)
   async updateUserProfile(
     @Arg("data", () => UserUpdateProfileInput) data: UserUpdateProfileInput,
     @Ctx() context: ContextType
@@ -190,5 +200,41 @@ export class UserResolver {
       });
     }
     return profile;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async forgotPassword(
+    @Arg("data", () => ForgotPasswordInput) data: ForgotPasswordInput
+  ): Promise<boolean> {
+    const user = await User.findOne({ where: { email: data.email } });
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    if (
+      user.recoverSentAt &&
+      user.recoverSentAt > new Date(Date.now() - 1000 * 60 * 60)
+    ) {
+      throw new GraphQLError("Email déjà envoyé", {
+        extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 400 } },
+      });
+    }
+
+    const recoverToken = jsonwebtoken.sign(
+      { id: user.id },
+      process.env.JWT_SECRET_RECOVER_KEY,
+      { expiresIn: "1h" }
+    );
+
+    user.recoverToken = recoverToken;
+    user.recoverSentAt = new Date();
+    await user.save();
+
+    //TODO send email with token
+
+    return true;
   }
 }

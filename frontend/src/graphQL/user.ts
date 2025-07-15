@@ -5,3 +5,9 @@ export const CREATE_USER = `
     }
   }
 `;
+
+export const FORGOT_PASSWORD = `
+  mutation ForgotPassword($data: ForgotPasswordInput!) {
+    forgotPassword(data: $data)
+  }
+`;

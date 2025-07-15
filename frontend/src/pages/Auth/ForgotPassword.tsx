@@ -10,9 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FORGOT_PASSWORD } from "@/graphQL";
 import { createEmailSchema } from "@/schemas/utils";
+import { gql, useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const generateResetPasswordFormSchema = () => {
@@ -21,49 +24,66 @@ const generateResetPasswordFormSchema = () => {
   });
 };
 
+const errorMessages = {
+  USER_NOT_FOUND: "Utilisateur introuvable",
+  EMAIL_ALREADY_SENT: "Email déjà envoyé",
+  INTERNAL_SERVER_ERROR: "Erreur lors de l'envoi de l'email",
+};
+
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [alreadySubmit, setAlreadySubmit] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const schema = generateResetPasswordFormSchema();
+  const [forgotPassword] = useMutation(gql(FORGOT_PASSWORD));
 
   const handleSubmit = async () => {
-    setAlreadySubmit(true);
     setIsPending(true);
     try {
       const parsedValues = schema.safeParse({ email });
       if (!parsedValues.success) {
-        throw new Error("Email invalide");
+        if (!email || !email.trim()) {
+          setError("Email requis");
+        } else {
+          setError("Email invalide");
+        }
+        return;
       }
-      setError(null);
-      // const { success: emailSend } = await resetPasswordForEmail(email);
-      // if (!emailSend) {
-      //   setError("Erreur lors de l'envoi de l'email de réinitialisation");
-      // } else {
-      //   setError(null);
-      //   setEmail("");
-      //   setAlreadySubmit(false);
-      //   toast.success("Email de réinitialisation envoyé");
-      // }
-    } catch (validationError) {
-      if (validationError instanceof Error) {
-        setError(validationError.message);
+      const { data } = await forgotPassword({
+        variables: {
+          data: { email },
+        },
+      });
+
+      if (data && data?.forgotPassword) {
+        setError(null);
+        setEmail("");
+        toast.success("Email de réinitialisation envoyé");
       }
-      return;
+    } catch (error: any) {
+      setError(
+        errorMessages[
+          error?.networkError?.result.errors[0]?.extensions
+            ?.code as keyof typeof errorMessages
+        ] ?? error?.message
+      );
     } finally {
       setIsPending(false);
     }
   };
 
   useEffect(() => {
+    if (!email || !email.trim()) {
+      setError("Email requis");
+      return;
+    }
     const parsedValues = schema.safeParse({ email });
     if (parsedValues.success) {
       setError(null);
     } else {
       setError("Email invalide");
     }
-  }, [email, schema]);
+  }, [email]);
 
   return (
     <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
@@ -84,9 +104,9 @@ export function ForgotPasswordPage() {
           onChange={(e) => setEmail(e.target.value)}
           value={email}
         />
-        {error && alreadySubmit && (
-          <p className="text-destructive mt-1 text-sm font-semibold capitalize">
-            {error}
+        {error && (
+          <p className="text-destructive mt-1 text-sm font-semibold">
+            {error ?? "Une erreur est survenue"}
           </p>
         )}
       </CardContent>
