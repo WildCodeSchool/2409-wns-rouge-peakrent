@@ -1,14 +1,14 @@
 import { Icons } from "@/components/icons";
+import { Box } from "@/components/ui/box";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
-import { Box } from "@/components/ui/box";
 import { Input } from "@/components/ui/input";
-import { EyeOffIcon, EyeIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import React from "react";
 
 interface PasswordValidationProps {
@@ -51,7 +51,7 @@ export const PasswordValidation = ({
               <Box className="relative">
                 <Input
                   className={cn(
-                    "border-primary/40 hover:ring-ring border pr-12 placeholder:text-xs hover:ring-1"
+                    "hover:ring-ring border pr-12 placeholder:text-xs hover:ring-1"
                   )}
                   autoComplete="on"
                   type={passwordVisibility ? "text" : "password"}

@@ -100,7 +100,7 @@ export function SignInPage() {
                     label="Email"
                     form={form}
                     name="email"
-                    placeholder="email"
+                    placeholder=" "
                     required
                     isPending={isPending}
                   />
