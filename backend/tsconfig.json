@@ -14,7 +14,7 @@
       "@/helpers/*": ["./src/helpers/*"],
       "@/middlewares/*": ["./src/middlewares/*"],
       "@/resolvers/*": ["./src/resolvers/*"],
-      "@/tests/*": ["./tests/*"],
+      "@/tests/*": ["./tests/*"]
     }
   }
 }
