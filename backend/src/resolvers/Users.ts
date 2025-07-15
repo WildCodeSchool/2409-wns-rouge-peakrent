@@ -2,6 +2,7 @@ import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import {
   ForgotPasswordInput,
+  ResetPasswordInput,
   SignInInput,
   User,
   UserCreateInput,
@@ -235,6 +236,68 @@ export class UserResolver {
     await user.save();
 
     await sendRecoverEmail(user.email, recoverToken);
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async resetPassword(
+    @Arg("data", () => ResetPasswordInput) data: ResetPasswordInput
+  ): Promise<boolean> {
+    if (data.password !== data.confirmPassword) {
+      throw new GraphQLError("Les mots de passe ne correspondent pas", {
+        extensions: { code: "PASSWORDS_DONT_MATCH", http: { status: 400 } },
+      });
+    }
+
+    const decoded = jsonwebtoken.verify(
+      data.token,
+      process.env.JWT_SECRET_RECOVER_KEY
+    ) as { id: number };
+
+    const user = await User.findOne({ where: { id: decoded.id } });
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    if (user.recoverToken !== data.token) {
+      throw new GraphQLError("Token invalide", {
+        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
+      });
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+    user.password = hashedPassword;
+    user.recoverToken = null;
+    user.recoverSentAt = null;
+    await user.save();
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async verifyResetToken(@Arg("token") token: string): Promise<boolean> {
+    const decoded = jsonwebtoken.verify(
+      token,
+      process.env.JWT_SECRET_RECOVER_KEY
+    ) as { id: number };
+
+    const user = await User.findOne({ where: { id: decoded.id } });
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    if (user.recoverToken !== token) {
+      throw new GraphQLError("Token invalide", {
+        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
+      });
+    }
 
     return true;
   }
