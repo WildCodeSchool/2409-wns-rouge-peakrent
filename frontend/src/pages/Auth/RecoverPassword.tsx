@@ -1,6 +1,9 @@
 "use client";
 
+import { PasswordValidation } from "@/components/forms/formField";
+import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Form } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,35 +12,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { RESET_PASSWORD, VERIFY_RESET_TOKEN } from "@/graphQL/user";
-import { createPasswordSchema } from "@/schemas/authSchemas";
+import {
+  createResetPasswordFormSchema,
+  ResetPasswordFormValuesType,
+} from "@/schemas/authSchemas";
 import { gql, useMutation } from "@apollo/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const resetPasswordSchema = z
-  .object({
-    password: createPasswordSchema(),
-    confirmPassword: z.string().min(1, "Confirmation du mot de passe requise"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export function RecoverPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [isValidating, setIsValidating] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(false);
@@ -45,10 +36,18 @@ export function RecoverPasswordPage() {
   const [verifyToken] = useMutation(gql(VERIFY_RESET_TOKEN));
   const [resetPassword] = useMutation(gql(RESET_PASSWORD));
 
+  const formSchema = createResetPasswordFormSchema();
+  const defaultValues = getFormDefaultValues(formSchema);
+
+  const form = useForm<ResetPasswordFormValuesType>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  });
+
   useEffect(() => {
     const validateToken = async () => {
       if (!token) {
-        setError("Token manquant dans l'URL");
+        toast.error("Token manquant");
         setIsValidating(false);
         return;
       }
@@ -60,25 +59,11 @@ export function RecoverPasswordPage() {
 
         if (data?.verifyResetToken) {
           setIsTokenValid(true);
-          setError(null);
         } else {
-          setError("Token invalide");
+          toast.error("Token invalide");
           setIsTokenValid(false);
         }
       } catch (error: any) {
-        console.error("Erreur lors de la vérification du token:", error);
-        const errorMessage = error?.graphQLErrors?.[0]?.extensions?.code;
-
-        switch (errorMessage) {
-          case "INVALID_TOKEN":
-            setError("Token expiré ou invalide");
-            break;
-          case "USER_NOT_FOUND":
-            setError("Utilisateur introuvable");
-            break;
-          default:
-            setError("Token invalide");
-        }
         setIsTokenValid(false);
       } finally {
         setIsValidating(false);
@@ -88,32 +73,19 @@ export function RecoverPasswordPage() {
     validateToken();
   }, [token, verifyToken]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: ResetPasswordFormValuesType) => {
     if (!token || !isTokenValid) {
-      setError("Token manquant ou invalide");
       return;
     }
 
     setIsPending(true);
     try {
-      const parsedValues = resetPasswordSchema.safeParse({
-        password,
-        confirmPassword,
-      });
-
-      if (!parsedValues.success) {
-        const errors = parsedValues.error.errors;
-        setError(errors[0]?.message || "Données invalides");
-        return;
-      }
-
-      setError(null);
       const { data } = await resetPassword({
         variables: {
           data: {
             token,
-            password,
-            confirmPassword,
+            password: values.newPassword,
+            confirmPassword: values.newPasswordConfirm,
           },
         },
       });
@@ -123,22 +95,7 @@ export function RecoverPasswordPage() {
         navigate("/signin", { replace: true });
       }
     } catch (error: any) {
-      console.error("Erreur lors de la réinitialisation:", error);
-      const errorMessage = error?.graphQLErrors?.[0]?.extensions?.code;
-
-      switch (errorMessage) {
-        case "INVALID_TOKEN":
-          setError("Token expiré ou invalide");
-          break;
-        case "USER_NOT_FOUND":
-          setError("Utilisateur introuvable");
-          break;
-        case "PASSWORDS_DONT_MATCH":
-          setError("Les mots de passe ne correspondent pas");
-          break;
-        default:
-          setError("Erreur lors de la réinitialisation du mot de passe");
-      }
+      toast.error("Erreur lors de la réinitialisation du mot de passe");
     } finally {
       setIsPending(false);
     }
@@ -171,11 +128,6 @@ export function RecoverPasswordPage() {
           <p className="text-muted-foreground">
             Le lien de réinitialisation est invalide ou a expiré.
           </p>
-          {error && (
-            <p className="text-destructive text-sm font-semibold mt-2">
-              {error}
-            </p>
-          )}
         </CardContent>
         <CardFooter>
           <Link to="/forgot-password" className="text-primary underline">
@@ -187,66 +139,58 @@ export function RecoverPasswordPage() {
   }
 
   return (
-    <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
-      <CardHeader>
-        <CardTitle className="text-2xl">
-          Réinitialiser votre mot de passe
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
-            Nouveau mot de passe
-          </label>
-          <Input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isPending}
-            placeholder="Entrez votre nouveau mot de passe"
-            className="hover:ring-ring hover:ring-1"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium mb-1"
-          >
-            Confirmer le mot de passe
-          </label>
-          <Input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            disabled={isPending}
-            placeholder="Confirmez votre nouveau mot de passe"
-            className="hover:ring-ring hover:ring-1"
-          />
-        </div>
-
-        {error && (
-          <p className="text-destructive text-sm font-semibold">{error}</p>
-        )}
-      </CardContent>
-      <CardFooter className="flex-col items-start justify-center">
-        <Button
-          size="lg"
-          className="w-full"
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
-          {isPending ? <LoadIcon size={24} /> : "Réinitialiser le mot de passe"}
-        </Button>
-        <p className="mt-4 text-sm">
-          <Link to="/signin" className="text-primary underline">
-            Retour à la connexion
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4"
+        noValidate
+      >
+        <Card className="max-w-md mx-auto mt-8 py-4 gap-4">
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Réinitialiser votre mot de passe
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <PasswordValidation
+              form={form}
+              label="Nouveau mot de passe"
+              isRequired={true}
+              name="newPassword"
+              needValidation={true}
+            />
+            <PasswordValidation
+              form={form}
+              label="Confirmation du mot de passe"
+              isRequired={true}
+              name="newPasswordConfirm"
+            />
+          </CardContent>
+          <CardFooter className="flex-col items-start justify-center">
+            <div className="ml-auto w-[300px]">
+              <div className="flex w-full justify-between gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isPending}
+                  className="w-full"
+                  onClick={() => form.reset()}
+                >
+                  Effacer
+                </Button>
+                <Button type="submit" disabled={isPending} className="w-full">
+                  {isPending ? <LoadIcon size={24} /> : "Valider"}
+                </Button>
+              </div>
+            </div>
+            <p className="mt-4 text-sm">
+              <Link to="/signin" className="text-primary underline">
+                Retour à la connexion
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 }
