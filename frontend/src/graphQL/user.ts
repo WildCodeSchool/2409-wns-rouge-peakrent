@@ -1,5 +1,5 @@
 export const CREATE_USER = `
-  mutation Mutation($data: UserCreateInput!) {
+  mutation CreateUser($data: UserCreateInput!) {
     createUser(data: $data) {
       id
     }
