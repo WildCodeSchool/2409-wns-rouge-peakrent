@@ -1,6 +1,9 @@
 import { transporter } from "./config";
 
 export async function sendRecoverEmail(to: string, token: string) {
+  if (process.env.NODE_ENV === "testing") {
+    return;
+  }
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
   await transporter.sendMail({

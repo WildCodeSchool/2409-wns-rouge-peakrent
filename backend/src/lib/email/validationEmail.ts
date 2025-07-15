@@ -1,6 +1,10 @@
 import { transporter } from "./config";
 
 export async function sendConfirmEmail(to: string, token: string) {
+  if (process.env.NODE_ENV === "testing") {
+    return;
+  }
+
   const confirmUrl = `${process.env.FRONTEND_URL}/validate-email?token=${token}`;
 
   await transporter.sendMail({
