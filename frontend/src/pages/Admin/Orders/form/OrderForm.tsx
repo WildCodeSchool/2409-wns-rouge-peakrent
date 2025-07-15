@@ -18,7 +18,7 @@ import { Form } from "@/components/ui/form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Order as OrderType, Profile as ProfileType } from "@/gql/graphql";
 import { CREATE_ORDER_WITH_ITEMS } from "@/graphQL/order";
-import { GET_PROFILE_BY_USER_ID, GET_PROFILES } from "@/graphQL/profiles";
+import { GET_PROFILE_BY_USER_ID, GET_PROFILES_ADMIN } from "@/graphQL/profiles";
 import { cn } from "@/lib/utils";
 import {
   generateOrderSchema,
@@ -42,9 +42,9 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
   const ordersFetched = useOrderStore((state) => state.ordersFetched);
 
   // gql queries
-  const [fetchCustomers] = useLazyQuery(gql(GET_PROFILES), {
+  const [fetchCustomers] = useLazyQuery(gql(GET_PROFILES_ADMIN), {
     onCompleted: (data) => {
-      return data?.getProfiles ?? [];
+      return data?.getProfilesAdmin ?? [];
     },
   });
 
@@ -218,12 +218,12 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
               fetchResults={(query) =>
                 fetchCustomers({ variables: { search: query } }).then((res) => {
                   return {
-                    success: res.data?.getProfiles?.length > 0,
+                    success: res.data?.getProfilesAdmin?.length > 0,
                     message:
-                      res.data?.getProfiles?.length > 0
+                      res.data?.getProfilesAdmin?.length > 0
                         ? "Client trouvé"
                         : "Aucun client trouvé",
-                    data: res.data?.getProfiles ?? [],
+                    data: res.data?.getProfilesAdmin ?? [],
                   };
                 })
               }
@@ -355,7 +355,9 @@ export function OrderForm({ orderInfos }: { orderInfos?: OrderType }) {
 
             {orderItemsErrors && (
               <div className="text-destructive font-medium">
-                {orderItemsErrors}
+                {typeof orderItemsErrors === "string"
+                  ? orderItemsErrors
+                  : (orderItemsErrors as { message?: string })?.message}
               </div>
             )}
           </form>

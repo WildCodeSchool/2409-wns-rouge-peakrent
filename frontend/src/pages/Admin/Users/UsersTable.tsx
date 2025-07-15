@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_PROFILES } from "@/graphQL/profiles";
+import { GET_PROFILES_ADMIN } from "@/graphQL/profiles";
 import { useUserStore } from "@/stores/admin/user.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";
@@ -18,7 +18,7 @@ export default function UsersTable() {
   const setUsers = useUserStore((state) => state.setUsers);
   const setUsersFetched = useUserStore((state) => state.setUsersFetched);
 
-  const { data, error, loading } = useQuery(gql(GET_PROFILES));
+  const { data, error, loading } = useQuery(gql(GET_PROFILES_ADMIN));
 
   const columnConfigs: ColumnConfig[] = [
     {
@@ -38,8 +38,8 @@ export default function UsersTable() {
       return;
     }
 
-    if (data?.getProfiles) {
-      setUsers(data.getProfiles);
+    if (data?.getProfilesAdmin) {
+      setUsers(data.getProfilesAdmin);
       setUsersFetched(true);
     }
   }, [data, error, setUsers, setUsersFetched]);
@@ -72,7 +72,6 @@ export default function UsersTable() {
         placeholder: `Email / Prénom / Nom / "id"`,
       }}
       hideColumns={{ firstname: false, lastname: false }}
-      rowLink="id"
       hideExport
       onDeleteMultipleFunction={onDeleteMultipleFunction}
     />
