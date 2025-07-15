@@ -160,7 +160,10 @@ describe("SignIn Component", () => {
       screen.getByRole("button", { name: /Se connecter/i })
     );
 
-    expect(toast.error).toHaveBeenCalledWith("Identification échouée");
+    expect(toast.error).toHaveBeenCalledWith(
+      "Identifiant ou mot de passe incorrect",
+      { duration: 7000 }
+    );
     expect(mockedUsedNavigate).not.toHaveBeenCalled();
   });
 });
