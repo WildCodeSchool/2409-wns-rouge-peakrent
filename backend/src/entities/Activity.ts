@@ -1,4 +1,4 @@
-import { Pagination } from "@/commonInput/Pagination";
+import { Pagination } from "../commonInput/Pagination";
 import { IsNotEmpty, IsString, IsUrl, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
