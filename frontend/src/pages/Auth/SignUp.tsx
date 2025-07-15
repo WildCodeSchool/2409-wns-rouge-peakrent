@@ -3,6 +3,7 @@ import {
   PasswordValidation,
   StringInput,
 } from "@/components/forms/formField";
+import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -14,12 +15,14 @@ import {
 } from "@/schemas/authSchemas";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "sonner";
 
 export function SignUpPage() {
   const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
+  const [isPending, setIsPending] = useState(false);
 
   const form = useForm<SignUpFormValuesType>({
     resolver: zodResolver(createSignUpFormSchema()),
@@ -44,6 +47,7 @@ export function SignUpPage() {
     }
 
     try {
+      setIsPending(true);
       const result = await doCreateUser({
         variables: {
           data: {
@@ -76,6 +80,8 @@ export function SignUpPage() {
           error.message || "Une erreur est survenue lors de l'inscription"
         );
       }
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -195,6 +201,7 @@ export function SignUpPage() {
                       placeholder=" "
                       required
                       containerClassName="w-full"
+                      isPending={isPending}
                     />
                     <StringInput
                       form={form}
@@ -203,6 +210,7 @@ export function SignUpPage() {
                       placeholder=" "
                       required
                       containerClassName="w-full"
+                      isPending={isPending}
                     />
                   </div>
                   <StringInput
@@ -211,6 +219,7 @@ export function SignUpPage() {
                     label="Email"
                     placeholder=" "
                     required
+                    isPending={isPending}
                   />
                   <PasswordValidation
                     form={form}
@@ -218,12 +227,14 @@ export function SignUpPage() {
                     isRequired={true}
                     name="password"
                     needValidation={true}
+                    isPending={isPending}
                   />
                   <PasswordValidation
                     form={form}
                     label="Confirmation du mot de passe"
                     isRequired={true}
                     name="confirmPassword"
+                    isPending={isPending}
                   />
                   <div className="flex items-center space-x-2">
                     <CheckboxInput
@@ -231,6 +242,7 @@ export function SignUpPage() {
                       name="agreeToPolicy"
                       label="J'accepte les conditions d'utilisation"
                       required
+                      isPending={isPending}
                     />
                   </div>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">
@@ -239,11 +251,12 @@ export function SignUpPage() {
                       size="lg"
                       className="w-full text-sm text-white rounded-lg"
                       variant="primary"
+                      disabled={isPending}
                     >
-                      S&apos;inscrire
+                      {isPending ? <LoadIcon size={24} /> : "S'inscrire"}
                     </Button>
                   </div>
-                  <div className="sm:block md:hidden text-center text-sm text-gray-600">
+                  <div className="sm:block md:hidden text-center text-sm text-muted-foreground">
                     Vous avez déjà un compte ?{" "}
                     <Link to="/signin" className="text-primary hover:underline">
                       Se connecter
