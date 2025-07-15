@@ -1,51 +1,28 @@
-import { CheckboxInput } from "@/components/forms/formField";
-import { PasswordValidation } from "@/components/forms/formField/string/PasswordValidation";
-import { StringInput } from "@/components/forms/formField/string/StringInput";
+import {
+  CheckboxInput,
+  PasswordValidation,
+  StringInput,
+} from "@/components/forms/formField";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { CREATE_USER } from "@/graphQL";
 import {
-  createFirstnameSchema,
-  createLastnameSchema,
-  createPasswordSchema,
+  SignUpFormValuesType,
+  createSignUpFormSchema,
 } from "@/schemas/authSchemas";
-import { createEmailSchema } from "@/schemas/utils/string/createEmailSchema";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "sonner";
-import { z } from "zod";
-import { CREATE_USER } from "../../graphQL/user";
-
-const signUpSchema = z
-  .object({
-    firstname: createFirstnameSchema(),
-    lastname: createLastnameSchema(),
-    email: createEmailSchema({
-      requiredError: "L'adresse email est requise",
-      invalidFormatError: "Format d'email invalide",
-      maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
-    }),
-    password: createPasswordSchema(),
-    confirmPassword: createPasswordSchema(),
-    agreeToPolicy: z.boolean().refine((val) => val === true, {
-      message: "Vous devez accepter les conditions d'utilisation",
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
-
-type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export function SignUpPage() {
   const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
 
-  const form = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<SignUpFormValuesType>({
+    resolver: zodResolver(createSignUpFormSchema()),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -56,7 +33,7 @@ export function SignUpPage() {
     },
   });
 
-  const onSubmit = async (formData: SignUpFormValues) => {
+  const onSubmit = async (formData: SignUpFormValuesType) => {
     if (!formData.agreeToPolicy) {
       toast.error("Vous devez accepter les conditions d'utilisation");
       return;
@@ -78,7 +55,16 @@ export function SignUpPage() {
           },
         },
       });
-      toast.success("Inscription réussie !");
+      if (result.data?.createUser) {
+        toast.success(
+          "Inscription réussie! Un email de confirmation vous a été envoyé",
+          {
+            duration: 7000,
+          }
+        );
+      } else {
+        toast.error("Une erreur est survenue lors de l'inscription");
+      }
     } catch (error: any) {
       console.error("Erreur lors de la création du compte:", error);
       if (error.message.includes("password is not strong enough")) {

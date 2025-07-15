@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { nameRegex } from "./regex";
+import { createEmailSchema } from "./utils";
 
 export const createPasswordSchema = () =>
   z
@@ -65,3 +66,25 @@ export const createResetPasswordFormSchema = () => {
 export type ResetPasswordFormValuesType = z.infer<
   ReturnType<typeof createResetPasswordFormSchema>
 >;
+
+export const createSignUpFormSchema = () => z
+  .object({
+    firstname: createFirstnameSchema(),
+    lastname: createLastnameSchema(),
+    email: createEmailSchema({
+      requiredError: "L'adresse email est requise",
+      invalidFormatError: "Format d'email invalide",
+      maxLengthError: "L'adresse email ne doit pas excéder 320 caractères",
+    }),
+    password: createPasswordSchema(),
+    confirmPassword: createPasswordSchema(),
+    agreeToPolicy: z.boolean().refine((val) => val === true, {
+      message: "Vous devez accepter les conditions d'utilisation",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
+export type SignUpFormValuesType = z.infer<ReturnType<typeof createSignUpFormSchema>>;
