@@ -10,6 +10,7 @@ import {
 import { UserToken } from "@/entities/UserToken";
 import { hashPassword, verifyPassword } from "@/helpers/helpers";
 import { validateInput } from "@/helpers/validateInput";
+import { sendRecoverEmail } from "@/lib/email/recoverPassword";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { ContextType, RoleType } from "@/types";
 import { UserInputError } from "apollo-server-errors";
@@ -233,7 +234,7 @@ export class UserResolver {
     user.recoverSentAt = new Date();
     await user.save();
 
-    //TODO send email with token
+    await sendRecoverEmail(user.email, recoverToken);
 
     return true;
   }
