@@ -14,6 +14,7 @@ import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
+import { ForgotPasswordPage } from "./pages/Auth/ForgotPassword";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import { CartCheckout } from "./pages/Cart/CartCheckout";
@@ -88,6 +89,12 @@ function App() {
           <Route
             path="/signup"
             element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
+          />
+          <Route
+            path="/forgot-password"
+            element={checkAuth(ForgotPasswordPage, [
+              AuthStates.unauthenticated,
+            ])()}
           />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products" element={<ProductsPage />} />
