@@ -1,7 +1,7 @@
 import {
   CREATE_ORDER,
   GET_ORDER_BY_ID,
-} from "../../../frontend/src/GraphQL/order";
+} from "../../../frontend/src/graphQL/order";
 import { Order } from "../../src/entities/Order";
 import { generateOrderReference } from "../../src/helpers/generateOrderReference";
 import { assert, TestArgsType } from "../index.spec";
