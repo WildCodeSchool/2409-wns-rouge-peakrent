@@ -45,3 +45,23 @@ export const createLastnameSchema = (data: any = undefined) =>
       message: "Le nom est invalide",
     })
     .default(data);
+
+export const createResetPasswordFormSchema = () => {
+  return z
+    .object({
+      newPassword: createPasswordSchema(),
+      newPasswordConfirm: createPasswordSchema(),
+    })
+    .refine(
+      ({ newPassword, newPasswordConfirm }) =>
+        newPassword === newPasswordConfirm,
+      {
+        path: ["newPasswordConfirm"],
+        message: "Les mots de passe ne correspondent pas",
+      }
+    );
+};
+
+export type ResetPasswordFormValuesType = z.infer<
+  ReturnType<typeof createResetPasswordFormSchema>
+>;
