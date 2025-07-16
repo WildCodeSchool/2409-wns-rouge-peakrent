@@ -136,6 +136,7 @@ function App() {
             path="profile/order/:id"
             element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
+          <Route path="*" element={<PageNotFound />} />
           {/* Admin Routes */}
           <Route
             path="/admin"
@@ -155,7 +156,6 @@ function App() {
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Route>
-        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </UserProvider>
   );
