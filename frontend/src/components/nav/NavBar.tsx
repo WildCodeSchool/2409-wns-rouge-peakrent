@@ -1,15 +1,14 @@
-import { useUser } from "@/context/userProvider";
-import { SIGNOUT } from "@/graphQL/signout";
-import { cn } from "@/lib/utils";
-import { gql, useMutation } from "@apollo/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { ShieldUser } from "lucide-react";
-import { CiHome, CiLogin, CiUser } from "react-icons/ci";
+} from "@/components/ui/dropdown-menu";
+import { useUser } from "@/context/userProvider";
+import { SIGNOUT } from "@/graphQL/signout";
+import { cn } from "@/lib/utils";
+import { gql, useMutation } from "@apollo/client";
+import { Home, LogIn, ShieldUser, User } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import { WHOAMI } from "../../graphQL/whoami";
 import SearchBar from "../searchBar/SearchBar";
@@ -91,7 +90,7 @@ const NavBar = () => {
               "py-2 px-4 cursor-pointer text-center ml-2"
             )}
           >
-            <CiHome size={30} className="flex-none" />
+            <Home size={24} className="flex-none" />
           </NavLink>
           {navItems.map((item) => (
             <NavLink
@@ -120,7 +119,7 @@ const NavBar = () => {
                     "py-2 px-4 cursor-pointer text-center"
                   )}
                 >
-                  <CiUser size={20} className="flex-none" />
+                  <User size={20} className="flex-none" />
                 </span>
               </DropdownMenuTrigger>
 
@@ -158,7 +157,7 @@ const NavBar = () => {
               "py-2 px-4 cursor-pointer text-center"
             )}
           >
-            <CiLogin size={30} className="flex-none" />
+            <LogIn size={20} className="flex-none" />
           </NavLink>
         )}
       </div>
