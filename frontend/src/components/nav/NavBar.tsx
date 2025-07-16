@@ -162,7 +162,7 @@ const NavBar = () => {
         )}
       </div>
       {(userData?.role === "admin" || userData?.role === "superadmin") && (
-        <div className="flex md:hidden items-center pr-2">
+        <div className="flex md:hidden items-center pr-2 border-b border-light-gray h-full">
           <NavLink
             to="/admin"
             aria-label="Navigation vers la page admin"
@@ -171,7 +171,7 @@ const NavBar = () => {
               "py-2 px-4 cursor-pointer text-center"
             )}
           >
-            <ShieldUser size={30} className="flex-none" />
+            <ShieldUser size={24} className="flex-none" />
           </NavLink>
         </div>
       )}
