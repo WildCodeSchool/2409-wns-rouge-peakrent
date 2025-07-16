@@ -97,7 +97,7 @@ export function ForgotPasswordPage() {
           className="hover:ring-ring hover:ring-1"
           name="email"
           id="email"
-          aria-disabled="true"
+          aria-disabled={isPending}
           disabled={isPending}
           onChange={(e) => setEmail(e.target.value)}
           value={email}
