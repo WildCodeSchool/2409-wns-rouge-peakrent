@@ -103,9 +103,7 @@ export function ForgotPasswordPage() {
           value={email}
         />
         {error && (
-          <p className="text-destructive mt-1 text-sm font-semibold">
-            {error}
-          </p>
+          <p className="text-destructive mt-1 text-sm font-semibold">{error}</p>
         )}
       </CardContent>
       <CardFooter className="flex-col items-start justify-center">
