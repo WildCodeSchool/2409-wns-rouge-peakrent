@@ -104,7 +104,7 @@ export function ForgotPasswordPage() {
         />
         {error && (
           <p className="text-destructive mt-1 text-sm font-semibold">
-            {error ?? "Une erreur est survenue"}
+            {error}
           </p>
         )}
       </CardContent>
