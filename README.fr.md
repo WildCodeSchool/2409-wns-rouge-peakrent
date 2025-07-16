@@ -25,48 +25,6 @@
 
 ---
 
-## 📂 Structure du projet
-
-```
-peakrent/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── entities/
-│   │   ├── resolvers/
-│   │   ├── middlewares/
-│   │   ├── auth.ts
-│   │   ├── index.ts
-│   │   └── schema.ts
-│   ├── seed/
-│   ├── uploads/
-│   ├── tests/
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── store/
-│   │   ├── styles/
-│   │   └── utils/
-│   ├── public/
-│   ├── Dockerfile
-│   └── graphql.config.ts (codegen)
-├── docker/
-│   ├── compose.yaml
-│   ├── compose.dev.yaml
-│   ├── compose.staging.yaml
-│   └── nginx.conf
-├── .github/workflows/
-│   ├── ci-build-main.yml
-│   ├── ci-build-develop.yml
-│   └── main.yml
-└── README.md (📖 ce fichier)
-```
-
----
-
 ## 🧱 Technologies clés
 
 ### Backend :
