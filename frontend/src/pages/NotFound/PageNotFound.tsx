@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const PageNotFound = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <style>{`
         @keyframes rotor-spin {
           100% { transform: rotate(360deg); }
@@ -17,7 +17,7 @@ const PageNotFound = () => {
         <h2 className="text-2xl font-semibold mt-4 mb-2">
           Il semble que vous êtes hors piste !
         </h2>
-        <p className="mb-6 text-slate-500">
+        <p className="mb-6 text-muted-foreground">
           Pas de panique, cliquez ici pour être rapatrié.
         </p>
         <Link
