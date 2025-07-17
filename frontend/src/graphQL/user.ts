@@ -29,3 +29,15 @@ export const VERIFY_CONFIRM_EMAIL_TOKEN = `
       verifyConfirmEmailToken(token: $token)
     }
   `;
+
+export const CHANGE_EMAIL = `
+  mutation ChangeEmail($data: ChangeEmailInput!) {
+    changeEmail(data: $data)
+  }
+`;
+
+export const CONFIRM_NEW_EMAIL = `
+  mutation ConfirmNewEmail($data: ConfirmNewEmailInput!) {
+    confirmNewEmail(data: $data)
+  }
+`;

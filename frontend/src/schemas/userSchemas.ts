@@ -49,3 +49,16 @@ export const generateUserFormSchema = (datas?: Profile) =>
   });
 
 export type UserFormSchema = z.infer<ReturnType<typeof generateUserFormSchema>>;
+
+export const generateUpdateEmailFormSchema = () =>
+  z.object({
+    newEmail: createEmailSchema({
+      requiredError: "Le nouvel email est requis",
+      invalidFormatError: "Format d'email invalide",
+    }),
+    password: createPasswordSchema(),
+  });
+
+export type UpdateEmailFormSchema = z.infer<
+  ReturnType<typeof generateUpdateEmailFormSchema>
+>;
