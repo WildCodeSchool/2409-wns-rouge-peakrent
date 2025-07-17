@@ -127,19 +127,20 @@ const NavBar = () => {
                 align="end"
                 className="mt-2 border-1 border-gray-300 rounded-lg bg-white"
               >
-                <DropdownMenuItem className="p-2 text-center border-b border-muted-foreground font-bold">
+                <div className="p-2 text-center border-b border-muted-foreground font-bold cursor-default hover:bg-transparent text-sm">
                   {userData?.email}
-                </DropdownMenuItem>
+                </div>
 
                 {dropDownItems.map((item) => (
-                  <div key={item.path}>
-                    <Link to={item.path} aria-label={item.ariaLabel}>
-                      <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white">
-                        {item.name}
-                      </DropdownMenuItem>
-                    </Link>
-                    <div className=""></div>
-                  </div>
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    aria-label={item.ariaLabel}
+                  >
+                    <DropdownMenuItem className="py-2 px-4 cursor-pointer text-center hover:bg-primary hover:text-white">
+                      {item.name}
+                    </DropdownMenuItem>
+                  </Link>
                 ))}
 
                 <DropdownMenuItem
