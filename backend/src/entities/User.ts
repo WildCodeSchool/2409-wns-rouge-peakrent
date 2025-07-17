@@ -256,3 +256,36 @@ export class ConfirmNewEmailInput {
   @IsNotEmpty({ message: "Token is required" })
   token!: string;
 }
+
+@InputType()
+export class ChangePasswordInput {
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  currentPassword!: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  newPassword!: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  confirmNewPassword!: string;
+}

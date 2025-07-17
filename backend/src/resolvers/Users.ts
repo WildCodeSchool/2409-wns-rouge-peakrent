@@ -2,6 +2,7 @@ import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import {
   ChangeEmailInput,
+  ChangePasswordInput,
   ConfirmNewEmailInput,
   ForgotPasswordInput,
   ResetPasswordInput,
@@ -33,6 +34,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { Not } from "typeorm";
 
 @Resolver(User)
 export class UserResolver {
@@ -529,6 +531,77 @@ export class UserResolver {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
+    }
+
+    return true;
+  }
+
+  @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async changePassword(
+    @Ctx() context: AuthContextType,
+    @Arg("data", () => ChangePasswordInput) data: ChangePasswordInput
+  ): Promise<boolean> {
+    const profileId = context.user.id;
+    const user = await User.findOne({ where: { id: profileId } });
+
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    const currentPasswordMatch = await verifyPassword(
+      user.password,
+      data.currentPassword
+    );
+
+    if (!currentPasswordMatch) {
+      throw new GraphQLError("Mot de passe actuel incorrect", {
+        extensions: { code: "INVALID_CURRENT_PASSWORD", http: { status: 401 } },
+      });
+    }
+
+    if (data.newPassword !== data.confirmNewPassword) {
+      throw new GraphQLError(
+        "Les nouveaux mots de passe ne correspondent pas",
+        {
+          extensions: { code: "PASSWORDS_DONT_MATCH", http: { status: 400 } },
+        }
+      );
+    }
+
+    const newPasswordMatch = await verifyPassword(
+      user.password,
+      data.newPassword
+    );
+
+    if (newPasswordMatch) {
+      throw new GraphQLError(
+        "Le nouveau mot de passe doit être différent de l'actuel",
+        {
+          extensions: { code: "SAME_PASSWORD", http: { status: 400 } },
+        }
+      );
+    }
+
+    const hashedNewPassword = await hashPassword(data.newPassword);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    if (process.env.NODE_ENV !== "testing") {
+      const cookies = new Cookies(context.req, context.res);
+      const currentToken = cookies.get("token");
+
+      if (currentToken) {
+        await UserToken.delete({
+          user: { id: user.id },
+          token: Not(currentToken),
+        });
+      } else {
+        await UserToken.delete({ user: { id: user.id } });
+      }
     }
 
     return true;
