@@ -15,6 +15,7 @@ import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { ConfirmEmailPage } from "./pages/Auth/ConfirmEmail";
+import { ConfirmNewEmailPage } from "./pages/Auth/ConfirmNewEmail";
 import { ForgotPasswordPage } from "./pages/Auth/ForgotPassword";
 import { RecoverPasswordPage } from "./pages/Auth/RecoverPassword";
 import { SignInPage } from "./pages/Auth/SignIn";
@@ -107,6 +108,12 @@ function App() {
           <Route
             path="/validate-email"
             element={checkAuth(ConfirmEmailPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route
+            path="/confirm-new-email"
+            element={checkAuth(ConfirmNewEmailPage, [
               AuthStates.unauthenticated,
             ])()}
           />
