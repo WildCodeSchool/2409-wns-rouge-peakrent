@@ -89,8 +89,8 @@ const initialize = async () => {
   // déplacer dans un fichier
   const endpointSecret =
     process.env.NODE_ENV === "prod"
-      ? "whsec_lBcDGIVswC7Aa2AHCxhTOEw6xInLauX6"
-      : "whsec_c6d922119d25614183d29490761406100489589329af62b0d508a08072ba682e";
+      ? process.env.PROD_WEBHOOK_ENDPOINT
+      : process.env.DEV_WEBHOOK_ENDPOINT;
 
   app.post(
     "/stripe/webhook",
