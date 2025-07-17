@@ -1,15 +1,15 @@
-import express, { Request, Response } from "express";
-import multer from "multer";
-import cors from "cors";
-import "reflect-metadata";
-import fs from "fs";
-import path from "path";
-import sharp from "sharp";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import cors from "cors";
+import express, { Request, Response } from "express";
+import fs from "fs";
+import multer from "multer";
+import path from "path";
+import "reflect-metadata";
+import sharp from "sharp";
 import { dataSource } from "./config/db";
-import { getSchema } from "./schema";
 import { getUserFromContext } from "./helpers/helpers";
+import { getSchema } from "./schema";
 import { ContextType } from "./types";
 
 const GRAPHQL_PORT = 4000;

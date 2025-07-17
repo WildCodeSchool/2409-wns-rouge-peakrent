@@ -69,6 +69,23 @@ export class User extends BaseEntity {
   @Column({ name: "email_token", type: "varchar", length: 255, nullable: true })
   emailToken?: string;
 
+  @Field({ nullable: true })
+  @Column({ name: "new_email", type: "varchar", length: 320, nullable: true })
+  newEmail?: string;
+
+  @Field({ nullable: true })
+  @Column({
+    name: "new_email_token",
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
+  newEmailToken?: string;
+
+  @Field({ nullable: true })
+  @Column({ name: "new_email_sent_at", type: "timestamptz", nullable: true })
+  newEmailSentAt?: Date;
+
   @Field()
   @CreateDateColumn({
     name: "created_at",
@@ -214,4 +231,28 @@ export class ResetPasswordInput {
   @Field()
   @IsNotEmpty({ message: "Confirm password is required" })
   confirmPassword!: string;
+}
+
+@InputType()
+export class ChangeEmailInput {
+  @Field()
+  @IsEmail({}, { message: "Please provide a valid email." })
+  newEmail!: string;
+
+  @Field()
+  @IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  )
+  password!: string;
+}
+
+@InputType()
+export class ConfirmNewEmailInput {
+  @Field()
+  @IsNotEmpty({ message: "Token is required" })
+  token!: string;
 }

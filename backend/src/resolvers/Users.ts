@@ -1,6 +1,8 @@
 import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import {
+  ChangeEmailInput,
+  ConfirmNewEmailInput,
   ForgotPasswordInput,
   ResetPasswordInput,
   SignInInput,
@@ -12,9 +14,12 @@ import { UserToken } from "@/entities/UserToken";
 import { hashPassword, verifyPassword } from "@/helpers/helpers";
 import { validateInput } from "@/helpers/validateInput";
 import { sendRecoverEmail } from "@/lib/email/recoverPassword";
-import { sendConfirmEmail } from "@/lib/email/validationEmail";
+import {
+  sendConfirmEmail,
+  sendConfirmNewEmail,
+} from "@/lib/email/validationEmail";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
-import { ContextType, RoleType } from "@/types";
+import { AuthContextType, ContextType, RoleType } from "@/types";
 import { UserInputError } from "apollo-server-errors";
 import { ValidationError } from "class-validator";
 import Cookies from "cookies";
@@ -367,6 +372,128 @@ export class UserResolver {
     user.emailSentAt = null;
     user.emailVerifiedAt = new Date();
     await user.save();
+
+    return true;
+  }
+
+  @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async changeEmail(
+    @Ctx() context: AuthContextType,
+    @Arg("data", () => ChangeEmailInput) data: ChangeEmailInput
+  ): Promise<boolean> {
+    const profileId = context.user.id;
+    const user = await User.findOne({ where: { id: profileId } });
+
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    const passwordMatch = await verifyPassword(user.password, data.password);
+
+    if (!passwordMatch) {
+      throw new GraphQLError("Mot de passe incorrect", {
+        extensions: { code: "INVALID_PASSWORD", http: { status: 401 } },
+      });
+    }
+
+    const existingUser = await User.findOne({
+      where: { email: data.newEmail },
+    });
+    if (existingUser && existingUser.id !== user.id) {
+      throw new GraphQLError("Cette adresse email est déjà utilisée", {
+        extensions: { code: "EMAIL_ALREADY_EXIST", http: { status: 409 } },
+      });
+    }
+
+    if (user.email === data.newEmail) {
+      throw new GraphQLError(
+        "La nouvelle adresse email est identique à l'actuelle",
+        {
+          extensions: { code: "SAME_EMAIL", http: { status: 400 } },
+        }
+      );
+    }
+
+    if (
+      user.newEmailSentAt &&
+      user.newEmailSentAt > new Date(Date.now() - 1000 * 60 * 15)
+    ) {
+      throw new GraphQLError("Un email de confirmation a déjà été envoyé", {
+        extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 400 } },
+      });
+    }
+
+    const confirmToken = jsonwebtoken.sign(
+      { id: user.id, newEmail: data.newEmail },
+      process.env.JWT_SECRET_RECOVER_KEY,
+      { expiresIn: "15m" }
+    );
+
+    user.newEmail = data.newEmail;
+    user.newEmailToken = confirmToken;
+    user.newEmailSentAt = new Date();
+    await user.save();
+
+    await sendConfirmNewEmail(data.newEmail, confirmToken);
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(ErrorCatcher)
+  async confirmNewEmail(
+    @Arg("data", () => ConfirmNewEmailInput) data: ConfirmNewEmailInput
+  ): Promise<boolean> {
+    const decoded = jsonwebtoken.verify(
+      data.token,
+      process.env.JWT_SECRET_RECOVER_KEY
+    ) as { id: number; newEmail: string };
+
+    const user = await User.findOne({ where: { id: decoded.id } });
+    if (!user) {
+      throw new GraphQLError("Utilisateur introuvable", {
+        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+
+    if (user.newEmailToken !== data.token) {
+      throw new GraphQLError("Token invalide", {
+        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
+      });
+    }
+
+    if (!user.newEmail || user.newEmail !== decoded.newEmail) {
+      throw new GraphQLError("Adresse email invalide", {
+        extensions: { code: "INVALID_EMAIL", http: { status: 400 } },
+      });
+    }
+
+    const existingUser = await User.findOne({
+      where: { email: user.newEmail },
+    });
+    if (existingUser && existingUser.id !== user.id) {
+      throw new GraphQLError("Cette adresse email est déjà utilisée", {
+        extensions: { code: "EMAIL_ALREADY_EXIST", http: { status: 409 } },
+      });
+    }
+
+    await dataSource.manager.transaction(async () => {
+      user.email = user.newEmail;
+      user.newEmail = null;
+      user.newEmailToken = null;
+      user.newEmailSentAt = null;
+      await user.save();
+
+      const profile = await Profile.findOne({ where: { id: user.id } });
+      if (profile) {
+        profile.email = user.email;
+        await profile.save();
+      }
+    });
 
     return true;
   }
