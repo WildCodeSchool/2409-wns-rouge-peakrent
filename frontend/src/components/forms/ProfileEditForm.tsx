@@ -1,16 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import UpdateButton from "@/components/buttons/UpdateButton";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   createFirstnameSchema,
   createLastnameSchema,
 } from "@/schemas/authSchemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { StringInput } from "./formField/string/StringInput";
-import { Button } from "@/components/ui/button";
-import { LoadIcon } from "@/components/icons/LoadIcon";
-import UpdateButton from "@/components/buttons/UpdateButton";
-import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { UpdateEmailForm } from "./UpdateEmailForm";
 
 interface EditProfileProps {
   firstname: string;
@@ -20,7 +21,7 @@ interface EditProfileProps {
     firstname: string;
     lastname: string;
     email: string;
-  }) => void;
+  }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -79,6 +80,7 @@ export default function EditProfile({
               id="email"
               type="email"
               value={form.getValues("email")}
+              disabled={true}
               readOnly
               className="flex-1 bg-gray-100"
             />
@@ -86,7 +88,7 @@ export default function EditProfile({
               ariaLabel={"editEmailAriaLabel"}
               variant="primary"
               modalTitle="Modifier l'email"
-              modalContent={<></>}
+              modalContent={<UpdateEmailForm />}
               className="ml-2"
             />
           </div>
@@ -101,6 +103,7 @@ export default function EditProfile({
               type="password"
               value={"********"}
               readOnly
+              disabled={true}
               className="flex-1 bg-gray-100"
               tabIndex={-1}
             />
