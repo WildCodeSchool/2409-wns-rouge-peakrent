@@ -14,6 +14,8 @@ services:
     command: npm start
     depends_on:
       - db
+    networks:
+      - dev
 
   frontend:
     build: ./frontend
@@ -27,6 +29,8 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - ./frontend/vite.config.ts:/app/vite.config.ts
+    networks:
+      - dev
 
   db:
     image: postgres
@@ -37,6 +41,8 @@ services:
       - database.env
     volumes:
       - dbdata:/var/lib/postgresql/data
+    networks:
+      - dev
 
   nginx:
     image: nginx
@@ -47,7 +53,26 @@ services:
     depends_on:
       - backend
       - frontend
+    networks:
+      - dev
+
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    environment:
+      - STRIPE_API_KEY=${STRIPE_KEY}
+    command: listen --forward-to http://backend:4001/stripe/webhook
+    depends_on:
+      - backend
+    volumes:
+      - stripe-cli-data:/root/.config/stripe
+    networks:
+      - dev
 
 volumes:
   dbdata:
     driver: local
+  stripe-cli-data:
+    driver: local
+
+networks:
+  dev:

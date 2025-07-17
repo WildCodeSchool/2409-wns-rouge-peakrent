@@ -1,15 +1,16 @@
-import express, { Request, Response } from "express";
-import multer from "multer";
-import cors from "cors";
-import "reflect-metadata";
-import fs from "fs";
-import path from "path";
-import sharp from "sharp";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import cors from "cors";
+import express, { Request, Response } from "express";
+import fs from "fs";
+import multer from "multer";
+import path from "path";
+import "reflect-metadata";
+import sharp from "sharp";
+import stripe from "stripe";
 import { dataSource } from "./config/db";
-import { getSchema } from "./schema";
 import { getUserFromContext } from "./helpers/helpers";
+import { getSchema } from "./schema";
 import { ContextType } from "./types";
 
 const GRAPHQL_PORT = 4000;
@@ -38,7 +39,13 @@ const initialize = async () => {
 
   const app = express();
   app.use(cors());
-  app.use(express.json());
+  app.use((req, res, next) => {
+    if (req.originalUrl === "/stripe/webhook") {
+      next();
+    } else {
+      express.json()(req, res, next);
+    }
+  });
 
   if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -75,6 +82,58 @@ const initialize = async () => {
       } catch (error) {
         console.error("Sharp error:", error);
         res.status(500).send("Image processing failed");
+      }
+    }
+  );
+
+  // déplacer dans un fichier
+  const endpointSecret =
+    process.env.NODE_ENV === "prod"
+      ? "whsec_lBcDGIVswC7Aa2AHCxhTOEw6xInLauX6"
+      : "whsec_c6d922119d25614183d29490761406100489589329af62b0d508a08072ba682e";
+
+  app.post(
+    "/stripe/webhook",
+    express.raw({ type: "application/json" }),
+    (request, response) => {
+      // insert stripe_webhooks
+      let event = request.body;
+      console.log(event);
+      if (endpointSecret) {
+        // Get the signature sent by Stripe
+        const signature = request.headers["stripe-signature"] as string;
+        try {
+          event = stripe.webhooks.constructEvent(
+            request.body,
+            signature,
+            endpointSecret
+          );
+        } catch (err: any) {
+          console.log(
+            `⚠️  Webhook signature verification failed.`,
+            err.message
+          );
+          return response.sendStatus(400);
+        }
+
+        // Handle the event
+        // si le call est vérifié on update la table payment + (trigger ou update order status)
+        switch (event.type) {
+          case "payment_intent.succeeded": {
+            console.log(event);
+            // const paymentIntent = event.data.object;
+
+            break;
+          }
+          default:
+            console.log(`Unhandled event type ${event.type}`);
+        }
+
+        // Return a response to acknowledge receipt of the event
+        response.json({ received: true });
+      } else {
+        // Si endpointSecret n'existe pas, répondre quand même
+        response.status(400).send("Endpoint secret not configured");
       }
     }
   );

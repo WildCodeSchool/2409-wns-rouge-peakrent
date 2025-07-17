@@ -21,7 +21,7 @@ export class Cart extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile, (profile) => profile.id, {
     onDelete: "CASCADE",
     nullable: true,

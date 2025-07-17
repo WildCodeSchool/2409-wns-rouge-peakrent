@@ -56,12 +56,29 @@ export enum OrderStatusType {
   completed = "completed",
   cancelled = "cancelled",
   refunded = "refunded",
+  payInStore = "payInStore",
+  failed = "failed",
 }
 
 export enum OrderPaymentType {
   card = "card",
   onSite = "onSite",
 }
+
+export enum StripePaymentStatusType {
+  RequiresPaymentMethod = "requires_payment_method",
+  RequiresConfirmation = "requires_confirmation",
+  RequiresAction = "requires_action",
+  Processing = "processing",
+  RequiresCapture = "requires_capture",
+  Canceled = "canceled",
+  Succeeded = "succeeded",
+  ToBePaid = "ToBePaid",
+}
+
+registerEnumType(StripePaymentStatusType, {
+  name: "StripePaymentStatusType",
+});
 
 registerEnumType(OrderStatusType, {
   name: "OrderStatusType",
