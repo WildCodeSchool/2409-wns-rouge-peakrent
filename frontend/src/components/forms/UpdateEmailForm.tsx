@@ -34,16 +34,18 @@ export function UpdateEmailForm() {
       });
 
       if (response.data?.changeEmail) {
-        toast.success("Email de confirmation envoyé avec succès");
+        toast.success(
+          "Email de confirmation envoyé avec succès, veuillez vérifier votre nouvel email"
+        );
         closeModal();
       } else {
         toast.error("Erreur lors de l'envoi de l'email de confirmation");
       }
     } catch (error: any) {
       console.error("Erreur lors du changement d'email:", error);
-      if (error.graphQLErrors) {
+      if (error?.networkError) {
         const errorMessage =
-          error.graphQLErrors[0]?.message ||
+          error?.networkError?.result.errors[0]?.message ||
           "Erreur lors du changement d'email";
         toast.error(errorMessage);
       } else {

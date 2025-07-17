@@ -446,6 +446,7 @@ export class UserResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(ErrorCatcher)
   async confirmNewEmail(
+    @Ctx() context: ContextType,
     @Arg("data", () => ConfirmNewEmailInput) data: ConfirmNewEmailInput
   ): Promise<boolean> {
     const decoded = jsonwebtoken.verify(
@@ -494,6 +495,41 @@ export class UserResolver {
         await profile.save();
       }
     });
+
+    if (process.env.NODE_ENV !== "testing") {
+      await UserToken.delete({ user: { id: user.id } });
+
+      const token = jsonwebtoken.sign(
+        { id: user.id },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "3d" }
+      );
+
+      const refreshToken = jsonwebtoken.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET_KEY,
+        { expiresIn: "7d" }
+      );
+
+      const userToken = new UserToken();
+      userToken.token = token;
+      userToken.refreshToken = refreshToken;
+      userToken.user = user;
+      await userToken.save();
+
+      const cookies = new Cookies(context.req, context.res);
+      cookies.set("token", token, {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 3,
+      });
+
+      cookies.set("refresh_token", refreshToken, {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+    }
 
     return true;
   }

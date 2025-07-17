@@ -1,30 +1,35 @@
+import { InvalidTokenCard } from "@/components/cards/InvalidTokenCard";
+import { VerificationTokenCard } from "@/components/cards/VerificationTokenCard";
 import { Button } from "@/components/ui";
 import { Card, CardContent } from "@/components/ui/card";
-import { CONFIRM_NEW_EMAIL } from "@/graphQL";
+import { CONFIRM_NEW_EMAIL, WHOAMI } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { InvalidTokenCard } from "../../components/cards/InvalidTokenCard";
-import { VerificationTokenCard } from "../../components/cards/VerificationTokenCard";
 
 export function ConfirmNewEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const navigate = useNavigate();
 
   const [isValidating, setIsValidating] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(false);
+  const hasValidated = useRef(false);
 
-  const [confirmNewEmail] = useMutation(gql(CONFIRM_NEW_EMAIL));
+  const [confirmNewEmail] = useMutation(gql(CONFIRM_NEW_EMAIL), {
+    refetchQueries: [{ query: gql(WHOAMI) }],
+  });
 
   useEffect(() => {
     const validateToken = async () => {
-      if (!token) {
-        toast.error("Token manquant");
+      if (hasValidated.current || !token) {
         setIsValidating(false);
         return;
       }
+
+      hasValidated.current = true;
 
       try {
         const { data } = await confirmNewEmail({
@@ -34,27 +39,20 @@ export function ConfirmNewEmailPage() {
         if (data?.confirmNewEmail) {
           setIsTokenValid(true);
           toast.success("Adresse email mise à jour avec succès");
+          navigate("/profile", { replace: true });
         } else {
           toast.error("Token invalide");
           setIsTokenValid(false);
         }
       } catch (error: any) {
-        console.error("Erreur lors de la confirmation:", error);
         setIsTokenValid(false);
-        if (error.graphQLErrors) {
-          const errorMessage =
-            error.graphQLErrors[0]?.message || "Erreur lors de la confirmation";
-          toast.error(errorMessage);
-        } else {
-          toast.error("Erreur lors de la confirmation de l'email");
-        }
       } finally {
         setIsValidating(false);
       }
     };
 
     validateToken();
-  }, [token, confirmNewEmail]);
+  }, [token, confirmNewEmail, navigate]);
 
   if (isValidating) {
     return <VerificationTokenCard />;
@@ -82,13 +80,13 @@ export function ConfirmNewEmailPage() {
           <h1 className="text-2xl font-bold">Email mis à jour avec succès</h1>
           <p className="text-muted-foreground text-sm">
             Votre nouvelle adresse email a été confirmée et mise à jour avec
-            succès.
+            succès. Vous êtes maintenant connecté.
           </p>
         </div>
 
         <Link to="/profile">
           <Button className="w-full" size="lg" variant="primary">
-            Retour au profil
+            Aller à mon profil
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>

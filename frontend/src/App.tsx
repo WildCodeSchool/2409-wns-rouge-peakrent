@@ -111,12 +111,7 @@ function App() {
               AuthStates.unauthenticated,
             ])()}
           />
-          <Route
-            path="/confirm-new-email"
-            element={checkAuth(ConfirmNewEmailPage, [
-              AuthStates.unauthenticated,
-            ])()}
-          />
+          <Route path="/confirm-new-email" element={<ConfirmNewEmailPage />} />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products" element={<ProductsPage />} />
 
