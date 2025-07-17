@@ -59,6 +59,21 @@ export const generateUpdateEmailFormSchema = () =>
     password: createPasswordSchema(),
   });
 
+export const generateChangePasswordFormSchema = () =>
+  z
+    .object({
+      currentPassword: createPasswordSchema(),
+      newPassword: createPasswordSchema(),
+      confirmNewPassword: createPasswordSchema(),
+    })
+    .refine((data) => data.newPassword === data.confirmNewPassword, {
+      message: "Les mots de passe ne correspondent pas",
+      path: ["confirmNewPassword"],
+    });
+
 export type UpdateEmailFormSchema = z.infer<
   ReturnType<typeof generateUpdateEmailFormSchema>
+>;
+export type ChangePasswordFormSchema = z.infer<
+  ReturnType<typeof generateChangePasswordFormSchema>
 >;

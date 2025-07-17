@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { StringInput } from "./formField/string/StringInput";
 import { UpdateEmailForm } from "./UpdateEmailForm";
+import { UpdatePasswordForm } from "./UpdatePasswordForm";
 
 interface EditProfileProps {
   firstname: string;
@@ -111,7 +112,7 @@ export default function EditProfile({
               ariaLabel={"editPasswordAriaLabel"}
               variant="primary"
               modalTitle="Modifier le mot de passe"
-              modalContent={<></>}
+              modalContent={<UpdatePasswordForm />}
               className="ml-2"
             />
           </div>

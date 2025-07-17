@@ -41,3 +41,9 @@ export const CONFIRM_NEW_EMAIL = `
     confirmNewEmail(data: $data)
   }
 `;
+
+export const CHANGE_PASSWORD = `
+  mutation ChangePassword($data: ChangePasswordInput!) {
+    changePassword(data: $data)
+  }
+`;
