@@ -1,22 +1,19 @@
 import { InvalidTokenCard } from "@/components/cards/InvalidTokenCard";
+import { TokenValidationCard } from "@/components/cards/TokenValidationCard";
 import { VerificationTokenCard } from "@/components/cards/VerificationTokenCard";
-import { Button } from "@/components/ui";
-import { Card, CardContent } from "@/components/ui/card";
 import { CONFIRM_NEW_EMAIL, WHOAMI } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
-import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+
+type Status = "idle" | "validating" | "success" | "error" | "no-token";
 
 export function ConfirmNewEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const navigate = useNavigate();
-
-  const [isValidating, setIsValidating] = useState(true);
-  const [isTokenValid, setIsTokenValid] = useState(false);
-  const hasValidated = useRef(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const hasValidatedRef = useRef(false);
 
   const [confirmNewEmail] = useMutation(gql(CONFIRM_NEW_EMAIL), {
     refetchQueries: [{ query: gql(WHOAMI) }],
@@ -24,12 +21,13 @@ export function ConfirmNewEmailPage() {
 
   useEffect(() => {
     const validateToken = async () => {
-      if (hasValidated.current || !token) {
-        setIsValidating(false);
+      if (!token || hasValidatedRef.current) {
+        setStatus("no-token");
         return;
       }
 
-      hasValidated.current = true;
+      hasValidatedRef.current = true;
+      setStatus("validating");
 
       try {
         const { data } = await confirmNewEmail({
@@ -37,60 +35,42 @@ export function ConfirmNewEmailPage() {
         });
 
         if (data?.confirmNewEmail) {
-          setIsTokenValid(true);
           toast.success("Adresse email mise à jour avec succès");
-          navigate("/profile", { replace: true });
+          setStatus("success");
         } else {
           toast.error("Token invalide");
-          setIsTokenValid(false);
+          setStatus("error");
         }
-      } catch (error: any) {
-        setIsTokenValid(false);
-      } finally {
-        setIsValidating(false);
+      } catch {
+        setStatus("error");
       }
     };
 
     validateToken();
-  }, [token, confirmNewEmail, navigate]);
+  }, [token, confirmNewEmail]);
 
-  if (isValidating) {
-    return <VerificationTokenCard />;
+  switch (status) {
+    case "validating":
+    case "idle":
+      return <VerificationTokenCard />;
+    case "no-token":
+    case "error":
+      return (
+        <InvalidTokenCard
+          title="Token invalide"
+          description="Le lien de confirmation de changement d'email est invalide ou a expiré."
+          link="/profile/edit"
+          linkText="Demander un nouveau lien en modifiant votre profil"
+        />
+      );
+    case "success":
+      return (
+        <TokenValidationCard
+          title="Email mis à jour avec succès"
+          description="Votre nouvelle adresse email a été confirmée et mise à jour avec succès."
+          buttonText="Voir mon profil"
+          buttonLink="/profile"
+        />
+      );
   }
-
-  if (!token || !isTokenValid) {
-    return (
-      <InvalidTokenCard
-        title="Token invalide"
-        description="Le lien de confirmation de changement d'email est invalide ou a expiré."
-        link="/profile/edit"
-        linkText="Demander un nouveau lien en modifiant votre profil"
-      />
-    );
-  }
-
-  return (
-    <Card className="max-w-md mx-auto mt-8 py-4">
-      <CardContent className="p-8 text-center space-y-6">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-          <CheckCircle className="w-10 h-10 text-green-600" />
-        </div>
-
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Email mis à jour avec succès</h1>
-          <p className="text-muted-foreground text-sm">
-            Votre nouvelle adresse email a été confirmée et mise à jour avec
-            succès. Vous êtes maintenant connecté.
-          </p>
-        </div>
-
-        <Link to="/profile">
-          <Button className="w-full" size="lg" variant="primary">
-            Aller à mon profil
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
-  );
 }

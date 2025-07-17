@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui";
-import { Card, CardContent } from "@/components/ui/card";
+import { TokenValidationCard } from "@/components/cards/TokenValidationCard";
 import { VERIFY_CONFIRM_EMAIL_TOKEN } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
-import { ArrowRight, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { InvalidTokenCard } from "../../components/cards/InvalidTokenCard";
 import { VerificationTokenCard } from "../../components/cards/VerificationTokenCard";
@@ -63,27 +61,11 @@ export function ConfirmEmailPage() {
   }
 
   return (
-    <Card className="max-w-md mx-auto mt-8 py-4">
-      <CardContent className="p-8 text-center space-y-6">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-          <CheckCircle className="w-10 h-10 text-green-600" />
-        </div>
-
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Email vérifié avec succès</h1>
-          <p className="text-muted-foreground text-sm">
-            Votre adresse email a été vérifiée avec succès. Vous pouvez
-            maintenant accéder à votre compte.
-          </p>
-        </div>
-
-        <Link to="/signin">
-          <Button className="w-full" size="lg" variant="primary">
-            Se connecter
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
+    <TokenValidationCard
+      title="Email vérifié avec succès"
+      description="Votre adresse email a été vérifiée avec succès. Vous pouvez maintenant accéder à votre compte."
+      buttonText="Se connecter"
+      buttonLink="/signin"
+    />
   );
 }
