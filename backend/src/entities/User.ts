@@ -11,6 +11,15 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+const createPasswordValidation = () =>
+  IsStrongPassword(
+    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
+    {
+      message:
+        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
+    }
+  );
+
 @ObjectType()
 @Entity({ name: "user" })
 export class User extends BaseEntity {
@@ -110,13 +119,7 @@ export class UserCreateInput {
   email: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   password!: string;
   @Field()
   @IsNotEmpty({ message: "First name is missing or empty" })
@@ -138,13 +141,7 @@ export class SignInInput {
   email!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   password!: string;
 }
 
@@ -155,13 +152,7 @@ export class CreateUserInputAdmin {
   email!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   password!: string;
 
   @Field()
@@ -219,13 +210,7 @@ export class ResetPasswordInput {
   token!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   password!: string;
 
   @Field()
@@ -240,13 +225,7 @@ export class ChangeEmailInput {
   newEmail!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   password!: string;
 }
 
@@ -260,32 +239,14 @@ export class ConfirmNewEmailInput {
 @InputType()
 export class ChangePasswordInput {
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   currentPassword!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   newPassword!: string;
 
   @Field()
-  @IsStrongPassword(
-    { minLength: 10, minNumbers: 1, minSymbols: 1, minUppercase: 1 },
-    {
-      message:
-        "Password must be at least 10 characters long and include 1 number, 1 uppercase letter, and 1 symbol",
-    }
-  )
+  @createPasswordValidation()
   confirmNewPassword!: string;
 }
