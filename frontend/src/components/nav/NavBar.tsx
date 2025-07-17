@@ -127,6 +127,10 @@ const NavBar = () => {
                 align="end"
                 className="mt-2 border-1 border-gray-300 rounded-lg bg-white"
               >
+                <div className="flex items-center justify-between py-1 px-2">
+                  <p className="text-sm font-bold">{userData?.email}</p>
+                </div>
+                <div className="border-t border-black"></div>
                 {dropDownItems.map((item) => (
                   <div key={item.path}>
                     <Link to={item.path} aria-label={item.ariaLabel}>
