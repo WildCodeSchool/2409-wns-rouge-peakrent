@@ -90,7 +90,7 @@ export function UpdateEmailForm() {
               className="w-full"
               onClick={handleReset}
             >
-              Reset
+              Effacer
             </Button>
             <Button type="submit" disabled={isChanging} className="w-full">
               {isChanging ? <LoadIcon size={24} /> : "Changer l'email"}
