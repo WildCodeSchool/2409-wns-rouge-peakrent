@@ -2,6 +2,7 @@ import { Profile } from "@/entities/Profile";
 import { ContextType } from "@/types";
 import * as argon2 from "argon2";
 import Cookies from "cookies";
+import { GraphQLError } from "graphql";
 import * as jsonwebtoken from "jsonwebtoken";
 
 export const formattedDate = (date: Date): string => {
@@ -36,19 +37,46 @@ export const hashPassword = async (password: string): Promise<string> => {
     return await argon2.hash(password);
   } catch (err) {
     console.error("Error hashing password:", err);
-    throw new Error("Password hashing failed.");
+    throw new GraphQLError(
+      "Une erreur est survenue lors de la création du mot de passe",
+      {
+        extensions: {
+          code: "PASSWORD_HASHING_FAILED",
+          http: { status: 500 },
+        },
+      }
+    );
   }
 };
 
 export const verifyPassword = async (
   hash: string,
-  password: string
-): Promise<boolean> => {
+  password: string,
+  type: "sign_in" | "change_password" = "sign_in"
+): Promise<void> => {
   try {
-    return await argon2.verify(hash, password);
+    const isValid = await argon2.verify(hash, password);
+    if (!isValid) {
+      throw new GraphQLError(
+        type === "sign_in"
+          ? "Email ou mot de passe incorrect"
+          : "Mot de passe actuel incorrect",
+        {
+          extensions: {
+            code: "INVALID_CREDENTIALS",
+            http: { status: 401 },
+          },
+        }
+      );
+    }
   } catch (err) {
     console.error("Error verifying password:", err);
-    throw new Error("Password verification failed.");
+    throw new GraphQLError("Email ou mot de passe incorrect", {
+      extensions: {
+        code: "INVALID_CREDENTIALS",
+        http: { status: 401 },
+      },
+    });
   }
 };
 
@@ -59,7 +87,6 @@ export const getUserFromContext = async (
   const token = cookies.get("token");
 
   if (!token) {
-    console.log("No token, Access denied");
     return null;
   }
   try {
@@ -70,13 +97,11 @@ export const getUserFromContext = async (
       id: number;
       iat: Date;
     };
-    console.log("Access authorized");
 
     const user = await Profile.findOneBy({ id: payload.id });
 
     return user;
   } catch {
-    console.log("Invalid token");
     return null;
   }
 };
