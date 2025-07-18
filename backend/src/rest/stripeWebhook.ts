@@ -1,3 +1,4 @@
+import { updatePaymentAndOrder } from "@/service/paymentService";
 import express from "express";
 import stripe from "stripe";
 import app from "./express";
@@ -32,29 +33,13 @@ app.post(
         event.type === "payment_intent.requires_payment_method"
       ) {
         const paymentIntent = event.data.object;
-        const responsePayment = await fetch("http://backend:4000/graphql", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `token=${process.env.ADMIN_GRAPHQL_TOKEN}`,
-          },
-          body: JSON.stringify({
-            query: `
-                mutation updatePaymentAndOrder($paymentIntent: JSONObject!) {
-                  updatePaymentAndOrder(paymentIntent: $paymentIntent) {
-                    id
-                    status
-                    order {
-                    status
-                    }
-                  }
-                }
-              `,
-            variables: { paymentIntent },
-          }),
+        const responsePayment = await updatePaymentAndOrder(paymentIntent);
+        console.log("✅ Paiement mis à jour :", {
+          paymentId: responsePayment.id,
+          paymentStatus: responsePayment.status,
+          orderId: responsePayment.order?.id,
+          orderStatus: responsePayment.order?.status,
         });
-        const json = await responsePayment.json();
-        console.log("Réponse JSON :", json);
       }
       response.json({ received: true });
     } else {

@@ -1,5 +1,5 @@
 import { Profile } from "@/entities/Profile";
-import { ContextType, RoleType } from "@/types";
+import { ContextType } from "@/types";
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
@@ -52,21 +52,11 @@ export const verifyPassword = async (
   }
 };
 
-const adminGraphqlUser: Partial<Profile> = {
-  email: "admin@graphql.local",
-  role: RoleType.superadmin,
-};
-
 export const getUserFromContext = async (
   context: ContextType
 ): Promise<Profile | null> => {
   const cookies = new Cookies(context.req, context.res);
   const token = cookies.get("token");
-
-  if (token === process.env.ADMIN_GRAPHQL_TOKEN) {
-    console.log("Access authorized");
-    return adminGraphqlUser as Profile;
-  }
 
   if (!token) {
     console.log("No token, Access denied");
