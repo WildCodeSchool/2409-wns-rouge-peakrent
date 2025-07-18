@@ -1,17 +1,6 @@
 import { buildSchema } from "type-graphql";
 import { authChecker } from "./auth";
 import { ActivityResolver } from "./resolvers/Activities";
-import { CartResolver } from "./resolvers/Cart";
-import { CategoryResolver } from "./resolvers/Categories";
-import { OrderResolver } from "./resolvers/Order";
-import { OrderItemsResolver } from "./resolvers/OrderItems";
-import { ProductResolver } from "./resolvers/Products";
-import { ProfileResolver } from "./resolvers/Profiles";
-import { SearchResolver } from "./resolvers/Searchs";
-import { StoreResolver } from "./resolvers/Stores";
-import { StoreVariantResolver } from "./resolvers/StoresVariants";
-import { UserResolver } from "./resolvers/Users";
-import { VariantResolver } from "./resolvers/Variants";
 import { ActivityResolverAdmin } from "./resolvers/admin/Activities";
 import { CartResolverAdmin } from "./resolvers/admin/Cart";
 import { CategoryResolverAdmin } from "./resolvers/admin/Categories";
@@ -22,6 +11,18 @@ import { ProfileResolverAdmin } from "./resolvers/admin/Profiles";
 import { StoreResolverAdmin } from "./resolvers/admin/Stores";
 import { StoreVariantResolverAdmin } from "./resolvers/admin/StoresVariants";
 import { UserResolverAdmin } from "./resolvers/admin/Users";
+import { CartResolver } from "./resolvers/Cart";
+import { CategoryResolver } from "./resolvers/Categories";
+import { OrderResolver } from "./resolvers/Order";
+import { OrderItemsResolver } from "./resolvers/OrderItems";
+import { PaymentResolver } from "./resolvers/Payments";
+import { ProductResolver } from "./resolvers/Products";
+import { ProfileResolver } from "./resolvers/Profiles";
+import { SearchResolver } from "./resolvers/Searchs";
+import { StoreResolver } from "./resolvers/Stores";
+import { StoreVariantResolver } from "./resolvers/StoresVariants";
+import { UserResolver } from "./resolvers/Users";
+import { VariantResolver } from "./resolvers/Variants";
 
 export async function getSchema() {
   // Admin resolvers
@@ -36,6 +37,7 @@ export async function getSchema() {
     StoreResolverAdmin,
     UserResolverAdmin,
     StoreVariantResolverAdmin,
+    PaymentResolver,
   ];
 
   const schema = await buildSchema({

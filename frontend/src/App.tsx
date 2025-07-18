@@ -26,7 +26,8 @@ import { CartPayment } from "./pages/Cart/CartPayment";
 import { CartRecap } from "./pages/Cart/CartRecap";
 import { HomePage } from "./pages/Home/HomePage";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
-import CartLayout from "./pages/Layout/CartLayout";
+import CartLayout from "./pages/Layout/Cart/CartLayout";
+import StripeLayout from "./pages/Layout/Cart/StripeLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
@@ -34,6 +35,8 @@ import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
+import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
+import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 
 enum AuthStates {
   authenticated,
@@ -112,6 +115,11 @@ function App() {
             ])()}
           />
           <Route path="/confirm-new-email" element={<ConfirmNewEmailPage />} />
+          <Route path="activities" element={<ActivitiesPage />} />
+          <Route
+            path="activities/:normalizedName"
+            element={<ActivityDetail />}
+          />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products" element={<ProductsPage />} />
 
@@ -122,7 +130,9 @@ function App() {
           >
             <Route index element={<CartPage />} />
             <Route path="checkout" element={<CartCheckout />} />
-            <Route path="checkout/payment" element={<CartPayment />} />
+            <Route element={<StripeLayout />}>
+              <Route path="checkout/payment" element={<CartPayment />} />
+            </Route>
             <Route path="recap/:ref" element={<CartRecap />} />
           </Route>
 

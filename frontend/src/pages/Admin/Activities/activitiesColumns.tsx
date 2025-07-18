@@ -53,6 +53,15 @@ export const createColumns: ColumnDef<any>[] = [
     filterFn: multiColumnFilter,
   }),
 
+  column.createStringColumn({
+    id: "description",
+    accessorKey: "description",
+    title: "Description",
+    enableSorting: true,
+    enableHiding: true,
+    filterFn: multiColumnFilter,
+  }),
+
   column.createBadgeColumn({
     id: "variant",
     accessorKey: "variant",

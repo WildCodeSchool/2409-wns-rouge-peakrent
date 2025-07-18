@@ -9,8 +9,8 @@
     "test:postgres": "docker rm --force -v pgtest ; docker run -d -p 5434:5432 --name pgtest -e POSTGRES_PASSWORD=secret2 postgres && POSTGRES_PORT=5434 POSTGRES_HOST=localhost POSTGRES_PASSWORD=secret2 POSTGRES_USER=postgres JWT_SECRET_KEY=supersecret JWT_REFRESH_SECRET_KEY=supersecret JWT_SECRET_RECOVER_KEY=supersecret NODE_ENV=testing npx jest --no-cache",
     "test:postgres:win": "docker rm --force -v pgtest && docker run -d --name pgtest -p 5434:5432 -e POSTGRES_PASSWORD=secret2 postgres && dotenv -e .env.test -- npx jest --watch",
     "start": "ts-node-dev -r tsconfig-paths/register ./src/index.ts",
-    "db:seed": "ts-node ./seed/seed.ts",
-    "db:clean": "ts-node ./seed/clearDB.ts",
+    "db:seed": "ts-node -r tsconfig-paths/register ./seed/seed.ts",
+    "db:clean": "ts-node -r tsconfig-paths/register ./seed/clearDB.ts",
     "db:reset": "npm run db:clean && npm run db:seed",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx,json}\"",
@@ -34,6 +34,7 @@
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.1",
+    "stripe": "^18.3.0",
     "ts-node-dev": "^2.0.0",
     "type-graphql": "^2.0.0-rc.2",
     "typeorm": "^0.3.20"

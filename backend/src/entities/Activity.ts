@@ -1,4 +1,4 @@
-import { Pagination } from "@/commonInput/Pagination";
+import { Pagination } from "../commonInput/Pagination";
 import { IsNotEmpty, IsString, IsUrl, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
@@ -42,6 +42,11 @@ export class Activity extends BaseEntity {
   @Column({ name: "variant" })
   @Length(2, 50, { message: "Variant must be between 2 and 50 chars" })
   variant!: string;
+
+  @Field({ nullable: true })
+  @Column({ name: "description", nullable: true })
+  @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
+  description?: string;
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
@@ -99,6 +104,11 @@ export class ActivityCreateInputAdmin {
   @Field()
   @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
+  description?: string;
 }
 
 @InputType()

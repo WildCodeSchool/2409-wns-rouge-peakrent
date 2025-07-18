@@ -6,10 +6,8 @@ import {
   DELETE_ORDER_ITEMS_CART,
   UPDATE_ORDER_ITEM_CART,
 } from "@/graphQL/orderItems";
-import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation } from "@apollo/client";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 export function CartPage() {
@@ -23,16 +21,9 @@ export function CartPage() {
   const updateOrderItemStore = useOrderItemStore(
     (state) => state.updateOrderItem
   );
-  const setCommandTunnelStatus = useCartStoreUser(
-    (state) => state.setCommandTunnelStatus
-  );
   const [deleteOrderItem] = useMutation(gql(DELETE_ORDER_ITEM_CART));
   const [deleteOrderItems] = useMutation(gql(DELETE_ORDER_ITEMS_CART));
   const [updateOrderItem] = useMutation(gql(UPDATE_ORDER_ITEM_CART));
-
-  useEffect(() => {
-    setCommandTunnelStatus(CommandStatusEnum.pending);
-  }, []);
 
   const handleUpdateError = (err: any) => {
     const codeError = err.graphQLErrors?.[0]?.extensions?.code;

@@ -1,3 +1,4 @@
+import { Activity } from "../src/entities/Activity";
 import { dataSource } from "../src/config/db";
 import { Category } from "../src/entities/Category";
 import { Product } from "../src/entities/Product";
@@ -8,6 +9,7 @@ export const seedProducts = async () => {
   const productRepo = dataSource.getRepository(Product);
   const userRepo = dataSource.getRepository(User);
   const categoryRepo = dataSource.getRepository(Category);
+  const activityRepo = dataSource.getRepository(Activity);
 
   const adminUser = await userRepo.findOneBy({ email: "admin@peakrent.com" });
   if (!adminUser) {
@@ -18,8 +20,27 @@ export const seedProducts = async () => {
   }
 
   const allCategories = await categoryRepo.find();
+  const allActivities = await activityRepo.find();
 
   const productCategoryMap: Record<string, string[]> = {
+    "SKI-001": ["Ski"],
+    "SKI-002": ["Ski"],
+    "SKI-003": ["Ski"],
+    "SNB-001": ["Snowboard"],
+    "SNB-002": ["Snowboard"],
+    "SNB-003": ["Snowboard"],
+    "RAQ-001": ["Raquettes"],
+    "RAQ-002": ["Raquettes"],
+    "RAQ-003": ["Raquettes"],
+    "CHS-001": ["Chaussures"],
+    "CHS-002": ["Chaussures"],
+    "CHS-003": ["Chaussures"],
+    "VET-001": ["Vêtements"],
+    "VET-002": ["Vêtements"],
+    "VET-003": ["Vêtements"],
+  };
+
+  const productActivityMap: Record<string, string[]> = {
     "SKI-001": ["Ski Alpin"],
     "SKI-002": ["Ski Alpin"],
     "SKI-003": ["Ski Alpin"],
@@ -167,12 +188,17 @@ export const seedProducts = async () => {
       const categories = allCategories.filter((cat) =>
         categoryNames.includes(cat.name)
       );
+      const activityNames = productActivityMap[productData.sku] || [];
+      const activities = allActivities.filter((act) =>
+        activityNames.includes(act.name)
+      );
 
       const newProduct = productRepo.create({
         ...productData,
         normalizedName: normalizeString(productData.name),
         createdBy: adminUser,
         categories,
+        activities,
       });
 
       await productRepo.save(newProduct);
