@@ -17,7 +17,6 @@ import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import { CartCheckout } from "./pages/Cart/CartCheckout";
-import { CartComplete } from "./pages/Cart/CartComplete";
 import { CartPage } from "./pages/Cart/CartPage";
 import { CartPayment } from "./pages/Cart/CartPayment";
 import { CartRecap } from "./pages/Cart/CartRecap";
@@ -103,7 +102,6 @@ function App() {
             <Route path="checkout" element={<CartCheckout />} />
             <Route element={<StripeLayout />}>
               <Route path="checkout/payment" element={<CartPayment />} />
-              <Route path="complete" element={<CartComplete />} />
             </Route>
             <Route path="recap/:ref" element={<CartRecap />} />
           </Route>
