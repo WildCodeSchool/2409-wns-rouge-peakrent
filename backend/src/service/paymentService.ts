@@ -1,4 +1,3 @@
-import { dataSource } from "@/config/db";
 import { Payment } from "@/entities/Payment";
 import { OrderStatusType, StripePaymentStatusType } from "@/types";
 import { GraphQLError } from "graphql";
@@ -65,10 +64,9 @@ export const updatePaymentAndOrder = async (
   }
 
   order.status = status;
-  await dataSource.manager.transaction(async (transactionalEntityManager) => {
-    await transactionalEntityManager.save(order);
-    await transactionalEntityManager.save(payment);
-  });
+
+  await payment.save();
+  await order.save();
 
   return payment;
 };
