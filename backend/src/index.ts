@@ -65,6 +65,7 @@ const initialize = async () => {
         const filename = `${baseName}-${Date.now()}.webp`;
         const outputPath = path.join(UPLOADS_DIR, filename);
 
+        // ne pas passer par la mémoire vive.
         await sharp(req.file.buffer)
           .resize({ width: 1080 })
           .webp({ quality: 80 })

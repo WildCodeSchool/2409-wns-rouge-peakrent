@@ -3,6 +3,9 @@ import { ContextType } from "@/types";
 import * as argon2 from "argon2";
 import Cookies from "cookies";
 import * as jsonwebtoken from "jsonwebtoken";
+import crypto, { randomUUID } from "crypto";
+import { User } from "@/entities/User";
+import { dataSource } from "@/config/db";
 
 export const formattedDate = (date: Date): string => {
   const year = date.getFullYear();
@@ -29,6 +32,11 @@ export const normalizeString = (string: string) => {
     .trim();
 
   return cleanedStr.toLowerCase();
+};
+
+export const secureHash = (input: string): string => {
+  const SECRET_KEY = process.env.EMAIL_HASH_SECRET;
+  return crypto.createHmac("sha256", SECRET_KEY).update(input).digest("hex");
 };
 
 export const hashPassword = async (password: string): Promise<string> => {
@@ -79,6 +87,67 @@ export const getUserFromContext = async (
     console.log("Invalid token");
     return null;
   }
+};
+
+export const getUserAndProfile = async (
+  userId: number
+): Promise<{ user: User; profile: Profile }> => {
+  const profileRepository = dataSource.getRepository(Profile);
+  const userRepository = dataSource.getRepository(User);
+
+  const profile = await profileRepository.findOne({
+    where: { id: userId },
+    relations: ["user"],
+  });
+  if (!profile) throw new Error("Profile not found");
+
+  const user = await userRepository.findOne({
+    where: { id: profile.id },
+  });
+  if (!user) throw new Error("User not found");
+
+  return { user, profile };
+};
+
+export const randomizeProfileAndUser = async (
+  profile: Profile,
+  user: User
+): Promise<void> => {
+  const email = randomUUID();
+  const firstname = randomUUID();
+  const lastname = randomUUID();
+
+  profile.email = email;
+  profile.firstname = firstname;
+  profile.lastname = lastname;
+  profile.deletedAt = new Date();
+
+  user.email = email;
+  user.firstname = firstname;
+  user.lastname = lastname;
+  user.password = randomUUID();
+  user.deletedAt = new Date();
+
+  await dataSource.getRepository(Profile).save(profile);
+  await dataSource.getRepository(User).save(user);
+};
+
+export const anonymizeProfileAndUser = async (
+  profile: Profile,
+  user: User
+): Promise<void> => {
+  profile.email = secureHash(profile.email);
+  profile.firstname = "DELETED";
+  profile.lastname = "DELETED";
+  profile.deletedAt = new Date();
+
+  user.email = secureHash(user.email);
+  user.firstname = "DELETED";
+  user.lastname = "DELETED";
+  user.deletedAt = new Date();
+
+  await dataSource.getRepository(Profile).save(profile);
+  await dataSource.getRepository(User).save(user);
 };
 
 // export const hasRole = (

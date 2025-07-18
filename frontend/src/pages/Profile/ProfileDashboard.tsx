@@ -6,6 +6,7 @@ import Table from "@/components/ui/tables/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/context/userProvider";
 import { Order, OrderItem } from "@/gql/graphql";
+import { DELETE_PROFILE } from "@/graphQL";
 import { GET_MY_ORDERS } from "@/graphQL/order";
 import { SIGNOUT } from "@/graphQL/signout";
 import { WHOAMI } from "@/graphQL/whoami";
@@ -14,6 +15,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { LogOut, ShieldUser } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // En attendant de mettre en place la traduction
 const translateStatus = (status: string) => {
@@ -89,6 +91,13 @@ export default function ProfileDashboard() {
     refetchQueries: [{ query: gql(WHOAMI) }],
   });
 
+  const [deleteProfile] = useMutation(gql(DELETE_PROFILE), {
+    onCompleted: () => {
+      window.location.reload();
+    },
+    refetchQueries: [{ query: gql(WHOAMI) }],
+  });
+
   const { data: ordersData, loading: loadingOrders } = useQuery(
     gql(GET_MY_ORDERS)
   );
@@ -98,6 +107,19 @@ export default function ProfileDashboard() {
   }
 
   const handleEdit = () => navigate("/profile/edit");
+
+  const handleDelete = async () => {
+    try {
+      await deleteProfile();
+      toast.success("Profil supprimé avec succès.");
+      navigate("/");
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+      toast.error("La suppression du profil a échoué.");
+      return false;
+    }
+  };
 
   const handleSignout = async () => {
     await doSignout();
@@ -179,7 +201,9 @@ export default function ProfileDashboard() {
         firstname={profile?.firstname || ""}
         lastname={profile?.lastname || ""}
         email={profile?.email || ""}
+        id={profile?.id || ""}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       <h2 className="text-xl font-semibold mb-4">Mes commandes</h2>

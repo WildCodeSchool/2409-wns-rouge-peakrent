@@ -5,6 +5,7 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
@@ -58,4 +59,8 @@ export class Profile extends BaseEntity {
   @Field({ nullable: true })
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz", nullable: true })
   updatedAt?: Date;
+
+  @Field({ nullable: true })
+  @DeleteDateColumn({ name: "deleted_at", type: "timestamptz", nullable: true })
+  deletedAt?: Date;
 }

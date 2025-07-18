@@ -5,7 +5,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DeleteButtonProps {
-  onDeleteFunction: (ids: string[] | number[]) => Promise<boolean>;
+  onDeleteFunction: (ids?: string[] | number[]) => Promise<boolean>;
   elementIds: string[] | number[];
   className?: string;
   size?: "default" | "sm" | "lg" | "icon" | null | undefined;

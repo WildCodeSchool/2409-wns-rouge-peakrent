@@ -1,18 +1,23 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import DeleteButton from "../buttons/DeleteButton";
 
 interface ProfileCardProps {
   firstname: string;
   lastname: string;
   email: string;
+  id: string;
   onEdit: () => void;
+  onDelete: () => Promise<boolean>;
 }
 
 export default function ProfileCard({
   firstname,
   lastname,
   email,
+  id,
   onEdit,
+  onDelete,
 }: ProfileCardProps) {
   return (
     <Card className="flex flex-col md:flex-row items-center gap-4 p-4 sm:p-6 mb-6">
@@ -41,6 +46,13 @@ export default function ProfileCard({
       <Button className=" md:w-auto md:self-center" onClick={onEdit}>
         Modifier mes infos
       </Button>
+      <DeleteButton
+        onDeleteFunction={onDelete}
+        elementIds={[id]}
+        ariaLabel={"deleteActivityAriaLabel"}
+        modalTitle="Supprimer votre profil"
+        modalDescription="Cette action sera définitive. Voulez-vous vraiment supprimer votre profil ?"
+      />
     </Card>
   );
 }
