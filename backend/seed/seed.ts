@@ -14,9 +14,9 @@ dataSource
   .then(async () => {
     await seedUsers();
     await seedCategories();
+    await seedActivities();
     await seedProducts();
     await seedVariants();
-    await seedActivities();
     await seedStores();
     await seedStoreVariant();
     await seedOrders();

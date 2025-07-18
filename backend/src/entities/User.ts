@@ -1,4 +1,4 @@
-import { RoleType } from "@/types";
+import { RoleType } from "../types";
 import { IsEmail, IsNotEmpty, IsStrongPassword, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {

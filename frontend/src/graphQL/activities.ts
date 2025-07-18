@@ -7,6 +7,7 @@ export const GET_ACTIVITIES = `
         normalizedName
         urlImage
         variant
+        description
         createdAt
         updatedAt
       }
@@ -22,6 +23,7 @@ export const GET_ACTIVITY = `
       normalizedName
       urlImage
       variant
+      description
       createdAt
       updatedAt
     }
@@ -36,6 +38,7 @@ export const CREATE_ACTIVITY = `
       normalizedName
       urlImage
       variant
+      description
       createdAt
       updatedAt
     }
@@ -50,6 +53,7 @@ export const UPDATE_ACTIVITY = `
       normalizedName
       urlImage
       variant
+      description
       createdAt
       updatedAt
     }
@@ -59,5 +63,39 @@ export const UPDATE_ACTIVITY = `
 export const DELETE_MULTIPLE_ACTIVITIES = `
   mutation DeleteMultipleActivitiesAdmin($ids: [ID!]!) {
     deleteActivitiesAdmin(ids: $ids)
+  }
+`;
+
+export const GET_ACTIVITY_BY_NORMALIZED_NAME = `
+  query GetActivityByNormalizedName($normalizedName: String!) {
+    getActivityByNormalizedName(normalizedName: $normalizedName) {
+      id
+      name
+      normalizedName
+      urlImage
+      variant
+      description
+      createdAt
+      updatedAt
+      products {
+        id
+        name
+        description
+        urlImage
+        sku
+        isPublished
+        categories {
+          id
+          name
+          variant
+        }
+        variants {
+          id
+          size
+          color
+          pricePerHour
+        }
+      }
+    }
   }
 `;

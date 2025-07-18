@@ -28,6 +28,7 @@ export type Activity = {
   __typename?: 'Activity';
   createdAt: Scalars['DateTimeISO']['output'];
   createdBy: User;
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   normalizedName: Scalars['String']['output'];
@@ -38,6 +39,7 @@ export type Activity = {
 };
 
 export type ActivityCreateInputAdmin = {
+  description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   urlImage: Scalars['String']['input'];
   variant: Scalars['String']['input'];
@@ -51,6 +53,7 @@ export type ActivityPaginationInput = {
 };
 
 export type ActivityUpdateInputAdmin = {
+  description?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   urlImage: Scalars['String']['input'];
   variant: Scalars['String']['input'];
@@ -571,6 +574,7 @@ export type Query = {
   checkVariantStock: Scalars['Float']['output'];
   getActivities: ActivitiesWithCount;
   getActivityById?: Maybe<Activity>;
+  getActivityByNormalizedName?: Maybe<Activity>;
   getCart?: Maybe<Cart>;
   getCartByIdAdmin: Cart;
   getCarts: Array<Cart>;
@@ -616,6 +620,11 @@ export type QueryGetActivitiesArgs = {
 
 export type QueryGetActivityByIdArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetActivityByNormalizedNameArgs = {
+  normalizedName: Scalars['String']['input'];
 };
 
 
@@ -670,6 +679,7 @@ export type QueryGetProductByVariantIdArgs = {
 
 
 export type QueryGetProductsArgs = {
+  activityIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   categoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   endingDate?: InputMaybe<Scalars['DateTimeISO']['input']>;
   onPage?: Scalars['Int']['input'];

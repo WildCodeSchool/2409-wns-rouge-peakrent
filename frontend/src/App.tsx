@@ -30,6 +30,8 @@ import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
+import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
+import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 
 enum AuthStates {
   authenticated,
@@ -88,6 +90,11 @@ function App() {
           <Route
             path="/signup"
             element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
+          />
+          <Route path="activities" element={<ActivitiesPage />} />
+          <Route
+            path="activities/:normalizedName"
+            element={<ActivityDetail />}
           />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products" element={<ProductsPage />} />

@@ -90,6 +90,7 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
         name: formData.name,
         variant: formData.variant,
         urlImage: formData.urlImage,
+        description: formData.description,
       };
 
       let savedActivity;
@@ -169,6 +170,14 @@ export function ActivityForm({ datas }: { datas?: ActivityType }) {
           label="Url de l'image"
           placeholder="Url"
           isPending={createLoading || updateLoading || !!form.watch("image")}
+        />
+
+        <StringInput
+          form={form}
+          name="description"
+          label="Description de l'activité"
+          placeholder="Description de l'activité..."
+          isPending={createLoading || updateLoading}
         />
 
         <FileUpload
