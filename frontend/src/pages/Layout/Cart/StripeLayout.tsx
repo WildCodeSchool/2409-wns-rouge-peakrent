@@ -15,6 +15,12 @@ const StripeLayout = () => {
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
+    if (error) {
+      toast.error(error.message || "Une erreur est survenue");
+    }
+  }, [error]);
+
+  useEffect(() => {
     const fetchPaymentIntent = async () => {
       if (initialized.current) {
         // Prevent double invocation of useEffect in Strict Mode
@@ -49,13 +55,9 @@ const StripeLayout = () => {
       </div>
     );
 
-  if (error) {
-    useEffect(() => {
-      toast.error(error.message || "Une erreur est survenue");
-    }, [error]);
+  if (!clientSecret) {
+    return <div>Impossible de démarrer le paiement.</div>;
   }
-
-  if (!clientSecret) return <div>Impossible de démarrer le paiement.</div>;
 
   return (
     <Elements stripe={stripePromise} options={options}>

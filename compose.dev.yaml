@@ -22,6 +22,8 @@ services:
     ports:
       - 3000:5173
     command: npm run dev
+    env_file:
+      - front.variables.env
     depends_on:
       - backend
     volumes:
