@@ -2,7 +2,15 @@ import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import { User } from "@/entities/User";
 import { RoleType } from "@/types";
-import { Arg, Authorized, ID, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from "type-graphql";
 import { ILike, Not } from "typeorm";
 import { GraphQLError } from "graphql";
 import {
@@ -12,6 +20,7 @@ import {
   secureHash,
   verifyPassword,
 } from "@/helpers/helpers";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
 
 @Resolver(Profile)
 export class ProfileResolverAdmin {
@@ -69,6 +78,7 @@ export class ProfileResolverAdmin {
   }
 
   @Authorized([RoleType.admin, RoleType.superadmin])
+  @UseMiddleware(ErrorCatcher)
   @Mutation(() => User, { nullable: true })
   async retrieveAnonymisedAccount(
     @Arg("email") email: string,
@@ -85,13 +95,18 @@ export class ProfileResolverAdmin {
     });
 
     if (!user) {
-      throw new GraphQLError("No deleted account matches these email.");
+      throw new GraphQLError(
+        "Aucun compte supprimé ne correspond à cet email.",
+        {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        }
+      );
     }
 
-    const passwordMatch = await verifyPassword(user.password, password);
-    if (!passwordMatch) {
-      throw new GraphQLError("No deleted account matches these password.");
-    }
+    await verifyPassword(user.password, password, "sign_in");
 
     user.deletedAt = null;
     await userRepository.save(user);
