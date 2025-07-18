@@ -1,7 +1,7 @@
 import { InvalidTokenCard } from "@/components/cards/InvalidTokenCard";
 import { TokenValidationCard } from "@/components/cards/TokenValidationCard";
 import { VerificationTokenCard } from "@/components/cards/VerificationTokenCard";
-import { CONFIRM_NEW_EMAIL, WHOAMI } from "@/graphQL";
+import { CONFIRM_NEW_EMAIL, GET_MY_PROFILE, WHOAMI } from "@/graphQL";
 import { gql, useMutation } from "@apollo/client";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -16,7 +16,7 @@ export function ConfirmNewEmailPage() {
   const hasValidatedRef = useRef(false);
 
   const [confirmNewEmail] = useMutation(gql(CONFIRM_NEW_EMAIL), {
-    refetchQueries: [{ query: gql(WHOAMI) }],
+    refetchQueries: [{ query: gql(WHOAMI) }, { query: gql(GET_MY_PROFILE) }],
   });
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/context/userProvider";
-import { UPDATE_USER_PROFILE } from "@/graphQL/profiles";
+import { GET_MY_PROFILE, UPDATE_USER_PROFILE } from "@/graphQL/profiles";
 import { WHOAMI } from "@/graphQL/whoami";
 import {
   createFirstnameSchema,
@@ -34,7 +34,7 @@ export default function EditProfile() {
   const { profile, loading } = useUser();
 
   const [updateProfile] = useMutation(gql(UPDATE_USER_PROFILE), {
-    refetchQueries: [{ query: gql(WHOAMI) }],
+    refetchQueries: [{ query: gql(WHOAMI) }, { query: gql(GET_MY_PROFILE) }],
     awaitRefetchQueries: true,
   });
 
