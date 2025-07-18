@@ -29,7 +29,7 @@ export const PasswordValidation = ({
   isPending,
 }: PasswordValidationProps) => {
   const password = form.watch(name);
-  const isLengthValid = (password?.length ?? 0) >= 8;
+  const isLengthValid = (password?.length ?? 0) >= 12;
   const hasUppercase = /(?=.*[A-Z])/.test(password ?? "");
   const hasLowercase = /(?=.*[a-z])/.test(password ?? "");
   const hasNumber = /(?=.*\d)/.test(password ?? "");
@@ -87,7 +87,7 @@ export const PasswordValidation = ({
                   <span className="">
                     {isLengthValid ? <Icons.validGreen /> : <Icons.validGrey />}
                   </span>
-                  8 caractères minimum
+                  12 caractères minimum
                 </li>
                 <li className="align-center flex">
                   <span className="">

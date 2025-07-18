@@ -1,6 +1,6 @@
 export const GET_PROFILES_ADMIN = `
-  query GetProfilesAdmin($search: String) {
-    getProfilesAdmin(search: $search) {
+  query GetProfilesByAdmin($search: String) {
+    getProfilesByAdmin(search: $search) {
       id
       email
       firstname
@@ -8,6 +8,22 @@ export const GET_PROFILES_ADMIN = `
       role
       createdAt
       updatedAt
+      deletedAt
+    }
+  }
+`;
+
+export const GET_DELETED_PROFILES_ADMIN = `
+  query GetDeletedProfilesByAdmin($search: String) {
+    getDeletedProfilesByAdmin(search: $search) {
+      id
+      email
+      firstname
+      lastname
+      role
+      createdAt
+      updatedAt
+      deletedAt
     }
   }
 `;
@@ -52,24 +68,35 @@ export const UPDATE_PROFILE = `
   }
 `;
 
-// TODO
-// Ajouter un delete pour profile, à ajouter à l'admin et page profilde de l'utilisateur
+export const DELETE_PROFILE = `
+mutation DeleteProfile {
+  softDeleteProfile
+}
+`;
 
-// export const DELETE_PROFILE = `
-//   mutation DeleteProfile($id: ID!) {
-//     deleteProfile(id: $id) {
-//       id
-//     }
-//   }
-// `;
+export const DELETE_PROFILE_BY_ADMIN = `
+  mutation deleteProfileByAdmin($userId: Float!) {
+    softDeleteProfileByAdmin(userId: $userId)
+  }
+`;
 
-// export const DELETE_MULTIPLE_USERS = `
-//   mutation DeleteMultipleProfiles($ids: [ID!]!) {
-//     deleteMultipleProfiles(ids: $ids) {
-//       id
-//     }
-//   }
-// `;
+export const ANONYMISE_PROFILE = `
+mutation AnonymiseProfile {
+  anonymiseProfile
+}
+`;
+
+export const ANONYMISE_PROFILE_BY_ADMIN = `
+  mutation AnonymiseProfileByAdmin($userId: Float!) {
+    anonymiseProfileByAdmin(userId: $userId)
+  }
+`;
+
+export const RETRIEVE_PROFILE_BY_ADMIN = `
+  mutation RetrieveAnonymisedAccount($userId: Float!) {
+    retrieveAnonymisedAccount(userId: $userId)
+  }
+`;
 
 export const GET_MY_PROFILE = `
   query GetMyProfile {

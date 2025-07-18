@@ -2,15 +2,19 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_PROFILES_ADMIN } from "@/graphQL/profiles";
+import {
+  DELETE_PROFILE_BY_ADMIN,
+  GET_PROFILES_ADMIN,
+} from "@/graphQL/profiles";
 import { useUserStore } from "@/stores/admin/user.store";
 import { ColumnConfig } from "@/types/datasTable";
 import { getRoleOptionsLabels } from "@/utils/getVariants/getRoleVariant";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import { ShieldUser } from "lucide-react";
 import { toast } from "sonner";
 import { createColumns } from "./usersColumns";
+import { Profile } from "@/gql/graphql";
 
 export default function UsersTable() {
   const usersStore = useUserStore((state) => state.users);
@@ -19,6 +23,9 @@ export default function UsersTable() {
   const setUsersFetched = useUserStore((state) => state.setUsersFetched);
 
   const { data, error, loading } = useQuery(gql(GET_PROFILES_ADMIN));
+  const [deleteProfile] = useMutation(gql(DELETE_PROFILE_BY_ADMIN), {
+    refetchQueries: [{ query: gql(GET_PROFILES_ADMIN) }],
+  });
 
   const columnConfigs: ColumnConfig[] = [
     {
@@ -38,8 +45,8 @@ export default function UsersTable() {
       return;
     }
 
-    if (data?.getProfilesAdmin) {
-      setUsers(data.getProfilesAdmin);
+    if (data?.getProfilesByAdmin) {
+      setUsers(data.getProfilesByAdmin);
       setUsersFetched(true);
     }
   }, [data, error, setUsers, setUsersFetched]);
@@ -58,10 +65,23 @@ export default function UsersTable() {
     );
   }
 
-  const onDeleteMultipleFunction = async (ids: string[] | number[]) => {
-    return true;
+  const handleDelete = async (userId: string | number) => {
+    try {
+      await deleteProfile({ variables: { userId: Number(userId) } });
+      setUsers(usersStore.filter((u) => u.id !== userId));
+      toast.success("Utilisateur supprimé avec succès.");
+      return true;
+    } catch (error: any) {
+      console.error("Erreur suppression:", error.message, error.graphQLErrors);
+      toast.error(`Échec suppression : ${error.message}`);
+      return false;
+    }
   };
 
+  const onDeleteMultipleFunction = async (ids: string[] | number[]) => {
+    await Promise.all(ids.map((id) => handleDelete(id)));
+    return true;
+  };
   return (
     <Table
       data={usersStore}

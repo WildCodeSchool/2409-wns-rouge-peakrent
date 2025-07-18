@@ -7,8 +7,8 @@ export const createPasswordSchema = () =>
     .string({
       required_error: "Le mot de passe est requis",
     })
-    .min(8, {
-      message: "Le mot de passe doit contenir au moins 8 caractères",
+    .min(12, {
+      message: "Le mot de passe doit contenir au moins 12 caractères",
     })
     .regex(/(?=.*[A-Z])/, {
       message: "Le mot de passe doit contenir au moins une lettre majuscule",

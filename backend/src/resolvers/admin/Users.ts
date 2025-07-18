@@ -10,10 +10,43 @@ import { validateInput } from "@/helpers/validateInput";
 import { AuthContextType, RoleType } from "@/types";
 import { ValidationError } from "class-validator";
 import { GraphQLError } from "graphql";
-import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
+import { ILike } from "typeorm";
 
 @Resolver(User)
 export class UserResolverAdmin {
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Query(() => [User], { nullable: true })
+  async getUsersByAdmin(
+    @Arg("search", () => String, { nullable: true }) search?: string
+  ): Promise<User[] | null> {
+    const where: any = {};
+    if (search) {
+      where.email = ILike(`%${search}%`);
+    }
+    return await User.find({ where });
+  }
+
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Query(() => [User], { nullable: true })
+  async getDeletedUsersByAdmin(
+    @Arg("search", () => String, { nullable: true }) search?: string
+  ): Promise<User[] | null> {
+    const where: any = {};
+    if (search) {
+      where.email = ILike(`%${search}%`);
+    }
+    return await User.find({ withDeleted: true, where });
+  }
+
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Profile)
   async createUserByAdmin(

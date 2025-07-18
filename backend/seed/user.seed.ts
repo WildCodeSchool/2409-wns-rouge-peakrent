@@ -10,14 +10,14 @@ export const seedUsers = async () => {
   const users = [
     {
       email: "admin@peakrent.com",
-      password: "Aadmin123!",
+      password: "Aadmin12345!",
       firstname: "Admin",
       lastname: "User",
       role: RoleType.admin,
     },
     {
       email: "client@example.com",
-      password: "Client123!",
+      password: "Client12345!",
       firstname: "Jean",
       lastname: "Dupont",
       role: RoleType.user,
