@@ -20,12 +20,33 @@ import {
   sendConfirmNewEmail,
 } from "@/lib/email/validationEmail";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
+import {
+  cleanupUserTokens,
+  clearCookies,
+  generateAccessToken,
+  generateEmailChangeToken,
+  generateEmailToken,
+  generateRecoverToken,
+  generateRefreshToken,
+  saveUserToken,
+  setCookies,
+  verifyToken,
+} from "@/services/TokenService";
+import {
+  validateEmailAlreadyVerified,
+  validateEmailNotExists,
+  validateEmailNotRecentlySent,
+  validateEmailNotSame,
+  validatePasswordMatch,
+  validateRecoverEmailNotRecentlySent,
+  validateToken,
+  validateUserExists,
+} from "@/services/ValidationService";
 import { AuthContextType, ContextType, RoleType } from "@/types";
 import { UserInputError } from "apollo-server-errors";
+import * as argon2 from "argon2";
 import { ValidationError } from "class-validator";
-import Cookies from "cookies";
 import { GraphQLError } from "graphql";
-import * as jsonwebtoken from "jsonwebtoken";
 import {
   Arg,
   Authorized,
@@ -34,7 +55,6 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
-import { Not } from "typeorm";
 
 @Resolver(User)
 export class UserResolver {
@@ -42,27 +62,11 @@ export class UserResolver {
   async createUser(
     @Arg("data", () => UserCreateInput) data: UserCreateInput
   ): Promise<User | ValidationError[]> {
-    if (data.password !== data.confirmPassword) {
-      throw new GraphQLError("Passwords don't match", {
-        extensions: {
-          code: "PASSWORDS_DONT_MATCH",
-          http: { status: 400 },
-        },
-      });
-    }
+    validatePasswordMatch(data.password, data.confirmPassword);
 
     await validateInput(data);
 
-    const existingUser = await User.findOne({ where: { email: data.email } });
-
-    if (existingUser) {
-      throw new GraphQLError("User with this email already exists", {
-        extensions: {
-          code: "EMAIL_ALREADY_EXIST",
-          http: { status: 409 },
-        },
-      });
-    }
+    await validateEmailNotExists(data.email);
 
     try {
       const hashedPassword = await hashPassword(data.password);
@@ -82,11 +86,7 @@ export class UserResolver {
         profile.lastname = newUser.lastname;
         profile.id = newUser.id;
         profile.role = newUser.role;
-        const confirmToken = jsonwebtoken.sign(
-          { id: newUser.id },
-          process.env.JWT_SECRET_RECOVER_KEY,
-          { expiresIn: "24h" }
-        );
+        const confirmToken = generateEmailToken(newUser.id);
         newUser.emailToken = confirmToken;
         newUser.emailSentAt = new Date();
         await newUser.save();
@@ -112,40 +112,13 @@ export class UserResolver {
       const { email, password } = datas;
       const user: User | null = await User.findOneBy({ email });
 
-      if (!user) {
-        throw new GraphQLError("Invalid email or password", {
-          extensions: {
-            code: "INVALID_CREDENTIALS",
-            http: { status: 401 },
-          },
-        });
-      }
+      validateUserExists(user, "invalid_credentials");
 
-      const passwordMatch = await verifyPassword(user.password, password);
-
-      if (!passwordMatch) {
-        throw new GraphQLError("Invalid email or password", {
-          extensions: {
-            code: "INVALID_CREDENTIALS",
-            http: { status: 401 },
-          },
-        });
-      }
+      await verifyPassword(user.password, password);
 
       if (!user.emailVerifiedAt) {
-        if (
-          user.emailSentAt &&
-          user.emailSentAt > new Date(Date.now() - 1000 * 60 * 60 * 24)
-        ) {
-          throw new GraphQLError("Email already sent", {
-            extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 401 } },
-          });
-        }
-        const confirmToken = jsonwebtoken.sign(
-          { id: user.id },
-          process.env.JWT_SECRET_RECOVER_KEY,
-          { expiresIn: "24h" }
-        );
+        validateEmailNotRecentlySent(user.emailSentAt);
+        const confirmToken = generateEmailToken(user.id);
         user.emailToken = confirmToken;
         user.emailSentAt = new Date();
         await sendConfirmEmail(user.email, confirmToken);
@@ -155,39 +128,12 @@ export class UserResolver {
         });
       }
 
-      //TODO replace 3d per 1h when refresh token is fully implemented
-      const token = jsonwebtoken.sign(
-        { id: user.id },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "3d" }
-      );
+      const token = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
 
-      const refreshToken = jsonwebtoken.sign(
-        { id: user.id },
-        process.env.JWT_REFRESH_SECRET_KEY,
-        { expiresIn: "7d" }
-      );
+      await saveUserToken(user, token, refreshToken);
 
-      const userToken = new UserToken();
-      userToken.token = token;
-      userToken.refreshToken = refreshToken;
-      userToken.user = user;
-      await userToken.save();
-      if (process.env.NODE_ENV !== "testing") {
-        const cookies = new Cookies(context.req, context.res);
-        //TODO remove 24 * 3 when refresh token is fully implemented
-        cookies.set("token", token, {
-          secure: process.env.NODE_ENV === "production",
-          httpOnly: true,
-          maxAge: 1000 * 60 * 60 * 24 * 3,
-        });
-
-        cookies.set("refresh_token", refreshToken, {
-          secure: process.env.NODE_ENV === "production",
-          httpOnly: true,
-          maxAge: 1000 * 60 * 60 * 24 * 7,
-        });
-      }
+      setCookies(context, token, refreshToken);
 
       return user;
     } catch (err) {
@@ -201,32 +147,25 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   async signOut(@Ctx() context: ContextType): Promise<boolean> {
-    const cookies = new Cookies(context.req, context.res);
-    cookies.set("token", "", { maxAge: 0 });
+    clearCookies(context);
     return true;
   }
 
-  @Authorized()
+  @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
   @Mutation(() => Profile)
   @UseMiddleware(ErrorCatcher)
   async updateUserProfile(
     @Arg("data", () => UserUpdateProfileInput) data: UserUpdateProfileInput,
-    @Ctx() context: ContextType
+    @Ctx() context: AuthContextType
   ): Promise<Profile> {
-    if (!context.user?.id) {
-      throw new GraphQLError("Non authentifié", {
-        extensions: { code: "UNAUTHENTICATED", http: { status: 401 } },
-      });
-    }
     const user = await User.findOne({ where: { id: context.user.id } });
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+
+    validateUserExists(user);
+
     user.firstname = data.firstname;
     user.lastname = data.lastname;
     let profile: Profile | null = null;
+
     await dataSource.manager.transaction(async () => {
       await user.save();
       profile = await Profile.findOne({ where: { id: user.id } });
@@ -250,26 +189,11 @@ export class UserResolver {
     @Arg("data", () => ForgotPasswordInput) data: ForgotPasswordInput
   ): Promise<boolean> {
     const user = await User.findOne({ where: { email: data.email } });
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    if (
-      user.recoverSentAt &&
-      user.recoverSentAt > new Date(Date.now() - 1000 * 60 * 60)
-    ) {
-      throw new GraphQLError("Email déjà envoyé", {
-        extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 400 } },
-      });
-    }
+    validateRecoverEmailNotRecentlySent(user.recoverSentAt);
 
-    const recoverToken = jsonwebtoken.sign(
-      { id: user.id },
-      process.env.JWT_SECRET_RECOVER_KEY,
-      { expiresIn: "1h" }
-    );
+    const recoverToken = generateRecoverToken(user.id);
 
     user.recoverToken = recoverToken;
     user.recoverSentAt = new Date();
@@ -285,29 +209,17 @@ export class UserResolver {
   async resetPassword(
     @Arg("data", () => ResetPasswordInput) data: ResetPasswordInput
   ): Promise<boolean> {
-    if (data.password !== data.confirmPassword) {
-      throw new GraphQLError("Les mots de passe ne correspondent pas", {
-        extensions: { code: "PASSWORDS_DONT_MATCH", http: { status: 400 } },
-      });
-    }
+    validatePasswordMatch(data.password, data.confirmPassword);
 
-    const decoded = jsonwebtoken.verify(
+    const decoded = verifyToken(
       data.token,
       process.env.JWT_SECRET_RECOVER_KEY
     ) as { id: number };
 
     const user = await User.findOne({ where: { id: decoded.id } });
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    if (user.recoverToken !== data.token) {
-      throw new GraphQLError("Token invalide", {
-        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
-      });
-    }
+    validateToken(user.recoverToken, data.token);
 
     const hashedPassword = await hashPassword(data.password);
     user.password = hashedPassword;
@@ -321,23 +233,14 @@ export class UserResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(ErrorCatcher)
   async verifyResetToken(@Arg("token") token: string): Promise<boolean> {
-    const decoded = jsonwebtoken.verify(
-      token,
-      process.env.JWT_SECRET_RECOVER_KEY
-    ) as { id: number };
+    const decoded = verifyToken(token, process.env.JWT_SECRET_RECOVER_KEY) as {
+      id: number;
+    };
 
     const user = await User.findOne({ where: { id: decoded.id } });
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    if (user.recoverToken !== token) {
-      throw new GraphQLError("Token invalide", {
-        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
-      });
-    }
+    validateToken(user.recoverToken, token);
 
     return true;
   }
@@ -345,30 +248,15 @@ export class UserResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(ErrorCatcher)
   async verifyConfirmEmailToken(@Arg("token") token: string): Promise<boolean> {
-    const decoded = jsonwebtoken.verify(
-      token,
-      process.env.JWT_SECRET_RECOVER_KEY
-    ) as { id: number };
+    const decoded = verifyToken(token, process.env.JWT_SECRET_RECOVER_KEY) as {
+      id: number;
+    };
 
     const user = await User.findOne({ where: { id: decoded.id } });
 
-    if (user?.emailVerifiedAt) {
-      throw new GraphQLError("Email déjà validé", {
-        extensions: { code: "EMAIL_ALREADY_VERIFIED", http: { status: 400 } },
-      });
-    }
-
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
-
-    if (user.emailToken !== token) {
-      throw new GraphQLError("Token invalide", {
-        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
-      });
-    }
+    validateUserExists(user);
+    validateEmailAlreadyVerified(user?.emailVerifiedAt);
+    validateToken(user.emailToken, token);
 
     user.emailToken = null;
     user.emailSentAt = null;
@@ -388,19 +276,9 @@ export class UserResolver {
     const profileId = context.user.id;
     const user = await User.findOne({ where: { id: profileId } });
 
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    const passwordMatch = await verifyPassword(user.password, data.password);
-
-    if (!passwordMatch) {
-      throw new GraphQLError("Mot de passe incorrect", {
-        extensions: { code: "INVALID_PASSWORD", http: { status: 401 } },
-      });
-    }
+    await verifyPassword(user.password, data.password);
 
     const existingUser = await User.findOne({
       where: { email: data.newEmail },
@@ -411,29 +289,11 @@ export class UserResolver {
       });
     }
 
-    if (user.email === data.newEmail) {
-      throw new GraphQLError(
-        "La nouvelle adresse email est identique à l'actuelle",
-        {
-          extensions: { code: "SAME_EMAIL", http: { status: 400 } },
-        }
-      );
-    }
+    validateEmailNotSame(user.email, data.newEmail);
 
-    if (
-      user.newEmailSentAt &&
-      user.newEmailSentAt > new Date(Date.now() - 1000 * 60 * 15)
-    ) {
-      throw new GraphQLError("Un email de confirmation a déjà été envoyé", {
-        extensions: { code: "EMAIL_ALREADY_SENT", http: { status: 400 } },
-      });
-    }
+    validateEmailNotRecentlySent(user.newEmailSentAt);
 
-    const confirmToken = jsonwebtoken.sign(
-      { id: user.id, newEmail: data.newEmail },
-      process.env.JWT_SECRET_RECOVER_KEY,
-      { expiresIn: "15m" }
-    );
+    const confirmToken = generateEmailChangeToken(user.id, data.newEmail);
 
     user.newEmail = data.newEmail;
     user.newEmailToken = confirmToken;
@@ -451,23 +311,15 @@ export class UserResolver {
     @Ctx() context: ContextType,
     @Arg("data", () => ConfirmNewEmailInput) data: ConfirmNewEmailInput
   ): Promise<boolean> {
-    const decoded = jsonwebtoken.verify(
+    const decoded = verifyToken(
       data.token,
       process.env.JWT_SECRET_RECOVER_KEY
     ) as { id: number; newEmail: string };
 
     const user = await User.findOne({ where: { id: decoded.id } });
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    if (user.newEmailToken !== data.token) {
-      throw new GraphQLError("Token invalide", {
-        extensions: { code: "INVALID_TOKEN", http: { status: 400 } },
-      });
-    }
+    validateToken(user.newEmailToken, data.token);
 
     if (!user.newEmail || user.newEmail !== decoded.newEmail) {
       throw new GraphQLError("Adresse email invalide", {
@@ -475,14 +327,7 @@ export class UserResolver {
       });
     }
 
-    const existingUser = await User.findOne({
-      where: { email: user.newEmail },
-    });
-    if (existingUser && existingUser.id !== user.id) {
-      throw new GraphQLError("Cette adresse email est déjà utilisée", {
-        extensions: { code: "EMAIL_ALREADY_EXIST", http: { status: 409 } },
-      });
-    }
+    await validateEmailNotExists(user.newEmail, user.id);
 
     await dataSource.manager.transaction(async () => {
       user.email = user.newEmail;
@@ -501,36 +346,11 @@ export class UserResolver {
     if (process.env.NODE_ENV !== "testing") {
       await UserToken.delete({ user: { id: user.id } });
 
-      const token = jsonwebtoken.sign(
-        { id: user.id },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "3d" }
-      );
+      const token = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
 
-      const refreshToken = jsonwebtoken.sign(
-        { id: user.id },
-        process.env.JWT_REFRESH_SECRET_KEY,
-        { expiresIn: "7d" }
-      );
-
-      const userToken = new UserToken();
-      userToken.token = token;
-      userToken.refreshToken = refreshToken;
-      userToken.user = user;
-      await userToken.save();
-
-      const cookies = new Cookies(context.req, context.res);
-      cookies.set("token", token, {
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 3,
-      });
-
-      cookies.set("refresh_token", refreshToken, {
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-      });
+      await saveUserToken(user, token, refreshToken);
+      setCookies(context, token, refreshToken);
     }
 
     return true;
@@ -546,22 +366,13 @@ export class UserResolver {
     const profileId = context.user.id;
     const user = await User.findOne({ where: { id: profileId } });
 
-    if (!user) {
-      throw new GraphQLError("Utilisateur introuvable", {
-        extensions: { code: "USER_NOT_FOUND", http: { status: 404 } },
-      });
-    }
+    validateUserExists(user);
 
-    const currentPasswordMatch = await verifyPassword(
+    await verifyPassword(
       user.password,
-      data.currentPassword
+      data.currentPassword,
+      "change_password"
     );
-
-    if (!currentPasswordMatch) {
-      throw new GraphQLError("Mot de passe actuel incorrect", {
-        extensions: { code: "INVALID_CURRENT_PASSWORD", http: { status: 401 } },
-      });
-    }
 
     if (data.newPassword !== data.confirmNewPassword) {
       throw new GraphQLError(
@@ -572,7 +383,7 @@ export class UserResolver {
       );
     }
 
-    const newPasswordMatch = await verifyPassword(
+    const newPasswordMatch = await argon2.verify(
       user.password,
       data.newPassword
     );
@@ -591,17 +402,7 @@ export class UserResolver {
     await user.save();
 
     if (process.env.NODE_ENV !== "testing") {
-      const cookies = new Cookies(context.req, context.res);
-      const currentToken = cookies.get("token");
-
-      if (currentToken) {
-        await UserToken.delete({
-          user: { id: user.id },
-          token: Not(currentToken),
-        });
-      } else {
-        await UserToken.delete({ user: { id: user.id } });
-      }
+      await cleanupUserTokens(user.id, context);
     }
 
     return true;
