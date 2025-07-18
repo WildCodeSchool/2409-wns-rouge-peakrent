@@ -111,9 +111,9 @@ export function SignUpPage() {
                   <h2 className="text-3xl font-bold mb-6 text-black md:text-white">
                     Inscription réussie !<span className="text-3xl">🎉</span>
                   </h2>
-                  <p className="text-black md:text-white mb-8 max-w-md">
-                    Votre compte a été créé avec succès. Vous pouvez maintenant
-                    vous connecter pour accéder à votre espace.
+                  <p className="text-black md:text-white mb-8 max-w-md drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    Votre compte a été créé avec succès. Un email de
+                    confirmation vous a été envoyé.
                   </p>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">
                     <NavLink to="/signin">
