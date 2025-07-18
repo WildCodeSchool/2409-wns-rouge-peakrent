@@ -1,28 +1,25 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import UpdateButton from "@/components/buttons/UpdateButton";
+import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useUser } from "@/context/userProvider";
+import { GET_MY_PROFILE, UPDATE_USER_PROFILE } from "@/graphQL/profiles";
+import { WHOAMI } from "@/graphQL/whoami";
 import {
   createFirstnameSchema,
   createLastnameSchema,
 } from "@/schemas/authSchemas";
+import { gql, useMutation } from "@apollo/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { z } from "zod";
 import { StringInput } from "./formField/string/StringInput";
-import { Button } from "@/components/ui/button";
-import { LoadIcon } from "@/components/icons/LoadIcon";
-import UpdateButton from "@/components/buttons/UpdateButton";
-import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-interface EditProfileProps {
-  firstname: string;
-  lastname: string;
-  email: string;
-  onSave: (data: {
-    firstname: string;
-    lastname: string;
-    email: string;
-  }) => void;
-  onCancel: () => void;
-}
+import { UpdateEmailForm } from "./UpdateEmailForm";
+import { UpdatePasswordForm } from "./UpdatePasswordForm";
 
 const profileEditSchema = z.object({
   firstname: createFirstnameSchema(),
@@ -31,24 +28,64 @@ const profileEditSchema = z.object({
 });
 type ProfileEditFormValues = z.infer<typeof profileEditSchema>;
 
-export default function EditProfile({
-  firstname,
-  lastname,
-  email,
-  onSave,
-  onCancel,
-}: EditProfileProps) {
+export default function EditProfile() {
+  const navigate = useNavigate();
+
+  const { profile, loading } = useUser();
+
+  const [updateProfile] = useMutation(gql(UPDATE_USER_PROFILE), {
+    refetchQueries: [{ query: gql(WHOAMI) }, { query: gql(GET_MY_PROFILE) }],
+    awaitRefetchQueries: true,
+  });
+
+  const defaultValues = {
+    firstname: profile?.firstname || "",
+    lastname: profile?.lastname || "",
+    email: profile?.email || "",
+  };
+
   const form = useForm<ProfileEditFormValues>({
     resolver: zodResolver(profileEditSchema),
-    defaultValues: { firstname, lastname, email },
-    mode: "onTouched",
+    defaultValues,
+    mode: "onChange",
   });
-  const { handleSubmit, formState } = form;
+
+  const { handleSubmit, formState, reset } = form;
   const { isSubmitting } = formState;
 
   const onSubmit = async (values: ProfileEditFormValues) => {
-    await onSave(values);
+    try {
+      await updateProfile({
+        variables: {
+          data: {
+            firstname: values.firstname,
+            lastname: values.lastname,
+          },
+        },
+      });
+      toast.success("Profil mis à jour avec succès");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erreur lors de la mise à jour du profil");
+    }
   };
+
+  const handleCancel = () => {
+    navigate("/profile");
+  };
+
+  useEffect(() => {
+    if (profile) {
+      reset(defaultValues);
+    }
+  }, [profile]);
+
+  if (loading) {
+    return <div>Chargement…</div>;
+  }
+  if (!profile) {
+    return <div>Profil introuvable.</div>;
+  }
 
   return (
     <Form {...form}>
@@ -62,6 +99,7 @@ export default function EditProfile({
           label="Prénom"
           placeholder=" "
           required
+          isPending={isSubmitting}
         />
         <StringInput
           form={form}
@@ -69,6 +107,7 @@ export default function EditProfile({
           label="Nom"
           placeholder=" "
           required
+          isPending={isSubmitting}
         />
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">
@@ -79,14 +118,15 @@ export default function EditProfile({
               id="email"
               type="email"
               value={form.getValues("email")}
+              disabled={true}
               readOnly
               className="flex-1 bg-gray-100"
             />
             <UpdateButton
-              ariaLabel={"editEmailAriaLabel"}
+              ariaLabel="Modifier l'email"
               variant="primary"
               modalTitle="Modifier l'email"
-              modalContent={<></>}
+              modalContent={<UpdateEmailForm />}
               className="ml-2"
             />
           </div>
@@ -99,16 +139,17 @@ export default function EditProfile({
             <Input
               id="password"
               type="password"
-              value={"********"}
+              value="********"
               readOnly
+              disabled={true}
               className="flex-1 bg-gray-100"
               tabIndex={-1}
             />
             <UpdateButton
-              ariaLabel={"editPasswordAriaLabel"}
+              ariaLabel="Modifier le mot de passe"
               variant="primary"
               modalTitle="Modifier le mot de passe"
-              modalContent={<></>}
+              modalContent={<UpdatePasswordForm />}
               className="ml-2"
             />
           </div>
@@ -117,12 +158,13 @@ export default function EditProfile({
           <Button
             type="button"
             variant="destructive"
-            onClick={onCancel}
+            className="w-full"
+            onClick={handleCancel}
             disabled={isSubmitting}
           >
             Annuler
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? <LoadIcon size={24} /> : "Enregistrer"}
           </Button>
         </div>

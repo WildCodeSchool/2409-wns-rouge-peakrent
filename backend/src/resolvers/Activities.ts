@@ -51,4 +51,25 @@ export class ActivityResolver {
 
     return activity;
   }
+
+  @Query(() => Activity, { nullable: true })
+  async getActivityByNormalizedName(
+    @Arg("normalizedName", () => String) normalizedName: string
+  ): Promise<Activity | null> {
+    const activity = await Activity.findOne({
+      where: { normalizedName },
+      relations: { products: { categories: true, variants: true } },
+    });
+
+    if (!activity) {
+      throw new GraphQLError("Activity not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+
+    return activity;
+  }
 }

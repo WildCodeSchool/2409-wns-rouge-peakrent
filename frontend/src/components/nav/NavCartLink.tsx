@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useQuery } from "@apollo/client";
+import { ShoppingCart } from "lucide-react";
 import { useEffect } from "react";
-import { CiShoppingCart } from "react-icons/ci";
 import { NavLink } from "react-router-dom";
 import { toast } from "sonner";
 import { buttonVariants } from "../ui/button";
@@ -58,7 +58,7 @@ const NavCartLink = () => {
         "relative py-2 px-4 cursor-pointer text-center"
       )}
     >
-      <CiShoppingCart size={30} className="flex-none" />
+      <ShoppingCart size={20} className="flex-none font-normal" />
 
       {orderItemsStore.length > 0 && !loading && (
         <span className="absolute top-1 right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

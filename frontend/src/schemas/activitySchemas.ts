@@ -29,6 +29,15 @@ export const activityBaseSchema = (
         defaultValue: datas?.urlImage,
         required: false,
       }),
+      description: createStringSchema({
+        minLength: 10,
+        maxLength: 500,
+        defaultValue: datas?.description,
+        required: false,
+        invalidFormatError: "La description est invalide",
+        minLengthError: "La description doit contenir au moins 10 caractères",
+        maxLengthError: "La description doit contenir au plus 500 caractères",
+      }),
       image: z
         .array(
           z.instanceof(File).refine((file) => file.size <= 10 * 1024 * 1024, {

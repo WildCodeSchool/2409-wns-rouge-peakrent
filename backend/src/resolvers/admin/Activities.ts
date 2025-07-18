@@ -37,6 +37,7 @@ export class ActivityResolverAdmin {
       name: data.name,
       variant: data.variant,
       urlImage: data.urlImage,
+      description: data.description,
       createdBy: user,
     });
     newActivity.normalizedName = normalizeString(newActivity.name);
@@ -88,6 +89,7 @@ export class ActivityResolverAdmin {
       name: data.name,
       variant: data.variant,
       urlImage: data.urlImage,
+      description: data.description,
     });
     activity.normalizedName = normalizeString(activity.name);
 

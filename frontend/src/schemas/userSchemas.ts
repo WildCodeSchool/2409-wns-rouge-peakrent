@@ -49,3 +49,31 @@ export const generateUserFormSchema = (datas?: Profile) =>
   });
 
 export type UserFormSchema = z.infer<ReturnType<typeof generateUserFormSchema>>;
+
+export const generateUpdateEmailFormSchema = () =>
+  z.object({
+    newEmail: createEmailSchema({
+      requiredError: "Le nouvel email est requis",
+      invalidFormatError: "Format d'email invalide",
+    }),
+    password: createPasswordSchema(),
+  });
+
+export const generateChangePasswordFormSchema = () =>
+  z
+    .object({
+      currentPassword: createPasswordSchema(),
+      newPassword: createPasswordSchema(),
+      confirmNewPassword: createPasswordSchema(),
+    })
+    .refine((data) => data.newPassword === data.confirmNewPassword, {
+      message: "Les mots de passe ne correspondent pas",
+      path: ["confirmNewPassword"],
+    });
+
+export type UpdateEmailFormSchema = z.infer<
+  ReturnType<typeof generateUpdateEmailFormSchema>
+>;
+export type ChangePasswordFormSchema = z.infer<
+  ReturnType<typeof generateChangePasswordFormSchema>
+>;

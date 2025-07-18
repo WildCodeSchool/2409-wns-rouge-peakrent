@@ -2,8 +2,8 @@ import { Category, Product } from "@/gql/graphql";
 import { gql, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import { debounce } from "lodash";
+import { Search } from "lucide-react";
 import { useState } from "react";
-import { CiSearch } from "react-icons/ci";
 import { Link } from "react-router-dom";
 import { GET_PRODUCTS_AND_CATEGORIES } from "../../graphQL/search";
 
@@ -39,7 +39,7 @@ const SearchBar = () => {
             onChange={(event) => {
               onInputChange(event);
             }}
-            className="h-10 p-5 border-1 rounded-s border-black font-inherit w-50 md:w-80"
+            className="h-10 p-5 border-1 rounded-s border-black font-inherit w-50 md:w-80 border-r-0"
           />
           {searchTerm && searchResults && (
             <ul
@@ -65,8 +65,8 @@ const SearchBar = () => {
             </ul>
           )}
         </div>
-        <div className="border-1 border-black text-xs font-inherit border-l-0 h-10 flex justify-center items-center py-5">
-          <CiSearch size={30} />
+        <div className="border-1 border-black text-xs font-inherit border-l-0 h-10 flex justify-center items-center py-5 w-8 rounded-r-md">
+          <Search size={20} />
         </div>
       </form>
     </>

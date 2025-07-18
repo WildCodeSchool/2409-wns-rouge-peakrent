@@ -49,6 +49,10 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         expect(userFromDb.firstname).toBe(datas.firstname);
         expect(userFromDb.lastname).toBe(datas.lastname);
         expect(userFromDb.role).toBe("user");
+        userFromDb.emailVerifiedAt = new Date();
+        userFromDb.emailToken = null;
+        userFromDb.emailSentAt = null;
+        await userFromDb.save();
         testArgs.data.user = userFromDb;
       });
 
@@ -143,6 +147,44 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
           "INVALID_CREDENTIALS"
+        );
+        expect(response.body.singleResult.data?.signIn).toBeNull();
+      });
+
+      it("should not sign me in with unverified email", async () => {
+        const unverifiedUserResponse = await testArgs.server.executeOperation<{
+          createUser: User;
+        }>({
+          query: getQueryFromMutation(CREATE_USER),
+          variables: {
+            data: {
+              email: "unverified@example.com",
+              password: "SuperSecret!2025",
+              confirmPassword: "SuperSecret!2025",
+              firstname: "Unverified",
+              lastname: "User",
+            },
+          },
+        });
+
+        assert(unverifiedUserResponse.body.kind === "single");
+
+        const response = await testArgs.server.executeOperation<{
+          signIn: User;
+        }>({
+          query: getQueryFromMutation(SIGNIN),
+          variables: {
+            datas: {
+              email: "unverified@example.com",
+              password: "SuperSecret!2025",
+            },
+          },
+        });
+
+        assert(response.body.kind === "single");
+        expect(response.body.singleResult.errors).toBeDefined();
+        expect(response.body.singleResult.errors[0].extensions.code).toBe(
+          "EMAIL_ALREADY_SENT"
         );
         expect(response.body.singleResult.data?.signIn).toBeNull();
       });

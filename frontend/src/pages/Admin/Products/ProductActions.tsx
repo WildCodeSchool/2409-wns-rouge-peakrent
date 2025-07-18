@@ -1,8 +1,8 @@
-import { Row } from "@tanstack/react-table";
 import DeleteButton from "@/components/buttons/DeleteButton";
-import { Pencil } from "lucide-react";
-import { Product } from "@/gql/graphql";
 import { Button } from "@/components/ui/button";
+import { Product } from "@/gql/graphql";
+import { Row } from "@tanstack/react-table";
+import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface DataTableRowProductsActionsProps<TData> {
@@ -21,7 +21,12 @@ export function DataTableRowProductsActions<TData>({
 
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">
-      <Button onClick={() => navigate(`edit/${product.id}`)}>
+      <Button
+        variant="primary"
+        size="icon"
+        className="hover:border-input size-8 min-h-8 min-w-8 hover:ring-0"
+        onClick={() => navigate(`edit/${product.id}`)}
+      >
         <Pencil size={18} />
       </Button>
       <DeleteButton

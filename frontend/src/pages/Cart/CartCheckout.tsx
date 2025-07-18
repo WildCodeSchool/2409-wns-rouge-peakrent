@@ -2,27 +2,19 @@ import { StringInput } from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { UPDATE_CART_USER } from "@/graphQL/carts";
 import { cartCheckoutSchema, CartCheckoutType } from "@/schemas/cartSchemas";
-import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
+import { useCartStoreUser } from "@/stores/user/cart.store";
 import { gql, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export function CartCheckout() {
-  const setCommandTunnelStatus = useCartStoreUser(
-    (state) => state.setCommandTunnelStatus
-  );
   const cart = useCartStoreUser((state) => state.cart);
   const updateCartStore = useCartStoreUser((state) => state.updateCart);
   const setCart = useCartStoreUser((state) => state.setCart);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setCommandTunnelStatus(CommandStatusEnum.validated);
-  }, []);
 
   const [updateCart, { loading }] = useMutation(gql(UPDATE_CART_USER));
 
@@ -46,7 +38,6 @@ export function CartCheckout() {
           },
         },
       });
-      setCommandTunnelStatus(CommandStatusEnum.onPayment);
       cart
         ? updateCartStore(response.data.updateCart)
         : setCart(response.data.updateCart);

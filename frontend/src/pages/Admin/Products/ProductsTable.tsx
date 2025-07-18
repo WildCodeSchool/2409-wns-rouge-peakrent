@@ -83,7 +83,6 @@ export default function ProductsTable() {
       hideColumns={{
         sku: false,
       }}
-      rowLink="id"
       hideExport
       onDeleteMultipleFunction={onDeleteMultipleFunction}
     />

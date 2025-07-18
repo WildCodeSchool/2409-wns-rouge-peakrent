@@ -11,6 +11,8 @@ services:
   frontend:
     image: charlotter678/peakrentfrontend:latest
     command: ["npx", "serve", "dist", "--single"]
+    env_file:
+      - front.variables.env
     depends_on:
       - backend
 
