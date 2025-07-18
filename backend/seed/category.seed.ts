@@ -30,7 +30,28 @@ export const seedCategories = async () => {
       childrens: [
         { name: "Ski de randonnée", variant: "lime" },
         { name: "Ski freestyle", variant: "lime" },
-        { name: "Ski de vitesse", variant: "lime" },
+        { name: "Ski de vitesse", variant: "lime" }
+      ],
+    },
+    {
+      name: "Snowboard",
+      variant: "orange",
+      childrens: [
+        { name: "Snowboard freestyle", variant: "orange" },
+        { name: "Snowboard de vitesse", variant: "orange" },
+      ],
+    },
+    {
+      name: "Raquettes",
+      variant: "purple",
+    },
+    {
+      name: "Chaussures",
+      variant: "red",
+      childrens: [
+        { name: "Chaussures de randonnée", variant: "red" },
+        { name: "Chaussures de ski", variant: "red" },
+        { name: "Chaussures de snowboard", variant: "red" },
       ],
     },
     {
