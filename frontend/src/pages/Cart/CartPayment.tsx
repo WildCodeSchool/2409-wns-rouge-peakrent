@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { VALIDATE_CART } from "@/graphQL/carts";
 import { GET_STORE_BY_ID } from "@/graphQL/stores";
-import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
+import { useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
@@ -10,7 +10,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { CreditCard, Store } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -36,9 +36,6 @@ export function CartPayment() {
   const deleteOrderItemStore = useOrderItemStore(
     (state) => state.deleteAllOrderItems
   );
-  const setCommandTunnelStatus = useCartStoreUser(
-    (state) => state.setCommandTunnelStatus
-  );
 
   const navigate = useNavigate();
 
@@ -46,10 +43,6 @@ export function CartPayment() {
     variables: { param: "1" },
   });
   const store = storeData?.getStoreById;
-
-  useEffect(() => {
-    setCommandTunnelStatus(CommandStatusEnum.onPayment);
-  }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -1,15 +1,94 @@
+import { dataSource } from "@/config/db";
 import { Cart } from "@/entities/Cart";
 import { OrderItem } from "@/entities/OrderItem";
 import { Payment } from "@/entities/Payment";
 import { Profile } from "@/entities/Profile";
 import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
-import { AuthContextType, RoleType } from "@/types";
+import {
+  AuthContextType,
+  OrderStatusType,
+  RoleType,
+  StripePaymentStatusType,
+} from "@/types";
 import { GraphQLError } from "graphql";
-import Stripe from "stripe";
-import { Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+import { GraphQLJSONObject } from "graphql-scalars";
+import { default as Stripe } from "stripe";
+import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
 
 @Resolver()
 export class PaymentResolver {
+  @Authorized(RoleType.admin, RoleType.superadmin)
+  @Mutation(() => Payment)
+  async updatePaymentAndOrder(
+    @Arg("paymentIntent", () => GraphQLJSONObject)
+    paymentIntent: Stripe.PaymentIntent
+  ): Promise<Payment> {
+    const payment = await Payment.findOne({
+      where: { stripePaymentIntentId: paymentIntent.id },
+      relations: { order: true },
+    });
+    if (!payment) {
+      throw new GraphQLError("payment not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+          entity: "payment",
+        },
+      });
+    }
+
+    const order = payment.order;
+    if (!order) {
+      throw new GraphQLError("order not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+          entity: "order",
+        },
+      });
+    }
+
+    if (order === null) {
+      throw new GraphQLError("order not found", {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+          entity: "order",
+        },
+      });
+    }
+
+    payment.status = paymentIntent.status as StripePaymentStatusType;
+
+    let status: OrderStatusType;
+
+    if (
+      paymentIntent.status === "requires_payment_method" &&
+      paymentIntent.last_payment_error
+    ) {
+      status = OrderStatusType.failed;
+    } else {
+      switch (paymentIntent.status) {
+        case "succeeded":
+          status = OrderStatusType.completed;
+          break;
+        case "canceled":
+          status = OrderStatusType.cancelled;
+          break;
+        default:
+          status = OrderStatusType.pending;
+      }
+    }
+
+    order.status = status;
+    await dataSource.manager.transaction(async (transactionalEntityManager) => {
+      await transactionalEntityManager.save(order);
+      await transactionalEntityManager.save(payment);
+    });
+
+    return payment;
+  }
+
   @Authorized(RoleType.admin, RoleType.user)
   @Mutation(() => Payment)
   async createPaymentIntent(

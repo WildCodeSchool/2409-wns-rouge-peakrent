@@ -176,12 +176,6 @@ export class CartResolver {
         );
       }
 
-      if (data.paymentMethod === OrderPaymentType.onSite) {
-        payment.status = StripePaymentStatusType.ToBePaid;
-        payment.stripePaymentIntentId = null;
-        await payment.save();
-      }
-
       const order = new Order();
       const orderData = {
         profileId,
@@ -206,6 +200,14 @@ export class CartResolver {
       }
 
       await order.save();
+
+      if (data.paymentMethod === OrderPaymentType.onSite) {
+        payment.status = StripePaymentStatusType.ToBePaid;
+      }
+
+      payment.order = order;
+
+      await payment.save();
 
       await Promise.all(
         orderItems.map(async (item) => {

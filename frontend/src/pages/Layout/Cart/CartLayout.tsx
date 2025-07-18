@@ -7,31 +7,55 @@ import { cn } from "@/lib/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { CreditCard, ShoppingBag } from "lucide-react";
-import { useEffect } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 
 export default function CartLayout() {
   const { user: userData } = useUser();
   const cart = useCartStoreUser((state) => state.cart);
   const orderItems = useOrderItemStore((state) => state.orderItems);
-  const orderCommandStatus = useCartStoreUser(
-    (state) => state.commandTunnelStatus
-  );
-  const setCommandTunnelStatus = useCartStoreUser(
-    (state) => state.setCommandTunnelStatus
+  const path = location.pathname;
+  const { ref } = useParams();
+
+  const [currentPage, setCurrentPage] = useState<CommandStatusEnum>(
+    CommandStatusEnum.pending
   );
 
   useEffect(() => {
-    if (orderItems.length === 0) {
-      setCommandTunnelStatus(CommandStatusEnum.pending);
+    if (path.startsWith("/cart/recap/ORD-")) {
+      setCurrentPage(CommandStatusEnum.completed);
+      return;
     }
-  }, [orderItems]);
+
+    if (orderItems.length === 0) {
+      setCurrentPage(CommandStatusEnum.pending);
+      return;
+    }
+
+    switch (path) {
+      case "/cart":
+        setCurrentPage(CommandStatusEnum.pending);
+        break;
+
+      case "/cart/checkout":
+        setCurrentPage(CommandStatusEnum.validated);
+        break;
+
+      case "/cart/checkout/payment":
+        setCurrentPage(CommandStatusEnum.onPayment);
+        break;
+
+      default:
+        setCurrentPage(CommandStatusEnum.pending);
+        break;
+    }
+  }, [path, orderItems]);
 
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4">
       {/* Header Section */}
       <div className="mb-6">
-        {orderCommandStatus === CommandStatusEnum.pending && (
+        {currentPage === CommandStatusEnum.pending && (
           <>
             <Title
               text="Panier de commande"
@@ -45,8 +69,8 @@ export default function CartLayout() {
           </>
         )}
 
-        {(orderCommandStatus === CommandStatusEnum.validated ||
-          orderCommandStatus === CommandStatusEnum.onPayment) && (
+        {(currentPage === CommandStatusEnum.validated ||
+          currentPage === CommandStatusEnum.onPayment) && (
           <>
             <Title
               text="Checkout"
@@ -60,8 +84,18 @@ export default function CartLayout() {
           </>
         )}
       </div>
+      {currentPage === CommandStatusEnum.completed && (
+        <>
+          <Title
+            text={`Commande n° ${ref}`}
+            className="my-4 md:my-6"
+            icon={<ShoppingBag className="size-8 text-primary" />}
+          />
+          <hr className="border-t border-slate-200 mb-6" />
+        </>
+      )}
 
-      {orderItems.length > 0 ? (
+      {orderItems.length > 0 || currentPage === CommandStatusEnum.completed ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Content Section - scrollable */}
           <div className="lg:col-span-8 space-y-4">
@@ -71,9 +105,14 @@ export default function CartLayout() {
           {/* Sidebar Section - STICKY */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-6">
-              {orderCommandStatus === CommandStatusEnum.onPayment && (
-                <AdressResume cart={cart} user={userData} className="w-full" />
-              )}
+              {currentPage === CommandStatusEnum.onPayment ||
+                (currentPage === CommandStatusEnum.completed && (
+                  <AdressResume
+                    cart={cart}
+                    user={userData}
+                    className="w-full"
+                  />
+                ))}
 
               <TotalResume
                 orderItems={orderItems}
@@ -82,7 +121,7 @@ export default function CartLayout() {
               />
 
               {/* Action Buttons */}
-              {orderCommandStatus === CommandStatusEnum.pending && (
+              {currentPage === CommandStatusEnum.pending && (
                 <NavLink
                   to="checkout"
                   aria-label="Navigation vers la page de paiement"
@@ -95,11 +134,11 @@ export default function CartLayout() {
                 </NavLink>
               )}
 
-              {(orderCommandStatus === CommandStatusEnum.validated ||
-                orderCommandStatus === CommandStatusEnum.onPayment) && (
+              {(currentPage === CommandStatusEnum.validated ||
+                currentPage === CommandStatusEnum.onPayment) && (
                 <Button
                   form={
-                    orderCommandStatus === CommandStatusEnum.validated
+                    currentPage === CommandStatusEnum.validated
                       ? "checkout-form"
                       : "payment-form"
                   }
@@ -108,7 +147,7 @@ export default function CartLayout() {
                   variant="primary"
                   className="w-full"
                 >
-                  {orderCommandStatus === CommandStatusEnum.validated
+                  {currentPage === CommandStatusEnum.validated
                     ? "Valider ma commande"
                     : "Valider le paiement"}
                 </Button>

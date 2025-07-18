@@ -3,23 +3,31 @@ import { CREATE_PAYMENT_INTENT } from "@/graphQL/stripe";
 import { stripePromise } from "@/lib/stripe";
 import { useMutation } from "@apollo/client";
 import { Elements } from "@stripe/react-stripe-js";
-import { useEffect, useMemo, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Outlet } from "react-router-dom";
+import { toast } from "sonner";
 
 const StripeLayout = () => {
   const [createPaymentIntent] = useMutation(CREATE_PAYMENT_INTENT);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const initialized = useRef(false);
   const [error, setError] = useState<any>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPaymentIntent = async () => {
+      if (initialized.current) {
+        // Prevent double invocation of useEffect in Strict Mode
+        // which can cause issues with Stripe
+        return;
+      }
+      initialized.current = true;
       try {
         setLoading(true);
         const { data } = await createPaymentIntent();
         setClientSecret(data?.createPaymentIntent?.clientSecret ?? null);
       } catch (err) {
+        console.error(err);
         setError(err);
       } finally {
         setLoading(false);
@@ -41,12 +49,11 @@ const StripeLayout = () => {
       </div>
     );
 
-  // if (error) {
-  //   useEffect(() => {
-  //     toast.error(error.message || "Une erreur est survenue");
-  //     navigate("/cart/checkout");
-  //   }, [error, navigate]);
-  // }
+  if (error) {
+    useEffect(() => {
+      toast.error(error.message || "Une erreur est survenue");
+    }, [error]);
+  }
 
   if (!clientSecret) return <div>Impossible de démarrer le paiement.</div>;
 
