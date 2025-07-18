@@ -40,7 +40,7 @@ const ActivityDetail = () => {
     error: activityError,
   } = useQuery(gql(GET_ACTIVITY_BY_NORMALIZED_NAME), {
     variables: { normalizedName },
-    skip: !normalizedName,
+    skip: normalizedName === undefined || normalizedName.trim() === "",
   });
 
   // Récupération des catégories pour les filtres
@@ -189,7 +189,11 @@ const ActivityDetail = () => {
         {/* Liste des produits */}
         <div className="flex-1">
           <div className="">
-            <ActivityCard activity={activity} showButton={false} className="rounded-t-none mb-4" />
+            <ActivityCard
+              activity={activity}
+              showButton={false}
+              className="rounded-t-none mb-4"
+            />
           </div>
           {/* Bouton filtre mobile */}
           <div className="md:hidden mb-4 px-4 md:px-8">

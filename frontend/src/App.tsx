@@ -92,7 +92,10 @@ function App() {
             element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
           />
           <Route path="activities" element={<ActivitiesPage />} />
-          <Route path="activities/:normalizedName" element={<ActivityDetail />} />
+          <Route
+            path="activities/:normalizedName"
+            element={<ActivityDetail />}
+          />
           <Route path="products/:id" element={<ProductDetail />} />
           <Route path="products" element={<ProductsPage />} />
 
