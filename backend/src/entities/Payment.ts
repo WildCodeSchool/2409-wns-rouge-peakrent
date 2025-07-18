@@ -1,6 +1,8 @@
+import { updateOrderStatusFromPayment } from "@/service/orderService";
 import { StripePaymentStatusType } from "@/types";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
+  AfterUpdate,
   BaseEntity,
   Column,
   CreateDateColumn,
@@ -31,6 +33,10 @@ export class Payment extends BaseEntity {
   @Field()
   @Column()
   amount: number;
+
+  @Field()
+  @Column({ default: false })
+  lastPaymentError: boolean;
 
   @Field()
   @Column({ default: "eur" })
@@ -65,4 +71,15 @@ export class Payment extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @AfterUpdate()
+  async afterUpdate() {
+    if (this.order) {
+      await updateOrderStatusFromPayment(
+        this.order,
+        this.status,
+        this.lastPaymentError
+      );
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { Payment } from "@/entities/Payment";
-import { updatePaymentAndOrder } from "@/service/paymentService";
+import { updatePayment } from "@/service/paymentService";
 import { RoleType } from "@/types";
 import { GraphQLJSONObject } from "graphql-scalars";
 import { default as Stripe } from "stripe";
@@ -13,7 +13,7 @@ export class PaymentResolver {
     @Arg("paymentIntent", () => GraphQLJSONObject)
     paymentIntent: Stripe.PaymentIntent
   ): Promise<Payment> {
-    const payment = await updatePaymentAndOrder(paymentIntent);
+    const payment = await updatePayment(paymentIntent);
     return payment;
   }
 }

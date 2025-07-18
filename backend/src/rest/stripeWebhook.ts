@@ -1,4 +1,4 @@
-import { updatePaymentAndOrder } from "@/service/paymentService";
+import { updatePayment } from "@/service/paymentService";
 import express from "express";
 import stripe from "stripe";
 import app from "./express";
@@ -33,12 +33,10 @@ app.post(
         event.type === "payment_intent.requires_payment_method"
       ) {
         const paymentIntent = event.data.object;
-        const responsePayment = await updatePaymentAndOrder(paymentIntent);
+        const responsePayment = await updatePayment(paymentIntent);
         console.log("✅ Paiement mis à jour :", {
           paymentId: responsePayment.id,
           paymentStatus: responsePayment.status,
-          orderId: responsePayment.order?.id,
-          orderStatus: responsePayment.order?.status,
         });
       }
       response.json({ received: true });

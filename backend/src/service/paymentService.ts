@@ -1,14 +1,15 @@
 import { Payment } from "@/entities/Payment";
-import { OrderStatusType, StripePaymentStatusType } from "@/types";
+import { StripePaymentStatusType } from "@/types";
 import { GraphQLError } from "graphql";
 import Stripe from "stripe";
 
-export const updatePaymentAndOrder = async (
+export const updatePayment = async (
   paymentIntent: Stripe.PaymentIntent
 ): Promise<Payment> => {
+  // relations to activate @afterUpdate
   const payment = await Payment.findOne({
     where: { stripePaymentIntentId: paymentIntent.id },
-    relations: { order: true },
+    relations: ["order"],
   });
   if (!payment) {
     throw new GraphQLError("payment not found", {
@@ -20,53 +21,14 @@ export const updatePaymentAndOrder = async (
     });
   }
 
-  const order = payment.order;
-  if (!order) {
-    throw new GraphQLError("order not found", {
-      extensions: {
-        code: "NOT_FOUND",
-        http: { status: 404 },
-        entity: "order",
-      },
-    });
-  }
-
-  if (order === null) {
-    throw new GraphQLError("order not found", {
-      extensions: {
-        code: "NOT_FOUND",
-        http: { status: 404 },
-        entity: "order",
-      },
-    });
+  if (paymentIntent.last_payment_error) {
+    payment.lastPaymentError = true;
+  } else {
+    payment.lastPaymentError = false;
   }
 
   payment.status = paymentIntent.status as StripePaymentStatusType;
-
-  let status: OrderStatusType;
-
-  if (
-    paymentIntent.status === "requires_payment_method" &&
-    paymentIntent.last_payment_error
-  ) {
-    status = OrderStatusType.failed;
-  } else {
-    switch (paymentIntent.status) {
-      case "succeeded":
-        status = OrderStatusType.completed;
-        break;
-      case "canceled":
-        status = OrderStatusType.cancelled;
-        break;
-      default:
-        status = OrderStatusType.pending;
-    }
-  }
-
-  order.status = status;
-
   await payment.save();
-  await order.save();
 
   return payment;
 };
