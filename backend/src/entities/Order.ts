@@ -20,6 +20,7 @@ import {
 } from "typeorm";
 import { OrderPaymentType, OrderStatusType } from "../types";
 import { OrderItem } from "./OrderItem";
+import { Payment } from "./Payment";
 import { Profile } from "./Profile";
 
 @ObjectType()
@@ -37,7 +38,7 @@ export class Order extends BaseEntity {
   @Column({
     type: "enum",
     enum: OrderStatusType,
-    default: OrderStatusType.confirmed,
+    default: OrderStatusType.pending,
   })
   status!: OrderStatusType;
 
@@ -101,13 +102,17 @@ export class Order extends BaseEntity {
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 
-  @Field()
+  @Field(() => Profile)
   @ManyToOne(() => Profile, (profile) => profile.id, {
     onDelete: "SET NULL",
     nullable: true,
   })
   @JoinColumn({ name: "profile_id" })
   profile?: Profile;
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, (payment) => payment.order, { cascade: true })
+  payments: Payment[];
 }
 
 @InputType()
@@ -218,4 +223,8 @@ export class ValidateCartInput {
   @Field()
   @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
   paymentMethod!: OrderPaymentType;
+
+  @Field()
+  @IsString()
+  clientSecret: string;
 }

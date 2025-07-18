@@ -22,7 +22,8 @@ import { CartPayment } from "./pages/Cart/CartPayment";
 import { CartRecap } from "./pages/Cart/CartRecap";
 import { HomePage } from "./pages/Home/HomePage";
 import AdminLayout from "./pages/Layout/Admin/AdminLayout";
-import CartLayout from "./pages/Layout/CartLayout";
+import CartLayout from "./pages/Layout/Cart/CartLayout";
+import StripeLayout from "./pages/Layout/Cart/StripeLayout";
 import PageLayout from "./pages/Layout/PageLayout";
 import PageNotFound from "./pages/NotFound/PageNotFound";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
@@ -106,7 +107,9 @@ function App() {
           >
             <Route index element={<CartPage />} />
             <Route path="checkout" element={<CartCheckout />} />
-            <Route path="checkout/payment" element={<CartPayment />} />
+            <Route element={<StripeLayout />}>
+              <Route path="checkout/payment" element={<CartPayment />} />
+            </Route>
             <Route path="recap/:ref" element={<CartRecap />} />
           </Route>
 
