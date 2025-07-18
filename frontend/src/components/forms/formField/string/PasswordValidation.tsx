@@ -1,14 +1,14 @@
 import { Icons } from "@/components/icons";
+import { Box } from "@/components/ui/box";
 import {
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
-import { Box } from "@/components/ui/box";
 import { Input } from "@/components/ui/input";
-import { EyeOffIcon, EyeIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import React from "react";
 
 interface PasswordValidationProps {
@@ -17,6 +17,7 @@ interface PasswordValidationProps {
   isRequired?: boolean;
   name: string;
   needValidation?: boolean;
+  isPending?: boolean;
 }
 
 export const PasswordValidation = ({
@@ -25,6 +26,7 @@ export const PasswordValidation = ({
   label,
   isRequired,
   needValidation,
+  isPending,
 }: PasswordValidationProps) => {
   const password = form.watch(name);
   const isLengthValid = (password?.length ?? 0) >= 8;
@@ -49,13 +51,14 @@ export const PasswordValidation = ({
               <Box className="relative">
                 <Input
                   className={cn(
-                    "border-primary/40 hover:ring-ring border pr-12 placeholder:text-xs hover:ring-1"
+                    "hover:ring-ring border pr-12 placeholder:text-xs hover:ring-1"
                   )}
                   autoComplete="on"
                   type={passwordVisibility ? "text" : "password"}
                   {...field}
                   data-testid={name}
                   value={field.value ?? ""}
+                  disabled={isPending}
                 />
                 <Box
                   className="text-muted-foreground absolute inset-y-0 right-0 flex cursor-pointer items-center p-3"

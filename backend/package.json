@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "npm run test:postgres -- --watchAll",
-    "test:postgres": "docker rm --force -v pgtest ; docker run -d -p 5434:5432 --name pgtest -e POSTGRES_PASSWORD=secret2 postgres && POSTGRES_PORT=5434 POSTGRES_HOST=localhost POSTGRES_PASSWORD=secret2 POSTGRES_USER=postgres JWT_SECRET_KEY=supersecret JWT_REFRESH_SECRET_KEY=supersecret NODE_ENV=testing npx jest --no-cache",
+    "test:postgres": "docker rm --force -v pgtest ; docker run -d -p 5434:5432 --name pgtest -e POSTGRES_PASSWORD=secret2 postgres && POSTGRES_PORT=5434 POSTGRES_HOST=localhost POSTGRES_PASSWORD=secret2 POSTGRES_USER=postgres JWT_SECRET_KEY=supersecret JWT_REFRESH_SECRET_KEY=supersecret JWT_SECRET_RECOVER_KEY=supersecret NODE_ENV=testing npx jest --no-cache",
     "test:postgres:win": "docker rm --force -v pgtest && docker run -d --name pgtest -p 5434:5432 -e POSTGRES_PASSWORD=secret2 postgres && dotenv -e .env.test -- npx jest --watch",
     "start": "ts-node-dev -r tsconfig-paths/register ./src/index.ts",
     "db:seed": "ts-node -r tsconfig-paths/register ./seed/seed.ts",
@@ -30,6 +30,7 @@
     "graphql-scalars": "^1.23.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
+    "nodemailer": "^7.0.5",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.1",

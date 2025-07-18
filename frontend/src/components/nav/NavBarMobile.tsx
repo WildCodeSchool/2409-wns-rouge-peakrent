@@ -1,13 +1,6 @@
 import { WHOAMI } from "@/graphQL/whoami";
 import { gql, useQuery } from "@apollo/client";
-import {
-  CiBoxList,
-  CiHome,
-  CiLogin,
-  CiShoppingCart,
-  CiUser,
-  CiWavePulse1,
-} from "react-icons/ci";
+import { Activity, Box, Home, LogIn, ShoppingCart, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const NavBarMobile = () => {
@@ -18,25 +11,25 @@ const NavBarMobile = () => {
     {
       path: "/",
       name: "Accueil",
-      icon: <CiHome size={20} />,
+      icon: <Home size={20} />,
       ariaLabel: "Navigation vers la page d'accueil",
     },
     {
       path: "/products",
       name: "Produits",
-      icon: <CiBoxList size={20} />,
+      icon: <Box size={20} />,
       ariaLabel: "Navigation vers la page produit",
     },
     {
       path: "/cart",
       name: "Panier",
-      icon: <CiShoppingCart size={20} />,
+      icon: <ShoppingCart size={20} />,
       ariaLabel: "Navigation vers la page panier",
     },
     {
       path: "/activities",
       name: "Activités",
-      icon: <CiWavePulse1 size={20} />,
+      icon: <Activity size={20} />,
       ariaLabel: "Navigation vers la page activité",
     },
   ];
@@ -68,7 +61,7 @@ const NavBarMobile = () => {
             }`
           }
         >
-          <CiUser size={20} />
+          <User size={20} />
           Profil
         </NavLink>
       ) : (
@@ -81,7 +74,7 @@ const NavBarMobile = () => {
             }`
           }
         >
-          <CiLogin size={20} />
+          <LogIn size={20} />
           Connexion
         </NavLink>
       )}

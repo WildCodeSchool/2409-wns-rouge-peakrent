@@ -1,11 +1,15 @@
 import { cn } from "@/lib/utils";
 import { CiFacebook, CiInstagram, CiMail } from "react-icons/ci";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { buttonVariants } from "../ui/button";
 
 const Footer = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith("/admin")) {
+    return null;
+  }
   return (
-    <footer className="hidden md:flex bg-white gap-5 border-t border-light-gray w-full min-h-36 p-4 text-sm">
+    <footer className="hidden md:flex bg-background gap-5 border-t border-light-gray w-full min-h-36 p-4 text-sm">
       <div className="w-1/5">
         <div className="flex gap-2">
           <Link

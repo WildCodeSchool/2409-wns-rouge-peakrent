@@ -14,6 +14,10 @@ import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
 import { AdminUsersPage } from "./pages/Admin/Users/AdminUsersPage";
+import { ConfirmEmailPage } from "./pages/Auth/ConfirmEmail";
+import { ConfirmNewEmailPage } from "./pages/Auth/ConfirmNewEmail";
+import { ForgotPasswordPage } from "./pages/Auth/ForgotPassword";
+import { RecoverPasswordPage } from "./pages/Auth/RecoverPassword";
 import { SignInPage } from "./pages/Auth/SignIn";
 import { SignUpPage } from "./pages/Auth/SignUp";
 import { CartCheckout } from "./pages/Cart/CartCheckout";
@@ -92,6 +96,25 @@ function App() {
             path="/signup"
             element={checkAuth(SignUpPage, [AuthStates.unauthenticated])()}
           />
+          <Route
+            path="/forgot-password"
+            element={checkAuth(ForgotPasswordPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route
+            path="/reset-password"
+            element={checkAuth(RecoverPasswordPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route
+            path="/validate-email"
+            element={checkAuth(ConfirmEmailPage, [
+              AuthStates.unauthenticated,
+            ])()}
+          />
+          <Route path="/confirm-new-email" element={<ConfirmNewEmailPage />} />
           <Route path="activities" element={<ActivitiesPage />} />
           <Route
             path="activities/:normalizedName"
@@ -125,6 +148,7 @@ function App() {
             path="profile/order/:id"
             element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
+          <Route path="*" element={<PageNotFound />} />
           {/* Admin Routes */}
           <Route
             path="/admin"
@@ -144,7 +168,6 @@ function App() {
             <Route path="*" element={<PageNotFound />} />
           </Route>
         </Route>
-        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </UserProvider>
   );
