@@ -68,6 +68,7 @@ export class ProfileResolverAdmin {
     return true;
   }
 
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => User, { nullable: true })
   async retrieveAnonymisedAccount(
     @Arg("email") email: string,

@@ -95,7 +95,6 @@ export default function ProfileDashboard() {
     onCompleted: () => {
       window.location.reload();
     },
-    refetchQueries: [{ query: gql(WHOAMI) }],
   });
 
   const { data: ordersData, loading: loadingOrders } = useQuery(
