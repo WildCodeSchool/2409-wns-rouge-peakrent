@@ -280,14 +280,7 @@ export class UserResolver {
 
     await verifyPassword(user.password, data.password);
 
-    const existingUser = await User.findOne({
-      where: { email: data.newEmail },
-    });
-    if (existingUser && existingUser.id !== user.id) {
-      throw new GraphQLError("Cette adresse email est déjà utilisée", {
-        extensions: { code: "EMAIL_ALREADY_EXIST", http: { status: 409 } },
-      });
-    }
+    await validateEmailNotExists(data.newEmail, user.id);
 
     validateEmailNotSame(user.email, data.newEmail);
 
