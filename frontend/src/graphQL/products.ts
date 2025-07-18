@@ -8,6 +8,12 @@ export const GET_PRODUCTS = `
           name
           variant
         }
+        activities {
+          id
+          createdAt
+          name
+          variant
+        }
         createdAt
         description
         id

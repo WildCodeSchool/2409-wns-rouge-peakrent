@@ -43,6 +43,11 @@ export class Activity extends BaseEntity {
   @Length(2, 50, { message: "Variant must be between 2 and 50 chars" })
   variant!: string;
 
+  @Field({ nullable: true })
+  @Column({ name: "description", nullable: true })
+  @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
+  description?: string;
+
   @Field()
   @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
@@ -99,6 +104,11 @@ export class ActivityCreateInputAdmin {
   @Field()
   @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
+  description?: string;
 }
 
 @InputType()
