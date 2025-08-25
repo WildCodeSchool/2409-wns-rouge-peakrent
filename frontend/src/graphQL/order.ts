@@ -18,6 +18,55 @@ export const CREATE_ORDER = `
   }
 `;
 
+export const GET_ORDER_BY_ID_ADMIN = `
+  query GetOrderByIdAdmin($id: ID!) {
+    getOrderByIdAdmin(id: $id) {
+      id
+      reference
+      status
+      paymentMethod
+      paidAt
+      address1
+      address2
+      country
+      city
+      date
+      phone
+      zipCode
+      createdAt
+      updatedAt
+      profile {
+        email
+        firstname
+        lastname
+        id
+        role
+        createdAt
+        updatedAt
+      }
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerHour
+        status
+        variant {
+          id
+          size
+          pricePerHour
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {
