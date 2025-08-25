@@ -18,9 +18,9 @@ export const CREATE_ORDER = `
   }
 `;
 
-export const GET_ORDER_BY_ID = `
-  query GetOrderById($getOrderByIdId: ID!) {
-    getOrderById(id: $getOrderByIdId) {
+export const GET_ORDER_BY_REF = `
+query GetOrderByReference($reference: String!) {
+  getOrderByReference(reference: $reference) {
       id
       address1
       address2

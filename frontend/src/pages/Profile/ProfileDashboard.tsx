@@ -240,7 +240,7 @@ export default function ProfileDashboard() {
                 hideExport
                 hideViewOptions={true}
                 viewMode="table"
-                rowLink={{ customPath: "/profile/order", rowLink: "id" }}
+                rowLink={{ customPath: "/profile/order", rowLink: "reference" }}
               />
             )}
           </TabsContent>

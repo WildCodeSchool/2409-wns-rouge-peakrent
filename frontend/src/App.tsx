@@ -5,6 +5,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { ProductForm } from "./components/forms/ProductForm";
 import { UserProvider } from "./context/userProvider";
 import { WHOAMI } from "./graphQL/whoami";
+import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
+import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 import { AdminActivitiesPage } from "./pages/Admin/Activities/AdminActivitiesPage";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminCartsPage } from "./pages/Admin/Carts/AdminCartsPage";
@@ -35,8 +37,6 @@ import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
-import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
-import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 
 enum AuthStates {
   authenticated,
@@ -145,7 +145,7 @@ function App() {
             element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
           />
           <Route
-            path="profile/order/:id"
+            path="profile/order/:ref"
             element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
           <Route path="*" element={<PageNotFound />} />

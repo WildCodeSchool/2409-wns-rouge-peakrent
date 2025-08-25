@@ -1,18 +1,20 @@
 import { Order } from "@/entities/Order";
 import { AuthContextType, RoleType } from "@/types";
-import { Arg, Authorized, Ctx, ID, Query, Resolver } from "type-graphql";
+import { GraphQLError } from "graphql";
+import { Arg, Authorized, Ctx, Query, Resolver } from "type-graphql";
 
 @Resolver(Order)
 export class OrderResolver {
   @Query(() => Order)
   @Authorized(RoleType.admin, RoleType.user)
-  async getOrderById(
-    @Arg("id", () => ID) _id: number,
+  async getOrderByReference(
+    @Arg("reference", () => String) reference: string,
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
-    const id = Number(_id);
+    const profileId = context.user.id;
+
     const order = await Order.findOne({
-      where: { id },
+      where: { reference, profile: { id: profileId } },
       relations: {
         profile: true,
         orderItems: {
@@ -23,17 +25,15 @@ export class OrderResolver {
       },
     });
     if (order) {
-      if (
-        !(
-          context.user.role === RoleType.admin ||
-          context.user.id === order.profile.id
-        )
-      ) {
-        throw new Error("Unauthorized");
-      }
       return order;
     }
-    throw new Error("order not found");
+    throw new GraphQLError("Order not found", {
+      extensions: {
+        code: "NOT_FOUND",
+        entity: "Order",
+        http: { status: 404 },
+      },
+    });
   }
 
   @Query(() => [Order])
