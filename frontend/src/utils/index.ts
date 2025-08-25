@@ -1,4 +1,3 @@
-export * from "./TailwindIndicator";
 export * from "./capitalize";
 export * from "./formatSize";
 export * from "./getCategories";
@@ -15,4 +14,5 @@ export * from "./getVariants/getOrderStatusVariant";
 export * from "./getVariants/getProductCategoryVariant";
 export * from "./getVariants/getRoleVariant";
 export * from "./getVariants/getStatusBadgeVariant";
+export * from "./TailwindIndicator";
 export * from "./truncateTextWithEllipsisMiddle";
