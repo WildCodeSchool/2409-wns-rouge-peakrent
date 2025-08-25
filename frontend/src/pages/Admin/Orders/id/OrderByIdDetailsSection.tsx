@@ -1,7 +1,7 @@
 import { CreditCard, Home, Phone } from "lucide-react";
 
 import CopyButton from "@/components/buttons/CopyButton";
-import { Card, CardContent, Separator } from "@/components/ui";
+import { Button, Card, CardContent, Separator } from "@/components/ui";
 import { Order as OrderType } from "@/gql/graphql";
 import { formatLocaleDate } from "@/utils";
 import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
@@ -117,7 +117,7 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
               </div>
               <p className="text-muted-foreground mt-1">
                 <span>
-                  {date} à {time}
+                  {date || "--"} à {time || "--"}
                 </span>
               </p>
               <p className="text-muted-foreground mt-1 uppercase">
@@ -126,6 +126,11 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
             </div>
           </div>
           <Separator />
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={() => {}}>
+              Marquer comme payé
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </section>

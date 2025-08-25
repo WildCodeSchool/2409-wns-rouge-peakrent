@@ -13,6 +13,8 @@ export function DataTableRowOrderByIdActions<TData>({
   const orderItem = row.original as OrderItemType;
 
   return (
-    <div className="col-span-2 flex items-center justify-center gap-2 p-2"></div>
+    <div className="col-span-2 flex items-center justify-center gap-2 p-2">
+      TODO actions
+    </div>
   );
 }

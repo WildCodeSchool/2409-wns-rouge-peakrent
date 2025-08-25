@@ -10,7 +10,7 @@ import OrderItemsTable from "./table/OrderItemsTable";
 
 export function OrderByIdDetailsListSection({ order }: { order: OrderType }) {
   return (
-    <section className="mt-6 gap-6">
+    <section className="mt-4">
       <Card className="p-6">
         <CardHeader className="p-0">
           <CardTitle className="p-0">Produits</CardTitle>
@@ -18,7 +18,7 @@ export function OrderByIdDetailsListSection({ order }: { order: OrderType }) {
             Liste des produits de la commande
           </CardDescription>
         </CardHeader>
-        <CardContent className="w-full p-0 pt-6">
+        <CardContent className="w-full p-0">
           <OrderItemsTable order={order} />
         </CardContent>
       </Card>
