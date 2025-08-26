@@ -14,7 +14,12 @@
     "db:reset": "npm run db:clean && npm run db:seed",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx,json}\"",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "typeorm migration:generate -d src/config/db.ts",
+    "migration:run": "typeorm migration:run -d src/config/db.ts",
+    "migration:revert": "typeorm migration:revert -d src/config/db.ts",
+    "migration:show": "typeorm migration:show -d src/config/db.ts"
   },
   "author": "",
   "license": "ISC",
