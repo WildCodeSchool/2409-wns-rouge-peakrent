@@ -39,7 +39,7 @@ export default function OrderItemsTable({ order }: { order?: OrderType }) {
       columns={createColumns()}
       filterTextOptions={{
         id: "name",
-        placeholder: "name" + "/" + "size" + " ...",
+        placeholder: "nom / SKU / taille" + " ...",
       }}
       hideColumns={{}}
     />

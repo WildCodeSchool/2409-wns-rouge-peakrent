@@ -42,7 +42,7 @@ export const createColumns = (): ColumnDef<any>[] => [
 
   column.createNameAndSkuColumn({
     id: "name",
-    title: "nameSku",
+    title: "nom / SKU",
     accessorKey: "variant.product.name",
     skuAccessorKey: "variant.product.sku",
     withCopy: true,
@@ -54,7 +54,7 @@ export const createColumns = (): ColumnDef<any>[] => [
   column.createBadgeColumn({
     id: "status",
     accessorKey: "status",
-    title: "status",
+    title: "statut",
     variantFn: (row) => getOrderItemStatusVariant(row.original.status),
     labelFn: (row) => getOrderItemStatusText(row.original.status),
     enableSorting: true,
@@ -64,7 +64,7 @@ export const createColumns = (): ColumnDef<any>[] => [
   column.createStringColumn({
     id: "size",
     accessorKey: "variant.size",
-    title: "size",
+    title: "taille",
     headerClassName: "max-w-[35px]",
     className: "max-w-[35px] font-medium",
     enableSorting: true,
@@ -86,7 +86,7 @@ export const createColumns = (): ColumnDef<any>[] => [
   column.createStringColumn({
     id: "quantity",
     accessorKey: "quantity",
-    title: "quantity",
+    title: "quantité",
     enableSorting: true,
     enableHiding: true,
   }),

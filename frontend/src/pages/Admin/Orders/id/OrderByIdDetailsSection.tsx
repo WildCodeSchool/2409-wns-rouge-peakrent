@@ -23,15 +23,15 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
             </div>
           </div>
           <div className="flex flex-col justify-between gap-4 pt-2">
+            <div className="flex justify-between">
+              <span>HT:</span>
+              <span>{(Number(totalTTC) / 1.2).toFixed(2)} €</span>
+            </div>
             <div className="flex justify-between ">
               <span>TTC:</span>
               <div className="flex gap-2">
                 <span>{totalTTC} €</span>
               </div>
-            </div>
-            <div className="flex justify-between">
-              <span>HT:</span>
-              <span>{(Number(totalTTC) / 1.2).toFixed(2)} €</span>
             </div>
             {/* <div className="flex justify-between">
               <span>Discount:</span>
@@ -127,8 +127,12 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
           </div>
           <Separator />
           <div className="flex justify-center">
-            <Button variant="outline" onClick={() => {}}>
-              Marquer comme payé
+            <Button
+              variant="outline"
+              onClick={() => {}}
+              disabled={order.paidAt}
+            >
+              {order.paidAt ? "Payé" : "Marquer comme payé"}
             </Button>
           </div>
         </CardContent>
