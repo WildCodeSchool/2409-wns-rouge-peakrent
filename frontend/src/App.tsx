@@ -146,7 +146,7 @@ function App() {
             element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
           />
           <Route
-            path="profile/order/:id"
+            path="profile/order/:ref"
             element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
           <Route path="*" element={<PageNotFound />} />

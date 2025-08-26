@@ -90,7 +90,6 @@ export class OrderResolverAdmin {
       return newOrder;
     }
   }
-
   @Mutation(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
   async updateOrderAdmin(
@@ -111,7 +110,6 @@ export class OrderResolverAdmin {
       where: { id },
       relations: { profile: true },
     });
-
     if (order !== null) {
       if (
         !(context.user.role === "admin" || context.user.id === order.profile.id)
@@ -132,7 +130,6 @@ export class OrderResolverAdmin {
       throw new Error("Order not found.");
     }
   }
-
   @Mutation(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
   async deleteOrderAdmin(
@@ -156,7 +153,6 @@ export class OrderResolverAdmin {
       throw new Error("Order not found.");
     }
   }
-
   @Mutation(() => Order)
   @Authorized([RoleType.admin, RoleType.superadmin])
   async createOrderWithItemsAdmin(
@@ -178,7 +174,6 @@ export class OrderResolverAdmin {
             },
           });
         }
-
         // Create order
         const newOrder = new Order();
         Object.assign(newOrder, data, {
@@ -198,7 +193,6 @@ export class OrderResolverAdmin {
           });
         }
         const savedOrder = await transactionalEntityManager.save(newOrder);
-
         // Create order items
         for (const item of items) {
           const orderItem = new OrderItem();
@@ -211,7 +205,6 @@ export class OrderResolverAdmin {
             startsAt: item.date_range.from,
             endsAt: item.date_range.to,
           });
-
           const itemErrors = await validate(orderItem);
           if (itemErrors.length > 0) {
             throw new GraphQLError("OrderItem validation error", {
@@ -223,7 +216,6 @@ export class OrderResolverAdmin {
           }
           await transactionalEntityManager.save(orderItem);
         }
-
         // Return the order with its items
         return await transactionalEntityManager.findOne(Order, {
           where: { id: savedOrder.id },

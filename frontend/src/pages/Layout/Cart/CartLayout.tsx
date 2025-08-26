@@ -1,11 +1,17 @@
 import AdressResume from "@/components/resume/AdressResume";
 import TotalResume from "@/components/resume/TotalResume";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { useUser } from "@/context/userProvider";
+import { GET_ORDER_BY_REF } from "@/graphQL";
 import { cn } from "@/lib/utils";
+import PageNotFound from "@/pages/NotFound/PageNotFound";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
+import { getStatusBadgeVariant } from "@/utils";
+import { translateStatus } from "@/utils/translateStatus";
+import { gql, useQuery } from "@apollo/client";
 import { CreditCard, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useParams } from "react-router-dom";
@@ -16,6 +22,16 @@ export default function CartLayout() {
   const orderItems = useOrderItemStore((state) => state.orderItems);
   const path = location.pathname;
   const { ref } = useParams();
+  const {
+    data: orderData,
+    loading: loadingCommand,
+    error: errorOrder,
+  } = useQuery(gql(GET_ORDER_BY_REF), {
+    variables: { reference: ref },
+    skip: !ref,
+  });
+
+  const order = orderData?.getOrderByReference;
 
   const [currentPage, setCurrentPage] = useState<CommandStatusEnum>(
     CommandStatusEnum.pending
@@ -51,6 +67,13 @@ export default function CartLayout() {
     }
   }, [path, orderItems]);
 
+  if (
+    currentPage === CommandStatusEnum.completed &&
+    errorOrder?.graphQLErrors?.[0]?.extensions?.code === "NOT_FOUND"
+  ) {
+    return <PageNotFound />;
+  }
+
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4">
       {/* Header Section */}
@@ -84,13 +107,20 @@ export default function CartLayout() {
           </>
         )}
       </div>
-      {currentPage === CommandStatusEnum.completed && (
+      {currentPage === CommandStatusEnum.completed && order && (
         <>
           <Title
-            text={`Commande n° ${ref}`}
+            text={`Merci ${userData?.firstname} !`}
             className="my-4 md:my-6"
             icon={<ShoppingBag className="size-8 text-primary" />}
           />
+          <div className="flex flex-wrap gap-2 mb-2">
+            <p className="text-slate-600 text-base">Votre commande est</p>
+            <Badge variant={getStatusBadgeVariant(order.status)}>
+              {translateStatus(order.status)}
+            </Badge>
+          </div>
+          <p className="text-slate-600 text-base mb-2">REF : {ref}</p>
           <hr className="border-t border-slate-200 mb-6" />
         </>
       )}
@@ -105,20 +135,32 @@ export default function CartLayout() {
           {/* Sidebar Section - STICKY */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-6">
-              {currentPage === CommandStatusEnum.onPayment ||
-                (currentPage === CommandStatusEnum.completed && (
-                  <AdressResume
-                    cart={cart}
-                    user={userData}
-                    className="w-full"
-                  />
-                ))}
-
-              <TotalResume
-                orderItems={orderItems}
-                promo={0}
-                className="w-full"
-              />
+              {((currentPage === CommandStatusEnum.completed && order) ||
+                currentPage === CommandStatusEnum.onPayment) && (
+                <AdressResume
+                  cart={
+                    currentPage === CommandStatusEnum.completed ? order : cart
+                  }
+                  user={
+                    currentPage === CommandStatusEnum.completed
+                      ? order.profile
+                      : userData
+                  }
+                  className="w-full"
+                  paymentMethod={order?.paymentMethod}
+                />
+              )}
+              {
+                <TotalResume
+                  orderItems={
+                    CommandStatusEnum.completed && order
+                      ? order.orderItems
+                      : orderItems
+                  }
+                  promo={0}
+                  className="w-full"
+                />
+              }
 
               {/* Action Buttons */}
               {currentPage === CommandStatusEnum.pending && (
@@ -151,6 +193,19 @@ export default function CartLayout() {
                     ? "Valider ma commande"
                     : "Valider le paiement"}
                 </Button>
+              )}
+
+              {currentPage === CommandStatusEnum.completed && (
+                <NavLink
+                  to=""
+                  aria-label="Consulter mes commandes"
+                  className={cn(
+                    buttonVariants({ variant: "primary" }),
+                    "py-2 px-4 cursor-pointer text-center w-full block"
+                  )}
+                >
+                  Consulter mes commandes
+                </NavLink>
               )}
             </div>
           </div>

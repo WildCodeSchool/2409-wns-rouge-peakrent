@@ -111,7 +111,6 @@ export const ProductForm = () => {
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
       setCategories(getCategoriesData.getCategories.categories);
-      console.log(categories);
     }
     if (getActivitiesData?.getActivities?.activities) {
       setActivities(getActivitiesData.getActivities.activities);

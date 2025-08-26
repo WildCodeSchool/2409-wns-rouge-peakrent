@@ -22,6 +22,55 @@ export const GET_ORDER_BY_ID_ADMIN = `
   ${ORDER_WITH_ITEMS_FIELDS_ADMIN}
 `;
 
+export const GET_ORDER_BY_REF = `
+query GetOrderByReference($reference: String!) {
+  getOrderByReference(reference: $reference) {
+      id
+      address1
+      address2
+      city
+      country
+      reference
+      zipCode
+      status
+      date
+      phone
+      paymentMethod
+      profile {
+        id
+        email
+        firstname
+        lastname
+      }
+      createdAt
+      updatedAt
+      paidAt
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerHour
+        createdAt
+        updatedAt
+        status
+        variant {
+          id
+          pricePerHour
+          size
+          color
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {

@@ -1,6 +1,7 @@
 import {
   CREATE_ORDER,
-  GET_ORDER_BY_ID,
+  GET_ORDER_BY_ID_ADMIN,
+  GET_ORDER_BY_REF,
 } from "../../../frontend/src/graphQL/order";
 import { Order } from "../../src/entities/Order";
 import { generateOrderReference } from "../../src/helpers/generateOrderReference";
@@ -124,12 +125,12 @@ export function OrderResolverTest(testArgs: TestArgsType) {
 
   it("should display order information for a user from an order", async () => {
     const response = await testArgs.server.executeOperation<{
-      getOrderById: Order;
+      getOrderByReference: Order;
     }>(
       {
-        query: getQueryFromMutation(GET_ORDER_BY_ID),
+        query: getQueryFromMutation(GET_ORDER_BY_REF),
         variables: {
-          getOrderByIdId: testArgs.data.order?.id,
+          reference: testArgs.data.order?.reference,
         },
       },
       {
@@ -140,17 +141,19 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.getOrderById?.id).toBeDefined();
+    expect(
+      response.body.singleResult.data?.getOrderByReference?.id
+    ).toBeDefined();
   });
 
   it("should not display order information for user who does not have that order", async () => {
     const response = await testArgs.server.executeOperation<{
-      getOrderById: Order;
+      getOrderByReference: Order;
     }>(
       {
-        query: getQueryFromMutation(GET_ORDER_BY_ID),
+        query: getQueryFromMutation(GET_ORDER_BY_REF),
         variables: {
-          getOrderByIdId: testArgs.data.order?.id,
+          reference: testArgs.data.order?.id,
         },
       },
       {
@@ -161,17 +164,19 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeDefined();
-    expect(response.body.singleResult.data?.getOrderById).toBeUndefined();
+    expect(
+      response.body.singleResult.data?.getOrderByReference
+    ).toBeUndefined();
   });
 
   it("should display order information for admin who does not have that order", async () => {
     const response = await testArgs.server.executeOperation<{
-      getOrderById: Order;
+      GetOrderByIdAdmin: Order;
     }>(
       {
-        query: getQueryFromMutation(GET_ORDER_BY_ID),
+        query: getQueryFromMutation(GET_ORDER_BY_ID_ADMIN),
         variables: {
-          getOrderByIdId: testArgs.data.order?.id,
+          id: testArgs.data.order?.id,
         },
       },
       {
@@ -182,6 +187,8 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     );
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
-    expect(response.body.singleResult.data?.getOrderById?.id).toBeDefined();
+    expect(
+      response.body.singleResult.data?.GetOrderByIdAdmin?.id
+    ).toBeDefined();
   });
 }

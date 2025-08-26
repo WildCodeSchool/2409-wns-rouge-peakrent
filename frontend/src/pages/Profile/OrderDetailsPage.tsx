@@ -4,24 +4,13 @@ import TotalResume from "@/components/resume/TotalResume";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OrderItem } from "@/gql/graphql";
-import { GET_ORDER_BY_ID } from "@/graphQL/order";
+import { GET_ORDER_BY_REF } from "@/graphQL/order";
 import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
+import { translateStatus } from "@/utils/translateStatus";
 import { gql, useQuery } from "@apollo/client";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-
-const translateStatus = (status: string) => {
-  const statusTranslations = {
-    pending: "En attente",
-    confirmed: "Confirmée",
-    completed: "Terminée",
-    cancelled: "Annulée",
-    refunded: "Remboursée",
-  };
-  return (
-    statusTranslations[status as keyof typeof statusTranslations] || status
-  );
-};
+import PageNotFound from "../NotFound/PageNotFound";
 
 const getStatusBadge = (status: string) => {
   return (
@@ -33,23 +22,25 @@ const getStatusBadge = (status: string) => {
 
 export default function OrderDetails() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { ref } = useParams();
 
   //TODO Remplacer par une page 404
-  if (!id || isNaN(Number(id))) {
-    return <div>Identifiant de commande manquant.</div>;
+
+  const {
+    data: orderData,
+    loading: loadingOrder,
+    error: errorOrder,
+  } = useQuery(gql(GET_ORDER_BY_REF), {
+    variables: { reference: ref },
+    skip: !ref,
+  });
+
+  if (errorOrder?.graphQLErrors?.[0]?.extensions?.code === "NOT_FOUND") {
+    return <PageNotFound />;
   }
 
-  const { data: orderData, loading: loadingOrder } = useQuery(
-    gql(GET_ORDER_BY_ID),
-    {
-      variables: { getOrderByIdId: id },
-      skip: !id,
-    }
-  );
-
-  const order = orderData?.getOrderById; // Utiliser les données factices si aucune donnée n'est récupérée
-  const profile = orderData?.getOrderById?.profile || null;
+  const order = orderData?.getOrderByReference; // Utiliser les données factices si aucune donnée n'est récupérée
+  const profile = orderData?.getOrderByReference?.profile || null;
 
   if (loadingOrder) {
     return <div>Chargement de la commande...</div>;

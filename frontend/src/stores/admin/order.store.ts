@@ -71,7 +71,6 @@ export const useOrderStore = create<OrderStoreState>((set, get) => ({
     })),
 
   deleteOrderItem: (id) => {
-    console.log("id", id, typeof id);
     set((state) => ({
       currentOrder: {
         ...state.currentOrder!,
