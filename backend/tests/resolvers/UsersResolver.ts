@@ -82,8 +82,8 @@ export function UsersResolverTest(testArgs: TestArgsType) {
           query: getQueryFromMutation(SIGNIN),
           variables: {
             datas: {
-              email: datas.email,
-              password: datas.password,
+              email: testArgs.data.user?.email,
+              password: testArgs.data.user?.password,
             },
           },
         });
