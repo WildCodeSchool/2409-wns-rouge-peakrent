@@ -18,7 +18,6 @@ export * from "./select/options/productTypes";
 export * from "./select/options/userRoles";
 export * from "./select/options/utils/getRenderColorByValue";
 export * from "./select/options/utils/getRenderLabelByValue";
-export * from "./select/options/vatType";
 export * from "./string/PasswordValidation";
 export * from "./string/StringInput";
 export * from "./string/TextAreaInput";
