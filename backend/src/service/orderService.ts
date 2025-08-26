@@ -1,5 +1,5 @@
-import { Order } from "@/entities/Order";
-import { OrderStatusType, StripePaymentStatusType } from "@/types";
+import { Order } from "../entities/Order";
+import { OrderStatusType, StripePaymentStatusType } from "../types";
 
 export const updateOrderStatusFromPayment = async (
   order: Order,

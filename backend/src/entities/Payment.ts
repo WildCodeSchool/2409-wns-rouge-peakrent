@@ -1,5 +1,5 @@
-import { updateOrderStatusFromPayment } from "@/service/orderService";
-import { StripePaymentStatusType } from "@/types";
+import { updateOrderStatusFromPayment } from "../service/orderService";
+import { StripePaymentStatusType } from "../types";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
   AfterUpdate,
