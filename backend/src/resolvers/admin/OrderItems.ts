@@ -7,6 +7,7 @@ import {
 } from "@/entities/OrderItem";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
@@ -18,6 +19,7 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 
 @Resolver(OrderItem)
@@ -154,6 +156,7 @@ export class OrderItemsResolverAdmin {
   }
 
   @Mutation(() => OrderItem, { nullable: true })
+  @UseMiddleware(ErrorCatcher)
   @Authorized([RoleType.admin, RoleType.superadmin])
   async updateOrderItemAdmin(
     @Arg("id", () => ID) _id: number,

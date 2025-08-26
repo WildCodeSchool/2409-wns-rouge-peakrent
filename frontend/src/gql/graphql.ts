@@ -132,6 +132,21 @@ export type CategoryUpdateInputAdmin = {
   variant: Scalars['String']['input'];
 };
 
+export type ChangeEmailInput = {
+  newEmail: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+export type ChangePasswordInput = {
+  confirmNewPassword: Scalars['String']['input'];
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
+};
+
+export type ConfirmNewEmailInput = {
+  token: Scalars['String']['input'];
+};
+
 export type CreateUserInputAdmin = {
   email: Scalars['String']['input'];
   firstname: Scalars['String']['input'];
@@ -145,19 +160,29 @@ export type DateRangeInput = {
   to: Scalars['DateTimeISO']['input'];
 };
 
+export type ForgotPasswordInput = {
+  email: Scalars['String']['input'];
+};
+
 export type IdInput = {
   id: Scalars['ID']['input'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
+  anonymiseProfile: Scalars['Boolean']['output'];
+  anonymiseProfileByAdmin: Scalars['Boolean']['output'];
   cancelOrderItemForOrderAdmin?: Maybe<OrderItem>;
+  changeEmail: Scalars['Boolean']['output'];
+  changePassword: Scalars['Boolean']['output'];
+  confirmNewEmail: Scalars['Boolean']['output'];
   createActivityAdmin: Activity;
   createCategoryAdmin: Category;
   createOrderAdmin: Order;
   createOrderItems: OrderItem;
   createOrderItemsAdmin: OrderItem;
   createOrderWithItemsAdmin: Order;
+  createPaymentIntent: Payment;
   createProductAdmin: Product;
   createProductWithVariantsAdmin: Product;
   createStoreAdmin: Store;
@@ -174,8 +199,13 @@ export type Mutation = {
   deleteProductAdmin?: Maybe<Product>;
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
+  forgotPassword: Scalars['Boolean']['output'];
+  resetPassword: Scalars['Boolean']['output'];
+  retrieveAnonymisedAccount?: Maybe<User>;
   signIn?: Maybe<User>;
   signOut: Scalars['Boolean']['output'];
+  softDeleteProfile: Scalars['Boolean']['output'];
+  softDeleteProfileByAdmin: Scalars['Boolean']['output'];
   updateActivityAdmin?: Maybe<Activity>;
   updateCart?: Maybe<Cart>;
   updateCartAdmin: Cart;
@@ -189,12 +219,34 @@ export type Mutation = {
   updateUserByAdmin: Profile;
   updateUserProfile: Profile;
   validateCart?: Maybe<Order>;
+  verifyConfirmEmailToken: Scalars['Boolean']['output'];
+  verifyResetToken: Scalars['Boolean']['output'];
+};
+
+
+export type MutationAnonymiseProfileByAdminArgs = {
+  userId: Scalars['Float']['input'];
 };
 
 
 export type MutationCancelOrderItemForOrderAdminArgs = {
   orderId: Scalars['ID']['input'];
   orderItemId: Scalars['ID']['input'];
+};
+
+
+export type MutationChangeEmailArgs = {
+  data: ChangeEmailInput;
+};
+
+
+export type MutationChangePasswordArgs = {
+  data: ChangePasswordInput;
+};
+
+
+export type MutationConfirmNewEmailArgs = {
+  data: ConfirmNewEmailInput;
 };
 
 
@@ -306,8 +358,29 @@ export type MutationDeleteStoreVariantArgs = {
 };
 
 
+export type MutationForgotPasswordArgs = {
+  data: ForgotPasswordInput;
+};
+
+
+export type MutationResetPasswordArgs = {
+  data: ResetPasswordInput;
+};
+
+
+export type MutationRetrieveAnonymisedAccountArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+
 export type MutationSignInArgs = {
   datas: SignInInput;
+};
+
+
+export type MutationSoftDeleteProfileByAdminArgs = {
+  userId: Scalars['Float']['input'];
 };
 
 
@@ -384,6 +457,16 @@ export type MutationValidateCartArgs = {
   data: ValidateCartInput;
 };
 
+
+export type MutationVerifyConfirmEmailTokenArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyResetTokenArgs = {
+  token: Scalars['String']['input'];
+};
+
 export type Order = {
   __typename?: 'Order';
   address1: Scalars['String']['output'];
@@ -396,6 +479,7 @@ export type Order = {
   orderItems?: Maybe<Array<OrderItem>>;
   paidAt?: Maybe<Scalars['DateTimeISO']['output']>;
   paymentMethod: OrderPaymentType;
+  payments: Array<Payment>;
   phone?: Maybe<Scalars['String']['output']>;
   profile: Profile;
   reference: Scalars['String']['output'];
@@ -492,6 +576,8 @@ export enum OrderStatusType {
   Cancelled = 'cancelled',
   Completed = 'completed',
   Confirmed = 'confirmed',
+  Failed = 'failed',
+  PayInStore = 'payInStore',
   Pending = 'pending',
   Refunded = 'refunded'
 }
@@ -513,6 +599,21 @@ export type Pagination = {
   currentPage: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
   totalPages: Scalars['Int']['output'];
+};
+
+export type Payment = {
+  __typename?: 'Payment';
+  amount: Scalars['Float']['output'];
+  clientSecret: Scalars['String']['output'];
+  createdAt: Scalars['DateTimeISO']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastPaymentError: Scalars['Boolean']['output'];
+  order: Order;
+  profile: Profile;
+  status: Scalars['String']['output'];
+  stripePaymentIntentId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTimeISO']['output'];
 };
 
 export type Product = {
@@ -561,10 +662,12 @@ export type ProductWithCount = {
 export type Profile = {
   __typename?: 'Profile';
   createdAt: Scalars['DateTimeISO']['output'];
+  deletedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   email: Scalars['String']['output'];
   firstname: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastname: Scalars['String']['output'];
+  payments: Array<Payment>;
   role: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
@@ -580,9 +683,12 @@ export type Query = {
   getCarts: Array<Cart>;
   getCategories: CategoriesWithCount;
   getCategoryById?: Maybe<Category>;
+  getDeletedProfilesByAdmin?: Maybe<Array<Profile>>;
+  getDeletedUsersByAdmin?: Maybe<Array<User>>;
   getMyOrders: Array<Order>;
   getMyProfile?: Maybe<Profile>;
   getOrderById: Order;
+  getOrderByIdAdmin?: Maybe<Order>;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
@@ -594,9 +700,10 @@ export type Query = {
   getProductsAndCategories: Search;
   getProfile?: Maybe<Profile>;
   getProfileByUserId?: Maybe<Profile>;
-  getProfilesAdmin?: Maybe<Array<Profile>>;
+  getProfilesByAdmin?: Maybe<Array<Profile>>;
   getStoreById?: Maybe<Store>;
   getStores: Array<Store>;
+  getUsersByAdmin?: Maybe<Array<User>>;
   getVariantById?: Maybe<Variant>;
   getVariants: Array<Variant>;
   storeVariant?: Maybe<StoreVariant>;
@@ -648,7 +755,22 @@ export type QueryGetCategoryByIdArgs = {
 };
 
 
+export type QueryGetDeletedProfilesByAdminArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetDeletedUsersByAdminArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGetOrderByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetOrderByIdAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -679,7 +801,6 @@ export type QueryGetProductByVariantIdArgs = {
 
 
 export type QueryGetProductsArgs = {
-  activityIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   categoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   endingDate?: InputMaybe<Scalars['DateTimeISO']['input']>;
   onPage?: Scalars['Int']['input'];
@@ -699,13 +820,18 @@ export type QueryGetProfileByUserIdArgs = {
 };
 
 
-export type QueryGetProfilesAdminArgs = {
+export type QueryGetProfilesByAdminArgs = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryGetStoreByIdArgs = {
   param: Scalars['String']['input'];
+};
+
+
+export type QueryGetUsersByAdminArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -717,6 +843,12 @@ export type QueryGetVariantByIdArgs = {
 export type QueryStoreVariantArgs = {
   storeId: Scalars['Float']['input'];
   variantId: Scalars['Float']['input'];
+};
+
+export type ResetPasswordInput = {
+  confirmPassword: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 /** The role of the user */
@@ -812,6 +944,9 @@ export type User = {
   firstname: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastname: Scalars['String']['output'];
+  newEmail?: Maybe<Scalars['String']['output']>;
+  newEmailSentAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  newEmailToken?: Maybe<Scalars['String']['output']>;
   recoverSentAt?: Maybe<Scalars['DateTimeISO']['output']>;
   recoverToken?: Maybe<Scalars['String']['output']>;
   role: Scalars['String']['output'];
@@ -832,6 +967,7 @@ export type UserUpdateProfileInput = {
 };
 
 export type ValidateCartInput = {
+  clientSecret: Scalars['String']['input'];
   paymentMethod: Scalars['String']['input'];
 };
 
@@ -863,5 +999,11 @@ export type WhoamiQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type WhoamiQuery = { __typename?: 'Query', whoami?: { __typename?: 'Profile', id: string } | null };
 
+export type CreatePaymentIntentMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CreatePaymentIntentMutation = { __typename?: 'Mutation', createPaymentIntent: { __typename?: 'Payment', clientSecret: string } };
+
 
 export const WhoamiDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Whoami"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"whoami"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<WhoamiQuery, WhoamiQueryVariables>;
+export const CreatePaymentIntentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePaymentIntent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPaymentIntent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"clientSecret"}}]}}]}}]} as unknown as DocumentNode<CreatePaymentIntentMutation, CreatePaymentIntentMutationVariables>;

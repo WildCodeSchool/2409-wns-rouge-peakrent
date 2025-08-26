@@ -82,3 +82,27 @@ mutation updateOrderItem($data: OrderItemsUpdateInput!, $orderId: ID!) {
   }
 }
 `;
+
+export const UPDATE_ORDER_ITEM_ADMIN = `
+mutation updateOrderItemAdmin($id: ID!, $data: OrderItemsUpdateInputAdmin!) {
+  updateOrderItemAdmin(id: $id, data: $data) {
+    id
+    startsAt
+    endsAt
+    quantity
+    pricePerHour
+    status
+    variant {
+      id
+      size
+      pricePerHour
+      product {
+        id
+        sku
+        urlImage
+        name
+      }
+    }
+  }
+}
+`;
