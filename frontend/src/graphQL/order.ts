@@ -294,3 +294,13 @@ export const GET_MY_ORDERS = `
     }
   }
 `;
+
+export const UPDATE_ORDER_ADMIN = `
+  mutation UpdateOrderAdmin($id: ID!, $data: OrderUpdateInputAdmin!) {
+    updateOrderAdmin(id: $id, data: $data) {
+      id
+      paidAt
+      updatedAt
+    }
+  }
+`;

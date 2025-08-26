@@ -3,12 +3,30 @@ import { CreditCard, Home, Phone } from "lucide-react";
 import CopyButton from "@/components/buttons/CopyButton";
 import { Button, Card, CardContent, Separator } from "@/components/ui";
 import { Order as OrderType } from "@/gql/graphql";
+import { GET_ORDER_BY_ID_ADMIN, UPDATE_ORDER_ADMIN } from "@/graphQL/order";
 import { formatLocaleDate } from "@/utils";
 import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+import { gql, useMutation } from "@apollo/client";
 
 export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
   const totalTTC = getTotalOrderPrice(order.orderItems ?? []);
   const { date, time } = formatLocaleDate(order.paidAt as string);
+
+  const [updateOrderAdmin, { loading: updating }] = useMutation(
+    gql(UPDATE_ORDER_ADMIN),
+    {
+      refetchQueries: [gql(GET_ORDER_BY_ID_ADMIN)],
+      awaitRefetchQueries: true,
+    }
+  );
+
+  const togglePaidAt = async () => {
+    const newPaidAt = order.paidAt ? null : new Date().toISOString();
+    await updateOrderAdmin({
+      variables: { id: String(order.id), data: { paidAt: newPaidAt } },
+    });
+  };
+
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card className="p-6">
@@ -128,11 +146,11 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
           <Separator />
           <div className="flex justify-center">
             <Button
-              variant="outline"
-              onClick={() => {}}
-              disabled={order.paidAt}
+              variant={order.paidAt ? "orange" : "primary"}
+              onClick={togglePaidAt}
+              disabled={updating}
             >
-              {order.paidAt ? "Payé" : "Marquer comme payé"}
+              {order.paidAt ? "Marquer comme non payé" : "Marquer comme payé"}
             </Button>
           </div>
         </CardContent>

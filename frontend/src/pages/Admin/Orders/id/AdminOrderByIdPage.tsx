@@ -1,10 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui";
-
 import CopyButton from "@/components/buttons/CopyButton";
 import { GET_ORDER_BY_ID_ADMIN } from "@/graphQL";
-import { formatLocaleDate, getOrderStatusVariant } from "@/utils";
+import { formatLocaleDate } from "@/utils";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { OrderByIdDetailsListSection } from "./OrderByIdDetailsListSection";
@@ -37,9 +35,6 @@ export default function AdminOrderByIdPage() {
             <h1 className="text-2xl font-semibold leading-none tracking-tight">
               {order.reference}
             </h1>
-            <Badge variant={getOrderStatusVariant(order.status)}>
-              {order.status}
-            </Badge>
             <CopyButton
               className="size-6"
               toCopy={order.reference ?? ""}
