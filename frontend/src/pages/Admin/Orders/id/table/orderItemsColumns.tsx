@@ -7,7 +7,6 @@ import {
   getOrderItemStatusText,
   getOrderItemStatusVariant,
 } from "@/utils/getVariants/getOrderItemStatusVariant";
-import { DataTableRowOrderByIdActions } from "./OrderByIdActions";
 
 const multiColumnFilter: FilterFn<any> = (row, columnId, filterValue) => {
   const firstName = row.getValue("name") as string;
@@ -101,9 +100,4 @@ export const createColumns = (): ColumnDef<any>[] => [
     enableSorting: true,
     enableHiding: true,
   }),
-
-  {
-    id: "actions",
-    cell: ({ row }) => <DataTableRowOrderByIdActions row={row} />,
-  },
 ];
