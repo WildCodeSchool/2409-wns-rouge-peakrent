@@ -124,7 +124,7 @@ export default function SingleSelect({
         <div
           onClick={!autoOpen ? handleClickWithDoubleClickDetection : undefined}
           className={cn(
-            "text-md relative flex w-[180px] max-w-[180px] flex-col items-center justify-center text-center",
+            "text-md relative flex w-[180px] max-w-[180px] flex-col items-center justify-center text-center mx-auto",
             className
           )}
           ref={ref as React.RefObject<HTMLDivElement>}

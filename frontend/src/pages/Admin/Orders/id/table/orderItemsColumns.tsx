@@ -3,10 +3,9 @@
 import * as column from "@/components/ui/tables/columns";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
-import {
-  getOrderItemStatusText,
-  getOrderItemStatusVariant,
-} from "@/utils/getVariants/getOrderItemStatusVariant";
+import { orderItemStatusOptions } from "@/components/forms/formField/select/options/orderItemOptions";
+import { getOrderItemStatusVariant } from "@/utils/getVariants/getOrderItemStatusVariant";
+import { toast } from "sonner";
 
 const multiColumnFilter: FilterFn<any> = (row, columnId, filterValue) => {
   const firstName = row.getValue("name") as string;
@@ -19,9 +18,12 @@ const multiColumnFilter: FilterFn<any> = (row, columnId, filterValue) => {
   );
 };
 
-export const createColumns = (): ColumnDef<any>[] => [
-  // column.createSelectColumn(),
-
+export const createColumns = (
+  onUpdateStatus: (
+    id: string | number,
+    newStatus: string | null
+  ) => Promise<void>
+): ColumnDef<any>[] => [
   column.createStringColumn({
     id: "id",
     accessorKey: "id",
@@ -50,14 +52,30 @@ export const createColumns = (): ColumnDef<any>[] => [
     filterFn: multiColumnFilter,
   }),
 
-  column.createBadgeColumn({
+  column.CreateSelectInputColumn({
     id: "status",
     accessorKey: "status",
     title: "statut",
-    variantFn: (row) => getOrderItemStatusVariant(row.original.status),
-    labelFn: (row) => getOrderItemStatusText(row.original.status),
+    setValue: async (newValue, oldValue, id) => {
+      let formattedValue: string | null = newValue as string | null;
+      if (newValue === "null" || newValue === null || newValue === "") {
+        formattedValue = oldValue as string | null;
+      }
+      try {
+        await onUpdateStatus(id, formattedValue);
+      } catch (error: any) {
+        console.log("error", error);
+        toast.error(error.message);
+      }
+    },
+    options: orderItemStatusOptions,
+    getVariantFunction: getOrderItemStatusVariant,
     enableSorting: true,
     enableHiding: true,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+    autoOpen: true,
   }),
 
   column.createStringColumn({
