@@ -1,6 +1,6 @@
 // Fragments réutilisables
-export const PROFILE_FIELDS = `
-  fragment ProfileFields on Profile {
+export const ALL_PROFILE_FIELDS = `
+  fragment AllProfileFields on Profile {
     email
     firstname
     lastname
@@ -8,6 +8,15 @@ export const PROFILE_FIELDS = `
     role
     createdAt
     updatedAt
+  }
+`;
+
+export const BASIC_PROFILE_FIELDS = `
+  fragment BasicProfileFields on Profile {
+    email
+    firstname
+    lastname
+    id
   }
 `;
 
@@ -60,13 +69,35 @@ export const ORDER_FIELDS = `
     zipCode
     createdAt
     updatedAt
+  }
+`;
+
+export const ORDER_WITH_ITEMS_FIELDS_ADMIN = `
+  fragment OrderWithItemsFieldsAdmin on Order {
+    ...OrderFields
     profile {
-      ...ProfileFields
+      ...AllProfileFields
     }
     orderItems {
       ...OrderItemFields
     }
   }
-  ${PROFILE_FIELDS}
+  ${ORDER_FIELDS}
+  ${ALL_PROFILE_FIELDS}
+  ${ORDER_ITEM_FIELDS}
+`;
+
+export const ORDER_WITH_ITEMS_FIELDS_USER = `
+  fragment OrderWithItemsFieldsUser on Order {
+    ...OrderFields
+    profile {
+      ...BasicProfileFields
+    }
+    orderItems {
+      ...OrderItemFields
+    }
+  }
+  ${ORDER_FIELDS}
+  ${BASIC_PROFILE_FIELDS}
   ${ORDER_ITEM_FIELDS}
 `;
