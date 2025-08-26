@@ -7,6 +7,7 @@ import { GET_ORDER_BY_ID_ADMIN, UPDATE_ORDER_ADMIN } from "@/graphQL/order";
 import { formatLocaleDate } from "@/utils";
 import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 
 export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
   const totalTTC = getTotalOrderPrice(order.orderItems ?? []);
@@ -17,6 +18,12 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
     {
       refetchQueries: [gql(GET_ORDER_BY_ID_ADMIN)],
       awaitRefetchQueries: true,
+      onCompleted: () => {
+        toast.success("Paiement mis à jour avec succès");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
     }
   );
 
