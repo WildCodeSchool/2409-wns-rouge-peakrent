@@ -112,7 +112,7 @@ export function CartPage() {
 
   return (
     <section>
-      <div className="flex gap-1 justify-between items-center">
+      <div className="flex gap-1 justify-between items-center max-w-screen-sm">
         <Button
           onClick={() => handleDeleteAll()}
           type="button"
@@ -121,7 +121,10 @@ export function CartPage() {
         >
           Vider mon panier
         </Button>
-        <p>{orderItemsStore.length} items</p>
+        <p>
+          {orderItemsStore.length}{" "}
+          {orderItemsStore.length > 1 ? "items" : "item"}
+        </p>
       </div>
 
       <div className="space-y-4">
