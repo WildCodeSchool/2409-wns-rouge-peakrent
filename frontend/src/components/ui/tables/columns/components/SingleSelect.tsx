@@ -24,12 +24,13 @@ interface SingleSelectProps {
     icon?: React.ComponentType<{ className?: string }>;
     renderLabel?: () => React.ReactNode;
   }[];
-  setValue?: (value: string, id: string | number) => void;
+  setValue?: (newValue: string, oldValue: string, id: string | number) => void;
   getVariantFunction: (
     value: string
   ) => VariantProps<typeof badgeVariants>["variant"];
   className?: string;
   textClassName?: string;
+  autoOpen?: boolean;
 }
 
 export default function SingleSelect({
@@ -41,10 +42,11 @@ export default function SingleSelect({
   getVariantFunction,
   className,
   textClassName,
+  autoOpen = false,
 }: SingleSelectProps) {
   const datas = row.original;
   const currentValue = getNestedValueFunction(datas, accessorKey);
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(autoOpen);
   const selectorRef = useRef<HTMLButtonElement>(null);
 
   const selectSchemaForm = () =>
@@ -75,16 +77,24 @@ export default function SingleSelect({
     if (!setValue) {
       return;
     }
-    setValue(newValue, datas.id);
-    setEditing(false);
+    setValue(newValue, currentValue, datas.id);
+    if (!autoOpen) {
+      setEditing(false);
+    }
   };
 
-  const handleClickWithDoubleClickDetection = useDoubleClick(undefined, () =>
-    setEditing(true)
-  );
+  const handleClickWithDoubleClickDetection = useDoubleClick(undefined, () => {
+    if (autoOpen) {
+      return;
+    } else {
+      setEditing(true);
+    }
+  });
 
   const ref = useClickOutside<HTMLDivElement | HTMLButtonElement>(() => {
-    setEditing(false);
+    if (!autoOpen) {
+      setEditing(false);
+    }
   }, [selectorRef]);
 
   const optionSelected = options?.find(
@@ -112,9 +122,9 @@ export default function SingleSelect({
     <Form {...form} key={"value" + datas.id + accessorKey}>
       <form className="space-y-4" noValidate autoComplete="off">
         <div
-          onClick={handleClickWithDoubleClickDetection}
+          onClick={!autoOpen ? handleClickWithDoubleClickDetection : undefined}
           className={cn(
-            "text-md flex w-[180px] max-w-[180px] justify-center text-center ",
+            "text-md relative flex w-[180px] max-w-[180px] flex-col items-center justify-center text-center",
             className
           )}
           ref={ref as React.RefObject<HTMLDivElement>}
@@ -123,7 +133,7 @@ export default function SingleSelect({
             <SingleSelectorInput
               label={""}
               required={false}
-              className="px-2"
+              className="h-7 border-0 px-2 py-1"
               form={form}
               name="value"
               options={options || []}
