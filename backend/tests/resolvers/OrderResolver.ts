@@ -171,7 +171,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
 
   it("should display order information for admin who does not have that order", async () => {
     const response = await testArgs.server.executeOperation<{
-      GetOrderByIdAdmin: Order;
+      getOrderByIdAdmin: Order;
     }>(
       {
         query: getQueryFromMutation(GET_ORDER_BY_ID_ADMIN),
@@ -188,7 +188,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(
-      response.body.singleResult.data?.GetOrderByIdAdmin?.id
+      response.body.singleResult.data?.getOrderByIdAdmin?.id
     ).toBeDefined();
   });
 }
