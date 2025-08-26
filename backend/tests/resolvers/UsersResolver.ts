@@ -82,7 +82,7 @@ export function UsersResolverTest(testArgs: TestArgsType) {
           query: getQueryFromMutation(SIGNIN),
           variables: {
             datas: {
-              email: testArgs.data.user?.email,
+              email: datas.email,
               password: datas.password,
             },
           },
