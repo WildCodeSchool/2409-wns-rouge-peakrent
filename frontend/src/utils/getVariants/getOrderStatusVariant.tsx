@@ -1,4 +1,12 @@
-import { BadgeVariantType } from "@/components/ui/badge";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
+
+export const orderStatusEnum = [
+  "pending",
+  "confirmed",
+  "completed",
+  "cancelled",
+  "refunded",
+];
 
 /**
  * Returns the associated badge variant with a given order status.
@@ -38,4 +46,22 @@ export const getOrderStatusText = (name: string): string => {
     default:
       return "Erreur";
   }
+};
+
+export const getOrderStatusOptionsLabels = () => {
+  const BadgeOrderStatus = ({ value }: { value: string }) => {
+    return (
+      <Badge
+        variant={getOrderStatusVariant(value)}
+        className="text-md flex gap-2 rounded-lg px-1 capitalize"
+      >
+        {getOrderStatusText(value)}
+      </Badge>
+    );
+  };
+
+  return orderStatusEnum.map((value) => ({
+    value: value,
+    label: <BadgeOrderStatus value={value} />,
+  }));
 };
