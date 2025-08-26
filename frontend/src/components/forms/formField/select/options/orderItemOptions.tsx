@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { getOrderItemStatusText, getOrderItemStatusVariant } from "@/utils";
 
-const optionsWithVariants = [
+export const orderItemStatusEnum = [
   "pending",
   "distributed",
   "recovered",
@@ -9,7 +9,7 @@ const optionsWithVariants = [
   "refunded",
 ];
 
-export const orderItemStatusOptions = optionsWithVariants.map((value) => ({
+export const orderItemStatusOptions = orderItemStatusEnum.map((value) => ({
   label: value,
   value: value.toLowerCase().replace(/ /g, "_"),
   renderLabel: () => {

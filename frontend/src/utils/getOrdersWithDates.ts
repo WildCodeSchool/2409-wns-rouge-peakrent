@@ -1,6 +1,7 @@
 import { Order as OrderType } from "@/gql/graphql";
+import { getTotalOrderPrice } from "./getTotalOrderPrice";
 
-export const getOrdersWithDates = (orders: OrderType[]) => {
+export const getOrdersWithDatesAndTotalPrice = (orders: OrderType[]) => {
   return orders.map((order) => {
     const dates = order.orderItems?.map((item) => ({
       start: new Date(item.startsAt),
@@ -24,10 +25,15 @@ export const getOrdersWithDates = (orders: OrderType[]) => {
       Math.max(...dates.map((d: { start: Date; end: Date }) => d.end.getTime()))
     );
 
+    const totalPriceTTC = Number(
+      getTotalOrderPrice(order.orderItems ?? [], true)
+    );
+
     return {
       ...order,
       startsAt,
       endsAt,
+      totalPriceTTC,
     };
   });
 };

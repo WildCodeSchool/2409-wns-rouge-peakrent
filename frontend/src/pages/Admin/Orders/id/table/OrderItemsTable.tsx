@@ -53,7 +53,7 @@ export default function OrderItemsTable({ order }: { order?: OrderType }) {
       <DataTableSkeleton
         columns={createColumns(async () => {})}
         searchableColumnCount={1}
-        filterableColumnCount={2}
+        filterableColumnCount={1}
         rowCount={5}
         cellWidths={["auto"]}
         shrinkZero
