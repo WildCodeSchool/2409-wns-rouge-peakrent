@@ -64,7 +64,6 @@ export const createColumns = (
       try {
         await onUpdateStatus(id, formattedValue);
       } catch (error: any) {
-        console.log("error", error);
         toast.error(error.message);
       }
     },

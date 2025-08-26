@@ -73,7 +73,7 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
               <Home className="size-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Addresse</h2>
+              <h2 className="text-xl font-bold">Adresse</h2>
               <p className="text-muted-foreground">Adresse de livraison</p>
             </div>
           </div>

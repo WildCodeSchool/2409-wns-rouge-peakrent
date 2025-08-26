@@ -9,17 +9,15 @@ export const getTotalOrderPrice = (
     ? orderItems.filter((item) => item.status !== "cancelled")
     : orderItems;
 
-  return (
-    orderItemsFiltered
-      .reduce(
-        (acc, item) =>
-          acc +
-          (item.pricePerHour *
-            item.quantity *
-            getDurationInDays(item.startsAt, item.endsAt)) /
-            100,
-        0
-      )
-      ?.toFixed(2) ?? "0.00"
-  );
+  return orderItemsFiltered
+    .reduce(
+      (acc, item) =>
+        acc +
+        (item.pricePerHour *
+          item.quantity *
+          getDurationInDays(item.startsAt, item.endsAt)) /
+          100,
+      0
+    )
+    ?.toFixed(2);
 };
