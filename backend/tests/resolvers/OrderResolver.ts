@@ -1,5 +1,6 @@
 import {
   CREATE_ORDER,
+  GET_ORDER_BY_ID_ADMIN,
   GET_ORDER_BY_REF,
 } from "../../../frontend/src/graphQL/order";
 import { Order } from "../../src/entities/Order";
@@ -170,12 +171,12 @@ export function OrderResolverTest(testArgs: TestArgsType) {
 
   it("should display order information for admin who does not have that order", async () => {
     const response = await testArgs.server.executeOperation<{
-      getOrderByReference: Order;
+      GetOrderByIdAdmin: Order;
     }>(
       {
-        query: getQueryFromMutation(GET_ORDER_BY_REF),
+        query: getQueryFromMutation(GET_ORDER_BY_ID_ADMIN),
         variables: {
-          reference: testArgs.data.order?.reference,
+          reference: testArgs.data.order?.id,
         },
       },
       {
@@ -187,7 +188,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
     assert(response.body.kind === "single");
     expect(response.body.singleResult.errors).toBeUndefined();
     expect(
-      response.body.singleResult.data?.getOrderByReference?.id
+      response.body.singleResult.data?.GetOrderByIdAdmin?.id
     ).toBeDefined();
   });
 }

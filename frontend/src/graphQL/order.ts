@@ -1,3 +1,5 @@
+import { ORDER_WITH_ITEMS_FIELDS_ADMIN } from "./fragments";
+
 export const CREATE_ORDER = `
   mutation Mutation($data: OrderCreateInputAdmin!) {
     createOrderAdmin(data: $data) {
@@ -16,6 +18,15 @@ export const CREATE_ORDER = `
       zipCode
     }
   }
+`;
+
+export const GET_ORDER_BY_ID_ADMIN = `
+  query GetOrderByIdAdmin($id: ID!) {
+    getOrderByIdAdmin(id: $id) {
+      ...OrderWithItemsFieldsAdmin
+    }
+  }
+  ${ORDER_WITH_ITEMS_FIELDS_ADMIN}
 `;
 
 export const GET_ORDER_BY_REF = `
