@@ -7,7 +7,6 @@ import { UserToken } from "../../src/entities/UserToken";
 import { assert, TestArgsType } from "../index.spec";
 import { getQueryFromMutation } from "../utils/getQueryFromMutation";
 import { SignUpTests } from "./SignUpTests";
-
 export const datas = {
   email: "test2222@gmail.com",
   password: "SuperSecret!2025",
@@ -15,13 +14,11 @@ export const datas = {
   lastname: "test",
   confirmPassword: "SuperSecret!2025",
 };
-
 export function UsersResolverTest(testArgs: TestArgsType) {
   // check if database is connected
   it("should connect to database", async () => {
     expect(testArgs.dataSource.isInitialized).toBe(true);
   });
-
   describe("SignUp", () => {
     describe("With Success", () => {
       // test createUser resolver
@@ -34,11 +31,9 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             data: datas,
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeUndefined();
         expect(response.body.singleResult.data?.createUser?.id).toBeDefined();
-
         // check user in database
         const userFromDb = await User.findOneBy({
           id: response.body.singleResult.data?.createUser?.id,
@@ -55,7 +50,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         await userFromDb.save();
         testArgs.data.user = userFromDb;
       });
-
       it("should profile exists for new user", async () => {
         const user = testArgs?.data?.user;
         // check profile in database
@@ -71,7 +65,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
     });
     SignUpTests(testArgs);
   });
-
   describe("SignIn", () => {
     describe("With Success", () => {
       // test signin resolver
@@ -83,11 +76,10 @@ export function UsersResolverTest(testArgs: TestArgsType) {
           variables: {
             datas: {
               email: testArgs.data.user?.email,
-              password: testArgs.data.user?.password,
+              password: datas.password,
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeUndefined();
         expect(response.body.singleResult.data?.signIn?.id).toBeDefined();
@@ -95,7 +87,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
           +testArgs.data.user?.id
         );
       });
-
       // test for tokens in db
       it("tokens should exist in db", async () => {
         const user = testArgs?.data?.user;
@@ -121,7 +112,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
@@ -129,7 +119,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         );
         expect(response.body.singleResult.data?.signIn).toBeNull();
       });
-
       it("should not sign me in with unknown email", async () => {
         const response = await testArgs.server.executeOperation<{
           signIn: User;
@@ -142,7 +131,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
@@ -150,7 +138,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         );
         expect(response.body.singleResult.data?.signIn).toBeNull();
       });
-
       it("should not sign me in with unverified email", async () => {
         const unverifiedUserResponse = await testArgs.server.executeOperation<{
           createUser: User;
@@ -166,9 +153,7 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(unverifiedUserResponse.body.kind === "single");
-
         const response = await testArgs.server.executeOperation<{
           signIn: User;
         }>({
@@ -180,7 +165,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
@@ -188,7 +172,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         );
         expect(response.body.singleResult.data?.signIn).toBeNull();
       });
-
       it("should return BAD_USER_INPUT with bad email input", async () => {
         const response = await testArgs.server.executeOperation<{
           signIn: User;
@@ -201,7 +184,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
@@ -209,7 +191,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
         );
         expect(response.body.singleResult.data?.signIn).toBeNull();
       });
-
       it("should return BAD_USER_INPUT with bad password input", async () => {
         const response = await testArgs.server.executeOperation<{
           signIn: User;
@@ -222,7 +203,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
             },
           },
         });
-
         assert(response.body.kind === "single");
         expect(response.body.singleResult.errors).toBeDefined();
         expect(response.body.singleResult.errors[0].extensions.code).toBe(
@@ -232,7 +212,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
       });
     });
   });
-
   describe("WhoAmI", () => {
     // test whoami resolver (without token)
     it("should not find my profile", async () => {
@@ -241,12 +220,10 @@ export function UsersResolverTest(testArgs: TestArgsType) {
       }>({
         query: getQueryFromMutation(WHOAMI),
       });
-
       assert(response.body.kind === "single");
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.whoami).toBeNull();
     });
-
     // test whoami resolver (with token)
     it("should find my profile", async () => {
       const response = await testArgs.server.executeOperation<{
@@ -261,7 +238,6 @@ export function UsersResolverTest(testArgs: TestArgsType) {
           },
         }
       );
-
       assert(response.body.kind === "single");
       expect(response.body.singleResult.errors).toBeUndefined();
       expect(response.body.singleResult.data?.whoami?.id).toBeDefined();
