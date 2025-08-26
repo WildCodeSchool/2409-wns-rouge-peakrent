@@ -2,7 +2,7 @@
 
 import { DataTable, DataTableSkeleton } from "@/components/ui";
 import { Order as OrderType } from "@/gql/graphql";
-import { UPDATE_ORDER_ITEM_ADMIN } from "@/graphQL";
+import { GET_ORDER_BY_ID_ADMIN, UPDATE_ORDER_ITEM_ADMIN } from "@/graphQL";
 import { useOrderStore } from "@/stores/admin/order.store";
 import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
@@ -18,6 +18,14 @@ export default function OrderItemsTable({ order }: { order?: OrderType }) {
     },
     onError: (error) => {
       toast.error(error.message);
+    },
+    refetchQueries() {
+      return [
+        {
+          query: gql(GET_ORDER_BY_ID_ADMIN),
+          variables: { id: order?.id },
+        },
+      ];
     },
   });
 
