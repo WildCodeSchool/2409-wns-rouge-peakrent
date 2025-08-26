@@ -1,7 +1,9 @@
 import { Row } from "@tanstack/react-table";
 
-import DeleteButton from "@/components/buttons/DeleteButton";
-import UpdateButton from "@/components/buttons/UpdateButton";
+import { Button } from "@/components/ui";
+import { Order as OrderType } from "@/gql/graphql";
+import { Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface DataTableRowOrdersActionsProps<TData> {
   row: Row<TData>;
@@ -10,30 +12,27 @@ interface DataTableRowOrdersActionsProps<TData> {
 export function DataTableRowOrdersActions<TData>({
   row,
 }: DataTableRowOrdersActionsProps<TData>) {
-  const order = row.original as any;
-
-  const handleDelete = async (ids: string[] | number[]) => {
-    return true;
-  };
-
-  const formContent = <div>Update order</div>;
+  const order = row.original as OrderType & { startsAt: Date; endsAt: Date };
 
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">
-      <UpdateButton
-        modalContent={formContent}
-        ariaLabel={"editOrderAriaLabel"}
-        variant="primary"
-        modalTitle="Modifier la commande"
-        modalDescription={"Réf: " + order.reference}
-      />
-      <DeleteButton
+      <Link to={`/admin/orders/${order.id}`}>
+        <Button
+          variant="primary"
+          aria-label={"Modifier la commande"}
+          size="icon"
+          className="size-8"
+        >
+          <Pencil className="" size={16} />
+        </Button>
+      </Link>
+      {/* <DeleteButton
         onDeleteFunction={() => handleDelete([order.id])}
         elementIds={[order.id]}
         ariaLabel={"deleteOrderAriaLabel"}
         modalTitle="Supprimer la commande"
         modalDescription="Voulez-vous vraiment supprimer cette commande ?"
-      />
+      /> */}
     </div>
   );
 }

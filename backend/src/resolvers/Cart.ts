@@ -156,7 +156,7 @@ export class CartResolver {
       const reference = generateOrderReference(new Date().toString());
       const status =
         data.paymentMethod === OrderPaymentType.onSite
-          ? OrderStatusType.payInStore
+          ? OrderStatusType.confirmed
           : OrderStatusType.pending;
 
       const payment = await Payment.findOne({
@@ -191,7 +191,6 @@ export class CartResolver {
         zipCode: cart.zipCode,
         payment,
       };
-
       Object.assign(order, orderData, { profile: orderData.profileId });
 
       const errorsOrder = await validate(Order);

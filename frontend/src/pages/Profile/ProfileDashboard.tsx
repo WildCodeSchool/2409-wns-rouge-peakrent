@@ -10,26 +10,13 @@ import { DELETE_PROFILE } from "@/graphQL";
 import { GET_MY_ORDERS } from "@/graphQL/order";
 import { SIGNOUT } from "@/graphQL/signout";
 import { WHOAMI } from "@/graphQL/whoami";
+import { getOrderStatusText, getOrderStatusVariant } from "@/utils";
 import { getDurationInDays } from "@/utils/getDurationInDays";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { LogOut, ShieldUser } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-// En attendant de mettre en place la traduction
-const translateStatus = (status: string) => {
-  const statusTranslations = {
-    pending: "En attente",
-    confirmed: "Confirmée",
-    completed: "Terminée",
-    cancelled: "Annulée",
-    refunded: "Remboursée",
-  };
-  return (
-    statusTranslations[status as keyof typeof statusTranslations] || status
-  );
-};
 
 const columns = [
   column.createStringColumn({
@@ -69,12 +56,13 @@ const columns = [
     title: "Fin",
     enableSorting: true,
   }),
-  column.createStringColumn({
+  column.createBadgeColumn({
     id: "statut",
     accessorKey: "status",
     title: "Statut",
     enableSorting: true,
-    labelFn: (status: string) => translateStatus(status),
+    labelFn: (row) => getOrderStatusText(row.original.status),
+    variantFn: (row) => getOrderStatusVariant(row.original.status),
   }),
 ];
 
@@ -240,7 +228,7 @@ export default function ProfileDashboard() {
                 hideExport
                 hideViewOptions={true}
                 viewMode="table"
-                rowLink={{ customPath: "/profile/order", rowLink: "id" }}
+                rowLink={{ customPath: "/profile/order", rowLink: "reference" }}
               />
             )}
           </TabsContent>

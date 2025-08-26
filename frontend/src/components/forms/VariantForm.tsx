@@ -70,9 +70,6 @@ export const VariantForm = ({
     }
   }, [getVariantsData]);
 
-  console.log(availableColors, availableSizes);
-  console.log(sizes);
-
   const handleVariantFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
