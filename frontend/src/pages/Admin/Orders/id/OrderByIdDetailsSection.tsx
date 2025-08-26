@@ -10,7 +10,7 @@ import { gql, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
 export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
-  const totalTTC = getTotalOrderPrice(order.orderItems ?? []);
+  const totalTTC = getTotalOrderPrice(order.orderItems ?? [], true);
   const { date, time } = formatLocaleDate(order.paidAt as string);
 
   const [updateOrderAdmin, { loading: updating }] = useMutation(

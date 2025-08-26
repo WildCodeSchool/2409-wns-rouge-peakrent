@@ -52,10 +52,6 @@ export default function OrdersTable() {
     );
   }
 
-  // const onDeleteMultipleFunction = async (ids: string[] | number[]) => {
-  //   return true;
-  // };
-
   // Format orders with dates
   const ordersWithDates = getOrdersWithDates(ordersStore);
 
@@ -73,7 +69,6 @@ export default function OrdersTable() {
       }}
       rowLink="id"
       hideExport
-      // onDeleteMultipleFunction={onDeleteMultipleFunction}
     />
   );
 }

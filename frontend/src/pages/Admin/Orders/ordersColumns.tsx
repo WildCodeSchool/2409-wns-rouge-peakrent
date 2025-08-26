@@ -52,7 +52,7 @@ export const createColumns: ColumnDef<any>[] = [
     enableSorting: true,
     devise: "€",
     variantFn: (row) => "green",
-    customPrice: (datas) => Number(getTotalOrderPrice(datas.orderItems)),
+    customPrice: (datas) => Number(getTotalOrderPrice(datas.orderItems, true)),
   }),
 
   column.createTwoDateColumn({

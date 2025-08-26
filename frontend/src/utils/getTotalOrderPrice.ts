@@ -1,9 +1,16 @@
 import { OrderItem as OrderItemType } from "@/gql/graphql";
 import { getDurationInDays } from "./getDurationInDays";
 
-export const getTotalOrderPrice = (orderItems: OrderItemType[]) => {
+export const getTotalOrderPrice = (
+  orderItems: OrderItemType[],
+  filterCancelled: boolean = false
+) => {
+  const orderItemsFiltered = filterCancelled
+    ? orderItems.filter((item) => item.status !== "cancelled")
+    : orderItems;
+
   return (
-    orderItems
+    orderItemsFiltered
       .reduce(
         (acc, item) =>
           acc +

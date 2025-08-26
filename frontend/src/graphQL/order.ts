@@ -148,6 +148,7 @@ export const GET_ORDERS_ADMIN = `
         endsAt
         quantity
         pricePerHour
+        status
       }
     }
   }
