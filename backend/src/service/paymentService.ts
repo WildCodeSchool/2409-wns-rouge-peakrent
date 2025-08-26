@@ -1,5 +1,5 @@
-import { Payment } from "@/entities/Payment";
-import { StripePaymentStatusType } from "@/types";
+import { Payment } from "../entities/Payment";
+import { StripePaymentStatusType } from "../types";
 import { GraphQLError } from "graphql";
 import Stripe from "stripe";
 
