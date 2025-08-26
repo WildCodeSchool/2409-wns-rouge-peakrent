@@ -7,6 +7,8 @@ WORKDIR /app
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 
+# Test problème CI
+RUN npm config set registry https://registry.npmjs.org/
 RUN npm install
 
 COPY tsconfig.json tsconfig.json
