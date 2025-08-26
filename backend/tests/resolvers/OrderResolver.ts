@@ -176,7 +176,7 @@ export function OrderResolverTest(testArgs: TestArgsType) {
       {
         query: getQueryFromMutation(GET_ORDER_BY_ID_ADMIN),
         variables: {
-          reference: testArgs.data.order?.id,
+          id: testArgs.data.order?.id,
         },
       },
       {
