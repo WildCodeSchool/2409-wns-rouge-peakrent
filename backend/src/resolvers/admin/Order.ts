@@ -7,6 +7,7 @@ import {
 import { OrderItem, OrderItemsFormInputAdmin } from "@/entities/OrderItem";
 import { Profile } from "@/entities/Profile";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
+import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
@@ -18,6 +19,7 @@ import {
   Mutation,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 
 @Resolver(Order)
@@ -36,6 +38,32 @@ export class OrderResolverAdmin {
       },
       order: { date: "DESC" },
     });
+    return order;
+  }
+
+  @Query(() => Order, { nullable: true })
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @UseMiddleware(ErrorCatcher)
+  async getOrderByIdAdmin(
+    @Arg("id", () => ID) _id: number
+  ): Promise<Order | null> {
+    const id = Number(_id);
+    const order = await Order.findOne({
+      where: { id },
+      relations: {
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+        profile: true,
+      },
+    });
+    if (!order) {
+      throw new GraphQLError("Order not found", {
+        extensions: { code: "ORDER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
     return order;
   }
 

@@ -1,8 +1,8 @@
-import React from "react";
 import { DataTableColumnHeader } from "@/components/ui/tools/dataTableColumnHeader";
 import { cn } from "@/lib/utils";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 import { VariantProps } from "class-variance-authority";
+import React from "react";
 
 import { badgeVariants } from "@/components/ui/badge";
 
@@ -18,7 +18,11 @@ interface StringColumnProps {
     icon?: React.ComponentType<{ className?: string }>;
     renderLabel?: () => React.ReactNode;
   }[];
-  setValue?: (value: string, id: string | number) => void;
+  setValue?: (
+    newValue: string | number | boolean,
+    oldValue: string | number | boolean,
+    id: string | number
+  ) => void | Promise<void>;
   getVariantFunction?: (
     value: string
   ) => VariantProps<typeof badgeVariants>["variant"];
@@ -29,6 +33,7 @@ interface StringColumnProps {
   enableHiding?: boolean;
   filterFn?: FilterFn<any>;
   textClassName?: string;
+  autoOpen?: boolean;
 }
 
 export function CreateSelectInputColumn({
@@ -45,6 +50,7 @@ export function CreateSelectInputColumn({
   enableHiding = false,
   filterFn,
   textClassName,
+  autoOpen = false,
 }: StringColumnProps): ColumnDef<any> {
   return {
     id,
@@ -67,6 +73,7 @@ export function CreateSelectInputColumn({
           getVariantFunction={getVariantFunction}
           className={className}
           textClassName={textClassName}
+          autoOpen={autoOpen}
         />
       );
     },

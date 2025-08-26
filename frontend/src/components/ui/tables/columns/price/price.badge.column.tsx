@@ -68,7 +68,7 @@ export function createPriceWithBadgeColumn({
       <DataTableColumnHeader
         column={column}
         title={title}
-        className={cn("ml-auto max-w-[85px]", headerClassName)}
+        className={cn("mx-auto max-w-[85px]", headerClassName)}
       />
     ),
     cell: ({ row }) => {
