@@ -1,4 +1,5 @@
 import ButtonBackToLastUrl from "@/components/buttons/ButtonBackToLastUrl";
+import BreadcrumbSection from "@/components/section/BreadcrumbSection";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "./AdminSideBar";
 
@@ -9,7 +10,7 @@ export default function AdminLayout() {
       <main className="admin-layout w-full flex-1 overflow-y-auto p-6">
         <nav className="mb-4 flex items-center gap-4">
           <ButtonBackToLastUrl />
-          breadcrumb ?
+          <BreadcrumbSection homePath="/admin" />
         </nav>
         <Outlet />
       </main>
