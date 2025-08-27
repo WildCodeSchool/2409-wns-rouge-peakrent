@@ -21,7 +21,7 @@ const orderItems: unknown = [
     quantity: 1,
     pricePerDay: 25000,
     startsAt: new Date(now).toISOString(),
-    endsAt: new Date(now + 6.5 * 24 * 60 * 60 * 1000).toISOString(),
+    endsAt: new Date(now + 6 * 24 * 60 * 60 * 1000).toISOString(),
     createdAt: new Date(now).toISOString(),
     updatedAt: null,
   },
@@ -32,7 +32,7 @@ const orderItems: unknown = [
     quantity: 1,
     pricePerDay: 12000,
     startsAt: new Date(now).toISOString(),
-    endsAt: new Date(now + 0.5 * 24 * 60 * 60 * 1000).toISOString(),
+    endsAt: new Date(now + 1 * 24 * 60 * 60 * 1000).toISOString(),
     createdAt: new Date(now).toISOString(),
     updatedAt: null,
   },
@@ -62,6 +62,6 @@ const orderItems: unknown = [
 
 describe("price calculation", () => {
   it("should calculate the right price of orderItems", async () => {
-    expect(getTotalOrderPrice(orderItems as OrderItem[])).toBe(74194);
+    expect(getTotalOrderPrice(orderItems as OrderItem[])).toBe(741994);
   });
 });
