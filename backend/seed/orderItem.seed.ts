@@ -34,7 +34,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[0]?.id,
           quantity: 1,
-          pricePerDay: variants[0]?.pricePerDay || 15000,
+          pricePerDay: variants[0]?.pricePerDay || 5000,
           startsAt: new Date("2024-01-15T09:00:00Z"),
           endsAt: new Date("2024-01-20T17:00:00Z"),
           status: OrderItemStatusType.distributed,
@@ -42,7 +42,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[1]?.id,
           quantity: 1,
-          pricePerDay: variants[1]?.pricePerDay || 14000,
+          pricePerDay: variants[1]?.pricePerDay || 4000,
           startsAt: new Date("2024-01-15T09:00:00Z"),
           endsAt: new Date("2024-01-20T17:00:00Z"),
           status: OrderItemStatusType.distributed,
@@ -50,7 +50,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[2]?.id,
           quantity: 1,
-          pricePerDay: variants[2]?.pricePerDay || 13000,
+          pricePerDay: variants[2]?.pricePerDay || 3000,
           startsAt: new Date("2024-01-15T09:00:00Z"),
           endsAt: new Date("2024-01-20T17:00:00Z"),
           status: OrderItemStatusType.distributed,
@@ -64,7 +64,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[3]?.id,
           quantity: 1,
-          pricePerDay: variants[3]?.pricePerDay || 12000,
+          pricePerDay: variants[3]?.pricePerDay || 2000,
           startsAt: new Date("2024-02-01T08:00:00Z"),
           endsAt: new Date("2024-02-05T18:00:00Z"),
           status: OrderItemStatusType.recovered,
@@ -72,7 +72,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[4]?.id,
           quantity: 1,
-          pricePerDay: variants[4]?.pricePerDay || 11000,
+          pricePerDay: variants[4]?.pricePerDay || 1000,
           startsAt: new Date("2024-02-01T08:00:00Z"),
           endsAt: new Date("2024-02-05T18:00:00Z"),
           status: OrderItemStatusType.recovered,
@@ -80,7 +80,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[5]?.id,
           quantity: 2,
-          pricePerDay: variants[5]?.pricePerDay || 10000,
+          pricePerDay: variants[5]?.pricePerDay || 1000,
           startsAt: new Date("2024-02-01T08:00:00Z"),
           endsAt: new Date("2024-02-05T18:00:00Z"),
           status: OrderItemStatusType.recovered,
@@ -94,7 +94,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[6]?.id,
           quantity: 1,
-          pricePerDay: variants[6]?.pricePerDay || 17000,
+          pricePerDay: variants[6]?.pricePerDay || 7000,
           startsAt: new Date("2024-03-10T10:00:00Z"),
           endsAt: new Date("2024-03-12T16:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -102,7 +102,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[7]?.id,
           quantity: 1,
-          pricePerDay: variants[7]?.pricePerDay || 16000,
+          pricePerDay: variants[7]?.pricePerDay || 6000,
           startsAt: new Date("2024-03-10T10:00:00Z"),
           endsAt: new Date("2024-03-12T16:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -110,7 +110,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[8]?.id,
           quantity: 1,
-          pricePerDay: variants[8]?.pricePerDay || 15000,
+          pricePerDay: variants[8]?.pricePerDay || 5000,
           startsAt: new Date("2024-03-10T10:00:00Z"),
           endsAt: new Date("2024-03-12T16:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -124,7 +124,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[9]?.id,
           quantity: 1,
-          pricePerDay: variants[9]?.pricePerDay || 16000,
+          pricePerDay: variants[9]?.pricePerDay || 6000,
           startsAt: new Date("2024-04-05T07:00:00Z"),
           endsAt: new Date("2024-04-10T19:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -132,7 +132,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[10]?.id,
           quantity: 2,
-          pricePerDay: variants[10]?.pricePerDay || 13000,
+          pricePerDay: variants[10]?.pricePerDay || 3000,
           startsAt: new Date("2024-04-05T07:00:00Z"),
           endsAt: new Date("2024-04-10T19:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -140,7 +140,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[11]?.id,
           quantity: 1,
-          pricePerDay: variants[11]?.pricePerDay || 14000,
+          pricePerDay: variants[11]?.pricePerDay || 4000,
           startsAt: new Date("2024-04-05T07:00:00Z"),
           endsAt: new Date("2024-04-10T19:00:00Z"),
           status: OrderItemStatusType.pending,
@@ -154,7 +154,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[12]?.id,
           quantity: 1,
-          pricePerDay: variants[12]?.pricePerDay || 19000,
+          pricePerDay: variants[12]?.pricePerDay || 9000,
           startsAt: new Date("2024-05-15T09:00:00Z"),
           endsAt: new Date("2024-05-18T17:00:00Z"),
           status: OrderItemStatusType.cancelled,
@@ -162,7 +162,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[13]?.id,
           quantity: 1,
-          pricePerDay: variants[13]?.pricePerDay || 18000,
+          pricePerDay: variants[13]?.pricePerDay || 8000,
           startsAt: new Date("2024-05-15T09:00:00Z"),
           endsAt: new Date("2024-05-18T17:00:00Z"),
           status: OrderItemStatusType.cancelled,
@@ -170,7 +170,7 @@ export const seedOrderItems = async () => {
         {
           variantId: variants[14]?.id,
           quantity: 1,
-          pricePerDay: variants[14]?.pricePerDay || 17000,
+          pricePerDay: variants[14]?.pricePerDay || 7000,
           startsAt: new Date("2024-05-15T09:00:00Z"),
           endsAt: new Date("2024-05-18T17:00:00Z"),
           status: OrderItemStatusType.cancelled,
