@@ -99,6 +99,5 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/vouchers",
     icon: <Ticket className={`size-4 flex-none lg:size-5`} />,
     label: "Vouchers",
-    disabled: true,
   },
 ];
