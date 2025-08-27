@@ -1,6 +1,8 @@
+import { updateOrderStatusFromOrderItem } from "@/services/orderItemService";
 import { IsDate, IsNotEmpty, Min } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
+  AfterUpdate,
   BaseEntity,
   Check,
   Column,
@@ -9,6 +11,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from "typeorm";
 import { DateRangeInput } from "../commonInput/Date";
@@ -39,6 +42,9 @@ export class OrderItem extends BaseEntity {
   @ManyToOne(() => Order, (order) => order.id, { nullable: true })
   @JoinColumn({ name: "order_id" })
   order?: Order;
+
+  @RelationId((orderItem: OrderItem) => orderItem.order)
+  orderId?: number;
 
   @Field(() => Variant)
   @ManyToOne(() => Variant, (variant) => variant.id)
@@ -82,6 +88,11 @@ export class OrderItem extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @AfterUpdate()
+  async updateOrderStatus() {
+    await updateOrderStatusFromOrderItem(this);
+  }
 }
 
 @InputType()
