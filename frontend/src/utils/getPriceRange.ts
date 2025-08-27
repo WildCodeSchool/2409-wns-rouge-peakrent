@@ -18,7 +18,7 @@ export function getPriceRange(
   const discount = isDiscounted ? (product.discount ?? 0) : 0;
 
   const prices = product.variants.map(
-    (variant) => variant.pricePerHour * (1 - discount / 100)
+    (variant) => variant.pricePerDay * (1 - discount / 100)
   );
   const minPrice = (Math.min(...prices) / 100).toFixed(2);
   const maxPrice = (Math.max(...prices) / 100).toFixed(2);

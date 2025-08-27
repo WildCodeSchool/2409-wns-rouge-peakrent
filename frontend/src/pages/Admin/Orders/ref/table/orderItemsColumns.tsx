@@ -90,13 +90,13 @@ export const createColumns = (
     id: "price",
     title: "price",
     accessorKey: "totalPrice",
-    accessorKey2: "variant.pricePerHour",
+    accessorKey2: "variant.pricePerDay",
     headerClassName: "mx-auto",
     badgeVariant: "orange",
     badgeVariant2: "blue",
     enableSorting: true,
     enableHiding: false,
-    customPrice2: (datas) => datas.variant.pricePerHour / 100,
+    customPrice2: (datas) => datas.variant.pricePerDay / 100,
   }),
 
   column.createStringColumn({

@@ -58,7 +58,7 @@ export const generateOrderSchema = (datas?: Partial<OrderType>) => {
                 to: new Date(item.endsAt),
               },
               quantity: item.quantity,
-              pricePerHour: item.pricePerHour,
+              pricePerDay: item.pricePerDay,
               variant: Number(item.variant?.id),
               status: item.status,
               id: item.id,
@@ -127,7 +127,7 @@ export const generateOrderItemSchema = () => {
       ],
       "Le statut est requis"
     ),
-    pricePerHour: createNumberSchema({
+    pricePerDay: createNumberSchema({
       requiredError: "Le prix par heure est requis",
       min: 0,
       minError: "Le prix par heure doit être supérieur à {min}",

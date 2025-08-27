@@ -63,19 +63,19 @@ export const createColumns = (): ColumnDef<any>[] => [
   }),
 
   column.createPriceColumn({
-    id: "pricePerHour",
-    accessorKey: "pricePerHour",
-    title: "Prix par heure",
+    id: "pricePerDay",
+    accessorKey: "pricePerDay",
+    title: "Prix par jour",
     enableSorting: true,
   }),
 
   column.createPriceColumn({
     id: "total",
-    accessorKey: "pricePerHour",
+    accessorKey: "pricePerDay",
     title: "Total",
     priceFn(row) {
       return (
-        row.original.pricePerHour *
+        row.original.pricePerDay *
         row.original.quantity *
         getDurationInDays(row.original.startsAt, row.original.endsAt)
       ).toFixed(2);

@@ -70,7 +70,7 @@ export class OrderItemsResolverAdmin {
       profileId,
       variantId,
       quantity,
-      pricePerHour,
+      pricePerDay,
       startsAt,
       endsAt,
       orderId,
@@ -79,14 +79,14 @@ export class OrderItemsResolverAdmin {
 
     let dataOrderItems: {
       quantity: number;
-      pricePerHour: number;
+      pricePerDay: number;
       startsAt: Date;
       endsAt: Date;
       cart?: Cart;
       order?: Order;
     } = {
       quantity,
-      pricePerHour,
+      pricePerDay,
       startsAt,
       endsAt,
     };

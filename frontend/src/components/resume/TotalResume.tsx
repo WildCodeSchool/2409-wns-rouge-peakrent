@@ -19,7 +19,7 @@ const TotalResume = ({ orderItems, promo, className }: TotalResumeType) => {
             )
           : 1;
 
-      result += totalDays * item.quantity * item.pricePerHour;
+      result += totalDays * item.quantity * item.pricePerDay;
     }
     return result;
   };

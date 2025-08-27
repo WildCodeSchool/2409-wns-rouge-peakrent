@@ -93,7 +93,7 @@ export const GET_ACTIVITY_BY_NORMALIZED_NAME = `
           id
           size
           color
-          pricePerHour
+          pricePerDay
         }
       }
     }

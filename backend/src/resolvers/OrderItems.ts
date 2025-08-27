@@ -75,7 +75,7 @@ export class OrderItemsResolver {
     const {
       variantId,
       quantity,
-      pricePerHour,
+      pricePerDay,
       startsAt,
       endsAt,
       orderId,
@@ -84,14 +84,14 @@ export class OrderItemsResolver {
 
     let dataOrderItems: {
       quantity: number;
-      pricePerHour: number;
+      pricePerDay: number;
       startsAt: Date;
       endsAt: Date;
       cart?: Cart;
       order?: Order;
     } = {
       quantity,
-      pricePerHour,
+      pricePerDay,
       startsAt,
       endsAt,
     };
