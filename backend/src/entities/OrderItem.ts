@@ -36,7 +36,10 @@ export class OrderItem extends BaseEntity {
   cart?: Cart;
 
   @Field(() => Order, { nullable: true })
-  @ManyToOne(() => Order, (order) => order.id, { nullable: true })
+  @ManyToOne(() => Order, (order) => order.id, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "order_id" })
   order?: Order;
 

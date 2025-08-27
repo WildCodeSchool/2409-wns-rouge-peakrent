@@ -22,6 +22,7 @@ import { OrderPaymentType, OrderStatusType } from "../types";
 import { OrderItem } from "./OrderItem";
 import { Payment } from "./Payment";
 import { Profile } from "./Profile";
+import { Voucher } from "./Voucher";
 
 @ObjectType()
 @Entity()
@@ -113,6 +114,19 @@ export class Order extends BaseEntity {
   @Field(() => [Payment])
   @OneToMany(() => Payment, (payment) => payment.order, { cascade: true })
   payments: Payment[];
+
+  @Field(() => Voucher, { nullable: true })
+  @ManyToOne(() => Voucher, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "voucher_id" })
+  voucher?: Voucher;
+
+  @Field({ nullable: true })
+  @Column("int", { name: "discount_amount", nullable: true })
+  discountAmount?: number;
+
+  @Field({ nullable: true })
+  @Column("int", { name: "charged_amount", nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()
@@ -172,6 +186,15 @@ export class OrderCreateInputAdmin {
   @Field()
   @IsDate()
   date!: Date;
+
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
+
+  @Field(() => Int, { nullable: true })
+  discountAmount?: number;
+
+  @Field(() => Int, { nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()
@@ -216,6 +239,15 @@ export class OrderUpdateInputAdmin {
   @Field({ nullable: true })
   @IsDate()
   paidAt?: Date;
+
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
+
+  @Field(() => Int, { nullable: true })
+  discountAmount?: number;
+
+  @Field(() => Int, { nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()

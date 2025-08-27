@@ -3,7 +3,9 @@ import { Order, ValidateCartInput } from "@/entities/Order";
 import { OrderItem } from "@/entities/OrderItem";
 import { Payment } from "@/entities/Payment";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { computeTotal } from "@/helpers/computeDiscountAmount";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
+import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
 import {
   AuthContextType,
   OrderPaymentType,
@@ -38,6 +40,7 @@ export class CartResolver {
         },
       };
     }
+    relations.voucher = true;
 
     const cart = await Cart.findOne({
       where: { profile: { id: profileId } },
@@ -79,6 +82,184 @@ export class CartResolver {
     }
   }
 
+  // @Authorized(RoleType.admin, RoleType.user)
+  // @Mutation(() => Order, { nullable: true })
+  // async validateCart(
+  //   @Arg("data", () => ValidateCartInput) data: ValidateCartInput,
+  //   @Ctx() context: AuthContextType
+  // ): Promise<Order | null> {
+  //   const profileId = context.user.id;
+  //   const cart = await Cart.findOne({
+  //     where: { profile: { id: profileId } },
+  //     relations: { voucher: true },
+  //   });
+
+  //   if (cart === null) {
+  //     throw new GraphQLError("cart not found", {
+  //       extensions: {
+  //         code: "NOT_FOUND",
+  //         http: { status: 404 },
+  //         entity: "cart",
+  //       },
+  //     });
+  //   }
+
+  //   if (!cart.address1 || !cart.city || !cart.country) {
+  //     throw new GraphQLError(
+  //       "The cart must include an address, city, and country to be converted into an order.",
+  //       {
+  //         extensions: {
+  //           code: "INVALID_CART_ADDRESS",
+  //           entity: "Cart",
+  //         },
+  //       }
+  //     );
+  //   }
+
+  //   const orderItems = await OrderItem.find({
+  //     where: { cart: { id: cart.id } },
+  //     relations: { cart: true, variant: true },
+  //   });
+
+  //   if (orderItems.length === 0) {
+  //     throw new GraphQLError("No order items found in cart", {
+  //       extensions: { code: "NO_ORDER_ITEMS" },
+  //     });
+  //   }
+
+  //   const storeId = 1;
+
+  //   for (const orderItem of orderItems) {
+  //     if (!orderItem.startsAt || !orderItem.endsAt) {
+  //       throw new GraphQLError(
+  //         `Missing booking dates for item ${orderItem.id}`,
+  //         {
+  //           extensions: { code: "INVALID_ORDER_ITEM", entity: "OrderItem" },
+  //         }
+  //       );
+  //     }
+  //     if (
+  //       (await checkStockByVariantAndStore(
+  //         storeId,
+  //         orderItem.variant.id,
+  //         orderItem.startsAt,
+  //         orderItem.endsAt
+  //       )) === 0
+  //     ) {
+  //       throw new GraphQLError(
+  //         `Store is out of stock for item ${orderItem.id}`,
+  //         {
+  //           extensions: {
+  //             code: "OUT_OF_STOCK",
+  //             entity: "StoreVariant",
+  //           },
+  //         }
+  //       );
+  //     }
+
+  //     const reference = generateOrderReference(new Date().toString());
+  //     const status =
+  //       data.paymentMethod === OrderPaymentType.onSite
+  //         ? OrderStatusType.payInStore
+  //         : OrderStatusType.pending;
+
+  //     const payment = await Payment.findOne({
+  //       where: { clientSecret: data.clientSecret, profile: { id: profileId } },
+  //     });
+
+  //     if (payment === null) {
+  //       throw new GraphQLError(
+  //         `No payment found matching profile ${profileId} and the provided clientSecret.`,
+  //         {
+  //           extensions: {
+  //             code: "NOT_FOUND",
+  //             http: { status: 404 },
+  //             entity: "payment",
+  //           },
+  //         }
+  //       );
+  //     }
+
+  //     const order = new Order();
+  //     const orderData = {
+  //       profileId,
+  //       date: new Date(),
+  //       status,
+  //       paymentMethod: data.paymentMethod,
+  //       reference: reference,
+  //       paidAt: new Date(),
+  //       address1: cart.address1,
+  //       address2: cart.address2,
+  //       country: cart.country,
+  //       city: cart.city,
+  //       zipCode: cart.zipCode,
+  //       payment,
+  //     };
+
+  //     Object.assign(order, orderData, { profile: orderData.profileId });
+
+  //     const errorsOrder = await validate(order);
+  //     if (errorsOrder.length > 0) {
+  //       throw new Error(`Validation error: ${JSON.stringify(errorsOrder)}`);
+  //     }
+
+  //     await order.save();
+
+  //     if (data.paymentMethod === OrderPaymentType.onSite) {
+  //       payment.status = StripePaymentStatusType.ToBePaid;
+  //     }
+
+  //     payment.order = order;
+
+  //     await payment.save();
+
+  //     await Promise.all(
+  //       orderItems.map(async (item) => {
+  //         item.cart = null;
+  //         item.order = order;
+  //         await item.save();
+  //       })
+  //     );
+
+  //     Object.assign(cart, {
+  //       address1: null,
+  //       address2: null,
+  //       country: null,
+  //       city: null,
+  //       zipCode: null,
+  //     });
+
+  //     const errorsCart = await validate(cart);
+  //     if (errorsCart.length > 0) {
+  //       throw new Error(`Validation error: ${JSON.stringify(errorsCart)}`);
+  //     }
+
+  //     await cart.save();
+
+  //     await cart.reload();
+
+  //     const itemsForOrder = await OrderItem.find({
+  //       where: { order: { id: order.id } },
+  //     });
+  //     const subtotal = getTotalOrderPrice(itemsForOrder);
+
+  //     const { total, discount } = (() => {
+  //       const r = computeTotal(subtotal, cart.voucher ?? undefined);
+  //       return { total: r.total, discount: subtotal - r.total };
+  //     })();
+
+  //     order.voucher = cart.voucher ?? (null as any);
+  //     order.discountAmount = discount;
+  //     order.chargedAmount = total;
+  //     await order.save();
+
+  //     cart.voucher = null as any;
+  //     await cart.save();
+
+  //     return order;
+  //   }
+  // }
+
   @Authorized(RoleType.admin, RoleType.user)
   @Mutation(() => Order, { nullable: true })
   async validateCart(
@@ -86,11 +267,13 @@ export class CartResolver {
     @Ctx() context: AuthContextType
   ): Promise<Order | null> {
     const profileId = context.user.id;
+
     const cart = await Cart.findOne({
       where: { profile: { id: profileId } },
+      relations: { voucher: true },
     });
 
-    if (cart === null) {
+    if (!cart) {
       throw new GraphQLError("cart not found", {
         extensions: {
           code: "NOT_FOUND",
@@ -103,18 +286,13 @@ export class CartResolver {
     if (!cart.address1 || !cart.city || !cart.country) {
       throw new GraphQLError(
         "The cart must include an address, city, and country to be converted into an order.",
-        {
-          extensions: {
-            code: "INVALID_CART_ADDRESS",
-            entity: "Cart",
-          },
-        }
+        { extensions: { code: "INVALID_CART_ADDRESS", entity: "Cart" } }
       );
     }
 
     const orderItems = await OrderItem.find({
       where: { cart: { id: cart.id } },
-      relations: { cart: true, variant: true },
+      relations: { variant: true },
     });
 
     if (orderItems.length === 0) {
@@ -124,115 +302,115 @@ export class CartResolver {
     }
 
     const storeId = 1;
-
-    for (const orderItem of orderItems) {
-      if (!orderItem.startsAt || !orderItem.endsAt) {
-        throw new GraphQLError(
-          `Missing booking dates for item ${orderItem.id}`,
-          {
-            extensions: { code: "INVALID_ORDER_ITEM", entity: "OrderItem" },
-          }
-        );
+    for (const item of orderItems) {
+      if (!item.startsAt || !item.endsAt) {
+        throw new GraphQLError(`Missing booking dates for item ${item.id}`, {
+          extensions: { code: "INVALID_ORDER_ITEM", entity: "OrderItem" },
+        });
       }
-      if (
-        (await checkStockByVariantAndStore(
-          storeId,
-          orderItem.variant.id,
-          orderItem.startsAt,
-          orderItem.endsAt
-        )) === 0
-      ) {
-        throw new GraphQLError(
-          `Store is out of stock for item ${orderItem.id}`,
-          {
-            extensions: {
-              code: "OUT_OF_STOCK",
-              entity: "StoreVariant",
-            },
-          }
-        );
+      const available = await checkStockByVariantAndStore(
+        storeId,
+        item.variant.id,
+        item.startsAt,
+        item.endsAt
+      );
+      if (available === 0) {
+        throw new GraphQLError(`Store is out of stock for item ${item.id}`, {
+          extensions: { code: "OUT_OF_STOCK", entity: "StoreVariant" },
+        });
       }
+    }
 
-      const reference = generateOrderReference(new Date().toString());
-      const status =
-        data.paymentMethod === OrderPaymentType.onSite
-          ? OrderStatusType.payInStore
-          : OrderStatusType.pending;
+    const payment = await Payment.findOne({
+      where: { clientSecret: data.clientSecret, profile: { id: profileId } },
+    });
+    if (!payment) {
+      throw new GraphQLError(
+        `No payment found matching profile ${profileId} and the provided clientSecret.`,
+        {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+            entity: "payment",
+          },
+        }
+      );
+    }
 
-      const payment = await Payment.findOne({
-        where: { clientSecret: data.clientSecret, profile: { id: profileId } },
-      });
+    const reference = generateOrderReference(new Date().toString());
+    const status =
+      data.paymentMethod === OrderPaymentType.onSite
+        ? OrderStatusType.payInStore
+        : OrderStatusType.pending;
 
-      if (payment === null) {
-        throw new GraphQLError(
-          `No payment found matching profile ${profileId} and the provided clientSecret.`,
-          {
-            extensions: {
-              code: "NOT_FOUND",
-              http: { status: 404 },
-              entity: "payment",
-            },
-          }
-        );
-      }
-
-      const order = new Order();
-      const orderData = {
+    const order = new Order();
+    Object.assign(
+      order,
+      {
         profileId,
         date: new Date(),
         status,
         paymentMethod: data.paymentMethod,
-        reference: reference,
+        reference,
         paidAt: new Date(),
         address1: cart.address1,
         address2: cart.address2,
         country: cart.country,
         city: cart.city,
         zipCode: cart.zipCode,
-        payment,
-      };
+      },
+      { profile: profileId }
+    );
 
-      Object.assign(order, orderData, { profile: orderData.profileId });
-
-      const errorsOrder = await validate(Order);
-      if (errorsOrder.length > 0) {
-        throw new Error(`Validation error: ${JSON.stringify(errorsOrder)}`);
-      }
-
-      await order.save();
-
-      if (data.paymentMethod === OrderPaymentType.onSite) {
-        payment.status = StripePaymentStatusType.ToBePaid;
-      }
-
-      payment.order = order;
-
-      await payment.save();
-
-      await Promise.all(
-        orderItems.map(async (item) => {
-          item.cart = null;
-          item.order = order;
-          await item.save();
-        })
-      );
-
-      Object.assign(cart, {
-        address1: null,
-        address2: null,
-        country: null,
-        city: null,
-        zipCode: null,
-      });
-
-      const errorsCart = await validate(cart);
-      if (errorsCart.length > 0) {
-        throw new Error(`Validation error: ${JSON.stringify(errorsCart)}`);
-      }
-
-      await cart.save();
-
-      return order;
+    const errorsOrder = await validate(order);
+    if (errorsOrder.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errorsOrder)}`);
     }
+    await order.save();
+
+    if (data.paymentMethod === OrderPaymentType.onSite) {
+      payment.status = StripePaymentStatusType.ToBePaid;
+    }
+    payment.order = order;
+    await payment.save();
+
+    await Promise.all(
+      orderItems.map(async (item) => {
+        item.cart = null;
+        item.order = order;
+        await item.save();
+      })
+    );
+
+    const itemsForOrder = await OrderItem.find({
+      where: { order: { id: order.id } },
+    });
+    const subtotal = getTotalOrderPrice(itemsForOrder);
+
+    const { total, discount } = (() => {
+      const r = computeTotal(subtotal, cart.voucher ?? undefined);
+      return { total: r.total, discount: subtotal - r.total };
+    })();
+
+    order.voucher = cart.voucher ?? (null as any);
+    order.discountAmount = discount;
+    order.chargedAmount = total;
+    await order.save();
+
+    Object.assign(cart, {
+      address1: null,
+      address2: null,
+      country: null,
+      city: null,
+      zipCode: null,
+      voucher: null,
+    });
+    const errorsCart = await validate(cart);
+    if (errorsCart.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errorsCart)}`);
+    }
+    await cart.save();
+
+    return order;
   }
 }

@@ -1,5 +1,6 @@
 import { Cart, CartUpdateInputAdmin } from "@/entities/Cart";
 import { Profile } from "@/entities/Profile";
+import { Voucher } from "@/entities/Voucher";
 import { RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
@@ -13,6 +14,7 @@ export class CartResolverAdmin {
     return await Cart.find({
       relations: {
         profile: true,
+        voucher: true,
         orderItems: {
           variant: {
             product: {
@@ -33,7 +35,7 @@ export class CartResolverAdmin {
     const id = Number(_id);
     const cart = await Cart.findOne({
       where: { id },
-      relations: { profile: true },
+      relations: { profile: true, voucher: true },
     });
 
     return cart;
@@ -60,12 +62,30 @@ export class CartResolverAdmin {
         });
       }
     }
+    let voucher: Voucher | null = null;
+    if (typeof data.voucherId === "number") {
+      voucher = await Voucher.findOne({ where: { id: data.voucherId } });
+      if (!voucher) {
+        throw new GraphQLError("voucher not Found", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Voucher",
+            http: { status: 404 },
+          },
+        });
+      }
+    }
+
     const cart = await Cart.findOne({
       where: { id },
+      relations: { voucher: true },
     });
 
     if (cart !== null) {
-      Object.assign(cart, data, { profile: data.profileId });
+      Object.assign(cart, data, {
+        profile: data.profileId ?? cart.profile,
+        voucher: typeof data.voucherId === "number" ? voucher : cart.voucher,
+      });
       const errors = await validate(cart);
       if (errors.length > 0) {
         throw new Error(`Validation error: ${JSON.stringify(errors)}`);

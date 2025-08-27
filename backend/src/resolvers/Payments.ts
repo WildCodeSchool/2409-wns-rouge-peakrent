@@ -2,6 +2,7 @@ import { Cart } from "@/entities/Cart";
 import { OrderItem } from "@/entities/OrderItem";
 import { Payment } from "@/entities/Payment";
 import { Profile } from "@/entities/Profile";
+import { computeTotal } from "@/helpers/computeDiscountAmount";
 import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
 import { AuthContextType, RoleType } from "@/types";
 import { GraphQLError } from "graphql";
@@ -18,6 +19,7 @@ export class PaymentResolver {
     const profileId = context.user.id;
     const cart = await Cart.findOne({
       where: { profile: { id: profileId } },
+      relations: { voucher: true },
     });
     const profile = await Profile.findOne({ where: { id: profileId } });
     if (cart === null) {
@@ -32,7 +34,7 @@ export class PaymentResolver {
 
     const orderItems = await OrderItem.find({
       where: { cart: { id: cart.id } },
-      relations: { cart: true, variant: true },
+      relations: { cart: { voucher: true }, variant: true },
     });
 
     if (orderItems.length === 0) {
@@ -41,11 +43,20 @@ export class PaymentResolver {
       });
     }
 
-    const amount = getTotalOrderPrice(orderItems);
+    await cart.reload();
+
+    const subtotal = getTotalOrderPrice(orderItems);
     const stripe = new Stripe(process.env.STRIPE_KEY);
+    const { total } = computeTotal(subtotal, cart.voucher ?? undefined);
+
+    if (total <= 0) {
+      throw new GraphQLError("Computed total is zero or less.", {
+        extensions: { code: "INVALID_TOTAL" },
+      });
+    }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: total,
       currency: "eur",
       automatic_payment_methods: {
         enabled: true,
@@ -57,7 +68,7 @@ export class PaymentResolver {
     const paymentData = {
       stripePaymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret,
-      amount,
+      amount: total,
       currency: paymentIntent.currency,
       status: paymentIntent.status,
       profile,
