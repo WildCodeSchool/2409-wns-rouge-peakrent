@@ -1,4 +1,3 @@
-import { RoleType } from "../types";
 import { IsEmail, Length } from "class-validator";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
@@ -8,12 +7,11 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Payment } from "./Payment";
+import { RoleType } from "../types";
 import { User } from "./User";
 
 @ObjectType()
@@ -49,10 +47,6 @@ export class Profile extends BaseEntity {
     default: RoleType.user,
   })
   role!: RoleType;
-
-  @Field(() => [Payment])
-  @OneToMany(() => Payment, (payment) => payment.profile, { cascade: true })
-  payments: Payment[];
 
   @Field()
   @CreateDateColumn({

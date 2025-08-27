@@ -160,12 +160,12 @@ export class CartResolver {
           : OrderStatusType.pending;
 
       const payment = await Payment.findOne({
-        where: { clientSecret: data.clientSecret, profile: { id: profileId } },
+        where: { clientSecret: data.clientSecret },
       });
 
       if (payment === null) {
         throw new GraphQLError(
-          `No payment found matching profile ${profileId} and the provided clientSecret.`,
+          `No payment found matching the provided clientSecret.`,
           {
             extensions: {
               code: "NOT_FOUND",
