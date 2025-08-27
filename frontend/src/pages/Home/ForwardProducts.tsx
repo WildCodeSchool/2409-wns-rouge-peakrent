@@ -3,14 +3,12 @@ import { ProductCardSkeleton } from "@/components/cards/ProductCardSkeleton";
 import MehSection from "@/components/section/MehSection";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
-// import { ProductType } from "@/types/types";
 import { Product as ProductType } from "@/gql/graphql";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { gql, useQuery } from "@apollo/client";
 import { Meh } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { forwardProducts } from "./homeDatas";
 
 export function ForwardProducts() {
   const [windowWidth, setWindowWidth] = useState(0);
@@ -51,10 +49,6 @@ export function ForwardProducts() {
         titleLevel="h2"
       />
       <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {forwardProducts.map((product: any) => (
-          <ProductCard product={product} key={product.id} />
-        ))}
-
         {loading ? (
           [...Array(getProductCount())].map((_, index) => (
             <ProductCardSkeleton key={index} />
