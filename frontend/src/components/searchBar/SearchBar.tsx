@@ -1,76 +1,80 @@
-import { Category, Product } from "@/gql/graphql";
-import { gql, useQuery } from "@apollo/client";
-import classNames from "classnames";
-import { debounce } from "lodash";
-import { Search } from "lucide-react";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui";
+import AsyncSearchBar from "@/components/ui/AsyncSearchBar";
+import { Product as ProductType } from "@/gql/graphql";
+import { GET_PRODUCTS } from "@/graphQL";
+import { gql, useLazyQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
-import { GET_PRODUCTS_AND_CATEGORIES } from "../../graphQL/search";
 
-const SearchBar = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+export const SearchBar = () => {
+  const [fetchProducts] = useLazyQuery(gql(GET_PRODUCTS));
 
-  const handleSearchTermChange = debounce((term: string) => {
-    setDebouncedSearchTerm(term);
-  }, 200);
+  const fetchResults = async (query: string) => {
+    if (!query.trim()) {
+      return {
+        data: [],
+        success: false,
+        message: "Veuillez saisir un terme de recherche",
+      };
+    }
 
-  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setSearchTerm(event.target.value);
-    handleSearchTermChange(event.target.value);
+    try {
+      const { data } = await fetchProducts({
+        variables: { search: query },
+      });
+
+      if (!data?.getProducts?.products) {
+        return {
+          data: [],
+          success: false,
+          message: "Aucun résultat trouvé",
+        };
+      }
+
+      const searchResults: ProductType[] = data?.getProducts?.products;
+
+      return {
+        data: searchResults,
+        success: true,
+        message: "Résultats trouvés",
+      };
+    } catch (error) {
+      return {
+        data: [],
+        success: false,
+        message: "Erreur lors de la recherche",
+      };
+    }
   };
 
-  const { data } = useQuery(gql(GET_PRODUCTS_AND_CATEGORIES), {
-    variables: { searchTerm },
-    skip: debouncedSearchTerm === "",
-  });
-
-  const searchResults = data?.getProductsAndCategories;
-
   return (
-    <>
-      <form className="flex justify-center md:justify-normal grow-1 m-1">
-        <div className="relative w-50 md:w-80">
-          <input
-            aria-label="Search for a book or tag"
-            type="search"
-            value={searchTerm}
-            onChange={(event) => {
-              onInputChange(event);
-            }}
-            className="h-10 p-5 border-1 rounded-s border-black font-inherit w-50 md:w-80 border-r-0"
-          />
-          {searchTerm && searchResults && (
-            <ul
-              className={classNames(
-                "w-full absolute left-0 top-full mt-1 bg-white border-2 overflow-y-auto p-3 z-10 text-sm",
-                {
-                  hidden: !searchResults,
-                }
+    <div className="w-full ml-4 mr-auto">
+      <AsyncSearchBar
+        fetchResults={fetchResults}
+        placeholder={"Rechercher un produit"}
+        skeletonItems={
+          <>
+            {[...Array(6)].map((_, index) => (
+              <Skeleton key={index} className="my-1 h-10 w-full" />
+            ))}
+          </>
+        }
+        renderItem={(item) => (
+          <Link to={`/products/${item.id}`}>
+            <div className="grid w-full min-w-[300px] max-w-[300px] grid-cols-12 items-center">
+              {item.urlImage && (
+                <img
+                  src={item.urlImage}
+                  alt={item.name}
+                  className="col-span-2 size-8"
+                  width={32}
+                  height={32}
+                />
               )}
-            >
-              {searchResults?.products.map((product: Product) => (
-                <li key={product.id} className="hover:text-primary">
-                  <Link to={`/products/${product.id}`}>{product.name}</Link>
-                </li>
-              ))}
-              {searchResults?.categories.map((categorie: Category) => (
-                <li key={categorie.id} className="hover:text-primary">
-                  <Link to={`/categories/${categorie.id}`}>
-                    {categorie.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="border-1 border-black text-xs font-inherit border-l-0 h-10 flex justify-center items-center py-5 w-8 rounded-r-md">
-          <Search size={20} />
-        </div>
-      </form>
-    </>
+              <span className="col-span-9 truncate">{item.name}</span>
+            </div>
+          </Link>
+        )}
+      />
+    </div>
   );
 };
-
-export default SearchBar;
