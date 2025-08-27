@@ -65,7 +65,7 @@ export const createColumns = (): ColumnDef<any>[] => [
   column.createPriceColumn({
     id: "pricePerDay",
     accessorKey: "pricePerDay",
-    title: "Prix par heure",
+    title: "Prix par jour",
     enableSorting: true,
   }),
 
