@@ -5,21 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { Product as ProductType } from "@/gql/graphql";
 import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { useWindowWidth } from "@/hooks";
 import { gql, useQuery } from "@apollo/client";
 import { Meh } from "lucide-react";
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 export function ForwardProducts() {
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  // TODO create hook for this
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const windowWidth = useWindowWidth();
 
   const getProductCount = () => {
     if (windowWidth >= 1024) return 8;

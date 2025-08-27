@@ -22,6 +22,15 @@ export const GET_ORDER_BY_ID_ADMIN = `
   ${ORDER_WITH_ITEMS_FIELDS_ADMIN}
 `;
 
+export const GET_ORDER_BY_REF_ADMIN = `
+  query GetOrderByRefAdmin($ref: String!) {
+    getOrderByRefAdmin(ref: $ref) {
+      ...OrderWithItemsFieldsAdmin
+    }
+  }
+  ${ORDER_WITH_ITEMS_FIELDS_ADMIN}
+`;
+
 export const GET_ORDER_BY_REF = `
   query GetOrderByReference($reference: String!) {
     getOrderByReference(reference: $reference) {

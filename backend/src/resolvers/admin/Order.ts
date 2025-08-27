@@ -67,6 +67,31 @@ export class OrderResolverAdmin {
     return order;
   }
 
+  @Query(() => Order, { nullable: true })
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @UseMiddleware(ErrorCatcher)
+  async getOrderByRefAdmin(
+    @Arg("ref", () => String) ref: string
+  ): Promise<Order | null> {
+    const order = await Order.findOne({
+      where: { reference: ref },
+      relations: {
+        orderItems: {
+          variant: {
+            product: true,
+          },
+        },
+        profile: true,
+      },
+    });
+    if (!order) {
+      throw new GraphQLError("Order not found", {
+        extensions: { code: "ORDER_NOT_FOUND", http: { status: 404 } },
+      });
+    }
+    return order;
+  }
+
   @Mutation(() => Order)
   @Authorized([RoleType.admin, RoleType.superadmin])
   async createOrderAdmin(

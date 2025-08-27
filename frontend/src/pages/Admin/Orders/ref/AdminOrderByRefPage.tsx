@@ -1,21 +1,21 @@
 "use client";
 
 import CopyButton from "@/components/buttons/CopyButton";
-import { GET_ORDER_BY_ID_ADMIN } from "@/graphQL";
+import { GET_ORDER_BY_REF_ADMIN } from "@/graphQL";
 import { formatLocaleDate } from "@/utils";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { OrderByIdDetailsListSection } from "./OrderByIdDetailsListSection";
 import { OrderByIdDetailsHeaderSection } from "./OrderByIdDetailsSection";
 
-export default function AdminOrderByIdPage() {
-  const { id } = useParams();
-  const { data, error, loading } = useQuery(gql(GET_ORDER_BY_ID_ADMIN), {
-    variables: { id },
-    skip: !id,
+export default function AdminOrderByRefPage() {
+  const { ref } = useParams();
+  const { data, error, loading } = useQuery(gql(GET_ORDER_BY_REF_ADMIN), {
+    variables: { ref },
+    skip: !ref,
   });
 
-  const order = data?.getOrderByIdAdmin;
+  const order = data?.getOrderByRefAdmin;
 
   if (loading) {
     return <div>Loading...</div>;
