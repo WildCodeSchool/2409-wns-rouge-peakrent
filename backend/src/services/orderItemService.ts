@@ -1,6 +1,6 @@
-import { Order } from "@/entities/Order";
-import { OrderItem } from "@/entities/OrderItem";
-import { OrderItemStatusType, OrderStatusType } from "@/types";
+import { Order } from "../entities/Order";
+import { OrderItem } from "../entities/OrderItem";
+import { OrderItemStatusType, OrderStatusType } from "../types";
 
 export const updateOrderStatusFromOrderItem = async (
   updatedOrderItem: OrderItem

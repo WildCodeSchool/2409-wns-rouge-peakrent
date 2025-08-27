@@ -1,4 +1,4 @@
-import { updateOrderStatusFromOrderItem } from "@/services/orderItemService";
+import { updateOrderStatusFromOrderItem } from "../services/orderItemService";
 import { IsDate, IsNotEmpty, Min } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
