@@ -107,7 +107,7 @@ export class OrderItemsCreateInput {
   pricePerDay!: number;
 
   @Field()
-  @IsDate() 
+  @IsDate()
   @IsNotEmpty({ message: "starts_at must not be empty." })
   startsAt!: Date;
 

@@ -220,9 +220,7 @@ const ProductDetail = () => {
                               <p>Taille : {variant.size}</p>
                               <p>Couleur : {variant.color}</p>
                               <p className="px-2 py-1 text-white bg-primary rounded text-sm w-fit justify-self-end">
-                                {(Number(variant.pricePerDay) / 100).toFixed(
-                                  2
-                                )}{" "}
+                                {(Number(variant.pricePerDay) / 100).toFixed(2)}{" "}
                                 €/J
                               </p>
                             </div>
