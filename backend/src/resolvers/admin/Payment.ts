@@ -1,5 +1,5 @@
 import { Payment } from "@/entities/Payment";
-import { updatePayment } from "@/service/paymentService";
+import { updatePayment } from "@/services/paymentService";
 import { RoleType } from "@/types";
 import { GraphQLJSONObject } from "graphql-scalars";
 import { default as Stripe } from "stripe";
