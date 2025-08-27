@@ -197,7 +197,7 @@ export default function CartLayout() {
 
               {currentPage === CommandStatusEnum.completed && (
                 <NavLink
-                  to=""
+                  to="/profile"
                   aria-label="Consulter mes commandes"
                   className={cn(
                     buttonVariants({ variant: "primary" }),
