@@ -91,7 +91,7 @@ export default function OrdersTable() {
       hideColumns={{
         sku: false,
       }}
-      rowLink="id"
+      rowLink="reference"
       hideExport
     />
   );
