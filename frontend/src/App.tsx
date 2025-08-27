@@ -12,7 +12,7 @@ import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminCartsPage } from "./pages/Admin/Carts/AdminCartsPage";
 import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPage";
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
-import AdminOrderByIdPage from "./pages/Admin/Orders/id/AdminOrderByIdPage";
+import AdminOrderByIdPage from "./pages/Admin/Orders/ref/AdminOrderByRefPage";
 import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
@@ -159,7 +159,7 @@ function App() {
             <Route path="activities" element={<AdminActivitiesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="orders/new" element={<NewOrderPage />} />
-            <Route path="orders/:id" element={<AdminOrderByIdPage />} />
+            <Route path="orders/:ref" element={<AdminOrderByIdPage />} />
             <Route path="stores" element={<AdminStoresPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="products" element={<AdminProductsPage />} />

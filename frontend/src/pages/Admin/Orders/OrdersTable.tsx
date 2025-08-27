@@ -54,7 +54,7 @@ export default function OrdersTable() {
       return;
     }
 
-    if (data?.getOrdersAdmin && !ordersFetched) {
+    if (data?.getOrdersAdmin) {
       setOrders(data.getOrdersAdmin);
       setOrdersFetched(true);
     }
@@ -91,7 +91,7 @@ export default function OrdersTable() {
       hideColumns={{
         sku: false,
       }}
-      rowLink="id"
+      rowLink="reference"
       hideExport
     />
   );

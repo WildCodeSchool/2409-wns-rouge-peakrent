@@ -16,7 +16,7 @@ export function DataTableRowOrdersActions<TData>({
 
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">
-      <Link to={`/admin/orders/${order.id}`}>
+      <Link to={`/admin/orders/${order.reference}`}>
         <Button
           variant="primary"
           aria-label={"Modifier la commande"}
