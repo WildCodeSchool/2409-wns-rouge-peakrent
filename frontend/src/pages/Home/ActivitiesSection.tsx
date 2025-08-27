@@ -1,7 +1,7 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { Activity as ActivityType } from "@/gql/graphql";
+import { useWindowWidth } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { activitiesSectionSpans } from "./homeDatas";
 
@@ -43,15 +43,7 @@ export function ActivitiesSection({
 }: {
   activities: ActivityType[];
 }) {
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  // TODO create hook for this
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const windowWidth = useWindowWidth();
 
   const getActivitiesCount = () => {
     if (windowWidth >= 768) return 9;
