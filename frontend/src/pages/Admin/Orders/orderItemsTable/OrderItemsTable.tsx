@@ -25,7 +25,7 @@ export default function OrderItemsTable() {
     orderItems?.reduce(
       (acc, item) =>
         acc +
-        item.pricePerHour *
+        item.pricePerDay *
           item.quantity *
           getDurationInDays(item.startsAt, item.endsAt),
       0

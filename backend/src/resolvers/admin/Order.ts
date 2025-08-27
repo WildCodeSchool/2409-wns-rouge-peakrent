@@ -200,7 +200,7 @@ export class OrderResolverAdmin {
             order: savedOrder,
             variant: item.variant,
             quantity: item.quantity,
-            pricePerHour: item.pricePerHour,
+            pricePerDay: item.pricePerDay,
             status: item.status || OrderItemStatusType.pending,
             startsAt: item.date_range.from,
             endsAt: item.date_range.to,

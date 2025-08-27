@@ -38,10 +38,10 @@ export class Variant extends BaseEntity {
   color?: string;
 
   @Field(() => Int)
-  @Column({ name: "price_per_hour" })
+  @Column({ name: "price_per_day" })
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour!: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
@@ -92,8 +92,8 @@ export class VariantCreateInputAdmin {
 
   @Field(() => Int)
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour!: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
 
   @Field(() => Int)
   productId!: number;
@@ -116,8 +116,8 @@ export class VariantUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour?: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay?: number;
 
   @Field(() => Int)
   productId!: number;
@@ -139,6 +139,6 @@ export class VariantCreateNestedInputAdmin {
 
   @Field(() => Int)
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour!: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
 }

@@ -24,7 +24,7 @@ export const VARIANT_PRODUCT_FIELDS = `
   fragment VariantProductFields on Variant {
     id
     size
-    pricePerHour
+    pricePerDay
     color
     product {
       id
@@ -42,7 +42,7 @@ export const ORDER_ITEM_FIELDS = `
     startsAt
     endsAt
     quantity
-    pricePerHour
+    pricePerDay
     status
     createdAt
     updatedAt

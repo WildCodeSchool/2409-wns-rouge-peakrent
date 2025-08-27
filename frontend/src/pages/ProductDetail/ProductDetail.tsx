@@ -101,7 +101,7 @@ const ProductDetail = () => {
             data: {
               variantId: Number(variant.id),
               quantity: data.quantity,
-              pricePerHour: Number(variant.pricePerHour),
+              pricePerDay: Number(variant.pricePerDay),
               startsAt: new Date(data.date.from),
               endsAt: new Date(data.date.to),
             },
@@ -140,13 +140,13 @@ const ProductDetail = () => {
     const isAlreadySelected = currentValue.some((v) => v.id === variant.id);
 
     if (isAlreadySelected) {
-      setSelectedVariantsPrice(selectedVariantsPrice - variant.pricePerHour);
+      setSelectedVariantsPrice(selectedVariantsPrice - variant.pricePerDay);
       form.setValue(
         "variants",
         currentValue.filter((v: Partial<Variant>) => v.id !== variant.id)
       );
     } else {
-      setSelectedVariantsPrice(selectedVariantsPrice + variant.pricePerHour);
+      setSelectedVariantsPrice(selectedVariantsPrice + variant.pricePerDay);
       form.setValue("variants", [...currentValue, variant]);
     }
   };
@@ -220,7 +220,7 @@ const ProductDetail = () => {
                               <p>Taille : {variant.size}</p>
                               <p>Couleur : {variant.color}</p>
                               <p className="px-2 py-1 text-white bg-primary rounded text-sm w-fit justify-self-end">
-                                {(Number(variant.pricePerHour) / 100).toFixed(
+                                {(Number(variant.pricePerDay) / 100).toFixed(
                                   2
                                 )}{" "}
                                 €/J

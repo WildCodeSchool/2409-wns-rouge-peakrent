@@ -509,7 +509,7 @@ export type OrderItem = {
   endsAt: Scalars['DateTimeISO']['output'];
   id: Scalars['ID']['output'];
   order?: Maybe<Order>;
-  pricePerHour: Scalars['Float']['output'];
+  pricePerDay: Scalars['Float']['output'];
   quantity: Scalars['Float']['output'];
   startsAt: Scalars['DateTimeISO']['output'];
   status: OrderItemStatusType;
@@ -530,7 +530,7 @@ export type OrderItemsCreateInput = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt: Scalars['DateTimeISO']['input'];
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
   variantId: Scalars['Int']['input'];
@@ -540,7 +540,7 @@ export type OrderItemsCreateInputAdmin = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt: Scalars['DateTimeISO']['input'];
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   profileId: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
@@ -549,7 +549,7 @@ export type OrderItemsCreateInputAdmin = {
 
 export type OrderItemsFormInputAdmin = {
   date_range: DateRangeInput;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   status?: InputMaybe<OrderItemStatusType>;
   variant: Scalars['Int']['input'];
@@ -565,7 +565,7 @@ export type OrderItemsUpdateInputAdmin = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
+  pricePerDay?: InputMaybe<Scalars['Int']['input']>;
   quantity?: InputMaybe<Scalars['Int']['input']>;
   startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
@@ -977,7 +977,7 @@ export type Variant = {
   createdAt: Scalars['DateTimeISO']['output'];
   createdBy: User;
   id: Scalars['ID']['output'];
-  pricePerHour: Scalars['Int']['output'];
+  pricePerDay: Scalars['Int']['output'];
   product: Product;
   size?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -985,7 +985,7 @@ export type Variant = {
 
 export type VariantCreateNestedInputAdmin = {
   color?: InputMaybe<Scalars['String']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   size?: InputMaybe<Scalars['String']['input']>;
 };
 

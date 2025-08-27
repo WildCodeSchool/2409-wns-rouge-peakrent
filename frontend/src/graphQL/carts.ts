@@ -16,7 +16,7 @@ export const GET_CARTS = `
     }
     orderItems {
       id
-      pricePerHour
+      pricePerDay
       quantity
       startsAt
       endsAt
@@ -24,7 +24,7 @@ export const GET_CARTS = `
         id
         size
         color
-        pricePerHour
+        pricePerDay
         product {
           id
           name
@@ -61,13 +61,13 @@ query getCart($withOrderItems: Boolean!) {
     orderItems {
       id
       quantity
-      pricePerHour
+      pricePerDay
       startsAt
       endsAt
       variant {
         color
         id
-        pricePerHour
+        pricePerDay
         product {
           description
           name

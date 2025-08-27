@@ -36,7 +36,7 @@ const columns = [
         row.original.orderItems?.reduce(
           (acc: number, item: OrderItem) =>
             acc +
-            (item.pricePerHour *
+            (item.pricePerDay *
               item.quantity *
               getDurationInDays(item.startsAt, item.endsAt)) /
               100,

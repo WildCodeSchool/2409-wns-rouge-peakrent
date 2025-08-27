@@ -15,7 +15,7 @@ export function CartResume({ cart }: { cart: CartType }) {
   const totalPrice = orderItems.reduce(
     (acc, item) =>
       acc +
-      (item.pricePerHour / 100) *
+      (item.pricePerDay / 100) *
         item.quantity *
         getDurationInDays(item.startsAt, item.endsAt),
     0

@@ -26,7 +26,7 @@ export const GET_PRODUCTS = `
           id
           size
           color
-          pricePerHour
+          pricePerDay
         }
       }
     }
@@ -50,7 +50,7 @@ query GetProducts($endingDate: DateTimeISO, $startingDate: DateTimeISO, $categor
           variant
         }
         variants {
-          pricePerHour
+          pricePerDay
         }
       }
       pagination {
@@ -75,7 +75,7 @@ export const GET_PRODUCT_BY_ID = `
         id
         size
         color
-        pricePerHour
+        pricePerDay
       }
       categories {
         id
@@ -104,7 +104,7 @@ export const GET_PRODUCT_BY_VARIANT_ID = `
         id
         size
         color
-        pricePerHour
+        pricePerDay
       }
       categories {
         id

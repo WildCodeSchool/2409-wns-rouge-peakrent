@@ -3,7 +3,7 @@ export const CREATE_ORDER_ITEM = `
     createOrderItemsAdmin(data: $data) {
       id
       variant {
-        pricePerHour
+        pricePerDay
         color
         size
         product {
@@ -13,7 +13,7 @@ export const CREATE_ORDER_ITEM = `
           description
         }
       }
-      pricePerHour
+      pricePerDay
       quantity
       startsAt
       endsAt
@@ -26,7 +26,7 @@ export const CREATE_ORDER_ITEM_USER = `
     createOrderItems(data: $data) {
       id
       variant {
-        pricePerHour
+        pricePerDay
         color
         size
         product {
@@ -36,7 +36,7 @@ export const CREATE_ORDER_ITEM_USER = `
           description
         }
       }
-      pricePerHour
+      pricePerDay
       quantity
       startsAt
       endsAt
@@ -63,13 +63,13 @@ mutation updateOrderItem($data: OrderItemsUpdateInput!, $orderId: ID!) {
   updateOrderItem(data: $data, id: $orderId) {
       id
       quantity
-      pricePerHour
+      pricePerDay
       startsAt
       endsAt
       variant {
         color
         id
-        pricePerHour
+        pricePerDay
         product {
           description
           name
@@ -90,12 +90,12 @@ mutation updateOrderItemAdmin($id: ID!, $data: OrderItemsUpdateInputAdmin!) {
     startsAt
     endsAt
     quantity
-    pricePerHour
+    pricePerDay
     status
     variant {
       id
       size
-      pricePerHour
+      pricePerDay
       product {
         id
         sku

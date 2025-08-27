@@ -60,8 +60,8 @@ export class OrderItem extends BaseEntity {
   status!: OrderItemStatusType;
 
   @Field()
-  @Column({ name: "price_per_hour" })
-  pricePerHour!: number;
+  @Column({ name: "price_per_day" })
+  pricePerDay!: number;
 
   @Field()
   @Column({ name: "starts_at", type: "timestamptz" })
@@ -103,11 +103,11 @@ export class OrderItemsCreateInput {
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
-  @IsNotEmpty({ message: "price_per_hour must not be empty." })
-  pricePerHour!: number;
+  @IsNotEmpty({ message: "price_per_day must not be empty." })
+  pricePerDay!: number;
 
   @Field()
-  @IsDate()
+  @IsDate() 
   @IsNotEmpty({ message: "starts_at must not be empty." })
   startsAt!: Date;
 
@@ -141,7 +141,7 @@ export class OrderItemsUpdateInputAdmin {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
-  pricePerHour?: number;
+  pricePerDay?: number;
 
   @Field({ nullable: true })
   @IsDate()
@@ -178,8 +178,8 @@ export class OrderItemsFormInputAdmin {
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
-  @IsNotEmpty({ message: "pricPerHour must not be empty." })
-  pricePerHour!: number;
+  @IsNotEmpty({ message: "pricPerDay must not be empty." })
+  pricePerDay!: number;
 
   @Field(() => Int)
   @Min(0, { message: "Quantity should be positive" })
