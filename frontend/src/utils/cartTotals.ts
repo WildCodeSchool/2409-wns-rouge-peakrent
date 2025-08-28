@@ -1,4 +1,3 @@
-// utils/cartTotals.ts
 import { VoucherType } from "@/gql/graphql";
 
 type VoucherLike = {
@@ -12,7 +11,7 @@ type VoucherLike = {
 export function subtotalFromItems(
   items: {
     quantity: number;
-    pricePerHour: number;
+    pricePerDay: number;
     startsAt: string;
     endsAt: string;
   }[]
@@ -23,7 +22,7 @@ export function subtotalFromItems(
       (new Date(it.endsAt).getTime() - new Date(it.startsAt).getTime()) /
         3_600_000
     );
-    return sum + Math.round(it.pricePerHour * it.quantity * hours);
+    return sum + Math.round(it.pricePerDay * it.quantity * hours);
   }, 0);
 }
 

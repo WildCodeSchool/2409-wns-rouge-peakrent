@@ -69,6 +69,17 @@ export const ORDER_FIELDS = `
     zipCode
     createdAt
     updatedAt
+    discountAmount
+    chargedAmount
+    voucher {
+      id
+      code
+      type
+      amount
+      isActive
+      startsAt
+      endsAt
+    }
   }
 `;
 

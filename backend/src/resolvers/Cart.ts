@@ -213,7 +213,7 @@ export class CartResolver {
       return { total: r.total, discount: subtotal - r.total };
     })();
 
-    order.voucher = cart.voucher ?? (null as any);
+    order.voucher = cart.voucher ?? null;
     order.discountAmount = discount;
     order.chargedAmount = total;
     await order.save();

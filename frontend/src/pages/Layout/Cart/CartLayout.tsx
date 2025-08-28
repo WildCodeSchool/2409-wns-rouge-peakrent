@@ -34,11 +34,10 @@ export default function CartLayout() {
     loading: loadingOrder,
     error: errorOrder,
   } = useQuery(gql(GET_ORDER_BY_REF), {
-    variables: { ref },
+    variables: { reference: ref },
     skip: !ref,
   });
-  const order =
-    orderData?.getOrderByRef ?? orderData?.getOrderByReference ?? null;
+  const order = orderData?.getOrderByReference ?? null;
 
   const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
     gql(GET_CART_BY_USER),
@@ -160,41 +159,25 @@ export default function CartLayout() {
                 />
               )}
 
-              {currentPage !== CommandStatusEnum.completed && (
-                <CartVoucherBox
-                  currentCode={cartFromQuery?.voucher?.code ?? null}
-                  onChanged={() => refetchCartQuery()}
+              {currentPage === CommandStatusEnum.completed && order && (
+                <TotalResume
+                  orderItems={order.orderItems}
+                  className="w-full"
+                  voucher={
+                    order.voucher
+                      ? {
+                          type: order.voucher.type as "percentage" | "fixed",
+                          amount: Number(order.voucher.amount),
+                          isActive: !!order.voucher.isActive,
+                          startsAt: order.voucher.startsAt,
+                          endsAt: order.voucher.endsAt,
+                        }
+                      : null
+                  }
+                  discountCentsOverride={order.discountAmount ?? undefined}
+                  totalCentsOverride={order.chargedAmount ?? undefined}
                 />
               )}
-
-              {/* Total */}
-              <TotalResume
-                orderItems={
-                  currentPage === CommandStatusEnum.completed && order
-                    ? order.orderItems
-                    : orderItemsStore
-                }
-                className="w-full"
-                voucher={
-                  currentPage === CommandStatusEnum.completed && order?.voucher
-                    ? {
-                        type: order.voucher.type as any,
-                        amount: Number(order.voucher.amount),
-                        isActive: !!order.voucher.isActive,
-                        startsAt: order.voucher.startsAt,
-                        endsAt: order.voucher.endsAt,
-                      }
-                    : cartFromQuery?.voucher
-                      ? {
-                          type: cartFromQuery.voucher.type as any,
-                          amount: Number(cartFromQuery.voucher.amount),
-                          isActive: !!cartFromQuery.voucher.isActive,
-                          startsAt: cartFromQuery.voucher.startsAt,
-                          endsAt: cartFromQuery.voucher.endsAt,
-                        }
-                      : undefined
-                }
-              />
 
               {/* Actions */}
               {currentPage === CommandStatusEnum.pending && (

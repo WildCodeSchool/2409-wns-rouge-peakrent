@@ -78,13 +78,13 @@ export const GET_ORDER_BY_ID = `
         startsAt
         endsAt
         quantity
-        pricePerHour
+        pricePerDay
         createdAt
         updatedAt
         status
         variant {
           id
-          pricePerHour
+          pricePerDay
           size
           color
           product {
