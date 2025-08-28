@@ -22,25 +22,35 @@ export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {
       id
+      reference
+      status
+      paymentMethod
       address1
       address2
       city
       country
-      reference
       zipCode
-      status
       date
-      phone
-      paymentMethod
+      paidAt
+      createdAt
+      updatedAt
+      discountAmount
+      chargedAmount
+      voucher {
+        id
+        code
+        type
+        amount
+        isActive
+        startsAt
+        endsAt
+      }
       profile {
         id
         email
         firstname
         lastname
       }
-      createdAt
-      updatedAt
-      paidAt
       orderItems {
         id
         startsAt

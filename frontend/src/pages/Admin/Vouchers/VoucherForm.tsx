@@ -27,30 +27,36 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
     gql(UPDATE_VOUCHER)
   );
 
-  // --- schema & defaults (même pattern que UserForm)
   const formSchema = generateVoucherFormSchema(datas);
-  const defaultValues = getFormDefaultValues(
-    formSchema
-  ) as unknown as VoucherFormSchema;
+  const defaultValues = getFormDefaultValues(formSchema) as VoucherFormSchema;
 
   const form = useForm<VoucherFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
 
-  // --- helpers
   const disabled = isCreating || isUpdating;
 
+  const toServerAmount = (type: string, amountStr: string) => {
+    const normalized = (amountStr ?? "").replace(",", ".");
+    if (type === "fixed") {
+      const euros = Number(normalized || "0");
+      return Math.round(euros * 100);
+    }
+    return parseInt(normalized, 10);
+  };
+
+  const buildPayload = (fv: VoucherFormSchema) => ({
+    code: fv.code,
+    type: fv.type,
+    amount: toServerAmount(fv.type, fv.amount),
+    startsAt: fv.startsAt ? new Date(fv.startsAt).toISOString() : null,
+    endsAt: fv.endsAt ? new Date(fv.endsAt).toISOString() : null,
+    isActive: fv.isActive,
+  });
+
   const handleCreate = async (fv: VoucherFormSchema) => {
-    const payload = {
-      code: fv.code,
-      type: fv.type,
-      amount: parseInt(fv.amount, 10),
-      startsAt: fv.startsAt ? new Date(fv.startsAt).toISOString() : null,
-      endsAt: fv.endsAt ? new Date(fv.endsAt).toISOString() : null,
-      isActive: fv.isActive,
-    };
-    const res = await createVoucher({ variables: { data: payload } });
+    const res = await createVoucher({ variables: { data: buildPayload(fv) } });
     if (res.data) {
       toast.success("Voucher créé avec succès");
       closeModal();
@@ -60,16 +66,8 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
   };
 
   const handleUpdate = async (fv: VoucherFormSchema) => {
-    const payload = {
-      code: fv.code,
-      type: fv.type,
-      amount: parseInt(fv.amount, 10),
-      startsAt: fv.startsAt ? new Date(fv.startsAt).toISOString() : null,
-      endsAt: fv.endsAt ? new Date(fv.endsAt).toISOString() : null,
-      isActive: fv.isActive,
-    };
     const res = await updateVoucher({
-      variables: { id: Number(datas!.id), data: payload },
+      variables: { id: Number(datas!.id), data: buildPayload(fv) },
     });
     if (res.data) {
       toast.success("Voucher modifié avec succès");
@@ -81,21 +79,14 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
 
   const onSubmit = async (fv: VoucherFormSchema) => {
     try {
-      if (datas) {
-        await handleUpdate(fv);
-      } else {
-        await handleCreate(fv);
-      }
+      datas ? await handleUpdate(fv) : await handleCreate(fv);
     } catch (e: any) {
       console.error(e);
       toast.error(e.message ?? "Erreur");
     }
   };
 
-  const handleReset = () => {
-    // re-calcule les defaults depuis le schema (comme UserForm)
-    form.reset(getFormDefaultValues(formSchema) as any);
-  };
+  const handleReset = () => form.reset(getFormDefaultValues(formSchema));
 
   return (
     <Form {...form}>
@@ -130,12 +121,11 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
           form={form}
           name="amount"
           label="Montant"
-          placeholder="ex: 20 (ou 500 pour 5,00€)"
+          placeholder='ex: 10 (10%) ou 10 (10,00 € si "fixed")'
           isPending={disabled}
           required
         />
 
-        {/* Datetime-local (comme avant) */}
         <Controller
           control={form.control}
           name="startsAt"
@@ -162,7 +152,15 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
           name="isActive"
           render={({ field }) => (
             <label className="inline-flex items-center gap-2">
-              <input type="checkbox" {...field} />
+              <input
+                type="checkbox"
+                checked={!!field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                onBlur={field.onBlur}
+                name={field.name}
+                ref={field.ref}
+                disabled={disabled}
+              />
               <span>Actif</span>
             </label>
           )}

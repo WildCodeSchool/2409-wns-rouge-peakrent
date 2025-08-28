@@ -34,23 +34,26 @@ export const generateVoucherFormSchema = (datas?: Voucher) => {
     (datas?.type as any) ?? "percentage"
   );
 
-  // On stocke amount comme string dans le formulaire (comme userForm),
-  // on convertira en number au submit.
+  const defaultAmount =
+    typeof datas?.amount === "number"
+      ? datas.type === "fixed"
+        ? (Number(datas.amount) / 100).toString()
+        : String(datas.amount)
+      : "10";
+
   const amount = createStringSchema({
     minLength: 1,
     minLengthError: "Le montant est requis",
     maxLength: 10,
     maxLengthError: "Montant trop grand",
-    defaultValue:
-      typeof datas?.amount === "number" ? String(datas.amount) : "10",
+    defaultValue: defaultAmount,
     required: true,
     requiredError: "Le montant est requis",
     trim: true,
-    regex: /^\d+$/,
+    regex: /^\d+([.,]\d{0,2})?$/,
     regexError:
-      "Le montant doit être un entier positif (en cents pour 'fixed')",
+      "Format invalide. Utilisez un entier (1..100) pour % ou un montant en € (ex: 10 ou 10,50) pour fixed",
   });
-
   const startsAt = createStringSchema({
     defaultValue: toLocalInput(datas?.startsAt ?? undefined),
     required: false,
@@ -63,7 +66,6 @@ export const generateVoucherFormSchema = (datas?: Voucher) => {
     trim: true,
   });
 
-  // z.boolean() direct (pas de helper boolean dans tes utils)
   const isActive = z
     .boolean()
     .default(datas?.isActive ?? true)
@@ -88,12 +90,16 @@ export const generateVoucherFormSchema = (datas?: Voucher) => {
     )
     .refine(
       (data) => {
-        // Si percentage → max 100
         if (data.type !== "percentage") return true;
-        const n = parseInt(data.amount, 10);
-        return Number.isFinite(n) && n >= 1 && n <= 100;
+        const onlyInt = data.amount.split(/[.,]/)[0];
+        const n = parseInt(onlyInt, 10);
+        const hadDecimal = /[.,]/.test(data.amount);
+        return !hadDecimal && Number.isFinite(n) && n >= 1 && n <= 100;
       },
-      { message: "Pourcentage maximum: 100", path: ["amount"] }
+      {
+        message: "Le pourcentage doit être un entier entre 1 et 100",
+        path: ["amount"],
+      }
     );
 };
 

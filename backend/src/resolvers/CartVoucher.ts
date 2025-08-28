@@ -36,7 +36,10 @@ export class CartVoucherResolver {
       });
     }
 
-    const items = await OrderItem.find({ where: { cart: { id: cart.id } } });
+    const items = await OrderItem.find({
+      where: { cart: { id: cart.id } },
+    });
+
     if (items.length === 0) {
       throw new GraphQLError("No items in cart", {
         extensions: { code: "NO_ORDER_ITEMS" },
@@ -44,7 +47,15 @@ export class CartVoucherResolver {
     }
 
     const subtotal = getTotalOrderPrice(items);
+
+    if (subtotal <= 0) {
+      throw new GraphQLError("Cart subtotal is zero", {
+        extensions: { code: "SUBTOTAL_ZERO" },
+      });
+    }
+
     const discount = computeDiscountAmount(subtotal, voucher);
+
     if (discount <= 0) {
       throw new GraphQLError("Voucher not applicable", {
         extensions: { code: "VOUCHER_NOT_APPLICABLE" },

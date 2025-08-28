@@ -1,11 +1,15 @@
+import { CartVoucherBox } from "@/components/forms/CartVoucherBox";
 import AdressResume from "@/components/resume/AdressResume";
 import TotalResume from "@/components/resume/TotalResume";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { useUser } from "@/context/userProvider";
+import { GET_CART_BY_USER } from "@/graphQL";
 import { cn } from "@/lib/utils";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
+import { computeDiscountUI, subtotalFromItems } from "@/utils/cartTotals";
+import { gql, useQuery } from "@apollo/client";
 import { CreditCard, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useParams } from "react-router-dom";
@@ -50,6 +54,18 @@ export default function CartLayout() {
         break;
     }
   }, [path, orderItems]);
+
+  const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
+    gql(GET_CART_BY_USER),
+    { variables: { withOrderItems: true }, fetchPolicy: "cache-and-network" }
+  );
+  const cartFromQuery = cartQuery?.getCart;
+  const appliedVoucher = cartFromQuery?.voucher ?? null;
+
+  const subtotal = subtotalFromItems(
+    (cartFromQuery?.orderItems ?? orderItems) as any
+  );
+  const promoCents = computeDiscountUI(subtotal, appliedVoucher || undefined);
 
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4">
@@ -114,10 +130,25 @@ export default function CartLayout() {
                   />
                 ))}
 
+              <CartVoucherBox
+                currentCode={appliedVoucher?.code ?? null}
+                onChanged={() => refetchCartQuery()}
+              />
+
               <TotalResume
                 orderItems={orderItems}
-                promo={0}
                 className="w-full"
+                voucher={
+                  cartFromQuery?.voucher
+                    ? {
+                        type: cartFromQuery.voucher.type as any,
+                        amount: Number(cartFromQuery.voucher.amount),
+                        isActive: !!cartFromQuery.voucher.isActive,
+                        startsAt: cartFromQuery.voucher.startsAt,
+                        endsAt: cartFromQuery.voucher.endsAt,
+                      }
+                    : null
+                }
               />
 
               {/* Action Buttons */}

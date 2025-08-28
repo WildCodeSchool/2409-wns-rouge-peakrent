@@ -15,6 +15,7 @@ export class OrderResolver {
       where: { id },
       relations: {
         profile: true,
+        voucher: true,
         orderItems: {
           variant: {
             product: true,

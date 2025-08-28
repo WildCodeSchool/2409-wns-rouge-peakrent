@@ -9,6 +9,9 @@ const codeOrIdFilter: FilterFn<any> = (row, columnId, filterValue) => {
   return code.includes(search) || `"${id.toLowerCase()}"` === search;
 };
 
+const formatCents = (c: number) =>
+  (c / 100).toFixed(2).replace(".", ",") + " €";
+
 export const createColumns: ColumnDef<any>[] = [
   column.createSelectColumn(),
 
@@ -39,24 +42,23 @@ export const createColumns: ColumnDef<any>[] = [
     enableHiding: true,
   }),
 
-  column.createStringColumn({
+  {
     id: "amount",
     accessorKey: "amount",
-    title: "Montant",
+    header: "Montant",
     enableSorting: true,
-  }),
+    cell: ({ row }) => {
+      const v = row.original;
+      return v.type === "percentage" ? `${v.amount}%` : formatCents(v.amount);
+    },
+  },
 
-  column.createBadgeColumn({
+  column.createBoolBadgeColumn({
     id: "isActive",
     accessorKey: "isActive",
     title: "Actif",
     className: "w-[120px]",
-    variantFn: (row) => (row.original.isActive ? "green" : "red"),
     enableHiding: true,
-    filterFn: (row, id, value) => {
-      const v = row.getValue(id) ? "true" : "false";
-      return value.includes(v);
-    },
   }),
 
   column.createDateColumn({
