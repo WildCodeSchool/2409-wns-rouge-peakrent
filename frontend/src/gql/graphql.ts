@@ -537,7 +537,7 @@ export type OrderItem = {
   endsAt: Scalars['DateTimeISO']['output'];
   id: Scalars['ID']['output'];
   order?: Maybe<Order>;
-  pricePerHour: Scalars['Float']['output'];
+  pricePerDay: Scalars['Float']['output'];
   quantity: Scalars['Float']['output'];
   startsAt: Scalars['DateTimeISO']['output'];
   status: OrderItemStatusType;
@@ -558,7 +558,7 @@ export type OrderItemsCreateInput = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt: Scalars['DateTimeISO']['input'];
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
   variantId: Scalars['Int']['input'];
@@ -568,7 +568,7 @@ export type OrderItemsCreateInputAdmin = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt: Scalars['DateTimeISO']['input'];
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   profileId: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   startsAt: Scalars['DateTimeISO']['input'];
@@ -577,7 +577,7 @@ export type OrderItemsCreateInputAdmin = {
 
 export type OrderItemsFormInputAdmin = {
   date_range: DateRangeInput;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
   status?: InputMaybe<OrderItemStatusType>;
   variant: Scalars['Int']['input'];
@@ -593,7 +593,7 @@ export type OrderItemsUpdateInputAdmin = {
   cartId?: InputMaybe<Scalars['Int']['input']>;
   endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   orderId?: InputMaybe<Scalars['Int']['input']>;
-  pricePerHour?: InputMaybe<Scalars['Int']['input']>;
+  pricePerDay?: InputMaybe<Scalars['Int']['input']>;
   quantity?: InputMaybe<Scalars['Int']['input']>;
   startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
@@ -605,7 +605,6 @@ export enum OrderStatusType {
   Completed = 'completed',
   Confirmed = 'confirmed',
   Failed = 'failed',
-  PayInStore = 'payInStore',
   Pending = 'pending',
   Refunded = 'refunded'
 }
@@ -641,7 +640,6 @@ export type Payment = {
   id: Scalars['ID']['output'];
   lastPaymentError: Scalars['Boolean']['output'];
   order: Order;
-  profile: Profile;
   status: Scalars['String']['output'];
   stripePaymentIntentId: Scalars['String']['output'];
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -698,7 +696,6 @@ export type Profile = {
   firstname: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastname: Scalars['String']['output'];
-  payments: Array<Payment>;
   role: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
@@ -718,7 +715,9 @@ export type Query = {
   getDeletedUsersByAdmin?: Maybe<Array<User>>;
   getMyOrders: Array<Order>;
   getMyProfile?: Maybe<Profile>;
-  getOrderById: Order;
+  getOrderByIdAdmin?: Maybe<Order>;
+  getOrderByRefAdmin?: Maybe<Order>;
+  getOrderByReference: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
@@ -797,8 +796,18 @@ export type QueryGetDeletedUsersByAdminArgs = {
 };
 
 
-export type QueryGetOrderByIdArgs = {
+export type QueryGetOrderByIdAdminArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetOrderByRefAdminArgs = {
+  ref: Scalars['String']['input'];
+};
+
+
+export type QueryGetOrderByReferenceArgs = {
+  reference: Scalars['String']['input'];
 };
 
 
@@ -1009,7 +1018,7 @@ export type Variant = {
   createdAt: Scalars['DateTimeISO']['output'];
   createdBy: User;
   id: Scalars['ID']['output'];
-  pricePerHour: Scalars['Int']['output'];
+  pricePerDay: Scalars['Int']['output'];
   product: Product;
   size?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -1017,7 +1026,7 @@ export type Variant = {
 
 export type VariantCreateNestedInputAdmin = {
   color?: InputMaybe<Scalars['String']['input']>;
-  pricePerHour: Scalars['Int']['input'];
+  pricePerDay: Scalars['Int']['input'];
   size?: InputMaybe<Scalars['String']['input']>;
 };
 

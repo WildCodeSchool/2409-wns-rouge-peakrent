@@ -111,7 +111,6 @@ export const ProductForm = () => {
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
       setCategories(getCategoriesData.getCategories.categories);
-      console.log(categories);
     }
     if (getActivitiesData?.getActivities?.activities) {
       setActivities(getActivitiesData.getActivities.activities);
@@ -164,10 +163,10 @@ export const ProductForm = () => {
           const { data } = await createProductWithVariant({
             variables: {
               productData: commonData,
-              variants: newVariants.map(({ color, size, pricePerHour }) => ({
+              variants: newVariants.map(({ color, size, pricePerDay }) => ({
                 color,
                 size,
-                pricePerHour,
+                pricePerDay,
               })),
             },
           });
@@ -397,7 +396,7 @@ export const ProductForm = () => {
                   </p>
                   <p>
                     <strong>Prix :</strong>{" "}
-                    {(Number(variant.pricePerHour) / 100).toFixed(2)} €/J
+                    {(Number(variant.pricePerDay) / 100).toFixed(2)} €/J
                   </p>
                 </div>
                 {product?.id && (variant as Variant).id && (

@@ -70,7 +70,7 @@ export function OrderItemForm() {
 
   const defaultEmptyValues = {
     quantity: 1,
-    pricePerHour: 100,
+    pricePerDay: 100,
     variant: undefined,
     product: undefined,
     date_range: {
@@ -87,7 +87,7 @@ export function OrderItemForm() {
   const defaultValues = formOrderItem
     ? {
         quantity: formOrderItem.quantity,
-        pricePerHour: formOrderItem.pricePerHour,
+        pricePerDay: formOrderItem.pricePerDay,
         variant: Number(formOrderItem.variant?.id),
         product: formOrderItem.variant?.product,
         date_range: {
@@ -152,7 +152,7 @@ export function OrderItemForm() {
           ? {
               ...selectedVariant,
               product: selected!,
-              pricePerHour: values.pricePerHour,
+              pricePerDay: values.pricePerDay,
               size: selectedVariant.label,
               id: selectedVariant.id,
             }
@@ -210,7 +210,7 @@ export function OrderItemForm() {
       if (formOrderItem) {
         setIsPending(true);
         form.setValue("product", formOrderItem.variant?.product);
-        form.setValue("pricePerHour", formOrderItem.pricePerHour);
+        form.setValue("pricePerDay", formOrderItem.pricePerDay);
         form.setValue("quantity", formOrderItem.quantity);
         form.setValue("date_range", {
           from: formOrderItem.startsAt,
@@ -329,10 +329,10 @@ export function OrderItemForm() {
                   name="variant"
                   handleChange={(value) => {
                     form.setValue(
-                      "pricePerHour",
+                      "pricePerDay",
                       (variants.find(
                         (variant) => Number(variant.value) === Number(value)
-                      )?.pricePerHour ?? 0) / 100
+                      )?.pricePerDay ?? 0) / 100
                     );
                   }}
                   isPending={
@@ -362,7 +362,7 @@ export function OrderItemForm() {
                 <Price
                   form={form}
                   isPending={isPending}
-                  name="pricePerHour"
+                  name="pricePerDay"
                   label="Prix par heure"
                   withCents
                 />

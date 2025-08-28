@@ -1,14 +1,18 @@
 import { CartVoucherBox } from "@/components/forms/CartVoucherBox";
 import AdressResume from "@/components/resume/AdressResume";
 import TotalResume from "@/components/resume/TotalResume";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { useUser } from "@/context/userProvider";
 import { GET_CART_BY_USER } from "@/graphQL";
+import { GET_ORDER_BY_REF } from "@/graphQL/order";
 import { cn } from "@/lib/utils";
+import PageNotFound from "@/pages/NotFound/PageNotFound";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { computeDiscountUI, subtotalFromItems } from "@/utils/cartTotals";
+import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
+import { translateStatus } from "@/utils/translateStatus";
 import { gql, useQuery } from "@apollo/client";
 import { CreditCard, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,8 +20,8 @@ import { NavLink, Outlet, useParams } from "react-router-dom";
 
 export default function CartLayout() {
   const { user: userData } = useUser();
-  const cart = useCartStoreUser((state) => state.cart);
-  const orderItems = useOrderItemStore((state) => state.orderItems);
+  const cartStore = useCartStoreUser((state) => state.cart);
+  const orderItemsStore = useOrderItemStore((state) => state.orderItems);
   const path = location.pathname;
   const { ref } = useParams();
 
@@ -25,51 +29,58 @@ export default function CartLayout() {
     CommandStatusEnum.pending
   );
 
-  useEffect(() => {
-    if (path.startsWith("/cart/recap/ORD-")) {
-      setCurrentPage(CommandStatusEnum.completed);
-      return;
-    }
-
-    if (orderItems.length === 0) {
-      setCurrentPage(CommandStatusEnum.pending);
-      return;
-    }
-
-    switch (path) {
-      case "/cart":
-        setCurrentPage(CommandStatusEnum.pending);
-        break;
-
-      case "/cart/checkout":
-        setCurrentPage(CommandStatusEnum.validated);
-        break;
-
-      case "/cart/checkout/payment":
-        setCurrentPage(CommandStatusEnum.onPayment);
-        break;
-
-      default:
-        setCurrentPage(CommandStatusEnum.pending);
-        break;
-    }
-  }, [path, orderItems]);
+  const {
+    data: orderData,
+    loading: loadingOrder,
+    error: errorOrder,
+  } = useQuery(gql(GET_ORDER_BY_REF), {
+    variables: { ref },
+    skip: !ref,
+  });
+  const order =
+    orderData?.getOrderByRef ?? orderData?.getOrderByReference ?? null;
 
   const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
     gql(GET_CART_BY_USER),
     { variables: { withOrderItems: true }, fetchPolicy: "cache-and-network" }
   );
-  const cartFromQuery = cartQuery?.getCart;
-  const appliedVoucher = cartFromQuery?.voucher ?? null;
+  const cartFromQuery = cartQuery?.getCart ?? null;
 
-  const subtotal = subtotalFromItems(
-    (cartFromQuery?.orderItems ?? orderItems) as any
-  );
-  const promoCents = computeDiscountUI(subtotal, appliedVoucher || undefined);
+  useEffect(() => {
+    if (path.startsWith("/cart/recap/")) {
+      setCurrentPage(CommandStatusEnum.completed);
+      return;
+    }
+    if (orderItemsStore.length === 0) {
+      setCurrentPage(CommandStatusEnum.pending);
+      return;
+    }
+    switch (path) {
+      case "/cart":
+        setCurrentPage(CommandStatusEnum.pending);
+        break;
+      case "/cart/checkout":
+        setCurrentPage(CommandStatusEnum.validated);
+        break;
+      case "/cart/checkout/payment":
+        setCurrentPage(CommandStatusEnum.onPayment);
+        break;
+      default:
+        setCurrentPage(CommandStatusEnum.pending);
+        break;
+    }
+  }, [path, orderItemsStore]);
+
+  if (
+    currentPage === CommandStatusEnum.completed &&
+    errorOrder?.graphQLErrors?.[0]?.extensions?.code === "NOT_FOUND"
+  ) {
+    return <PageNotFound />;
+  }
 
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4">
-      {/* Header Section */}
+      {/* Header */}
       <div className="mb-6">
         {currentPage === CommandStatusEnum.pending && (
           <>
@@ -100,58 +111,92 @@ export default function CartLayout() {
           </>
         )}
       </div>
-      {currentPage === CommandStatusEnum.completed && (
+
+      {currentPage === CommandStatusEnum.completed && order && (
         <>
           <Title
-            text={`Commande n° ${ref}`}
+            text={`Merci ${userData?.firstname} !`}
             className="my-4 md:my-6"
             icon={<ShoppingBag className="size-8 text-primary" />}
           />
+          <div className="flex flex-wrap gap-2 mb-2">
+            <p className="text-slate-600 text-base">Votre commande est</p>
+            <Badge variant={getStatusBadgeVariant(order.status)}>
+              {translateStatus(order.status)}
+            </Badge>
+          </div>
+          <p className="text-slate-600 text-base mb-2">REF : {ref}</p>
           <hr className="border-t border-slate-200 mb-6" />
         </>
       )}
 
-      {orderItems.length > 0 || currentPage === CommandStatusEnum.completed ? (
+      {orderItemsStore.length > 0 ||
+      currentPage === CommandStatusEnum.completed ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Content Section - scrollable */}
+          {/* Content */}
           <div className="lg:col-span-8 space-y-4">
             <Outlet />
           </div>
 
-          {/* Sidebar Section - STICKY */}
+          {/* Sidebar */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-6">
-              {currentPage === CommandStatusEnum.onPayment ||
-                (currentPage === CommandStatusEnum.completed && (
-                  <AdressResume
-                    cart={cart}
-                    user={userData}
-                    className="w-full"
-                  />
-                ))}
+              {/* Bloc adresse */}
+              {((currentPage === CommandStatusEnum.completed && order) ||
+                currentPage === CommandStatusEnum.onPayment) && (
+                <AdressResume
+                  cart={
+                    currentPage === CommandStatusEnum.completed
+                      ? order
+                      : cartStore
+                  }
+                  user={
+                    currentPage === CommandStatusEnum.completed
+                      ? order?.profile
+                      : userData
+                  }
+                  className="w-full"
+                  paymentMethod={order?.paymentMethod}
+                />
+              )}
 
-              <CartVoucherBox
-                currentCode={appliedVoucher?.code ?? null}
-                onChanged={() => refetchCartQuery()}
-              />
+              {currentPage !== CommandStatusEnum.completed && (
+                <CartVoucherBox
+                  currentCode={cartFromQuery?.voucher?.code ?? null}
+                  onChanged={() => refetchCartQuery()}
+                />
+              )}
 
+              {/* Total */}
               <TotalResume
-                orderItems={orderItems}
+                orderItems={
+                  currentPage === CommandStatusEnum.completed && order
+                    ? order.orderItems
+                    : orderItemsStore
+                }
                 className="w-full"
                 voucher={
-                  cartFromQuery?.voucher
+                  currentPage === CommandStatusEnum.completed && order?.voucher
                     ? {
-                        type: cartFromQuery.voucher.type as any,
-                        amount: Number(cartFromQuery.voucher.amount),
-                        isActive: !!cartFromQuery.voucher.isActive,
-                        startsAt: cartFromQuery.voucher.startsAt,
-                        endsAt: cartFromQuery.voucher.endsAt,
+                        type: order.voucher.type as any,
+                        amount: Number(order.voucher.amount),
+                        isActive: !!order.voucher.isActive,
+                        startsAt: order.voucher.startsAt,
+                        endsAt: order.voucher.endsAt,
                       }
-                    : null
+                    : cartFromQuery?.voucher
+                      ? {
+                          type: cartFromQuery.voucher.type as any,
+                          amount: Number(cartFromQuery.voucher.amount),
+                          isActive: !!cartFromQuery.voucher.isActive,
+                          startsAt: cartFromQuery.voucher.startsAt,
+                          endsAt: cartFromQuery.voucher.endsAt,
+                        }
+                      : undefined
                 }
               />
 
-              {/* Action Buttons */}
+              {/* Actions */}
               {currentPage === CommandStatusEnum.pending && (
                 <NavLink
                   to="checkout"
@@ -182,6 +227,19 @@ export default function CartLayout() {
                     ? "Valider ma commande"
                     : "Valider le paiement"}
                 </Button>
+              )}
+
+              {currentPage === CommandStatusEnum.completed && (
+                <NavLink
+                  to="/profile"
+                  aria-label="Consulter mes commandes"
+                  className={cn(
+                    buttonVariants({ variant: "primary" }),
+                    "py-2 px-4 cursor-pointer text-center w-full block"
+                  )}
+                >
+                  Consulter mes commandes
+                </NavLink>
               )}
             </div>
           </div>

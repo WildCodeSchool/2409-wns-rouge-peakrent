@@ -56,7 +56,6 @@ export enum OrderStatusType {
   completed = "completed",
   cancelled = "cancelled",
   refunded = "refunded",
-  payInStore = "payInStore",
   failed = "failed",
 }
 

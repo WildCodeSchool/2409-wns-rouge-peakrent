@@ -10,6 +10,7 @@ export * from "./search";
 export * from "./signin";
 export * from "./signout";
 export * from "./stores";
+export * from "./stripe";
 export * from "./user";
 export * from "./variants";
 export * from "./whoami";

@@ -21,9 +21,10 @@ type Props = {
   totalCentsOverride?: number;
 };
 
-const hoursBetween = (start: string, end: string) => {
+const daysBetween = (start: string, end: string) => {
   const ms = new Date(end).getTime() - new Date(start).getTime();
-  return Math.max(1, Math.ceil(ms / 3_600_000));
+  const DAY = 24 * 60 * 60 * 1000;
+  return Math.max(1, Math.ceil(ms / DAY));
 };
 
 const TotalResume = ({
@@ -34,16 +35,18 @@ const TotalResume = ({
   totalCentsOverride,
 }: Props) => {
   const subTotal = orderItems.reduce((acc, it) => {
-    if (!it.startsAt || !it.endsAt) return acc;
-    const h = hoursBetween(it.startsAt, it.endsAt);
-    return acc + h * it.quantity * it.pricePerHour;
+    const days =
+      it.startsAt && it.endsAt ? daysBetween(it.startsAt, it.endsAt) : 1;
+    const pricePerDay = it.pricePerDay ?? 0;
+    const qty = it.quantity ?? 1;
+    return acc + days * qty * pricePerDay;
   }, 0);
 
   const cart = useCartStoreUser((s) => s.cart);
 
   const voucherFromStore = cart?.voucher
     ? {
-        type: cart.voucher.type,
+        type: cart.voucher.type as "percentage" | "fixed",
         amount: Number(cart.voucher.amount),
         isActive: !!cart.voucher.isActive,
         startsAt: cart.voucher.startsAt ?? null,
@@ -53,10 +56,12 @@ const TotalResume = ({
 
   const effectiveVoucher =
     typeof voucher !== "undefined" ? voucher : voucherFromStore;
+
   const discount =
     typeof discountCentsOverride === "number"
       ? discountCentsOverride
       : computeDiscountUI(subTotal, effectiveVoucher);
+
   const total =
     typeof totalCentsOverride === "number"
       ? totalCentsOverride

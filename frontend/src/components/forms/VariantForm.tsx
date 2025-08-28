@@ -36,7 +36,7 @@ export const VariantForm = ({
   const [sizes, setSizes] = useState<string[]>(
     variant?.size ? [variant.size] : []
   );
-  const [pricePerHour, setPricePerHour] = useState(variant?.pricePerHour ?? 0);
+  const [pricePerDay, setpricePerDay] = useState(variant?.pricePerDay ?? 0);
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
@@ -70,9 +70,6 @@ export const VariantForm = ({
     }
   }, [getVariantsData]);
 
-  console.log(availableColors, availableSizes);
-  console.log(sizes);
-
   const handleVariantFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
@@ -83,7 +80,7 @@ export const VariantForm = ({
           productId,
           color,
           size,
-          pricePerHour,
+          pricePerDay,
         };
 
         if (isNewLocalVariant) {
@@ -220,8 +217,8 @@ export const VariantForm = ({
         <Input
           type="number"
           placeholder="Ex: 10"
-          value={pricePerHour}
-          onChange={(e) => setPricePerHour(Number(e.target.value))}
+          value={pricePerDay}
+          onChange={(e) => setpricePerDay(Number(e.target.value))}
           required
           min={0}
         />

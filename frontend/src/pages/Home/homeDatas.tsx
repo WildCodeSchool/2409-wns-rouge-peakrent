@@ -28,11 +28,11 @@ export const forwardProducts = [
     variants: [
       {
         __typename: "Variant",
-        pricePerHour: 1500,
+        pricePerDay: 1500,
       },
       {
         __typename: "Variant",
-        pricePerHour: 1100,
+        pricePerDay: 1100,
       },
     ],
   },
@@ -63,11 +63,11 @@ export const forwardProducts = [
     variants: [
       {
         __typename: "Variant",
-        pricePerHour: 1000,
+        pricePerDay: 1000,
       },
       {
         __typename: "Variant",
-        pricePerHour: 1000,
+        pricePerDay: 1000,
       },
     ],
   },
@@ -98,11 +98,11 @@ export const forwardProducts = [
     variants: [
       {
         __typename: "Variant",
-        pricePerHour: 1500,
+        pricePerDay: 1500,
       },
       {
         __typename: "Variant",
-        pricePerHour: 1100,
+        pricePerDay: 1100,
       },
     ],
   },
@@ -133,11 +133,11 @@ export const forwardProducts = [
     variants: [
       {
         __typename: "Variant",
-        pricePerHour: 1500,
+        pricePerDay: 1500,
       },
       {
         __typename: "Variant",
-        pricePerHour: 1100,
+        pricePerDay: 1100,
       },
     ],
   },

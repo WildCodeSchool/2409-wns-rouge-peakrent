@@ -5,11 +5,14 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { ProductForm } from "./components/forms/ProductForm";
 import { UserProvider } from "./context/userProvider";
 import { WHOAMI } from "./graphQL/whoami";
+import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
+import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 import { AdminActivitiesPage } from "./pages/Admin/Activities/AdminActivitiesPage";
 import { AdminDashboard } from "./pages/Admin/AdminDashboard";
 import { AdminCartsPage } from "./pages/Admin/Carts/AdminCartsPage";
 import { AdminCategoriesPage } from "./pages/Admin/Categories/AdminCategoriesPage";
 import { AdminOrdersPage } from "./pages/Admin/Orders/AdminOrdersPage";
+import AdminOrderByIdPage from "./pages/Admin/Orders/ref/AdminOrderByRefPage";
 import { NewOrderPage } from "./pages/Admin/Orders/New/NewOrderPage";
 import { AdminProductsPage } from "./pages/Admin/Products/AdminProductsPage";
 import { AdminStoresPage } from "./pages/Admin/Stores/AdminStoresPage";
@@ -35,8 +38,6 @@ import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
-import ActivitiesPage from "./pages/ActivitiesPage/ActivitiesPage";
-import ActivityDetail from "./pages/ActivityDetail/ActivityDetail";
 import { AdminVouchersPage } from "./pages/Admin/Vouchers/AdminVouchersPage";
 
 enum AuthStates {
@@ -146,7 +147,7 @@ function App() {
             element={checkAuth(ProfileEditPage, [AuthStates.authenticated])()}
           />
           <Route
-            path="profile/order/:id"
+            path="profile/order/:ref"
             element={checkAuth(OrderDetailsPage, [AuthStates.authenticated])()}
           />
           <Route path="*" element={<PageNotFound />} />
@@ -159,6 +160,7 @@ function App() {
             <Route path="activities" element={<AdminActivitiesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="orders/new" element={<NewOrderPage />} />
+            <Route path="orders/:ref" element={<AdminOrderByIdPage />} />
             <Route path="stores" element={<AdminStoresPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="products" element={<AdminProductsPage />} />

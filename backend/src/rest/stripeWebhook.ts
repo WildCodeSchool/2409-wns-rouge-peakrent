@@ -1,4 +1,4 @@
-import { updatePayment } from "@/service/paymentService";
+import { updatePayment } from "@/services/paymentService";
 import express from "express";
 import stripe from "stripe";
 import app from "./express";

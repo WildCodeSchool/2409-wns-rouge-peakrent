@@ -1,6 +1,8 @@
+import { updateOrderStatusFromOrderItem } from "../services/orderItemService";
 import { IsDate, IsNotEmpty, Min } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
+  AfterUpdate,
   BaseEntity,
   Check,
   Column,
@@ -9,6 +11,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from "typeorm";
 import { DateRangeInput } from "../commonInput/Date";
@@ -43,6 +46,9 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: "order_id" })
   order?: Order;
 
+  @RelationId((orderItem: OrderItem) => orderItem.order)
+  orderId?: number;
+
   @Field(() => Variant)
   @ManyToOne(() => Variant, (variant) => variant.id)
   @JoinColumn({ name: "variant_id" })
@@ -63,8 +69,8 @@ export class OrderItem extends BaseEntity {
   status!: OrderItemStatusType;
 
   @Field()
-  @Column({ name: "price_per_hour" })
-  pricePerHour!: number;
+  @Column({ name: "price_per_day" })
+  pricePerDay!: number;
 
   @Field()
   @Column({ name: "starts_at", type: "timestamptz" })
@@ -85,6 +91,11 @@ export class OrderItem extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @AfterUpdate()
+  async updateOrderStatus() {
+    await updateOrderStatusFromOrderItem(this);
+  }
 }
 
 @InputType()
@@ -106,8 +117,8 @@ export class OrderItemsCreateInput {
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
-  @IsNotEmpty({ message: "price_per_hour must not be empty." })
-  pricePerHour!: number;
+  @IsNotEmpty({ message: "price_per_day must not be empty." })
+  pricePerDay!: number;
 
   @Field()
   @IsDate()
@@ -144,7 +155,7 @@ export class OrderItemsUpdateInputAdmin {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
-  pricePerHour?: number;
+  pricePerDay?: number;
 
   @Field({ nullable: true })
   @IsDate()
@@ -181,8 +192,8 @@ export class OrderItemsFormInputAdmin {
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
-  @IsNotEmpty({ message: "pricPerHour must not be empty." })
-  pricePerHour!: number;
+  @IsNotEmpty({ message: "pricPerDay must not be empty." })
+  pricePerDay!: number;
 
   @Field(() => Int)
   @Min(0, { message: "Quantity should be positive" })

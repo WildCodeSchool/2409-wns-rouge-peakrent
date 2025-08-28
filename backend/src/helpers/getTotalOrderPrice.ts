@@ -9,6 +9,6 @@ export const getTotalOrderPrice = (orderItems: OrderItem[]): number => {
     );
     const effectiveDays = durationDays > 0 ? durationDays : 1;
 
-    return sum + effectiveDays * item.pricePerHour * item.quantity;
+    return sum + effectiveDays * item.pricePerDay * item.quantity;
   }, 0);
 };

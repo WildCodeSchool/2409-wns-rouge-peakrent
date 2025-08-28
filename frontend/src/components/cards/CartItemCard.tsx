@@ -131,12 +131,12 @@ export function CartItemCard({
           <div className="flex flex-col items-end justify-end text-sm md:text-base gap-1">
             <p className="text-sm font-normal sm:gap-1 flex flex-col sm:flex-row items-center order-1 sm:order-2">
               <span className="text-muted-foreground">
-                ({item.quantity} x {(item.pricePerHour / 100)?.toFixed(2)}€ x{" "}
+                ({item.quantity} x {(item.pricePerDay / 100)?.toFixed(2)}€ x{" "}
                 {numberOfDays}j)
               </span>
               <span className="font-bold text-lg self-end">
                 {(
-                  (item.pricePerHour / 100) *
+                  (item.pricePerDay / 100) *
                   item.quantity *
                   numberOfDays
                 )?.toFixed(2)}

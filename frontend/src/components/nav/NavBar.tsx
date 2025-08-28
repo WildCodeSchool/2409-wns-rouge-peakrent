@@ -1,3 +1,5 @@
+import { SearchBar } from "@/components/searchBar/SearchBar";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,13 +8,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/context/userProvider";
 import { SIGNOUT } from "@/graphQL/signout";
+import { WHOAMI } from "@/graphQL/whoami";
 import { cn } from "@/lib/utils";
 import { gql, useMutation } from "@apollo/client";
 import { Home, LogIn, ShieldUser, User } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
-import { WHOAMI } from "../../graphQL/whoami";
-import SearchBar from "../searchBar/SearchBar";
-import { buttonVariants } from "../ui/button";
 import NavCartLink from "./NavCartLink";
 
 const NavBar = () => {
@@ -39,11 +39,6 @@ const NavBar = () => {
       name: "Produits",
       path: "/products",
       ariaLabel: "Navigation vers la page produit",
-    },
-    {
-      name: "Packs",
-      path: "/packs",
-      ariaLabel: "Navigation vers la liste des packs",
     },
   ];
 

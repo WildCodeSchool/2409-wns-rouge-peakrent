@@ -1,5 +1,3 @@
-import { updateOrderStatusFromPayment } from "@/service/orderService";
-import { StripePaymentStatusType } from "@/types";
 import { Field, ID, ObjectType } from "type-graphql";
 import {
   AfterUpdate,
@@ -12,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { updateOrderStatusFromPayment } from "../services/orderService";
+import { StripePaymentStatusType } from "../types";
 import { Order } from "./Order";
-import { Profile } from "./Profile";
 
 @ObjectType()
 @Entity()
@@ -54,11 +53,6 @@ export class Payment extends BaseEntity {
   @ManyToOne(() => Order, { nullable: true, onDelete: "CASCADE" })
   @JoinColumn()
   order: Order;
-
-  @Field(() => Profile)
-  @ManyToOne(() => Profile, { nullable: true, onDelete: "CASCADE" })
-  @JoinColumn()
-  profile: Profile;
 
   @Field()
   @CreateDateColumn({
