@@ -75,11 +75,6 @@ export default function CartLayout() {
   const cartFromQuery = cartQuery?.getCart;
   const appliedVoucher = cartFromQuery?.voucher ?? null;
 
-  const subtotal = subtotalFromItems(
-    cartFromQuery?.orderItems ?? orderItemsStore
-  );
-  const promoCents = computeDiscountUI(subtotal, appliedVoucher || undefined);
-
   if (
     currentPage === CommandStatusEnum.completed &&
     errorOrder?.graphQLErrors?.[0]?.extensions?.code === "NOT_FOUND"
@@ -187,7 +182,17 @@ export default function CartLayout() {
                         startsAt: order.voucher.startsAt,
                         endsAt: order.voucher.endsAt,
                       }
-                    : undefined
+                    : cartFromQuery?.voucher
+                      ? {
+                          type: cartFromQuery.voucher.type as
+                            | "percentage"
+                            | "fixed",
+                          amount: Number(cartFromQuery.voucher.amount),
+                          isActive: !!cartFromQuery.voucher.isActive,
+                          startsAt: cartFromQuery.voucher.startsAt,
+                          endsAt: cartFromQuery.voucher.endsAt,
+                        }
+                      : undefined
                 }
                 discountCentsOverride={
                   isRecap ? (order?.discountAmount ?? undefined) : undefined
