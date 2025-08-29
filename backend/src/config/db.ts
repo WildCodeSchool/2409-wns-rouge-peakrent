@@ -8,7 +8,7 @@ export const dataSource = new DataSource({
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   entities: ["src/entities/*.ts"],
-  migrations: ["src/migrations/*.ts"],
+  migrations: ["migrations/*.ts"],
   migrationsRun: process.env.POSTGRES_SYNC !== "TRUE", // Exécute les migrations seulement si synchronize est false
   migrationsTableName: "_migrations",
   synchronize: process.env.POSTGRES_SYNC === "TRUE", // Synchronize seulement en développement
