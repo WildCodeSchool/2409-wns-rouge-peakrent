@@ -19,7 +19,6 @@ export function CartRecap() {
 
   return (
     <div className="lg:col-span-8 space-y-4">
-      {" "}
       {order?.orderItems?.map((item: OrderItem) => (
         <div key={item.id} className="w-full">
           <CartItemCard item={item} />

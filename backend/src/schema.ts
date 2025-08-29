@@ -23,6 +23,8 @@ import { StoreResolver } from "./resolvers/Stores";
 import { StoreVariantResolver } from "./resolvers/StoresVariants";
 import { UserResolver } from "./resolvers/Users";
 import { VariantResolver } from "./resolvers/Variants";
+import { VoucherResolverAdmin } from "./resolvers/Vouchers";
+import { CartVoucherResolver } from "./resolvers/CartVoucher";
 
 export async function getSchema() {
   // Admin resolvers
@@ -38,6 +40,7 @@ export async function getSchema() {
     UserResolverAdmin,
     StoreVariantResolverAdmin,
     PaymentResolver,
+    VoucherResolverAdmin,
   ];
 
   const schema = await buildSchema({
@@ -54,6 +57,7 @@ export async function getSchema() {
       StoreVariantResolver,
       UserResolver,
       VariantResolver,
+      CartVoucherResolver,
       ...adminResolvers,
     ],
     authChecker,

@@ -1,15 +1,18 @@
+import { CartVoucherBox } from "@/components/forms/CartVoucherBox";
 import AdressResume from "@/components/resume/AdressResume";
 import TotalResume from "@/components/resume/TotalResume";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { useUser } from "@/context/userProvider";
-import { GET_ORDER_BY_REF } from "@/graphQL";
+import { GET_CART_BY_USER } from "@/graphQL";
+import { GET_ORDER_BY_REF } from "@/graphQL/order";
 import { cn } from "@/lib/utils";
 import PageNotFound from "@/pages/NotFound/PageNotFound";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { getStatusBadgeVariant } from "@/utils";
+import { computeDiscountUI, subtotalFromItems } from "@/utils/cartTotals";
+import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
 import { translateStatus } from "@/utils/translateStatus";
 import { gql, useQuery } from "@apollo/client";
 import { CreditCard, ShoppingBag } from "lucide-react";
@@ -18,13 +21,14 @@ import { NavLink, Outlet, useParams } from "react-router-dom";
 
 export default function CartLayout() {
   const { user: userData } = useUser();
-  const cart = useCartStoreUser((state) => state.cart);
-  const orderItems = useOrderItemStore((state) => state.orderItems);
+  const cartStore = useCartStoreUser((state) => state.cart);
+  const orderItemsStore = useOrderItemStore((state) => state.orderItems);
   const path = location.pathname;
   const { ref } = useParams();
+
   const {
     data: orderData,
-    loading: loadingCommand,
+    loading: loadingOrder,
     error: errorOrder,
   } = useQuery(gql(GET_ORDER_BY_REF), {
     variables: { reference: ref },
@@ -37,35 +41,39 @@ export default function CartLayout() {
     CommandStatusEnum.pending
   );
 
+  const isRecap = currentPage === CommandStatusEnum.completed;
+
   useEffect(() => {
-    if (path.startsWith("/cart/recap/ORD-")) {
+    if (path.startsWith("/cart/recap/")) {
       setCurrentPage(CommandStatusEnum.completed);
       return;
     }
-
-    if (orderItems.length === 0) {
+    if (orderItemsStore.length === 0) {
       setCurrentPage(CommandStatusEnum.pending);
       return;
     }
-
     switch (path) {
       case "/cart":
         setCurrentPage(CommandStatusEnum.pending);
         break;
-
       case "/cart/checkout":
         setCurrentPage(CommandStatusEnum.validated);
         break;
-
       case "/cart/checkout/payment":
         setCurrentPage(CommandStatusEnum.onPayment);
         break;
-
       default:
         setCurrentPage(CommandStatusEnum.pending);
         break;
     }
-  }, [path, orderItems]);
+  }, [path, orderItemsStore]);
+
+  const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
+    gql(GET_CART_BY_USER),
+    { variables: { withOrderItems: true }, fetchPolicy: "cache-and-network" }
+  );
+  const cartFromQuery = cartQuery?.getCart;
+  const appliedVoucher = cartFromQuery?.voucher ?? null;
 
   if (
     currentPage === CommandStatusEnum.completed &&
@@ -76,7 +84,7 @@ export default function CartLayout() {
 
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4">
-      {/* Header Section */}
+      {/* Header */}
       <div className="mb-6">
         {currentPage === CommandStatusEnum.pending && (
           <>
@@ -107,6 +115,7 @@ export default function CartLayout() {
           </>
         )}
       </div>
+
       {currentPage === CommandStatusEnum.completed && order && (
         <>
           <Title
@@ -125,44 +134,75 @@ export default function CartLayout() {
         </>
       )}
 
-      {orderItems.length > 0 || currentPage === CommandStatusEnum.completed ? (
+      {orderItemsStore.length > 0 ||
+      currentPage === CommandStatusEnum.completed ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Content Section - scrollable */}
+          {/* Content */}
           <div className="lg:col-span-8 space-y-4">
             <Outlet />
           </div>
 
-          {/* Sidebar Section - STICKY */}
+          {/* Sidebar */}
           <div className="lg:col-span-4">
             <div className="sticky top-6 space-y-6">
+              {/* Bloc adresse */}
               {((currentPage === CommandStatusEnum.completed && order) ||
                 currentPage === CommandStatusEnum.onPayment) && (
                 <AdressResume
                   cart={
-                    currentPage === CommandStatusEnum.completed ? order : cart
+                    currentPage === CommandStatusEnum.completed
+                      ? order
+                      : cartStore
                   }
                   user={
                     currentPage === CommandStatusEnum.completed
-                      ? order.profile
+                      ? order?.profile
                       : userData
                   }
                   className="w-full"
                   paymentMethod={order?.paymentMethod}
                 />
               )}
-              {
-                <TotalResume
-                  orderItems={
-                    CommandStatusEnum.completed && order
-                      ? order.orderItems
-                      : orderItems
-                  }
-                  promo={0}
-                  className="w-full"
-                />
-              }
 
-              {/* Action Buttons */}
+              <CartVoucherBox
+                currentCode={appliedVoucher?.code ?? null}
+                onChanged={() => refetchCartQuery()}
+              />
+              <TotalResume
+                orderItems={
+                  isRecap && order ? order.orderItems : orderItemsStore
+                }
+                className="w-full"
+                voucher={
+                  isRecap && order?.voucher
+                    ? {
+                        type: order.voucher.type as "percentage" | "fixed",
+                        amount: Number(order.voucher.amount),
+                        isActive: !!order.voucher.isActive,
+                        startsAt: order.voucher.startsAt,
+                        endsAt: order.voucher.endsAt,
+                      }
+                    : cartFromQuery?.voucher
+                      ? {
+                          type: cartFromQuery.voucher.type as
+                            | "percentage"
+                            | "fixed",
+                          amount: Number(cartFromQuery.voucher.amount),
+                          isActive: !!cartFromQuery.voucher.isActive,
+                          startsAt: cartFromQuery.voucher.startsAt,
+                          endsAt: cartFromQuery.voucher.endsAt,
+                        }
+                      : undefined
+                }
+                discountCentsOverride={
+                  isRecap ? (order?.discountAmount ?? undefined) : undefined
+                }
+                totalCentsOverride={
+                  isRecap ? (order?.chargedAmount ?? undefined) : undefined
+                }
+              />
+
+              {/* Actions */}
               {currentPage === CommandStatusEnum.pending && (
                 <NavLink
                   to="checkout"

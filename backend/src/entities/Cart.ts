@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -13,6 +14,7 @@ import {
 } from "typeorm";
 import { OrderItem } from "./OrderItem";
 import { Profile } from "./Profile";
+import { Voucher } from "./Voucher";
 
 @ObjectType()
 @Entity()
@@ -66,6 +68,11 @@ export class Cart extends BaseEntity {
     cascade: true,
   })
   orderItems?: OrderItem[];
+
+  @Field(() => Voucher, { nullable: true })
+  @ManyToOne(() => Voucher, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "voucher_id" })
+  voucher?: Voucher;
 }
 @InputType()
 export class CartUpdateInput {
@@ -104,4 +111,7 @@ export class CartUpdateInput {
 export class CartUpdateInputAdmin extends CartUpdateInput {
   @Field(() => Int, { nullable: true })
   profileId?: number;
+
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
 }

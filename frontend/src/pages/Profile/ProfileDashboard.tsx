@@ -27,22 +27,23 @@ const columns = [
   }),
   column.createPriceColumn({
     id: "prix",
-    accessorKey: "prix",
+    accessorKey: "chargedAmount",
     title: "Prix",
     enableSorting: true,
     devise: "€",
-    priceFn: (row) =>
-      (
-        row.original.orderItems?.reduce(
-          (acc: number, item: OrderItem) =>
-            acc +
-            (item.pricePerDay *
-              item.quantity *
-              getDurationInDays(item.startsAt, item.endsAt)) /
-              100,
-          0
-        ) || 0
-      ).toFixed(2),
+    priceFn: (row) => {
+      const charged = row.original.chargedAmount;
+      if (typeof charged === "number") return (charged / 100).toFixed(2);
+      const sum =
+        row.original.orderItems?.reduce((acc: number, item: OrderItem) => {
+          const ms =
+            new Date(item.endsAt).getTime() - new Date(item.startsAt).getTime();
+          const days = Math.max(1, Math.ceil(ms / 86_400_000));
+          return acc + (item.pricePerDay * item.quantity * days) / 100;
+        }, 0) ?? 0;
+
+      return sum.toFixed(2);
+    },
   }),
   column.createDateColumn({
     id: "debut",
@@ -249,7 +250,7 @@ export default function ProfileDashboard() {
                 hideExport
                 hideViewOptions={true}
                 viewMode="table"
-                rowLink={{ customPath: "/profile/order", rowLink: "id" }}
+                rowLink={{ customPath: "/profile/order", rowLink: "reference" }}
               />
             )}
           </TabsContent>

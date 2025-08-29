@@ -58,6 +58,15 @@ query getCart($withOrderItems: Boolean!) {
     zipCode
     city
     country
+    voucher { 
+      id 
+      code 
+      type 
+      amount 
+      isActive 
+      startsAt 
+      endsAt
+      }
     orderItems {
       id
       quantity

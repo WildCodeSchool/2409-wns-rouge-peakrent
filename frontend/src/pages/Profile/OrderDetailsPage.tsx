@@ -70,7 +70,6 @@ export default function OrderDetails() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-4">
-          {" "}
           {order.orderItems.map((item: OrderItem) => (
             <div key={item.id} className="w-full">
               <CartItemCard item={item} />
@@ -86,8 +85,20 @@ export default function OrderDetails() {
           />
           <TotalResume
             orderItems={order.orderItems}
-            promo={0}
             className="w-full"
+            voucher={
+              order.voucher
+                ? {
+                    type: order.voucher.type as "percentage" | "fixed",
+                    amount: Number(order.voucher.amount),
+                    isActive: !!order.voucher.isActive,
+                    startsAt: order.voucher.startsAt,
+                    endsAt: order.voucher.endsAt,
+                  }
+                : null
+            }
+            discountCentsOverride={order.discountAmount ?? undefined}
+            totalCentsOverride={order.chargedAmount ?? undefined}
           />
           {order.status === "pending" && (
             <Button

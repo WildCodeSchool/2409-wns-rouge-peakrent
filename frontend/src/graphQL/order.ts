@@ -43,10 +43,60 @@ export const GET_ORDER_BY_REF = `
 export const GET_ORDER_BY_ID = `
   query GetOrderById($getOrderByIdId: ID!) {
     getOrderById(id: $getOrderByIdId) {
-      ...OrderWithItemsFieldsUser
+      id
+      reference
+      status
+      paymentMethod
+      address1
+      address2
+      city
+      country
+      zipCode
+      date
+      paidAt
+      createdAt
+      updatedAt
+      discountAmount
+      chargedAmount
+      voucher {
+        id
+        code
+        type
+        amount
+        isActive
+        startsAt
+        endsAt
+      }
+      profile {
+        id
+        email
+        firstname
+        lastname
+      }
+      orderItems {
+        id
+        startsAt
+        endsAt
+        quantity
+        pricePerDay
+        createdAt
+        updatedAt
+        status
+        variant {
+          id
+          pricePerDay
+          size
+          color
+          product {
+            id
+            sku
+            urlImage
+            name
+          }
+        }
+      }
     }
   }
-  ${ORDER_WITH_ITEMS_FIELDS_USER}
 `;
 
 export const GET_ORDERS_ADMIN = `

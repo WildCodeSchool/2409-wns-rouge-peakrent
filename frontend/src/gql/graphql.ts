@@ -70,6 +70,7 @@ export type Cart = {
   orderItems?: Maybe<Array<OrderItem>>;
   profile?: Maybe<Profile>;
   updatedAt: Scalars['DateTimeISO']['output'];
+  voucher?: Maybe<Voucher>;
   zipCode?: Maybe<Scalars['String']['output']>;
 };
 
@@ -87,6 +88,7 @@ export type CartUpdateInputAdmin = {
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
   profileId?: InputMaybe<Scalars['Int']['input']>;
+  voucherId?: InputMaybe<Scalars['Int']['input']>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -172,6 +174,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   anonymiseProfile: Scalars['Boolean']['output'];
   anonymiseProfileByAdmin: Scalars['Boolean']['output'];
+  applyVoucherToMyCart: Cart;
   cancelOrderItemForOrderAdmin?: Maybe<OrderItem>;
   changeEmail: Scalars['Boolean']['output'];
   changePassword: Scalars['Boolean']['output'];
@@ -189,6 +192,7 @@ export type Mutation = {
   createStoreVariant: StoreVariant;
   createUser: User;
   createUserByAdmin: Profile;
+  createVoucher: Voucher;
   deleteActivitiesAdmin?: Maybe<Array<Scalars['ID']['output']>>;
   deleteActivityAdmin?: Maybe<Activity>;
   deleteCategoriesAdmin?: Maybe<Array<Scalars['ID']['output']>>;
@@ -200,6 +204,7 @@ export type Mutation = {
   deleteStore?: Maybe<Store>;
   deleteStoreVariant: Scalars['Boolean']['output'];
   forgotPassword: Scalars['Boolean']['output'];
+  removeVoucherFromMyCart: Cart;
   resetPassword: Scalars['Boolean']['output'];
   retrieveAnonymisedAccount?: Maybe<User>;
   signIn?: Maybe<User>;
@@ -218,6 +223,7 @@ export type Mutation = {
   updateStoreVariant: StoreVariant;
   updateUserByAdmin: Profile;
   updateUserProfile: Profile;
+  updateVoucher: Voucher;
   validateCart?: Maybe<Order>;
   verifyConfirmEmailToken: Scalars['Boolean']['output'];
   verifyResetToken: Scalars['Boolean']['output'];
@@ -226,6 +232,11 @@ export type Mutation = {
 
 export type MutationAnonymiseProfileByAdminArgs = {
   userId: Scalars['Float']['input'];
+};
+
+
+export type MutationApplyVoucherToMyCartArgs = {
+  code: Scalars['String']['input'];
 };
 
 
@@ -309,6 +320,11 @@ export type MutationCreateUserArgs = {
 
 export type MutationCreateUserByAdminArgs = {
   data: CreateUserInputAdmin;
+};
+
+
+export type MutationCreateVoucherArgs = {
+  data: VoucherCreateInput;
 };
 
 
@@ -453,6 +469,12 @@ export type MutationUpdateUserProfileArgs = {
 };
 
 
+export type MutationUpdateVoucherArgs = {
+  data: VoucherUpdateInput;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationValidateCartArgs = {
   data: ValidateCartInput;
 };
@@ -471,10 +493,12 @@ export type Order = {
   __typename?: 'Order';
   address1: Scalars['String']['output'];
   address2?: Maybe<Scalars['String']['output']>;
+  chargedAmount?: Maybe<Scalars['Float']['output']>;
   city: Scalars['String']['output'];
   country: Scalars['String']['output'];
   createdAt: Scalars['DateTimeISO']['output'];
   date: Scalars['DateTimeISO']['output'];
+  discountAmount?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
   orderItems?: Maybe<Array<OrderItem>>;
   paidAt?: Maybe<Scalars['DateTimeISO']['output']>;
@@ -485,20 +509,24 @@ export type Order = {
   reference: Scalars['String']['output'];
   status: OrderStatusType;
   updatedAt: Scalars['DateTimeISO']['output'];
+  voucher?: Maybe<Voucher>;
   zipCode: Scalars['String']['output'];
 };
 
 export type OrderCreateInputAdmin = {
   address1: Scalars['String']['input'];
   address2?: InputMaybe<Scalars['String']['input']>;
+  chargedAmount?: InputMaybe<Scalars['Int']['input']>;
   city: Scalars['String']['input'];
   country: Scalars['String']['input'];
   date: Scalars['DateTimeISO']['input'];
+  discountAmount?: InputMaybe<Scalars['Int']['input']>;
   paidAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   paymentMethod: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
   profileId: Scalars['Int']['input'];
   reference?: InputMaybe<Scalars['String']['input']>;
+  voucherId?: InputMaybe<Scalars['Int']['input']>;
   zipCode: Scalars['String']['input'];
 };
 
@@ -577,7 +605,6 @@ export enum OrderStatusType {
   Completed = 'completed',
   Confirmed = 'confirmed',
   Failed = 'failed',
-  PayInStore = 'payInStore',
   Pending = 'pending',
   Refunded = 'refunded'
 }
@@ -585,12 +612,15 @@ export enum OrderStatusType {
 export type OrderUpdateInputAdmin = {
   address1?: InputMaybe<Scalars['String']['input']>;
   address2?: InputMaybe<Scalars['String']['input']>;
+  chargedAmount?: InputMaybe<Scalars['Int']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   country?: InputMaybe<Scalars['String']['input']>;
+  discountAmount?: InputMaybe<Scalars['Int']['input']>;
   paidAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   paymentMethod?: InputMaybe<Scalars['String']['input']>;
   profileId?: InputMaybe<Scalars['Int']['input']>;
   reference?: InputMaybe<Scalars['String']['input']>;
+  voucherId?: InputMaybe<Scalars['Int']['input']>;
   zipCode?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -610,7 +640,6 @@ export type Payment = {
   id: Scalars['ID']['output'];
   lastPaymentError: Scalars['Boolean']['output'];
   order: Order;
-  profile: Profile;
   status: Scalars['String']['output'];
   stripePaymentIntentId: Scalars['String']['output'];
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -667,7 +696,6 @@ export type Profile = {
   firstname: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   lastname: Scalars['String']['output'];
-  payments: Array<Payment>;
   role: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
@@ -687,8 +715,9 @@ export type Query = {
   getDeletedUsersByAdmin?: Maybe<Array<User>>;
   getMyOrders: Array<Order>;
   getMyProfile?: Maybe<Profile>;
-  getOrderById: Order;
   getOrderByIdAdmin?: Maybe<Order>;
+  getOrderByRefAdmin?: Maybe<Order>;
+  getOrderByReference: Order;
   getOrderItems: Array<OrderItem>;
   getOrderItemsByCartId: Array<OrderItem>;
   getOrderItemsById: OrderItem;
@@ -706,6 +735,8 @@ export type Query = {
   getUsersByAdmin?: Maybe<Array<User>>;
   getVariantById?: Maybe<Variant>;
   getVariants: Array<Variant>;
+  getVoucher?: Maybe<Voucher>;
+  listVouchers: Array<Voucher>;
   storeVariant?: Maybe<StoreVariant>;
   storeVariants: Array<StoreVariant>;
   whoami?: Maybe<Profile>;
@@ -765,13 +796,18 @@ export type QueryGetDeletedUsersByAdminArgs = {
 };
 
 
-export type QueryGetOrderByIdArgs = {
+export type QueryGetOrderByIdAdminArgs = {
   id: Scalars['ID']['input'];
 };
 
 
-export type QueryGetOrderByIdAdminArgs = {
-  id: Scalars['ID']['input'];
+export type QueryGetOrderByRefAdminArgs = {
+  ref: Scalars['String']['input'];
+};
+
+
+export type QueryGetOrderByReferenceArgs = {
+  reference: Scalars['String']['input'];
 };
 
 
@@ -836,6 +872,11 @@ export type QueryGetUsersByAdminArgs = {
 
 
 export type QueryGetVariantByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetVoucherArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -987,6 +1028,42 @@ export type VariantCreateNestedInputAdmin = {
   color?: InputMaybe<Scalars['String']['input']>;
   pricePerDay: Scalars['Int']['input'];
   size?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Voucher = {
+  __typename?: 'Voucher';
+  amount: Scalars['Int']['output'];
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTimeISO']['output'];
+  endsAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  startsAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  type: VoucherType;
+  updatedAt: Scalars['DateTimeISO']['output'];
+};
+
+export type VoucherCreateInput = {
+  amount: Scalars['Int']['input'];
+  code: Scalars['String']['input'];
+  endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  type: VoucherType;
+};
+
+export enum VoucherType {
+  Fixed = 'fixed',
+  Percentage = 'percentage'
+}
+
+export type VoucherUpdateInput = {
+  amount?: InputMaybe<Scalars['Int']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  endsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  startsAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  type?: InputMaybe<VoucherType>;
 };
 
 export enum OrderPaymentType {

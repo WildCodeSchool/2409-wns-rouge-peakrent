@@ -38,6 +38,7 @@ import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import OrderDetailsPage from "./pages/Profile/OrderDetailsPage";
 import ProfileDashboard from "./pages/Profile/ProfileDashboard";
 import ProfileEditPage from "./pages/Profile/ProfileEditPage";
+import { AdminVouchersPage } from "./pages/Admin/Vouchers/AdminVouchersPage";
 
 enum AuthStates {
   authenticated,
@@ -166,6 +167,7 @@ function App() {
             <Route path="products/edit/:id" element={<ProductForm />} />
             <Route path="products/create" element={<ProductForm />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="vouchers" element={<AdminVouchersPage />} />
             <Route path="carts" element={<AdminCartsPage />} />
             <Route path="*" element={<PageNotFound />} />
           </Route>

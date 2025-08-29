@@ -6,6 +6,8 @@ import {
 } from "@/entities/Order";
 import { OrderItem, OrderItemsFormInputAdmin } from "@/entities/OrderItem";
 import { Profile } from "@/entities/Profile";
+import { Variant } from "@/entities/Variant";
+import { Voucher } from "@/entities/Voucher";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
 import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
@@ -21,6 +23,7 @@ import {
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { In } from "typeorm";
 
 @Resolver(Order)
 export class OrderResolverAdmin {
@@ -35,6 +38,7 @@ export class OrderResolverAdmin {
           },
         },
         profile: true,
+        voucher: true,
       },
       order: { date: "DESC" },
     });
@@ -104,8 +108,26 @@ export class OrderResolverAdmin {
     if (!profile) {
       throw new Error(`profile not found`);
     }
+
+    let voucher: Voucher | null = null;
+    if (typeof data.voucherId === "number") {
+      voucher = await Voucher.findOne({ where: { id: data.voucherId } });
+      if (!voucher) {
+        throw new GraphQLError("voucher not found", {
+          extensions: {
+            code: "NOT_FOUND",
+            entity: "Voucher",
+            http: { status: 404 },
+          },
+        });
+      }
+    }
+
     Object.assign(newOrder, data, {
       profile: data.profileId,
+      voucher: voucher ?? undefined,
+      discountAmount: data.discountAmount ?? null,
+      chargedAmount: data.chargedAmount ?? null,
     });
     const errors = await validate(newOrder);
     if (errors.length > 0) {
@@ -133,7 +155,7 @@ export class OrderResolverAdmin {
     }
     const order = await Order.findOne({
       where: { id },
-      relations: { profile: true },
+      relations: { profile: true, voucher: true },
     });
     if (order !== null) {
       if (
@@ -141,8 +163,25 @@ export class OrderResolverAdmin {
       ) {
         throw new Error("Unauthorized");
       }
+      let voucherU: Voucher | null = null;
+      if (typeof data.voucherId === "number") {
+        voucherU = await Voucher.findOne({ where: { id: data.voucherId } });
+        if (!voucherU) {
+          throw new GraphQLError("voucher not found", {
+            extensions: {
+              code: "NOT_FOUND",
+              entity: "Voucher",
+              http: { status: 404 },
+            },
+          });
+        }
+      }
+
       Object.assign(order, data, {
-        profile: data.profileId,
+        profile: data.profileId ?? order.profile,
+        voucher: typeof data.voucherId === "number" ? voucherU : order.voucher,
+        discountAmount: data.discountAmount ?? order.discountAmount,
+        chargedAmount: data.chargedAmount ?? order.chargedAmount,
       });
       const errors = await validate(order);
       if (errors.length > 0) {
@@ -187,19 +226,31 @@ export class OrderResolverAdmin {
   ): Promise<Order> {
     return await dataSource.manager.transaction(
       async (transactionalEntityManager) => {
-        // Check if profile exists
         const profile = await transactionalEntityManager.findOne(Profile, {
           where: { id: data.profileId },
         });
         if (!profile) {
           throw new GraphQLError("Profile not found", {
-            extensions: {
-              code: "PROFILE_NOT_FOUND",
-              http: { status: 404 },
-            },
+            extensions: { code: "PROFILE_NOT_FOUND", http: { status: 404 } },
           });
         }
-        // Create order
+
+        let voucher: Voucher | null = null;
+        if (typeof data.voucherId === "number") {
+          voucher = await transactionalEntityManager.findOne(Voucher, {
+            where: { id: data.voucherId },
+          });
+          if (!voucher) {
+            throw new GraphQLError("voucher not found", {
+              extensions: {
+                code: "NOT_FOUND",
+                entity: "Voucher",
+                http: { status: 404 },
+              },
+            });
+          }
+        }
+
         const newOrder = new Order();
         Object.assign(newOrder, data, {
           profile: data.profileId,
@@ -207,50 +258,69 @@ export class OrderResolverAdmin {
             data.date.toISOString(),
             data.reference
           ),
+          voucher: voucher ?? undefined,
+          discountAmount: data.discountAmount ?? null,
+          chargedAmount: data.chargedAmount ?? null,
         });
+
         const orderErrors = await validate(newOrder);
         if (orderErrors.length > 0) {
           throw new GraphQLError("Order validation error", {
-            extensions: {
-              code: "VALIDATION_ERROR",
-              http: { status: 400 },
-            },
+            extensions: { code: "VALIDATION_ERROR", http: { status: 400 } },
           });
         }
+
         const savedOrder = await transactionalEntityManager.save(newOrder);
-        // Create order items
+
+        const variantIds = items.map((i) => i.variant);
+        const variants = await transactionalEntityManager.find(Variant, {
+          where: { id: In(variantIds) },
+        });
+        const variantById = new Map(variants.map((v) => [v.id, v]));
+
+        if (variants.length !== variantIds.length) {
+          const missing = variantIds.filter((id) => !variantById.has(id));
+          throw new GraphQLError(
+            `Variant(s) not found: ${missing.join(", ")}`,
+            {
+              extensions: {
+                code: "NOT_FOUND",
+                entity: "Variant",
+                http: { status: 404 },
+              },
+            }
+          );
+        }
+
         for (const item of items) {
+          const variant = variantById.get(item.variant)!;
+
           const orderItem = new OrderItem();
           Object.assign(orderItem, {
             order: savedOrder,
-            variant: item.variant,
+            variant,
             quantity: item.quantity,
             pricePerDay: item.pricePerDay,
             status: item.status || OrderItemStatusType.pending,
             startsAt: item.date_range.from,
             endsAt: item.date_range.to,
           });
+
           const itemErrors = await validate(orderItem);
           if (itemErrors.length > 0) {
             throw new GraphQLError("OrderItem validation error", {
-              extensions: {
-                code: "VALIDATION_ERROR",
-                http: { status: 400 },
-              },
+              extensions: { code: "VALIDATION_ERROR", http: { status: 400 } },
             });
           }
           await transactionalEntityManager.save(orderItem);
         }
-        // Return the order with its items
+
         return await transactionalEntityManager.findOne(Order, {
           where: { id: savedOrder.id },
           relations: {
-            orderItems: {
-              variant: {
-                product: true,
-              },
-            },
+            orderItems: { variant: { product: true } },
             profile: true,
+            voucher: true,
           },
         });
       }
