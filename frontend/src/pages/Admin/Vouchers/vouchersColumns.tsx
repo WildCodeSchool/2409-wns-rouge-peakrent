@@ -79,14 +79,14 @@ export const createColumns: ColumnDef<any>[] = [
     showTime: true,
   }),
 
-  column.createDateColumn({
-    id: "updatedAt",
-    accessorKey: "updatedAt",
-    title: "Modifié le",
-    enableSorting: true,
-    enableHiding: true,
-    showTime: true,
-  }),
+  // column.createDateColumn({
+  //   id: "updatedAt",
+  //   accessorKey: "updatedAt",
+  //   title: "Modifié le",
+  //   enableSorting: true,
+  //   enableHiding: true,
+  //   showTime: true,
+  // }),
 
   {
     id: "actions",

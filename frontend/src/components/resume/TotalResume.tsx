@@ -1,5 +1,6 @@
 import { OrderItem } from "@/gql/graphql";
 import { useCartStoreUser } from "@/stores/user/cart.store";
+import { totalDays } from "@/utils";
 import { computeDiscountUI, formatEUR } from "@/utils/cartTotals";
 
 type VoucherLike =
@@ -21,12 +22,6 @@ type Props = {
   totalCentsOverride?: number;
 };
 
-const daysBetween = (start: string, end: string) => {
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  const DAY = 24 * 60 * 60 * 1000;
-  return Math.max(1, Math.ceil(ms / DAY));
-};
-
 const TotalResume = ({
   orderItems,
   className,
@@ -36,7 +31,7 @@ const TotalResume = ({
 }: Props) => {
   const subTotal = orderItems.reduce((acc, it) => {
     const days =
-      it.startsAt && it.endsAt ? daysBetween(it.startsAt, it.endsAt) : 1;
+      it.startsAt && it.endsAt ? totalDays(it.startsAt, it.endsAt) : 1;
     const pricePerDay = it.pricePerDay ?? 0;
     const qty = it.quantity ?? 1;
     return acc + days * qty * pricePerDay;

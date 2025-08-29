@@ -19,7 +19,11 @@ export default function VouchersTable() {
   const { data, error, loading, refetch } = useQuery(gql(LIST_VOUCHERS), {
     fetchPolicy: "cache-and-network",
   });
-  const [updateVoucher] = useMutation(gql(UPDATE_VOUCHER));
+
+  const [updateVoucher] = useMutation(gql(UPDATE_VOUCHER), {
+    refetchQueries: [{ query: gql(LIST_VOUCHERS) }],
+    awaitRefetchQueries: true,
+  });
 
   const columnConfigs: ColumnConfig[] = [
     {

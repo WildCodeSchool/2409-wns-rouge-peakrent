@@ -1,36 +1,74 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
 import { gql, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { StringInput, SingleSelectorInput } from "@/components/forms/formField";
+import {
+  StringInput,
+  SingleSelectorInput,
+  DateRangePickerInput,
+} from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
-import { CREATE_VOUCHER, UPDATE_VOUCHER } from "@/graphQL/vouchers";
+import {
+  CREATE_VOUCHER,
+  LIST_VOUCHERS,
+  UPDATE_VOUCHER,
+} from "@/graphQL/vouchers";
 import { Voucher } from "@/gql/graphql";
-
 import {
   generateVoucherFormSchema,
   VoucherFormSchema,
   toLocalInput,
 } from "@/schemas/voucherSchemas";
+import { useEffect } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+
+type VoucherFormUI = VoucherFormSchema & {
+  dateRange?: { from?: string; to?: string };
+};
 
 export function VoucherForm({ datas }: { datas?: Voucher }) {
   const { closeModal } = useModal();
 
   const [createVoucher, { loading: isCreating }] = useMutation(
-    gql(CREATE_VOUCHER)
+    gql(CREATE_VOUCHER),
+    {
+      refetchQueries: [{ query: gql(LIST_VOUCHERS) }],
+      awaitRefetchQueries: true,
+    }
   );
+
   const [updateVoucher, { loading: isUpdating }] = useMutation(
-    gql(UPDATE_VOUCHER)
+    gql(UPDATE_VOUCHER),
+    {
+      refetchQueries: [{ query: gql(LIST_VOUCHERS) }],
+      awaitRefetchQueries: true,
+    }
   );
 
   const formSchema = generateVoucherFormSchema(datas);
-  const defaultValues = getFormDefaultValues(formSchema) as VoucherFormSchema;
 
-  const form = useForm<VoucherFormSchema>({
+  const isoToDateOnly = (iso?: string | null) =>
+    iso ? toLocalInput(iso).slice(0, 10) : "";
+
+  const defaultValues: VoucherFormUI = {
+    ...(getFormDefaultValues(formSchema) as VoucherFormSchema),
+    dateRange: {
+      from: isoToDateOnly(datas?.startsAt ?? undefined),
+      to: isoToDateOnly(datas?.endsAt ?? undefined),
+    },
+  };
+
+  const form = useForm<VoucherFormUI>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
@@ -46,16 +84,45 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
     return parseInt(normalized, 10);
   };
 
-  const buildPayload = (fv: VoucherFormSchema) => ({
-    code: fv.code,
-    type: fv.type,
-    amount: toServerAmount(fv.type, fv.amount),
-    startsAt: fv.startsAt ? new Date(fv.startsAt).toISOString() : null,
-    endsAt: fv.endsAt ? new Date(fv.endsAt).toISOString() : null,
-    isActive: fv.isActive,
-  });
+  const dateOnlyToLocalISO = (d?: string | null) => {
+    if (!d) return null;
+    const [y, m, day] = d.split("-").map(Number);
+    if (!y || !m || !day) return null;
+    return new Date(y, m - 1, day, 0, 0, 0).toISOString();
+  };
 
-  const handleCreate = async (fv: VoucherFormSchema) => {
+  useEffect(() => {
+    const sub = form.watch((val, { name }) => {
+      if (name === "dateRange") {
+        const fromISO = dateOnlyToLocalISO(val.dateRange?.from);
+        const toISO = dateOnlyToLocalISO(val.dateRange?.to);
+        form.setValue("startsAt", fromISO ?? "");
+        form.setValue("endsAt", toISO ?? "");
+      }
+    });
+
+    const init = form.getValues("dateRange");
+    form.setValue("startsAt", dateOnlyToLocalISO(init?.from) ?? "");
+    form.setValue("endsAt", dateOnlyToLocalISO(init?.to) ?? "");
+
+    return () => sub.unsubscribe?.();
+  }, [form]);
+
+  const buildPayload = (fv: VoucherFormUI) => {
+    const starts = fv.startsAt || dateOnlyToLocalISO(fv.dateRange?.from);
+    const ends = fv.endsAt || dateOnlyToLocalISO(fv.dateRange?.to);
+
+    return {
+      code: fv.code,
+      type: fv.type,
+      amount: toServerAmount(fv.type, fv.amount),
+      startsAt: starts,
+      endsAt: ends,
+      isActive: fv.isActive,
+    };
+  };
+
+  const handleCreate = async (fv: VoucherFormUI) => {
     const res = await createVoucher({ variables: { data: buildPayload(fv) } });
     if (res.data) {
       toast.success("Voucher créé avec succès");
@@ -65,7 +132,7 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
     }
   };
 
-  const handleUpdate = async (fv: VoucherFormSchema) => {
+  const handleUpdate = async (fv: VoucherFormUI) => {
     const res = await updateVoucher({
       variables: { id: Number(datas!.id), data: buildPayload(fv) },
     });
@@ -77,7 +144,7 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
     }
   };
 
-  const onSubmit = async (fv: VoucherFormSchema) => {
+  const onSubmit = async (fv: VoucherFormUI) => {
     try {
       datas ? await handleUpdate(fv) : await handleCreate(fv);
     } catch (e: any) {
@@ -86,7 +153,15 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
     }
   };
 
-  const handleReset = () => form.reset(getFormDefaultValues(formSchema));
+  const handleReset = () => {
+    form.reset({
+      ...(getFormDefaultValues(formSchema) as VoucherFormSchema),
+      dateRange: {
+        from: isoToDateOnly(datas?.startsAt ?? undefined),
+        to: isoToDateOnly(datas?.endsAt ?? undefined),
+      },
+    });
+  };
 
   return (
     <Form {...form}>
@@ -126,43 +201,30 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
           required
         />
 
-        <Controller
-          control={form.control}
-          name="startsAt"
-          render={({ field }) => (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Début (optionnel)</label>
-              <input type="datetime-local" className="input" {...field} />
-            </div>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="endsAt"
-          render={({ field }) => (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Fin (optionnel)</label>
-              <input type="datetime-local" className="input" {...field} />
-            </div>
-          )}
+        <DateRangePickerInput
+          form={form}
+          name="dateRange"
+          label="Validité"
+          isPending={disabled}
+          from={form.getValues("dateRange")?.from}
+          to={form.getValues("dateRange")?.to}
         />
 
-        <Controller
+        <FormField
           control={form.control}
           name="isActive"
           render={({ field }) => (
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={!!field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-                onBlur={field.onBlur}
-                name={field.name}
-                ref={field.ref}
-                disabled={disabled}
-              />
-              <span>Actif</span>
-            </label>
+            <FormItem className="flex flex-row items-center space-x-2">
+              <FormControl>
+                <Checkbox
+                  checked={!!field.value}
+                  onCheckedChange={(v) => field.onChange(Boolean(v))}
+                  disabled={disabled}
+                  id="isActive"
+                />
+              </FormControl>
+              <FormLabel htmlFor="isActive">Actif</FormLabel>
+            </FormItem>
           )}
         />
 

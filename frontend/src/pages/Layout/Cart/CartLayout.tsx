@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import PageNotFound from "@/pages/NotFound/PageNotFound";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
+import { computeDiscountUI, subtotalFromItems } from "@/utils/cartTotals";
 import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
 import { translateStatus } from "@/utils/translateStatus";
 import { gql, useQuery } from "@apollo/client";
@@ -25,10 +26,6 @@ export default function CartLayout() {
   const path = location.pathname;
   const { ref } = useParams();
 
-  const [currentPage, setCurrentPage] = useState<CommandStatusEnum>(
-    CommandStatusEnum.pending
-  );
-
   const {
     data: orderData,
     loading: loadingOrder,
@@ -37,13 +34,14 @@ export default function CartLayout() {
     variables: { reference: ref },
     skip: !ref,
   });
-  const order = orderData?.getOrderByReference ?? null;
 
-  const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
-    gql(GET_CART_BY_USER),
-    { variables: { withOrderItems: true }, fetchPolicy: "cache-and-network" }
+  const order = orderData?.getOrderByReference;
+
+  const [currentPage, setCurrentPage] = useState<CommandStatusEnum>(
+    CommandStatusEnum.pending
   );
-  const cartFromQuery = cartQuery?.getCart ?? null;
+
+  const isRecap = currentPage === CommandStatusEnum.completed;
 
   useEffect(() => {
     if (path.startsWith("/cart/recap/")) {
@@ -69,6 +67,18 @@ export default function CartLayout() {
         break;
     }
   }, [path, orderItemsStore]);
+
+  const { data: cartQuery, refetch: refetchCartQuery } = useQuery(
+    gql(GET_CART_BY_USER),
+    { variables: { withOrderItems: true }, fetchPolicy: "cache-and-network" }
+  );
+  const cartFromQuery = cartQuery?.getCart;
+  const appliedVoucher = cartFromQuery?.voucher ?? null;
+
+  const subtotal = subtotalFromItems(
+    cartFromQuery?.orderItems ?? orderItemsStore
+  );
+  const promoCents = computeDiscountUI(subtotal, appliedVoucher || undefined);
 
   if (
     currentPage === CommandStatusEnum.completed &&
@@ -159,25 +169,33 @@ export default function CartLayout() {
                 />
               )}
 
-              {currentPage === CommandStatusEnum.completed && order && (
-                <TotalResume
-                  orderItems={order.orderItems}
-                  className="w-full"
-                  voucher={
-                    order.voucher
-                      ? {
-                          type: order.voucher.type as "percentage" | "fixed",
-                          amount: Number(order.voucher.amount),
-                          isActive: !!order.voucher.isActive,
-                          startsAt: order.voucher.startsAt,
-                          endsAt: order.voucher.endsAt,
-                        }
-                      : null
-                  }
-                  discountCentsOverride={order.discountAmount ?? undefined}
-                  totalCentsOverride={order.chargedAmount ?? undefined}
-                />
-              )}
+              <CartVoucherBox
+                currentCode={appliedVoucher?.code ?? null}
+                onChanged={() => refetchCartQuery()}
+              />
+              <TotalResume
+                orderItems={
+                  isRecap && order ? order.orderItems : orderItemsStore
+                }
+                className="w-full"
+                voucher={
+                  isRecap && order?.voucher
+                    ? {
+                        type: order.voucher.type as "percentage" | "fixed",
+                        amount: Number(order.voucher.amount),
+                        isActive: !!order.voucher.isActive,
+                        startsAt: order.voucher.startsAt,
+                        endsAt: order.voucher.endsAt,
+                      }
+                    : undefined
+                }
+                discountCentsOverride={
+                  isRecap ? (order?.discountAmount ?? undefined) : undefined
+                }
+                totalCentsOverride={
+                  isRecap ? (order?.chargedAmount ?? undefined) : undefined
+                }
+              />
 
               {/* Actions */}
               {currentPage === CommandStatusEnum.pending && (
