@@ -5,17 +5,12 @@ import {
   StringInput,
   SingleSelectorInput,
   DateRangePickerInput,
+  CheckboxInput,
 } from "@/components/forms/formField";
 import { getFormDefaultValues } from "@/components/forms/utils/getFormDefaultValues";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useModal } from "@/context/modalProvider";
 import {
   CREATE_VOUCHER,
@@ -29,7 +24,6 @@ import {
   toLocalInput,
 } from "@/schemas/voucherSchemas";
 import { useEffect } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 
 type VoucherFormUI = VoucherFormSchema & {
@@ -210,22 +204,12 @@ export function VoucherForm({ datas }: { datas?: Voucher }) {
           to={form.getValues("dateRange")?.to}
         />
 
-        <FormField
-          control={form.control}
+        <CheckboxInput
+          form={form}
           name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center space-x-2">
-              <FormControl>
-                <Checkbox
-                  checked={!!field.value}
-                  onCheckedChange={(v) => field.onChange(Boolean(v))}
-                  disabled={disabled}
-                  id="isActive"
-                />
-              </FormControl>
-              <FormLabel htmlFor="isActive">Actif</FormLabel>
-            </FormItem>
-          )}
+          label="Actif"
+          required={true}
+          isPending={disabled}
         />
 
         <div className="ml-auto w-[300px]">
