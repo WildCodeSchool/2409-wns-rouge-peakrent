@@ -151,8 +151,7 @@ const ProductsPage = () => {
   }
   return (
     <>
-      <div className="flex flex-row items-center justify-between h-10 px-2.5">
-        <h2>Breadcrumb ?</h2>
+      <div className="flex-row items-center justify-between h-10 px-2.5 md:hidden flex">
         <FilterButton
           text={"Filtrer"}
           modalContent={modal.content}
@@ -160,7 +159,7 @@ const ProductsPage = () => {
           variant="primary"
           modalTitle="Filtrer les produits"
           modalDescription={modal.description}
-          className="flex md:hidden text-base"
+          className="flex md:hidden text-base w-fit px-3"
         />
       </div>
 

@@ -24,7 +24,7 @@ const ProductsList = ({
 }: PropsType) => {
   return (
     <>
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center justify-between md:mt-4">
         <Title text={title} className="mb-4" />
         <div className="flex flex-row items-center justify-center gap-2.5">
           <p className="text-center text-[15px]">Produits par pages :</p>
