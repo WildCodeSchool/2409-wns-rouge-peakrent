@@ -43,19 +43,21 @@ export const DateRangePickerInput = ({
               <Input
                 type="date"
                 disabled={isPending}
-                value={from ?? ""}
-                onChange={(e) =>
-                  field.onChange({ ...field.value, from: e.target.value })
-                }
+                value={field.value?.from ?? from ?? ""}
+                onChange={(e) => {
+                  const current = field.value ?? {};
+                  field.onChange({ ...current, from: e.target.value });
+                }}
                 className={cn("w-full max-w-[200px]", inputClassName)}
               />
               <Input
                 type="date"
                 disabled={isPending}
-                value={to ?? ""}
-                onChange={(e) =>
-                  field.onChange({ ...field.value, to: e.target.value })
-                }
+                value={field.value?.to ?? to ?? ""}
+                onChange={(e) => {
+                  const current = field.value ?? {};
+                  field.onChange({ ...current, to: e.target.value });
+                }}
                 className={cn("w-full max-w-[200px]", inputClassName)}
               />
             </div>

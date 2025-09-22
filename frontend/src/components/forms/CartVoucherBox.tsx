@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { gql, useMutation } from "@apollo/client";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
-import { APPLY_VOUCHER, REMOVE_VOUCHER } from "@/graphQL/vouchers";
-import { CREATE_PAYMENT_INTENT } from "@/graphQL/stripe";
 import { GET_CART_BY_USER } from "@/graphQL";
+import { CREATE_PAYMENT_INTENT } from "@/graphQL/stripe";
+import { APPLY_VOUCHER, REMOVE_VOUCHER } from "@/graphQL/vouchers";
+import { gql, useMutation } from "@apollo/client";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { toast } from "sonner";
 
 type Props = {
   currentCode?: string | null;
@@ -38,6 +38,7 @@ export function CartVoucherBox({ currentCode, onChanged }: Props) {
   );
   const loc = useLocation();
   const isOnPayment = loc.pathname.startsWith("/cart/checkout/payment");
+  const isOnRecap = loc.pathname.startsWith("/cart/recap/");
 
   const refreshPIIfNeeded = async () => {
     if (isOnPayment) {
@@ -86,18 +87,20 @@ export function CartVoucherBox({ currentCode, onChanged }: Props) {
               {currentCode}
             </span>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleRemove}
-            disabled={removing || creatingPI}
-          >
-            Retirer
-          </Button>
+          {!isOnRecap && (
+            <Button
+              variant="outline"
+              onClick={handleRemove}
+              disabled={removing || creatingPI}
+            >
+              Retirer
+            </Button>
+          )}
         </div>
-      ) : (
-        <div className="flex gap-2">
+      ) : isOnRecap ? null : (
+        <div className="flex gap-2 w-full">
           <input
-            className="input flex-1"
+            className="input flex-1 min-w-0"
             placeholder="RENT20"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
