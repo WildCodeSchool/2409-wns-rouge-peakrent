@@ -155,7 +155,6 @@ export const ProductForm = () => {
           variables: { updateProductId: product.id, data: commonData },
         });
         toast.success("Produit modifié avec succès !");
-        navigate(`/products/${product.id}`);
       } else {
         let createdProductId: number | undefined;
 
@@ -170,17 +169,17 @@ export const ProductForm = () => {
               })),
             },
           });
-          createdProductId = data?.createProductWithVariants.id;
+          createdProductId = data?.createProductWithVariantsAdmin?.id;
         } else {
           const { data } = await createProduct({
             variables: { data: commonData },
           });
-          createdProductId = data?.createProduct.id;
+          createdProductId = data?.createProductAdmin?.id;
         }
 
         if (createdProductId) {
           toast.success("Produit créé avec succès !");
-          navigate(`/products/${createdProductId}`);
+          navigate(`/admin/products/edit/${createdProductId}`);
         }
       }
 

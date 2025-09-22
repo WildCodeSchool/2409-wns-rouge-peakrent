@@ -121,8 +121,8 @@ export const GET_PRODUCT_BY_VARIANT_ID = `
 `;
 
 export const CREATE_PRODUCT = `
-mutation CreateProduct($data: ProductCreateInput!) {
-  createProduct(data: $data) {
+mutation CreateProduct($data: ProductCreateInputAdmin!) {
+  createProductAdmin(data: $data) {
     id
     name
   }
@@ -130,8 +130,8 @@ mutation CreateProduct($data: ProductCreateInput!) {
 `;
 
 export const CREATE_PRODUCT_WITH_VARIANT = `
-mutation CreateProductWithVariants($productData: ProductCreateInput!, $variants: [VariantCreateNestedInput!]) {
-  createProductWithVariants(productData: $productData, variants: $variants) {
+mutation CreateProductWithVariants($productData: ProductCreateInputAdmin!, $variants: [VariantCreateNestedInputAdmin!]) {
+  createProductWithVariantsAdmin(productData: $productData, variants: $variants) {
     id
     name
     variants {
@@ -144,8 +144,8 @@ mutation CreateProductWithVariants($productData: ProductCreateInput!, $variants:
 `;
 
 export const UPDATE_PRODUCT = `
-mutation UpdateProduct($updateProductId: String!, $data: ProductUpdateInput!) {
-  updateProduct(id: $updateProductId, data: $data) {
+mutation UpdateProduct($updateProductId: String!, $data: ProductUpdateInputAdmin!) {
+  updateProductAdmin(id: $updateProductId, data: $data) {
     id
     name
   }
