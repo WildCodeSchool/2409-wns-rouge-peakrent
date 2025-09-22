@@ -73,7 +73,8 @@ const ProductDetail = () => {
     !selectedStartingDate ||
     !selectedEndingDate ||
     watchedVariants.length <= 0 ||
-    watchedQuantity < 0;
+    watchedQuantity < 0 ||
+    !userData?.id;
 
   const numberOfDays = totalDays(selectedStartingDate, selectedEndingDate);
 
@@ -91,6 +92,9 @@ const ProductDetail = () => {
       return toast.error(
         `La date de fin ne peut pas être inférieure à celle de début`
       );
+    }
+    if (!userData?.id) {
+      return toast.error("Veuillez vous connecter pour ajouter au panier");
     }
     const unavailableProducts: { size: string; color: string }[] = [];
 
@@ -116,8 +120,8 @@ const ProductDetail = () => {
             color: variant.color ?? "Inconnu",
           });
         } else {
-          console.error("erreur lors de l'ajout au panier :", err);
-          toast.error("erreur lors de l'ajout au panier");
+          console.error("Erreur lors de l'ajout au panier :", err);
+          toast.error("Erreur lors de l'ajout au panier");
         }
       }
     }
