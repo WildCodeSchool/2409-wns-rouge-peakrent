@@ -9,7 +9,6 @@ import { Profile } from "@/entities/Profile";
 import { Variant } from "@/entities/Variant";
 import { Voucher } from "@/entities/Voucher";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
@@ -21,7 +20,6 @@ import {
   Mutation,
   Query,
   Resolver,
-  UseMiddleware,
 } from "type-graphql";
 import { In } from "typeorm";
 
@@ -47,7 +45,6 @@ export class OrderResolverAdmin {
 
   @Query(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
-  @UseMiddleware(ErrorCatcher)
   async getOrderByIdAdmin(
     @Arg("id", () => ID) _id: number
   ): Promise<Order | null> {
@@ -73,7 +70,6 @@ export class OrderResolverAdmin {
 
   @Query(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
-  @UseMiddleware(ErrorCatcher)
   async getOrderByRefAdmin(
     @Arg("ref", () => String) ref: string
   ): Promise<Order | null> {

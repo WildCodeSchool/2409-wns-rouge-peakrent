@@ -2,9 +2,8 @@ import { Product, ProductWithCount } from "@/entities/Product";
 import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { GraphQLError } from "graphql";
-import { Arg, ID, Int, Query, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, ID, Int, Query, Resolver } from "type-graphql";
 import { ILike, In } from "typeorm";
 
 @Resolver(Product)
@@ -120,7 +119,6 @@ export class ProductResolver {
   }
 
   @Query(() => Product, { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async getProductByVariantId(
     @Arg("id", () => ID) id: number
   ): Promise<Product | null> {

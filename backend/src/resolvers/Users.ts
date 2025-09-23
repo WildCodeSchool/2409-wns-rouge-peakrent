@@ -19,7 +19,6 @@ import {
   sendConfirmEmail,
   sendConfirmNewEmail,
 } from "@/lib/email/validationEmail";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
 import {
   cleanupUserTokens,
   clearCookies,
@@ -47,14 +46,7 @@ import { UserInputError } from "apollo-server-errors";
 import * as argon2 from "argon2";
 import { ValidationError } from "class-validator";
 import { GraphQLError } from "graphql";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  Mutation,
-  Resolver,
-  UseMiddleware,
-} from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
 
 @Resolver(User)
 export class UserResolver {
@@ -153,7 +145,6 @@ export class UserResolver {
 
   @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
   @Mutation(() => Profile)
-  @UseMiddleware(ErrorCatcher)
   async updateUserProfile(
     @Arg("data", () => UserUpdateProfileInput) data: UserUpdateProfileInput,
     @Ctx() context: AuthContextType
@@ -184,7 +175,6 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async forgotPassword(
     @Arg("data", () => ForgotPasswordInput) data: ForgotPasswordInput
   ): Promise<boolean> {
@@ -205,7 +195,6 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async resetPassword(
     @Arg("data", () => ResetPasswordInput) data: ResetPasswordInput
   ): Promise<boolean> {
@@ -231,7 +220,6 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async verifyResetToken(@Arg("token") token: string): Promise<boolean> {
     const decoded = verifyToken(token, process.env.JWT_SECRET_RECOVER_KEY) as {
       id: number;
@@ -246,7 +234,6 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async verifyConfirmEmailToken(@Arg("token") token: string): Promise<boolean> {
     const decoded = verifyToken(token, process.env.JWT_SECRET_RECOVER_KEY) as {
       id: number;
@@ -268,7 +255,6 @@ export class UserResolver {
 
   @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async changeEmail(
     @Ctx() context: AuthContextType,
     @Arg("data", () => ChangeEmailInput) data: ChangeEmailInput
@@ -299,7 +285,6 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async confirmNewEmail(
     @Ctx() context: ContextType,
     @Arg("data", () => ConfirmNewEmailInput) data: ConfirmNewEmailInput
@@ -351,7 +336,6 @@ export class UserResolver {
 
   @Authorized(RoleType.admin, RoleType.user, RoleType.superadmin)
   @Mutation(() => Boolean)
-  @UseMiddleware(ErrorCatcher)
   async changePassword(
     @Ctx() context: AuthContextType,
     @Arg("data", () => ChangePasswordInput) data: ChangePasswordInput
