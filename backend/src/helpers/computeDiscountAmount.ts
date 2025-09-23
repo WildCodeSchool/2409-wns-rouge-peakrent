@@ -15,7 +15,7 @@ export const computeDiscountAmount = (
 
   const now = new Date();
   if (voucher.startsAt && now < voucher.startsAt) {
-    throw new GraphQLError("This voucher is will be active soon", {
+    throw new GraphQLError("This voucher will be active soon", {
       extensions: { code: "VOUCHER_NOT_APPLICABLE" },
     });
   }
