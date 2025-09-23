@@ -5,21 +5,22 @@ export const computeDiscountAmount = (
   subtotal: number,
   voucher?: Voucher
 ): number => {
+  if (!voucher) return 0;
   // if date null alors valable tout le temps
-  if (!voucher || !voucher.isActive) {
-    throw new GraphQLError("Voucher not applicable", {
+  if (!voucher.isActive) {
+    throw new GraphQLError("This voucher is no more active", {
       extensions: { code: "VOUCHER_NOT_APPLICABLE" },
     });
   }
 
   const now = new Date();
   if (voucher.startsAt && now < voucher.startsAt) {
-    throw new GraphQLError("Voucher not applicable", {
+    throw new GraphQLError("This voucher will be active soon", {
       extensions: { code: "VOUCHER_NOT_APPLICABLE" },
     });
   }
   if (voucher.endsAt && now > voucher.endsAt) {
-    throw new GraphQLError("Voucher not applicable", {
+    throw new GraphQLError("This voucher is depreciated", {
       extensions: { code: "VOUCHER_NOT_APPLICABLE" },
     });
   }
