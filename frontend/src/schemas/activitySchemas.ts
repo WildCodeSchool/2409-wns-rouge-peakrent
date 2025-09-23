@@ -32,7 +32,7 @@ export const activityBaseSchema = (
       description: createStringSchema({
         minLength: 10,
         maxLength: 500,
-        defaultValue: datas?.description,
+        defaultValue: datas?.description || null,
         required: false,
         invalidFormatError: "La description est invalide",
         minLengthError: "La description doit contenir au moins 10 caractères",

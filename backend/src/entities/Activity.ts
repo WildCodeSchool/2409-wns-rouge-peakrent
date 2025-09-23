@@ -1,5 +1,11 @@
-import { Pagination } from "../commonInput/Pagination";
-import { IsNotEmpty, IsString, IsUrl, Length } from "class-validator";
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  ValidateIf,
+} from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -12,6 +18,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { Pagination } from "../commonInput/Pagination";
 import { PaginationInput } from "../commonInput/PaginationInput";
 import { IsValidSortField } from "../decorators/IsValidSortField";
 import { Product } from "./Product";
@@ -44,8 +51,7 @@ export class Activity extends BaseEntity {
   variant!: string;
 
   @Field({ nullable: true })
-  @Column({ name: "description", nullable: true })
-  @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
+  @Column({ name: "description", length: 500, nullable: true })
   description?: string;
 
   @Field()
@@ -106,6 +112,8 @@ export class ActivityCreateInputAdmin {
   urlImage!: string;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @ValidateIf((request) => request.description !== "")
   @IsString()
   @Length(10, 500, { message: "Description must be between 10 and 500 chars" })
   description?: string;
