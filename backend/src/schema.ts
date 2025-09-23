@@ -1,5 +1,6 @@
 import { buildSchema } from "type-graphql";
 import { authChecker } from "./auth";
+import { ErrorCatcher } from "./middlewares/errorHandler";
 import { ActivityResolver } from "./resolvers/Activities";
 import { ActivityResolverAdmin } from "./resolvers/admin/Activities";
 import { CartResolverAdmin } from "./resolvers/admin/Cart";
@@ -12,6 +13,7 @@ import { StoreResolverAdmin } from "./resolvers/admin/Stores";
 import { StoreVariantResolverAdmin } from "./resolvers/admin/StoresVariants";
 import { UserResolverAdmin } from "./resolvers/admin/Users";
 import { CartResolver } from "./resolvers/Cart";
+import { CartVoucherResolver } from "./resolvers/CartVoucher";
 import { CategoryResolver } from "./resolvers/Categories";
 import { OrderResolver } from "./resolvers/Order";
 import { OrderItemsResolver } from "./resolvers/OrderItems";
@@ -24,7 +26,6 @@ import { StoreVariantResolver } from "./resolvers/StoresVariants";
 import { UserResolver } from "./resolvers/Users";
 import { VariantResolver } from "./resolvers/Variants";
 import { VoucherResolverAdmin } from "./resolvers/Vouchers";
-import { CartVoucherResolver } from "./resolvers/CartVoucher";
 
 export async function getSchema() {
   // Admin resolvers
@@ -62,6 +63,7 @@ export async function getSchema() {
     ],
     authChecker,
     validate: true,
+    globalMiddlewares: [ErrorCatcher],
   });
 
   return schema;

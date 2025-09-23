@@ -5,26 +5,16 @@ import {
   CategoryUpdateInputAdmin,
 } from "@/entities/Category";
 import { normalizeString } from "@/helpers/helpers";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  ID,
-  Mutation,
-  Resolver,
-  UseMiddleware,
-} from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import { In } from "typeorm";
 
 @Resolver(Category)
 export class CategoryResolverAdmin {
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category)
-  @UseMiddleware(ErrorCatcher)
   async createCategoryAdmin(
     @Arg("data", () => CategoryCreateInputAdmin) data: CategoryCreateInputAdmin,
     @Ctx() context: AuthContextType
@@ -91,7 +81,6 @@ export class CategoryResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category, { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async updateCategoryAdmin(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => CategoryUpdateInputAdmin) data: CategoryUpdateInputAdmin,
@@ -188,7 +177,6 @@ export class CategoryResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Category, { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async deleteCategoryAdmin(
     @Arg("id", () => ID) _id: number
   ): Promise<Category | null> {
@@ -211,7 +199,6 @@ export class CategoryResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => [ID], { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async deleteCategoriesAdmin(
     @Arg("ids", () => [ID]) ids: number[]
   ): Promise<number[] | null> {

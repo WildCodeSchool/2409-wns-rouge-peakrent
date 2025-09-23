@@ -5,26 +5,16 @@ import {
 } from "@/entities/Activity";
 import { deleteImageFromUploadsDir } from "@/helpers/deleteImage";
 import { normalizeString } from "@/helpers/helpers";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
 import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  ID,
-  Mutation,
-  Resolver,
-  UseMiddleware,
-} from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import { In } from "typeorm";
 
 @Resolver(Activity)
 export class ActivityResolverAdmin {
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity)
-  @UseMiddleware(ErrorCatcher)
   async createActivityAdmin(
     @Arg("data", () => ActivityCreateInputAdmin) data: ActivityCreateInputAdmin,
     @Ctx() context: AuthContextType
@@ -59,7 +49,6 @@ export class ActivityResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity, { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async updateActivityAdmin(
     @Arg("id", () => ID) _id: number,
     @Arg("data", () => ActivityUpdateInputAdmin) data: ActivityUpdateInputAdmin,
@@ -110,7 +99,6 @@ export class ActivityResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Activity, { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async deleteActivityAdmin(
     @Arg("id", () => ID) _id: number
   ): Promise<Activity | null> {
@@ -134,7 +122,6 @@ export class ActivityResolverAdmin {
 
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => [ID], { nullable: true })
-  @UseMiddleware(ErrorCatcher)
   async deleteActivitiesAdmin(
     @Arg("ids", () => [ID]) ids: number[]
   ): Promise<number[] | null> {

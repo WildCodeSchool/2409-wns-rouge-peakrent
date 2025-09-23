@@ -1,18 +1,6 @@
 import { dataSource } from "@/config/db";
 import { Profile } from "@/entities/Profile";
 import { User } from "@/entities/User";
-import { RoleType } from "@/types";
-import {
-  Arg,
-  Authorized,
-  ID,
-  Mutation,
-  Query,
-  Resolver,
-  UseMiddleware,
-} from "type-graphql";
-import { ILike, Not } from "typeorm";
-import { GraphQLError } from "graphql";
 import {
   anonymizeProfileAndUser,
   getUserAndProfile,
@@ -20,7 +8,10 @@ import {
   secureHash,
   verifyPassword,
 } from "@/helpers/helpers";
-import { ErrorCatcher } from "@/middlewares/errorHandler";
+import { RoleType } from "@/types";
+import { GraphQLError } from "graphql";
+import { Arg, Authorized, ID, Mutation, Query, Resolver } from "type-graphql";
+import { ILike, Not } from "typeorm";
 
 @Resolver(Profile)
 export class ProfileResolverAdmin {
@@ -78,7 +69,6 @@ export class ProfileResolverAdmin {
   }
 
   @Authorized([RoleType.admin, RoleType.superadmin])
-  @UseMiddleware(ErrorCatcher)
   @Mutation(() => User, { nullable: true })
   async retrieveAnonymisedAccount(
     @Arg("email") email: string,
