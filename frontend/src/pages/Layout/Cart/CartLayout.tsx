@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import PageNotFound from "@/pages/NotFound/PageNotFound";
 import { CommandStatusEnum, useCartStoreUser } from "@/stores/user/cart.store";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { computeDiscountUI, subtotalFromItems } from "@/utils/cartTotals";
 import { getStatusBadgeVariant } from "@/utils/getVariants/getStatusBadgeVariant";
 import { translateStatus } from "@/utils/translateStatus";
 import { gql, useQuery } from "@apollo/client";
@@ -165,7 +164,11 @@ export default function CartLayout() {
               )}
 
               <CartVoucherBox
-                currentCode={appliedVoucher?.code ?? null}
+                currentCode={
+                  isRecap && order?.voucher
+                    ? order.voucher.code
+                    : (appliedVoucher?.code ?? null)
+                }
                 onChanged={() => refetchCartQuery()}
               />
               <TotalResume

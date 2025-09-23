@@ -31,6 +31,13 @@ export const DateRangePickerInput = ({
   from,
   to,
 }: StringInputProps) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const localToday = new Date(
+    today.getTime() - today.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split("T")[0];
   return (
     <FormField
       control={form.control}
@@ -43,19 +50,23 @@ export const DateRangePickerInput = ({
               <Input
                 type="date"
                 disabled={isPending}
-                value={from ?? ""}
-                onChange={(e) =>
-                  field.onChange({ ...field.value, from: e.target.value })
-                }
+                min={localToday}
+                value={field.value?.from ?? from ?? ""}
+                onChange={(e) => {
+                  const current = field.value ?? {};
+                  field.onChange({ ...current, from: e.target.value });
+                }}
                 className={cn("w-full max-w-[200px]", inputClassName)}
               />
               <Input
                 type="date"
                 disabled={isPending}
-                value={to ?? ""}
-                onChange={(e) =>
-                  field.onChange({ ...field.value, to: e.target.value })
-                }
+                min={localToday}
+                value={field.value?.to ?? to ?? ""}
+                onChange={(e) => {
+                  const current = field.value ?? {};
+                  field.onChange({ ...current, to: e.target.value });
+                }}
                 className={cn("w-full max-w-[200px]", inputClassName)}
               />
             </div>

@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import DeleteButton from "../buttons/DeleteButton";
 
 interface ProfileCardProps {
@@ -20,7 +20,7 @@ export default function ProfileCard({
   onDelete,
 }: ProfileCardProps) {
   return (
-    <Card className="flex flex-col md:flex-row items-center gap-4 p-4 sm:p-6 mb-6">
+    <Card className="flex flex-col md:flex-row items-center gap-2 p-4 sm:p-6 mb-6">
       <div className="w-20 h-20 flex items-center justify-center rounded-full bg-gray-100">
         <svg
           width="48"
@@ -52,6 +52,7 @@ export default function ProfileCard({
         ariaLabel={"deleteActivityAriaLabel"}
         modalTitle="Supprimer votre profil"
         modalDescription="Cette action sera définitive. Voulez-vous vraiment supprimer votre profil ?"
+        className="size-10"
       />
     </Card>
   );

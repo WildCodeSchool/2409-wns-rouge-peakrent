@@ -56,7 +56,7 @@ export const CREATE_PROFILE = `
 `;
 
 export const UPDATE_PROFILE = `
-  mutation UpdateUserByAdmin($data: AdminUpdateUserInput!, $id: ID!) {
+  mutation UpdateUserByAdmin($data: UpdateUserInputAdmin!, $id: ID!) {
     updateUserByAdmin(data: $data, id: $id) {
       email
       firstname

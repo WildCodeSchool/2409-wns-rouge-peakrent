@@ -93,7 +93,7 @@ export function CartItemCard({
               {product?.sku ?? ""}
             </p>
             <p className="text-sm font-normal flex gap-1 items-center my-3 flex-wrap">
-              {!handleDateChange ? (
+              {!onDateChange ? (
                 <>
                   <time
                     className="text-sm font-normal"
@@ -113,6 +113,7 @@ export function CartItemCard({
                     className="text-sm font-normal"
                     value={new Date(item.startsAt).toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange?.(true, e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
                   />
                   <ChevronsRight className="size-4" />
                   <input
@@ -120,6 +121,7 @@ export function CartItemCard({
                     className="text-sm font-normal"
                     value={new Date(item.endsAt).toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange?.(false, e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
                   />
                 </>
               )}
