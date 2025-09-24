@@ -178,7 +178,7 @@ export const ProductForm = () => {
     if (product?.id) {
       const newSchema = productFormSchema(product);
       const newDefaults = getFormDefaultValues(newSchema);
-      form.reset(newDefaults as any);
+      form.reset(newDefaults);
       setRemoveImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
       setImageSrc(product?.urlImage || placeholderImage);
@@ -325,11 +325,9 @@ export const ProductForm = () => {
       await refetch();
       toast.success("Variant supprimé avec succès !");
       return true;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      const message = (e as any)?.graphQLErrors?.[0]?.message as
-        | string
-        | undefined;
+      const message = e?.graphQLErrors?.[0]?.message as string | undefined;
       if (message && message.toLowerCase().includes("linked to orders")) {
         toast.error(
           "Ce variant est lié à des commandes. Dépubliez-le au lieu de le supprimer."
@@ -505,10 +503,10 @@ export const ProductForm = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                         {displayedVariants.map((variant, index) => (
                           <div
-                            key={(variant as Variant).id ?? index}
+                            key={variant.id ?? index}
                             className={cn(
                               "flex items-center justify-between p-4 border border-red-700 rounded-lg shadow-sm bg-destructive/10 relative",
-                              (variant as any).isPublished &&
+                              variant.isPublished &&
                                 "bg-green-500/20 border-green-700"
                             )}
                           >
@@ -528,23 +526,19 @@ export const ProductForm = () => {
                             {product?.id && (
                               <div className="flex items-center gap-2 absolute right-3 top-3">
                                 <Switch
-                                  checked={(variant as any).isPublished}
+                                  checked={variant.isPublished}
                                   onCheckedChange={() =>
-                                    handleToggleVariant(
-                                      Number((variant as Variant).id)
-                                    )
+                                    handleToggleVariant(Number(variant.id))
                                   }
                                   className={
-                                    (variant as any).isPublished
+                                    variant.isPublished
                                       ? "data-[state=checked]:bg-primary"
                                       : "data-[state=unchecked]:bg-destructive"
                                   }
                                   aria-label="toggleVariantPublication"
                                 />
                                 <span className="text-xs font-medium">
-                                  {(variant as any).isPublished
-                                    ? "Publié"
-                                    : "Dépublié"}
+                                  {variant.isPublished ? "Publié" : "Dépublié"}
                                 </span>
                               </div>
                             )}

@@ -1,3 +1,4 @@
+import { OrderItem } from "@/entities/OrderItem";
 import { Product } from "@/entities/Product";
 import {
   Variant,
@@ -119,9 +120,9 @@ export class VariantResolverAdmin {
       });
     }
 
-    const orderItemCount = await (
-      await import("@/entities/OrderItem")
-    ).OrderItem.count({ where: { variant: { id } } as any });
+    const orderItemCount = await OrderItem.count({
+      where: { variant: { id } },
+    });
     if (orderItemCount > 0) {
       throw new GraphQLError(`Variant linked to orders; cannot delete`, {
         extensions: { code: "CONFLICT", http: { status: 409 } },
