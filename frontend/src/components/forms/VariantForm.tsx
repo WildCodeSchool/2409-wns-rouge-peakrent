@@ -18,7 +18,11 @@ import { MultiSelect } from "../ui/multiple-selector";
 type VariantFormType = {
   variant?: Variant;
   productId?: number;
-  setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
+  setNewVariants?: React.Dispatch<
+    React.SetStateAction<
+      { pricePerDay: number; size?: string; color?: string; id?: string }[]
+    >
+  >;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
 };
 
