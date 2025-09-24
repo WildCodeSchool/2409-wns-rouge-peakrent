@@ -1,4 +1,5 @@
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import placeholderImage from "@/components/icons/emptyImage2.svg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,8 @@ import {
 import { uploadImage } from "@/utils/uploadImages";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -97,6 +99,9 @@ export const ProductForm = () => {
   >([]);
   const [variants, setVariants] = useState<ProductFormSchema["variants"]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
+  const [removeImage, setRemoveImage] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const formSchema = productFormSchema(product);
   const defaultValues = getFormDefaultValues(formSchema);
@@ -108,6 +113,8 @@ export const ProductForm = () => {
   const displayedVariants = product?.id
     ? product?.variants || []
     : variants || [];
+
+  const watchedImage = form.watch("image");
 
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
@@ -136,9 +143,29 @@ export const ProductForm = () => {
     form.setValue("variants", mappedVariants);
   }, []);
 
+  useEffect(() => {
+    const preview = watchedImage
+      ? URL.createObjectURL(watchedImage)
+      : removeImage
+        ? placeholderImage
+        : product?.urlImage || placeholderImage;
+    setImageSrc(preview);
+    return () => {
+      if (watchedImage) URL.revokeObjectURL(preview);
+    };
+  }, [watchedImage, product?.urlImage, removeImage]);
+
+  const handleFullReset = () => {
+    form.reset(defaultValues);
+    setRemoveImage(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setImageSrc(product?.urlImage || placeholderImage);
+  };
+
   const { errors } = form.formState;
 
-  const variantItemsErrors = errors.variants?.message;
   const variantItemCustomError = errors.variants?.[0]
     ? JSON.stringify(
         Object.values(errors.variants[0])
@@ -150,6 +177,8 @@ export const ProductForm = () => {
           .join(", ")
       )
     : undefined;
+
+  const imageError = errors.urlImage?.message;
 
   if (loadingProduct || loadingCategories || loadingActivities)
     return <p className="text-center my-4">Chargement...</p>;
@@ -170,9 +199,11 @@ export const ProductForm = () => {
   const handleSubmit = async (formData: ProductFormSchema) => {
     setIsSubmitting(true);
     try {
-      const urlImage = formData.image
-        ? await uploadImage(formData.image)
-        : product?.urlImage;
+      const urlImage = removeImage
+        ? null
+        : formData.image
+          ? await uploadImage(formData.image)
+          : product?.urlImage;
 
       const commonData = {
         name: formData.name,
@@ -218,17 +249,6 @@ export const ProductForm = () => {
           navigate(`/admin/products/edit/${createdProductId}`);
         }
       }
-
-      // if (!product?.id) {
-      //   setName("");
-      //   setSku("");
-      //   setDescription("");
-      //   setImage(null);
-      //   setIsPublished(true);
-      //   setSelectedCategories([]);
-      //   setSelectedActivities([]);
-      //   setNewVariants([]);
-      // }
     } catch (error: any) {
       console.error("GraphQL Error:", error);
 
@@ -272,8 +292,6 @@ export const ProductForm = () => {
       <VariantForm setNewVariants={setVariants} variant={variant} />
     );
 
-  const watchedImage = form.watch("image");
-
   return (
     <div className="mx-auto grid flex-1 auto-rows-max gap-4">
       <Form {...form}>
@@ -283,9 +301,7 @@ export const ProductForm = () => {
           noValidate
         >
           <ProductHeader
-            handleReset={() => {
-              form.reset();
-            }}
+            handleReset={handleFullReset}
             isPending={isSubmitting}
             product={product}
           />
@@ -468,7 +484,7 @@ export const ProductForm = () => {
                       variant="outline"
                       className="w-fit mt-6"
                       disabled={isSubmitting}
-                      onClick={() => form.reset(defaultValues)}
+                      onClick={handleFullReset}
                     >
                       Réinitialiser
                     </Button>
@@ -496,13 +512,52 @@ export const ProductForm = () => {
                       alt="Product image"
                       className="s:scale-125 aspect-video w-full scale-110 object-contain"
                       height="242"
-                      src={
-                        product?.urlImage
-                          ? product.urlImage
-                          : "/placeholder.png"
-                      }
+                      src={imageSrc}
+                      onError={() => setImageSrc(placeholderImage)}
                       width="152"
                     />
+                  </div>
+                  <div className="mt-4">
+                    {imageError && (
+                      <div className="pb-4 text-sm font-bold text-red-500">
+                        {imageError}
+                      </div>
+                    )}
+                    <label className="block text-sm font-medium mb-2">
+                      Ajouter / Modifier l&rsquo;image
+                    </label>
+                    <div className="flex items-center gap-2 justify-between w-full">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        disabled={isSubmitting}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          form.setValue("image", file);
+                          if (file) setRemoveImage(false);
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        className="size-8 min-h-8 min-w-8"
+                        size="icon"
+                        disabled={
+                          (!product?.urlImage && !watchedImage) || removeImage
+                        }
+                        onClick={() => {
+                          form.setValue("image", null);
+                          setRemoveImage(true);
+                          setImageSrc(placeholderImage);
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
