@@ -239,9 +239,9 @@ Database migrations are managed via TypeORM.
 ### Main commands :
 
 ```bash
-npm run migration:generate -- -n NomMigration   # Generate a new migration
-npm run migration:run                          # Apply migrations to the database
-npm run migration:revert                       # Revert the last migration
+docker compose exec backend npm run migration:generate -- -n migrations/NomMigration   # Generate a new migration
+docker compose exec backend npm run migration:run                          # Apply migrations to the database
+docker compose exec backend npm run migration:revert                       # Revert the last migration
 ```
 
 - Migration files are stored in the `backend/migrations` folder.
