@@ -18,6 +18,8 @@ export const getOrderItemStatusVariant = (name: string): BadgeVariantType => {
       return "red";
     case "refunded":
       return "orange";
+    case "confirmed":
+      return "green";
     default:
       return "black";
   }
@@ -26,7 +28,9 @@ export const getOrderItemStatusVariant = (name: string): BadgeVariantType => {
 export const getOrderItemStatusText = (name: string): string => {
   switch (name) {
     case "pending":
-      return "En attente";
+      return "En attente de paiement";
+    case "inProgress":
+      return "En cours de location";
     case "distributed":
       return "Distribué";
     case "recovered":
@@ -35,6 +39,8 @@ export const getOrderItemStatusText = (name: string): string => {
       return "Annulé";
     case "refunded":
       return "Remboursé";
+    case "confirmed":
+      return "Confirmé";
     default:
       return "Erreur";
   }

@@ -15,10 +15,10 @@
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"./**/*.{ts,tsx,js,jsx,json}\"",
     "lint": "eslint .",
-    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/config/db.ts",
-    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/config/db.ts",
-    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d src/config/db.ts",
-    "migration:show": "npx typeorm-ts-node-commonjs migration:show -d src/config/db.ts"
+    "migration:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/config/db.ts",
+    "migration:run": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/config/db.ts",
+    "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d src/config/db.ts",
+    "migration:show": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:show -d src/config/db.ts"
   },
   "author": "",
   "license": "ISC",

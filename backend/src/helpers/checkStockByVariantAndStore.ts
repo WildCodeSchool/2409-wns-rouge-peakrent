@@ -4,6 +4,7 @@ import { OrderStatusType } from "@/types";
 import { GraphQLError } from "graphql";
 import {
   FindOperator,
+  In,
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -48,7 +49,11 @@ export const checkStockByVariantAndStore = async (
     variant: { id: variantId },
     order: {
       id: Not(IsNull()),
-      status: OrderStatusType.confirmed,
+      status: In([
+        OrderStatusType.confirmed,
+        OrderStatusType.pending,
+        OrderStatusType.inProgress,
+      ]),
     },
   };
 

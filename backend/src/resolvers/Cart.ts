@@ -4,6 +4,7 @@ import { OrderItem } from "@/entities/OrderItem";
 import { Payment } from "@/entities/Payment";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
 import { computeTotal } from "@/helpers/computeDiscountAmount";
+import { generateOrderItemStatusFromOrderStatus } from "@/helpers/generateOrderItemStatus";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
 import { getTotalOrderPrice } from "@/helpers/getTotalOrderPrice";
 import {
@@ -159,10 +160,12 @@ export class CartResolver {
     }
 
     const reference = generateOrderReference(new Date().toString());
-    const status =
-      data.paymentMethod === OrderPaymentType.onSite
-        ? OrderStatusType.confirmed
-        : OrderStatusType.pending;
+
+    const status = OrderStatusType.pending;
+
+    if (data.paymentMethod === OrderPaymentType.onSite) {
+      payment.status = StripePaymentStatusType.ToBePaid;
+    }
 
     const order = new Order();
     Object.assign(
@@ -173,7 +176,10 @@ export class CartResolver {
         status,
         paymentMethod: data.paymentMethod,
         reference,
-        paidAt: new Date(),
+        paidAt:
+          payment.status === StripePaymentStatusType.Succeeded
+            ? new Date()
+            : null,
         address1: cart.address1,
         address2: cart.address2,
         country: cart.country,
@@ -189,9 +195,6 @@ export class CartResolver {
     }
     await order.save();
 
-    if (data.paymentMethod === OrderPaymentType.onSite) {
-      payment.status = StripePaymentStatusType.ToBePaid;
-    }
     payment.order = order;
     await payment.save();
 
@@ -199,6 +202,7 @@ export class CartResolver {
       orderItems.map(async (item) => {
         item.cart = null;
         item.order = order;
+        item.status = generateOrderItemStatusFromOrderStatus(status);
         await item.save();
       })
     );

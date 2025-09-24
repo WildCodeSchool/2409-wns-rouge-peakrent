@@ -3,7 +3,11 @@ import { CreditCard, Home, Phone } from "lucide-react";
 import CopyButton from "@/components/buttons/CopyButton";
 import { Button, Card, CardContent, Separator } from "@/components/ui";
 import { Order as OrderType } from "@/gql/graphql";
-import { GET_ORDER_BY_ID_ADMIN, UPDATE_ORDER_ADMIN } from "@/graphQL/order";
+import {
+  GET_ORDER_BY_ID_ADMIN,
+  GET_ORDER_BY_REF_ADMIN,
+  UPDATE_ORDER_ADMIN,
+} from "@/graphQL/order";
 import { formatLocaleDate } from "@/utils";
 import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
@@ -16,7 +20,7 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
   const [updateOrderAdmin, { loading: updating }] = useMutation(
     gql(UPDATE_ORDER_ADMIN),
     {
-      refetchQueries: [gql(GET_ORDER_BY_ID_ADMIN)],
+      refetchQueries: [gql(GET_ORDER_BY_ID_ADMIN), gql(GET_ORDER_BY_REF_ADMIN)],
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast.success("Paiement mis à jour avec succès");

@@ -39,6 +39,12 @@ export const updateOrderStatusFromOrderItem = async (
   const anyPending = itemsWithThis.some(
     (it) => it.status === OrderItemStatusType.pending
   );
+  const anyInProgress = itemsWithThis.some(
+    (it) => it.status === OrderItemStatusType.distributed
+  );
+  const allPending = itemsWithThis.every(
+    (it) => it.status === OrderItemStatusType.pending
+  );
 
   let nextStatus: OrderStatusType;
   if (allRecovered) {
@@ -49,8 +55,16 @@ export const updateOrderStatusFromOrderItem = async (
     nextStatus = OrderStatusType.refunded;
   } else if (anyPending) {
     nextStatus = OrderStatusType.pending;
+  } else if (anyInProgress) {
+    nextStatus = OrderStatusType.inProgress;
   } else {
     nextStatus = OrderStatusType.confirmed;
+  }
+
+  // A vérifier
+  if (allPending) {
+    order.paidAt = null;
+    await order.save();
   }
 
   if (order.status !== nextStatus) {
