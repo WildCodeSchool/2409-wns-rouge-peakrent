@@ -22,3 +22,9 @@ mutation UpdateVariant($data: VariantUpdateInputAdmin!, $updateVariantId: ID!) {
   }
 }
 `;
+
+export const DELETE_VARIANT = `
+mutation DeleteVariant($id: ID!) {
+  deleteVariant(id: $id)
+}
+`;

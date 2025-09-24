@@ -12,6 +12,7 @@ import {
   GET_PRODUCT_BY_ID,
   UPDATE_PRODUCT,
 } from "@/graphQL/products";
+import { DELETE_VARIANT } from "@/graphQL/variants";
 import {
   productFormSchema,
   type ProductFormSchema,
@@ -25,6 +26,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import CreateButton from "../buttons/CreateButton";
+import DeleteButton from "../buttons/DeleteButton";
 import UpdateButton from "../buttons/UpdateButton";
 import {
   Card,
@@ -89,6 +91,7 @@ export const ProductForm = () => {
   const [createProductWithVariant] = useMutation(
     gql(CREATE_PRODUCT_WITH_VARIANT)
   );
+  const [deleteVariantMutation] = useMutation(gql(DELETE_VARIANT));
 
   const product: Product | null = getProductData?.getProductById;
 
@@ -163,6 +166,18 @@ export const ProductForm = () => {
     }
     setImageSrc(product?.urlImage || placeholderImage);
   };
+
+  // Ensure fields are populated when product data arrives on edit page
+  useEffect(() => {
+    if (product?.id) {
+      const newSchema = productFormSchema(product);
+      const newDefaults = getFormDefaultValues(newSchema);
+      form.reset(newDefaults as any);
+      setRemoveImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setImageSrc(product?.urlImage || placeholderImage);
+    }
+  }, [product?.id]);
 
   const { errors } = form.formState;
 
@@ -291,6 +306,25 @@ export const ProductForm = () => {
     ) : (
       <VariantForm setNewVariants={setVariants} variant={variant} />
     );
+
+  const handleDeleteLocalVariant = (index: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteVariant = async (ids?: (string | number)[]) => {
+    try {
+      if (!ids || ids.length === 0) return false;
+      const id = Number(ids[0]);
+      await deleteVariantMutation({ variables: { id } });
+      await refetch();
+      toast.success("Variant supprimé avec succès !");
+      return true;
+    } catch (e) {
+      console.error(e);
+      toast.error("Échec de la suppression du variant");
+      return false;
+    }
+  };
 
   return (
     <div className="mx-auto grid flex-1 auto-rows-max gap-4">
@@ -461,17 +495,41 @@ export const ProductForm = () => {
                                 €/J
                               </p>
                             </div>
-                            {product?.id && (variant as Variant).id && (
-                              <UpdateButton
-                                type="button"
-                                modalContent={renderVariantForm(
-                                  variant as Variant
-                                )}
-                                ariaLabel="updateVariantAriaLabel"
-                                variant="primary"
-                                modalTitle="Modifier un variant"
-                              />
-                            )}
+                            <div className="flex gap-2">
+                              {product?.id && (variant as Variant).id && (
+                                <UpdateButton
+                                  type="button"
+                                  modalContent={renderVariantForm(
+                                    variant as Variant
+                                  )}
+                                  ariaLabel="updateVariantAriaLabel"
+                                  variant="primary"
+                                  modalTitle="Modifier un variant"
+                                />
+                              )}
+                              {!product?.id ? (
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  className="size-8 min-h-8 min-w-8"
+                                  onClick={() =>
+                                    handleDeleteLocalVariant(index)
+                                  }
+                                >
+                                  <Trash2 size={18} />
+                                </Button>
+                              ) : (
+                                <DeleteButton
+                                  ariaLabel="deleteVariantAriaLabel"
+                                  variant="destructive"
+                                  onDeleteFunction={handleDeleteVariant}
+                                  elementIds={[Number((variant as Variant).id)]}
+                                  modalTitle="Supprimer le variant?"
+                                  modalDescription="Cette action est irréversible."
+                                  confirmButtonValue="Supprimer"
+                                />
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>

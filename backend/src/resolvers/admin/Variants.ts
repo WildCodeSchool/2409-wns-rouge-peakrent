@@ -6,6 +6,7 @@ import {
 } from "@/entities/Variant";
 import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -35,7 +36,7 @@ export class VariantResolverAdmin {
     });
   }
 
-  @Authorized([RoleType.admin])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Variant)
   async createVariant(
     @Arg("data", () => VariantCreateInputAdmin) data: VariantCreateInputAdmin,
@@ -61,24 +62,16 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized([RoleType.admin])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Variant, { nullable: true })
   async updateVariant(
     @Arg("id", () => ID) id: number,
-    @Arg("data", () => VariantUpdateInputAdmin) data: VariantUpdateInputAdmin,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => VariantUpdateInputAdmin) data: VariantUpdateInputAdmin
   ): Promise<Variant | null> {
-    const variant = await Variant.findOne({
-      where: { id },
-      relations: { createdBy: true },
-    });
+    const variant = await Variant.findOne({ where: { id } });
 
     if (!variant) {
       throw new Error("Variant not found.");
-    }
-
-    if (variant.createdBy.id !== context.user.id) {
-      throw new Error("Unauthorized: You can only update your own variants.");
     }
 
     Object.assign(variant, data);
@@ -92,26 +85,24 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized([RoleType.admin])
-  @Mutation(() => Variant, { nullable: true })
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Mutation(() => ID, { nullable: true })
   async deleteVariant(
-    @Arg("id", () => ID) id: number,
-    @Ctx() context: AuthContextType
-  ): Promise<Variant | null> {
-    const variant = await Variant.findOne({
-      where: { id },
-      relations: { createdBy: true },
-    });
+    @Arg("id", () => ID) _id: number
+  ): Promise<number | null> {
+    const id = Number(_id);
+    const variant = await Variant.findOne({ where: { id } });
 
-    if (!variant) {
-      return null;
+    if (variant !== null) {
+      await variant.remove();
+      return id;
+    } else {
+      throw new GraphQLError(`Variant not found`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
     }
-
-    if (variant.createdBy.id !== context.user.id) {
-      throw new Error("Unauthorized: You can only delete your own variants.");
-    }
-
-    await variant.remove();
-    return variant;
   }
 }
