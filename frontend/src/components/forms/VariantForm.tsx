@@ -21,7 +21,7 @@ type VariantFormType = {
   setNewVariants?: React.Dispatch<
     React.SetStateAction<
       {
-        pricePerDay: number;
+        pricePerDay: number; // cents
         size?: string;
         color?: string;
         id?: string;
@@ -49,7 +49,10 @@ export const VariantForm = ({
   const [customSizesInput, setCustomSizesInput] = useState<string>(
     variant?.size ? variant.size : ""
   );
-  const [pricePerDay, setpricePerDay] = useState(variant?.pricePerDay ?? 0);
+  // price in euros in the UI
+  const [pricePerDay, setpricePerDay] = useState<number>(
+    variant ? (variant.pricePerDay ?? 0) / 100 : 0
+  );
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
@@ -88,12 +91,14 @@ export const VariantForm = ({
     setUploading(true);
 
     try {
+      const priceInCents = Math.round((Number(pricePerDay) || 0) * 100);
+
       const tasks = sizes.map(async (size) => {
         const commonData = {
           productId,
           color,
           size,
-          pricePerDay,
+          pricePerDay: priceInCents,
         };
 
         if (isNewLocalVariant) {
@@ -247,12 +252,13 @@ export const VariantForm = ({
         )}
       </div>
 
-      {/* Prix par heure */}
+      {/* Prix par jour (en €) */}
       <div className="flex flex-col gap-2">
-        <Label className="text-sm font-medium">Prix par heure :</Label>
+        <Label className="text-sm font-medium">Prix par jour (en €) :</Label>
         <Input
           type="number"
-          placeholder="Ex: 10"
+          step="1"
+          placeholder="Ex: 10,00"
           value={pricePerDay}
           onChange={(e) => setpricePerDay(Number(e.target.value))}
           required

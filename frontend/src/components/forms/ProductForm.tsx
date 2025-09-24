@@ -521,7 +521,8 @@ export const ProductForm = () => {
                               </p>
                               <p>
                                 <strong>Prix :</strong>{" "}
-                                {Number(variant.pricePerDay).toFixed(2)} €/J
+                                {Number(variant.pricePerDay / 100).toFixed(2)}{" "}
+                                €/J
                               </p>
                             </div>
                             {product?.id && (
