@@ -40,6 +40,9 @@ export const VariantForm = ({
   const [sizes, setSizes] = useState<string[]>(
     variant?.size ? [variant.size] : []
   );
+  const [customSizesInput, setCustomSizesInput] = useState<string>(
+    variant?.size ? variant.size : ""
+  );
   const [pricePerDay, setpricePerDay] = useState(variant?.pricePerDay ?? 0);
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
@@ -183,13 +186,33 @@ export const VariantForm = ({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => setIsCustomSize((prev) => !prev)}
+            onClick={() =>
+              setIsCustomSize((prev) => {
+                const next = !prev;
+                if (next) setCustomSizesInput(sizes.join(", "));
+                return next;
+              })
+            }
           >
             <MoreHorizontal size={20} className="text-muted-foreground" />
           </Button>
         </div>
         {isCustomSize ? (
-          <Input type="text" placeholder="Ex: S, M, L, XL" required />
+          <Input
+            type="text"
+            placeholder="Ex: S, M, L, XL"
+            value={customSizesInput}
+            onChange={(e) => {
+              const raw = e.target.value;
+              setCustomSizesInput(raw);
+              const parsed = raw
+                .split(",")
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0);
+              setSizes(parsed);
+            }}
+            required
+          />
         ) : (
           <div className="w-full">
             {loadingVariants ? (
