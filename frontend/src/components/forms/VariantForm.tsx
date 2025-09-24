@@ -20,7 +20,13 @@ type VariantFormType = {
   productId?: number;
   setNewVariants?: React.Dispatch<
     React.SetStateAction<
-      { pricePerDay: number; size?: string; color?: string; id?: string }[]
+      {
+        pricePerDay: number;
+        size?: string;
+        color?: string;
+        id?: string;
+        isPublished: boolean;
+      }[]
     >
   >;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
@@ -91,7 +97,10 @@ export const VariantForm = ({
         };
 
         if (isNewLocalVariant) {
-          setNewVariants((prevVariants) => [...prevVariants, commonData]);
+          setNewVariants((prevVariants) => [
+            ...prevVariants,
+            { ...commonData, isPublished: true },
+          ]);
           toast.success("Variant ajouté avec succès !");
         } else {
           if (variant?.id) {

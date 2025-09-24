@@ -12,7 +12,8 @@ import {
   GET_PRODUCT_BY_ID,
   UPDATE_PRODUCT,
 } from "@/graphQL/products";
-import { DELETE_VARIANT } from "@/graphQL/variants";
+import { DELETE_VARIANT, TOGGLE_VARIANT_PUBLICATION } from "@/graphQL/variants";
+import { cn } from "@/lib/utils";
 import {
   productFormSchema,
   type ProductFormSchema,
@@ -35,6 +36,7 @@ import {
   CardTitle,
   Form,
   Separator,
+  Switch,
 } from "../ui";
 import ProductHeader from "./ProductHeader";
 import { VariantForm } from "./VariantForm";
@@ -92,6 +94,9 @@ export const ProductForm = () => {
     gql(CREATE_PRODUCT_WITH_VARIANT)
   );
   const [deleteVariantMutation] = useMutation(gql(DELETE_VARIANT));
+  const [toggleVariantPublication] = useMutation(
+    gql(TOGGLE_VARIANT_PUBLICATION)
+  );
 
   const product: Product | null = getProductData?.getProductById;
 
@@ -139,6 +144,7 @@ export const ProductForm = () => {
         id: String(variant.id),
         size: (variant.size as string | null) ?? undefined,
         color: (variant.color as string | null) ?? undefined,
+        isPublished: variant.isPublished ?? false,
       })) ?? [];
 
     setInitialVariants(mappedVariants);
@@ -321,8 +327,28 @@ export const ProductForm = () => {
       return true;
     } catch (e) {
       console.error(e);
-      toast.error("Échec de la suppression du variant");
+      const message = (e as any)?.graphQLErrors?.[0]?.message as
+        | string
+        | undefined;
+      if (message && message.toLowerCase().includes("linked to orders")) {
+        toast.error(
+          "Ce variant est lié à des commandes. Dépubliez-le au lieu de le supprimer."
+        );
+      } else {
+        toast.error("Échec de la suppression du variant");
+      }
       return false;
+    }
+  };
+
+  const handleToggleVariant = async (variantId: number) => {
+    try {
+      await toggleVariantPublication({ variables: { id: variantId } });
+      await refetch();
+      toast.success("Statut du variant mis à jour");
+    } catch (e) {
+      console.error(e);
+      toast.error("Impossible de changer la publication du variant");
     }
   };
 
@@ -480,9 +506,13 @@ export const ProductForm = () => {
                         {displayedVariants.map((variant, index) => (
                           <div
                             key={(variant as Variant).id ?? index}
-                            className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-gray-50"
+                            className={cn(
+                              "flex items-center justify-between p-4 border border-red-700 rounded-lg shadow-sm bg-destructive/10 relative",
+                              (variant as any).isPublished &&
+                                "bg-green-500/20 border-green-700"
+                            )}
                           >
-                            <div className="flex flex-col">
+                            <div className="flex flex-col gap-2">
                               <p>
                                 <strong>Taille :</strong> {variant.size}
                               </p>
@@ -491,14 +521,37 @@ export const ProductForm = () => {
                               </p>
                               <p>
                                 <strong>Prix :</strong>{" "}
-                                {(Number(variant.pricePerDay) / 100).toFixed(2)}{" "}
-                                €/J
+                                {Number(variant.pricePerDay).toFixed(2)} €/J
                               </p>
                             </div>
+                            {product?.id && (
+                              <div className="flex items-center gap-2 absolute right-3 top-3">
+                                <Switch
+                                  checked={(variant as any).isPublished}
+                                  onCheckedChange={() =>
+                                    handleToggleVariant(
+                                      Number((variant as Variant).id)
+                                    )
+                                  }
+                                  className={
+                                    (variant as any).isPublished
+                                      ? "data-[state=checked]:bg-primary"
+                                      : "data-[state=unchecked]:bg-destructive"
+                                  }
+                                  aria-label="toggleVariantPublication"
+                                />
+                                <span className="text-xs font-medium">
+                                  {(variant as any).isPublished
+                                    ? "Publié"
+                                    : "Dépublié"}
+                                </span>
+                              </div>
+                            )}
                             <div className="flex gap-2">
                               {product?.id && (variant as Variant).id && (
                                 <UpdateButton
                                   type="button"
+                                  size="icon"
                                   modalContent={renderVariantForm(
                                     variant as Variant
                                   )}
@@ -511,6 +564,7 @@ export const ProductForm = () => {
                                 <Button
                                   type="button"
                                   variant="destructive"
+                                  size="icon"
                                   className="size-8 min-h-8 min-w-8"
                                   onClick={() =>
                                     handleDeleteLocalVariant(index)

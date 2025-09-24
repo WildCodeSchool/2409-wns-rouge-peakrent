@@ -27,6 +27,7 @@ export const GET_PRODUCTS = `
           size
           color
           pricePerDay
+          isPublished
         }
       }
     }
@@ -76,6 +77,7 @@ export const GET_PRODUCT_BY_ID = `
         size
         color
         pricePerDay
+        isPublished
       }
       categories {
         id
@@ -105,6 +107,7 @@ export const GET_PRODUCT_BY_VARIANT_ID = `
         size
         color
         pricePerDay
+        isPublished
       }
       categories {
         id

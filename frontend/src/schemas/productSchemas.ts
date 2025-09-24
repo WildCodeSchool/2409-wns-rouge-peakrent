@@ -28,6 +28,10 @@ const variantCreateSchema = () =>
       requiredError: "Le prix par jour est requis",
       minError: "Le prix par jour doit être positif",
     }),
+    isPublished: createBooleanSchema({
+      required: false,
+      defaultValue: true,
+    }),
     id: z.string().optional(),
   });
 
@@ -83,6 +87,7 @@ export const productFormSchema = (datas?: ProductType | null) =>
           size: (v.size as string | null) ?? null,
           color: (v.color as string | null) ?? null,
           pricePerDay: Number(v.pricePerDay ?? 0),
+          isPublished: v.isPublished ?? false,
         }))
       ),
       id: z.coerce.number().int().positive().optional(),

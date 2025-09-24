@@ -28,3 +28,12 @@ mutation DeleteVariant($id: ID!) {
   deleteVariant(id: $id)
 }
 `;
+
+export const TOGGLE_VARIANT_PUBLICATION = `
+mutation ToggleVariantPublication($id: ID!) {
+  toggleVariantPublication(id: $id) {
+    id
+    isPublished
+  }
+}
+`;

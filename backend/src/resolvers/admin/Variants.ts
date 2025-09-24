@@ -86,17 +86,31 @@ export class VariantResolverAdmin {
   }
 
   @Authorized([RoleType.admin, RoleType.superadmin])
+  @Mutation(() => Variant)
+  async toggleVariantPublication(
+    @Arg("id", () => ID) id: number
+  ): Promise<Variant> {
+    const variant = await Variant.findOne({ where: { id } });
+    if (!variant) {
+      throw new Error("Variant not found.");
+    }
+    variant.isPublished = !variant.isPublished;
+    await variant.save();
+    return variant;
+  }
+
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => ID, { nullable: true })
   async deleteVariant(
     @Arg("id", () => ID) _id: number
   ): Promise<number | null> {
     const id = Number(_id);
-    const variant = await Variant.findOne({ where: { id } });
+    const variant = await Variant.findOne({
+      where: { id },
+      relations: { product: true },
+    });
 
-    if (variant !== null) {
-      await variant.remove();
-      return id;
-    } else {
+    if (!variant) {
       throw new GraphQLError(`Variant not found`, {
         extensions: {
           code: "NOT_FOUND",
@@ -104,5 +118,17 @@ export class VariantResolverAdmin {
         },
       });
     }
+
+    const orderItemCount = await (
+      await import("@/entities/OrderItem")
+    ).OrderItem.count({ where: { variant: { id } } as any });
+    if (orderItemCount > 0) {
+      throw new GraphQLError(`Variant linked to orders; cannot delete`, {
+        extensions: { code: "CONFLICT", http: { status: 409 } },
+      });
+    }
+
+    await variant.remove();
+    return id;
   }
 }
