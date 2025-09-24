@@ -64,6 +64,7 @@ export const createStringSchema = (options: StringSchemaOptions = {}) => {
   }
 
   if (!required) {
+    schema = schema.or(z.literal("")) as unknown as z.ZodString;
     schema = schema.optional().nullable() as unknown as z.ZodString;
   }
 
