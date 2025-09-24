@@ -8,9 +8,10 @@ import {
   GET_VARIANTS,
   UPDATE_VARIANT,
 } from "@/graphQL/variants";
+import { ProductFormSchema } from "@/schemas/productSchemas";
 import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
 import { MoreHorizontal } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Label } from "../ui/label";
 import { MultiSelect } from "../ui/multiple-selector";
@@ -18,17 +19,7 @@ import { MultiSelect } from "../ui/multiple-selector";
 type VariantFormType = {
   variant?: Variant;
   productId?: number;
-  setNewVariants?: React.Dispatch<
-    React.SetStateAction<
-      {
-        pricePerDay: number; // cents
-        size?: string;
-        color?: string;
-        id?: string;
-        isPublished: boolean;
-      }[]
-    >
-  >;
+  setNewVariants?: Dispatch<SetStateAction<ProductFormSchema["variants"]>>;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
 };
 
