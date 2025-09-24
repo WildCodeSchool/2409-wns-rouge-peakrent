@@ -181,6 +181,9 @@ Voir `LICENSE`.
 - Créer le fichier `variables.env` à la racine du projet
 - Copier le contenu de `variables.env.example` et ajuster les variables selon votre environnement
 
+- Créer le fichier `front.variables.env` à la racine du projet
+- Copier le contenu de `front.variables.env.example` et ajuster les variables selon votre environnement
+
 ## 📦 Installation
 
 Lancer le projet avec docker compose :
@@ -219,6 +222,31 @@ Se connecter à la base de données :
 docker compose exec db psql -U peakrent -d peakrent
 ```
 
+Lancer les migrations en attente :
+
+```bash
+docker compose exec backend npm run migration:run
+```
+
+---
+
+## 🗄️ Migrations
+
+Les migrations de base de données sont gérées via TypeORM.
+
+### Commandes principales :
+
+```bash
+npm run migration:generate -- -n NomMigration   # Génère une nouvelle migration
+npm run migration:run                          # Applique les migrations à la base
+npm run migration:revert                       # Annule la dernière migration
+```
+
+- Les fichiers de migration sont stockés dans le dossier `backend/migrations`.
+- Pensez à lancer les migrations après toute modification du schéma des entités.
+
+---
+
 ## ⚙️ Scripts utiles
 
 ### Backend :
@@ -232,7 +260,7 @@ npm run lint        # ESLint
 npm run format      # Prettier format
 npm run db:seed     # Seed DB
 npm run db:clean    # Clean DB
-npm run db:reset    # Reset DB (clean + seed)
+npm run db:reset    # Reset DB (clean + migrations + seed)
 ```
 
 ### Frontend :
@@ -246,6 +274,21 @@ npm run test        # Vitest unit tests
 npm run format      # Prettier format
 npm run codegen     # ⚡ GraphQL Codegen
 ```
+
+---
+
+## 🛠️ Recommended VSCode Extensions
+
+Pour une expérience de développement optimale, installer ces extensions VSCode :
+
+- **Prettier** - Formateur de code (`esbenp.prettier-vscode`)
+- **ESLint** (`dbaeumer.vscode-eslint`)
+- **Tailwind CSS IntelliSense** (`bradlc.vscode-tailwindcss`)
+- **ESLint Plugin TailwindCSS** (`dsznajder.eslint-plugin-tailwindcss`)
+
+Ces extensions vous aideront à maintenir la qualité du code et à bénéficier de l'autocomplétion Tailwind CSS.
+
+---
 
 ## 📄 Licence
 

@@ -176,10 +176,13 @@ See `LICENSE`.
   Copy from `.env.example` and adjust for your environment
 
 - Create `database.env` at project root
-  Copy from `database.env.example` and adjust
+  Copy from `database.env.example` and adjust for your environment
 
 - Create `variables.env` at project root
-  Copy from `variables.env.example` and adjust
+  Copy from `variables.env.example` and adjust for your environment
+
+- Create `front.variables.env` at project root
+- Copy from `front.variables.env.example` and adjust for your environment
 
 ---
 
@@ -221,6 +224,29 @@ Access PostgreSQL database:
 docker compose exec db psql -U peakrent -d peakrent
 ```
 
+Run pending migrations :
+
+```bash
+docker compose exec backend npm run migration:run
+```
+
+---
+
+## 🗄️ Migrations
+
+Database migrations are managed via TypeORM.
+
+### Main commands :
+
+```bash
+npm run migration:generate -- -n NomMigration   # Generate a new migration
+npm run migration:run                          # Apply migrations to the database
+npm run migration:revert                       # Revert the last migration
+```
+
+- Migration files are stored in the `backend/migrations` folder.
+- Remember to run migrations after any changes to entity schemas.
+
 ---
 
 ## ⚙️ Useful scripts
@@ -236,7 +262,7 @@ npm run lint        # ESLint
 npm run format      # Prettier format
 npm run db:seed     # Seed DB
 npm run db:clean    # Clean DB
-npm run db:reset    # Reset DB (clean + seed)
+npm run db:reset    # Reset DB (clean + migration + seed)
 ```
 
 ### Frontend:
@@ -250,3 +276,22 @@ npm run test        # Vitest unit tests
 npm run format      # Prettier format
 npm run codegen     # ⚡ GraphQL Codegen
 ```
+
+---
+
+## 🛠️ Recommended VSCode Extensions
+
+For optimal development experience, install these VSCode extensions:
+
+- **Prettier** - Code formatter (`esbenp.prettier-vscode`)
+- **ESLint** (`dbaeumer.vscode-eslint`)
+- **Tailwind CSS IntelliSense** (`bradlc.vscode-tailwindcss`)
+- **ESLint Plugin TailwindCSS** (`dsznajder.eslint-plugin-tailwindcss`)
+
+These extensions will help you maintain code quality and benefit from Tailwind CSS autocompletion.
+
+---
+
+## 📄 License
+
+This project is licensed under MIT. See the `LICENSE` file for more details.
