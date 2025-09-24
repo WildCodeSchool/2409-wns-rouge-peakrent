@@ -12,7 +12,6 @@ export * from "./getVariants/getBadgeVariant";
 export * from "./getVariants/getOrderItemStatusVariant";
 export * from "./getVariants/getOrderStatusVariant";
 export * from "./getVariants/getPaymentStatusVariant";
-export * from "./getVariants/getProductCategoryVariant";
 export * from "./getVariants/getRoleVariant";
 export * from "./getVariants/getStatusBadgeVariant";
 export * from "./TailwindIndicator";

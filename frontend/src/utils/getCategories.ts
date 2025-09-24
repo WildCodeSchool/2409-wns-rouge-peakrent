@@ -9,13 +9,12 @@ import {
  * @returns An array of category names or null if the product has no categories
  */
 export function getCategories(product: ProductType) {
-  if (!product.categories || product.categories.length === 0) return null;
-
-  const allCategoryNames = product.categories.flatMap(
-    (category: CategoryType) => getAllCategoryNames(category)
-  );
-
-  return [...new Set(allCategoryNames)];
+  const categories = product.categories ?? [];
+  const map = new Map<string, CategoryType>();
+  for (const category of categories) {
+    if (!map.has(category.id)) map.set(category.id, category);
+  }
+  return Array.from(map.values());
 }
 
 /**

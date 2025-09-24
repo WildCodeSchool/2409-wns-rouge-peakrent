@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { getCategories } from "@/utils/getCategories";
 import { getDiscountStyles } from "@/utils/getDiscountStyles";
 import { getPriceRange } from "@/utils/getPriceRange";
-import { getProductCategoryVariant } from "@/utils/getVariants/getProductCategoryVariant";
 import { NavLink, useNavigate } from "react-router-dom";
 
 export function ProductCard({ product }: { product: any }) {
@@ -22,14 +21,13 @@ export function ProductCard({ product }: { product: any }) {
   return (
     <Card
       className={cn(
-        "overflow-hidden bg-white p-0 hover:bg-white gap-0 cursor-pointer",
+        "overflow-hidden bg-white cursor-pointer flex flex-col",
+        "w-[260px] h-[460px] py-0 gap-0",
         discountBorder
       )}
-      onClick={() => {
-        navigate(`/products/${product.id}`);
-      }}
+      onClick={() => navigate(`/products/${product.id}`)}
     >
-      <CardHeader className="relative w-full overflow-hidden bg-white p-0 text-black">
+      <CardHeader className="relative p-0">
         {product.discount > 0 && (
           <div
             className={cn(
@@ -43,45 +41,56 @@ export function ProductCard({ product }: { product: any }) {
         <ImageHandler
           src={product.urlImage ?? ""}
           alt={product.name ?? ""}
-          className="w-full object-cover border-b max-h-[200px] h-[200px] md:h-[250px] md:max-h-[250px]"
+          className="w-full h-[240px] object-cover border-b"
         />
       </CardHeader>
-      <CardContent className="sm:px-4 py-0 px-2">
+
+      <CardContent className="px-3 py-2 flex-1 flex flex-col">
         <div className="flex items-center gap-2 capitalize mb-1">
-          {getCategories(product)?.map((category: string) => (
+          {getCategories(product)?.map((category) => (
             <NavLink
-              to={`/products?activities=${category}`}
-              key={category}
+              to={`/products?activities=${category.name}`}
+              key={category.id}
               onClick={(e) => e.stopPropagation()}
             >
               <Badge
                 className="rounded-lg text-xs md:text-sm px-2 py-1"
-                variant={getProductCategoryVariant(category?.toLowerCase())}
+                variant={(category.variant as BadgeVariantType) ?? "neutral"}
               >
-                {category}
+                {category.name}
               </Badge>
             </NavLink>
           ))}
         </div>
+
         <CardTitle
-          className="line-clamp-2 h-[48px] min-h-[48px] md:h-[56px] md:min-h-[56px] text-base md:text-lg text-black font-medium"
+          className="line-clamp-2 min-h-[48px] text-base md:text-lg text-black font-medium"
           title={product.name ?? ""}
         >
           {product.name}
         </CardTitle>
-        <div className="flex items-center gap-1 text-sm md:text-base text-black">
+
+        <div className="mt-auto">
           {product.discount > 0 && (
-            <p className="line-through text-muted-foreground mt-1">
-              {getPriceRange(product)}€/j
+            <p className="line-through text-muted-foreground text-sm">
+              {getPriceRange(product)}€
             </p>
           )}
-          <p className="font-bold ml-auto mt-1">
-            {getPriceRange(product, true)}
-            €/j
-          </p>
+          <div className="flex flex-col items-end">
+            <span className="text-[11px] text-muted-foreground leading-none mb-1">
+              À partir de
+            </span>
+            <span className="font-bold text-base md:text-lg leading-none">
+              {getPriceRange(product, true)}€
+            </span>
+            <span className="text-[11px] text-muted-foreground leading-none mt-1">
+              par jour
+            </span>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="sm:p-4 p-2 sm:pt-2">
+
+      <CardFooter className="p-3 pt-2">
         <NavLink
           to={`/products/${product.id}`}
           className="w-full"
