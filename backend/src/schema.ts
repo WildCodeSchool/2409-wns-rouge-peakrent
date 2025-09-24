@@ -12,6 +12,7 @@ import { ProfileResolverAdmin } from "./resolvers/admin/Profiles";
 import { StoreResolverAdmin } from "./resolvers/admin/Stores";
 import { StoreVariantResolverAdmin } from "./resolvers/admin/StoresVariants";
 import { UserResolverAdmin } from "./resolvers/admin/Users";
+import { VariantResolverAdmin } from "./resolvers/admin/Variants";
 import { CartResolver } from "./resolvers/Cart";
 import { CartVoucherResolver } from "./resolvers/CartVoucher";
 import { CategoryResolver } from "./resolvers/Categories";
@@ -40,6 +41,7 @@ export async function getSchema() {
     StoreResolverAdmin,
     UserResolverAdmin,
     StoreVariantResolverAdmin,
+    VariantResolverAdmin,
     PaymentResolver,
     VoucherResolverAdmin,
   ];

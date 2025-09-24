@@ -8,7 +8,7 @@ export const GET_VARIANTS = `
 `;
 
 export const CREATE_VARIANT = `
-mutation CreateVariant($data: VariantCreateInput!) {
+mutation CreateVariant($data: VariantCreateInputAdmin!) {
   createVariant(data: $data) {
     id
   }
@@ -16,7 +16,7 @@ mutation CreateVariant($data: VariantCreateInput!) {
 `;
 
 export const UPDATE_VARIANT = `
-mutation UpdateVariant($data: VariantUpdateInput!, $updateVariantId: ID!) {
+mutation UpdateVariant($data: VariantUpdateInputAdmin!, $updateVariantId: ID!) {
   updateVariant(data: $data, id: $updateVariantId) {
     id
   }
