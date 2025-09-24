@@ -139,7 +139,7 @@ export class ProductCreateInputAdmin {
 
 @InputType()
 export class ProductUpdateInputAdmin {
-  @Field()
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   @IsNotEmpty({ message: "Name is required." })
@@ -152,17 +152,17 @@ export class ProductUpdateInputAdmin {
   @MaxLength(500, { message: "Description must be at most 500 chars." })
   description?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsUrl({ require_tld: false }, { message: "URL must be a valid URL." })
   urlImage?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsBoolean({ message: "is_published must be a boolean value." })
   isPublished?: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsString({ message: "SKU must be an string." })
   @Length(1, 100, { message: "SKU must be at most 100 chars." })
