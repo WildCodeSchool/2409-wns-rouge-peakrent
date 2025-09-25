@@ -8,6 +8,7 @@ services:
       - database.env
       - variables.env
     volumes:
+      - ./backend/migrations:/app/migrations
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
       - ./backend/uploads:/app/uploads
