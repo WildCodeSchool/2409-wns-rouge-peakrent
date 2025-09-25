@@ -1,12 +1,11 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { Product as ProductType } from "@/gql/graphql";
+import { Category, Product as ProductType } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
 import { getCategories } from "@/utils/getCategories";
 import { getPriceRange } from "@/utils/getPriceRange";
-import { getProductCategoryVariant } from "@/utils/getVariants/getProductCategoryVariant";
 import { Heart } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -78,17 +77,19 @@ export function FavItemCard({
           <div className="flex items-center self-end gap-2 capitalize mb-1">
             {getCategories(product)
               ?.slice(0, 1)
-              .map((category: string) => (
+              .map((category: Category) => (
                 <NavLink
-                  to={`/products?activities=${category}`}
-                  key={category}
+                  to={`/products?activities=${category.name}`}
+                  key={category.id}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Badge
                     className="rounded-lg text-xs md:text-sm px-2 py-1"
-                    variant={getProductCategoryVariant(category?.toLowerCase())}
+                    variant={
+                      (category.variant as BadgeVariantType) ?? "neutral"
+                    }
                   >
-                    {category}
+                    {category.name}
                   </Badge>
                 </NavLink>
               ))}

@@ -41,7 +41,8 @@ const ProductsList = ({
         </div>
       </div>
 
-      <section className="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-4 auto-rows-min items-start">
+      <section className="grid grid-cols-[repeat(auto-fit,_minmax(260px,_1fr))] gap-4 auto-rows-min items-start">
+        {/* <section className="grid grid-cols-[repeat(auto-fill,_minmax(250px,_250px))] justify-start gap-4"> */}
         {items.map((item) => (
           <ProductCard key={item.id} product={item} />
         ))}
