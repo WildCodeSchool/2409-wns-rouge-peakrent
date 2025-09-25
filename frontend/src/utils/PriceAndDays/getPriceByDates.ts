@@ -3,9 +3,8 @@ import { getDurationInDays } from "./getDurationInDays";
 
 export const getItemPriceByDates = (orderItem: OrderItem) => {
   return (
-    (orderItem.pricePerDay *
-      orderItem.quantity *
-      getDurationInDays(orderItem.startsAt, orderItem.endsAt)) /
-    100
+    (orderItem.pricePerDay / 100) *
+    orderItem.quantity *
+    getDurationInDays(orderItem.startsAt, orderItem.endsAt)
   );
 };

@@ -54,8 +54,8 @@ export const createColumns: ColumnDef<any>[] = [
 
   column.createPriceWithBadgeColumn({
     id: "price",
-    accessorKey: "totalPriceTTC",
-    title: "Prix TTC",
+    accessorKey: "totalPriceWithVoucher",
+    title: "Prix Total",
     enableSorting: true,
     devise: "€",
     variantFn: (row) => "green",
