@@ -200,7 +200,7 @@ export const ProductForm = () => {
       )
     : undefined;
 
-  const imageError = errors.urlImage?.message;
+  const imageError = errors.image?.message;
 
   if (loadingProduct || loadingCategories || loadingActivities)
     return <p className="text-center my-4">Chargement...</p>;
@@ -615,7 +615,7 @@ export const ProductForm = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-hidden border">
-                    {product?.urlImage || watchedImage ? (
+                    {!removeImage && (product?.urlImage || watchedImage) ? (
                       <div className="relative">
                         <img
                           id="reference-image"
@@ -632,6 +632,7 @@ export const ProductForm = () => {
                           aria-label="remove-image"
                           onClick={() => {
                             form.setValue("image", null);
+                            form.setValue("removeImage", true);
                             setRemoveImage(true);
                             setImageSrc(placeholderImage);
                             if (fileInputRef.current) {
@@ -649,7 +650,10 @@ export const ProductForm = () => {
                           setFilesFunction={(files) => {
                             const file = files?.[0] || null;
                             form.setValue("image", file);
-                            if (file) setRemoveImage(false);
+                            if (file) {
+                              form.setValue("removeImage", false);
+                              setRemoveImage(false);
+                            }
                           }}
                           formFiles={null}
                         />
