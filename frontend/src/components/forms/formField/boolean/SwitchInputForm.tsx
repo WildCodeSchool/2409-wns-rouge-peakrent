@@ -18,6 +18,7 @@ interface SwitchInputProps {
   className?: string;
   containerClassName?: string;
   onCheckedChange?: (checked: boolean) => void;
+  onlyLabel?: boolean;
 }
 
 export const SwitchInput = ({
@@ -29,6 +30,7 @@ export const SwitchInput = ({
   className,
   containerClassName,
   onCheckedChange,
+  onlyLabel = false,
 }: SwitchInputProps) => {
   const handleCheckedChange = (checked: boolean) => {
     form.setValue(name, checked);
@@ -43,7 +45,11 @@ export const SwitchInput = ({
       name={name}
       render={({ field }) => (
         <FormItem className={cn("flex flex-col", containerClassName)}>
-          <LabelSection label={label} required={required} />
+          <LabelSection
+            label={label}
+            required={required}
+            onlyLabel={onlyLabel}
+          />
           <FormControl>
             <Switch
               disabled={isPending}

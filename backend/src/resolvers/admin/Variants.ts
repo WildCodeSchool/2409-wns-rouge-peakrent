@@ -1,3 +1,4 @@
+import { OrderItem } from "@/entities/OrderItem";
 import { Product } from "@/entities/Product";
 import {
   Variant,
@@ -6,6 +7,7 @@ import {
 } from "@/entities/Variant";
 import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
+import { GraphQLError } from "graphql";
 import {
   Arg,
   Authorized,
@@ -35,7 +37,7 @@ export class VariantResolverAdmin {
     });
   }
 
-  @Authorized([RoleType.admin])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Variant)
   async createVariant(
     @Arg("data", () => VariantCreateInputAdmin) data: VariantCreateInputAdmin,
@@ -61,24 +63,16 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized([RoleType.admin])
+  @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Variant, { nullable: true })
   async updateVariant(
     @Arg("id", () => ID) id: number,
-    @Arg("data", () => VariantUpdateInputAdmin) data: VariantUpdateInputAdmin,
-    @Ctx() context: AuthContextType
+    @Arg("data", () => VariantUpdateInputAdmin) data: VariantUpdateInputAdmin
   ): Promise<Variant | null> {
-    const variant = await Variant.findOne({
-      where: { id },
-      relations: { createdBy: true },
-    });
+    const variant = await Variant.findOne({ where: { id } });
 
     if (!variant) {
       throw new Error("Variant not found.");
-    }
-
-    if (variant.createdBy.id !== context.user.id) {
-      throw new Error("Unauthorized: You can only update your own variants.");
     }
 
     Object.assign(variant, data);
@@ -92,26 +86,50 @@ export class VariantResolverAdmin {
     return variant;
   }
 
-  @Authorized([RoleType.admin])
-  @Mutation(() => Variant, { nullable: true })
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Mutation(() => Variant)
+  async toggleVariantPublication(
+    @Arg("id", () => ID) id: number
+  ): Promise<Variant> {
+    const variant = await Variant.findOne({ where: { id } });
+    if (!variant) {
+      throw new Error("Variant not found.");
+    }
+    variant.isPublished = !variant.isPublished;
+    await variant.save();
+    return variant;
+  }
+
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Mutation(() => ID, { nullable: true })
   async deleteVariant(
-    @Arg("id", () => ID) id: number,
-    @Ctx() context: AuthContextType
-  ): Promise<Variant | null> {
+    @Arg("id", () => ID) _id: number
+  ): Promise<number | null> {
+    const id = Number(_id);
     const variant = await Variant.findOne({
       where: { id },
-      relations: { createdBy: true },
+      relations: { product: true },
     });
 
     if (!variant) {
-      return null;
+      throw new GraphQLError(`Variant not found`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
     }
 
-    if (variant.createdBy.id !== context.user.id) {
-      throw new Error("Unauthorized: You can only delete your own variants.");
+    const orderItemCount = await OrderItem.count({
+      where: { variant: { id } },
+    });
+    if (orderItemCount > 0) {
+      throw new GraphQLError(`Variant linked to orders; cannot delete`, {
+        extensions: { code: "CONFLICT", http: { status: 409 } },
+      });
     }
 
     await variant.remove();
-    return variant;
+    return id;
   }
 }

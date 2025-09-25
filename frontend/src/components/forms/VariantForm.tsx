@@ -8,9 +8,10 @@ import {
   GET_VARIANTS,
   UPDATE_VARIANT,
 } from "@/graphQL/variants";
+import { ProductFormSchema } from "@/schemas/productSchemas";
 import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
 import { MoreHorizontal } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Label } from "../ui/label";
 import { MultiSelect } from "../ui/multiple-selector";
@@ -18,7 +19,7 @@ import { MultiSelect } from "../ui/multiple-selector";
 type VariantFormType = {
   variant?: Variant;
   productId?: number;
-  setNewVariants?: React.Dispatch<React.SetStateAction<Partial<Variant>[]>>;
+  setNewVariants?: Dispatch<SetStateAction<ProductFormSchema["variants"]>>;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
 };
 
@@ -36,7 +37,13 @@ export const VariantForm = ({
   const [sizes, setSizes] = useState<string[]>(
     variant?.size ? [variant.size] : []
   );
-  const [pricePerDay, setpricePerDay] = useState(variant?.pricePerDay ?? 0);
+  const [customSizesInput, setCustomSizesInput] = useState<string>(
+    variant?.size ? variant.size : ""
+  );
+  // price in euros in the UI
+  const [pricePerDay, setpricePerDay] = useState<number>(
+    variant ? (variant.pricePerDay ?? 0) / 100 : 0
+  );
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
@@ -75,16 +82,21 @@ export const VariantForm = ({
     setUploading(true);
 
     try {
+      const priceInCents = Math.round((Number(pricePerDay) || 0) * 100);
+
       const tasks = sizes.map(async (size) => {
         const commonData = {
           productId,
           color,
           size,
-          pricePerDay,
+          pricePerDay: priceInCents,
         };
 
         if (isNewLocalVariant) {
-          setNewVariants((prevVariants) => [...prevVariants, commonData]);
+          setNewVariants((prevVariants) => [
+            ...prevVariants,
+            { ...commonData, isPublished: true },
+          ]);
           toast.success("Variant ajouté avec succès !");
         } else {
           if (variant?.id) {
@@ -179,13 +191,33 @@ export const VariantForm = ({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => setIsCustomSize((prev) => !prev)}
+            onClick={() =>
+              setIsCustomSize((prev) => {
+                const next = !prev;
+                if (next) setCustomSizesInput(sizes.join(", "));
+                return next;
+              })
+            }
           >
             <MoreHorizontal size={20} className="text-muted-foreground" />
           </Button>
         </div>
         {isCustomSize ? (
-          <Input type="text" placeholder="Ex: S, M, L, XL" required />
+          <Input
+            type="text"
+            placeholder="Ex: S, M, L, XL"
+            value={customSizesInput}
+            onChange={(e) => {
+              const raw = e.target.value;
+              setCustomSizesInput(raw);
+              const parsed = raw
+                .split(",")
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0);
+              setSizes(parsed);
+            }}
+            required
+          />
         ) : (
           <div className="w-full">
             {loadingVariants ? (
@@ -211,12 +243,13 @@ export const VariantForm = ({
         )}
       </div>
 
-      {/* Prix par heure */}
+      {/* Prix par jour (en €) */}
       <div className="flex flex-col gap-2">
-        <Label className="text-sm font-medium">Prix par heure :</Label>
+        <Label className="text-sm font-medium">Prix par jour (en €) :</Label>
         <Input
           type="number"
-          placeholder="Ex: 10"
+          step="1"
+          placeholder="Ex: 10,00"
           value={pricePerDay}
           onChange={(e) => setpricePerDay(Number(e.target.value))}
           required

@@ -44,6 +44,10 @@ export class Variant extends BaseEntity {
   pricePerDay!: number;
 
   @Field()
+  @Column({ name: "is_published", default: true })
+  isPublished!: boolean;
+
+  @Field()
   @CreateDateColumn({ name: "created_at" })
   createdAt!: Date;
 
