@@ -11,7 +11,6 @@ import { GET_MY_ORDERS } from "@/graphQL/order";
 import { SIGNOUT } from "@/graphQL/signout";
 import { WHOAMI } from "@/graphQL/whoami";
 import { getOrderStatusText, getOrderStatusVariant } from "@/utils";
-import { getDurationInDays } from "@/utils/getDurationInDays";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { LogOut, ShieldUser } from "lucide-react";
 import { useState } from "react";

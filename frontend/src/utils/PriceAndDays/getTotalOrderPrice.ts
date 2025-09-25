@@ -1,5 +1,5 @@
 import { OrderItem as OrderItemType } from "@/gql/graphql";
-import { getDurationInDays } from "./getDurationInDays";
+import { getItemPriceByDates } from "./getPriceByDates";
 
 export const getTotalOrderPrice = (
   orderItems: OrderItemType[],
@@ -10,14 +10,6 @@ export const getTotalOrderPrice = (
     : orderItems;
 
   return orderItemsFiltered
-    .reduce(
-      (acc, item) =>
-        acc +
-        (item.pricePerDay *
-          item.quantity *
-          getDurationInDays(item.startsAt, item.endsAt)) /
-          100,
-      0
-    )
+    .reduce((acc, item) => acc + getItemPriceByDates(item), 0)
     ?.toFixed(2);
 };

@@ -9,7 +9,8 @@ import {
   UPDATE_ORDER_ADMIN,
 } from "@/graphQL/order";
 import { formatLocaleDate } from "@/utils";
-import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+
+import { getTotalOrderPrice } from "@/utils/PriceAndDays/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 

@@ -18,6 +18,7 @@ import {
   productFormSchema,
   type ProductFormSchema,
 } from "@/schemas/productSchemas";
+import { getPriceFixed } from "@/utils";
 import { uploadImage } from "@/utils/uploadImages";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -519,8 +520,7 @@ export const ProductForm = () => {
                               </p>
                               <p>
                                 <strong>Prix :</strong>{" "}
-                                {Number(variant.pricePerDay / 100).toFixed(2)}{" "}
-                                €/J
+                                {getPriceFixed(variant.pricePerDay)} €/J
                               </p>
                             </div>
                             {product?.id && (

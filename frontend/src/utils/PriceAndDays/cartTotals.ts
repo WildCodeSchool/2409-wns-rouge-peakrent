@@ -1,4 +1,5 @@
-import { VoucherType } from "@/gql/graphql";
+import { OrderItem, VoucherType } from "@/gql/graphql";
+import { getItemPriceByDates } from "./getPriceByDates";
 
 type VoucherLike = {
   type: VoucherType | "percentage" | "fixed";
@@ -8,21 +9,9 @@ type VoucherLike = {
   endsAt?: string | null;
 };
 
-export function subtotalFromItems(
-  items: {
-    quantity: number;
-    pricePerDay: number;
-    startsAt: string;
-    endsAt: string;
-  }[]
-) {
+export function subtotalFromItems(items: OrderItem[]) {
   return items.reduce((sum, it) => {
-    const hours = Math.max(
-      0,
-      (new Date(it.endsAt).getTime() - new Date(it.startsAt).getTime()) /
-        3_600_000
-    );
-    return sum + Math.round(it.pricePerDay * it.quantity * hours);
+    return sum + getItemPriceByDates(it);
   }, 0);
 }
 

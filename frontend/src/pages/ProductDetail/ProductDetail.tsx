@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useUser } from "@/context/userProvider";
-import { Variant } from "@/gql/graphql";
+import { OrderItem, Variant } from "@/gql/graphql";
 import { CREATE_ORDER_ITEM_USER } from "@/graphQL/orderItems";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { totalDays } from "@/utils/getNumberOfDays";
+import { getPriceFixed } from "@/utils";
+import { getItemPriceByDates } from "@/utils/PriceAndDays/getPriceByDates";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -82,7 +83,14 @@ const ProductDetail = () => {
     watchedQuantity < 0 ||
     !userData?.id;
 
-  const numberOfDays = totalDays(selectedStartingDate, selectedEndingDate);
+  const orderItem = {
+    pricePerDay: Number(selectedVariantsPrice),
+    quantity: Number(watchedQuantity),
+    startsAt: new Date(selectedStartingDate),
+    endsAt: new Date(selectedEndingDate),
+  };
+
+  const price = getItemPriceByDates(orderItem as OrderItem);
 
   if (getProductError) {
     return <div>Impossible de charger l&apos;annonce.</div>;
@@ -196,12 +204,9 @@ const ProductDetail = () => {
             }
           >
             {selectedVariantsPrice
-              ? (
-                  (Number(selectedVariantsPrice) *
-                    watchedQuantity *
-                    (numberOfDays || 1)) /
-                  100
-                ).toFixed(2) + "€"
+              ? (price
+                  ? price.toFixed(2)
+                  : getPriceFixed(selectedVariantsPrice, watchedQuantity)) + "€"
               : "Veuillez sélectionner un produit avant de l'ajouter au panier"}{" "}
           </p>
           <FormProvider {...form}>
@@ -234,8 +239,7 @@ const ProductDetail = () => {
                               <p>Taille : {variant.size}</p>
                               <p>Couleur : {variant.color}</p>
                               <p className="px-2 py-1 text-white bg-primary rounded text-sm w-fit justify-self-end">
-                                {(Number(variant.pricePerDay) / 100).toFixed(2)}{" "}
-                                €/J
+                                {getPriceFixed(variant.pricePerDay)} €/J
                               </p>
                             </div>
                           </label>
