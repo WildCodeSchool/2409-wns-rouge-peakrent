@@ -2,7 +2,7 @@ import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { Product as ProductType } from "@/gql/graphql";
+import { Category, Product as ProductType } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
 import { getCategories } from "@/utils/getCategories";
 import { getPriceRange } from "@/utils/getPriceRange";
@@ -77,7 +77,7 @@ export function FavItemCard({
           <div className="flex items-center self-end gap-2 capitalize mb-1">
             {getCategories(product)
               ?.slice(0, 1)
-              .map((category) => (
+              .map((category: Category) => (
                 <NavLink
                   to={`/products?activities=${category.name}`}
                   key={category.id}

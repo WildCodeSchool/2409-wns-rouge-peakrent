@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { Category } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
 import { getCategories } from "@/utils/getCategories";
 import { getDiscountStyles } from "@/utils/getDiscountStyles";
@@ -47,7 +48,7 @@ export function ProductCard({ product }: { product: any }) {
 
       <CardContent className="px-3 py-2 flex-1 flex flex-col">
         <div className="flex items-center gap-2 capitalize mb-1">
-          {getCategories(product)?.map((category) => (
+          {getCategories(product)?.map((category: Category) => (
             <NavLink
               to={`/products?activities=${category.name}`}
               key={category.id}
