@@ -17,7 +17,7 @@ export const variantCreateSchema = (datas?: VariantType) =>
       }),
       0,
       50,
-      "Le taille est requis"
+      "La taille est requise"
     ).default(datas?.size ? [datas.size] : []),
     color: createStringSchema({
       required: false,

@@ -609,6 +609,8 @@ export const ProductForm = () => {
                             className="aspect-video w-full h-auto max-h-64 sm:max-h-80 object-contain"
                             src={imageSrc}
                             onError={() => setImageSrc(placeholderImage)}
+                            width={1280}
+                            height={720}
                           />
                           <Button
                             variant="destructive"
