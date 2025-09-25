@@ -22,7 +22,7 @@ import { uploadImage } from "@/utils/uploadImages";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -119,6 +119,16 @@ export const ProductForm = () => {
   const displayedVariants = product?.id
     ? product?.variants || []
     : variants || [];
+
+  const sortedDisplayedVariants = useMemo(() => {
+    return [...displayedVariants].sort((a: any, b: any) => {
+      const sa = String(a.size || "").toLowerCase();
+      const sb = String(b.size || "").toLowerCase();
+      if (sa < sb) return -1;
+      if (sa > sb) return 1;
+      return 0;
+    });
+  }, [displayedVariants]);
 
   const watchedImage = form.watch("image");
 
@@ -291,6 +301,10 @@ export const ProductForm = () => {
         productId={Number(product.id)}
         variant={variant}
         refetchProduct={refetch}
+        existingPairs={(product?.variants || []).map((v) => ({
+          color: v.color || "",
+          size: v.size || "",
+        }))}
       />
     ) : (
       <VariantForm setNewVariants={setVariants} variant={variant} />
@@ -480,9 +494,9 @@ export const ProductForm = () => {
                         />
                       </div>
 
-                      {displayedVariants.length > 0 && (
+                      {sortedDisplayedVariants.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                          {displayedVariants.map((variant, index) => (
+                          {sortedDisplayedVariants.map((variant, index) => (
                             <div
                               key={variant.id ?? index}
                               className={cn(

@@ -11,7 +11,7 @@ import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { totalDays } from "@/utils/getNumberOfDays";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -40,6 +40,15 @@ const ProductDetail = () => {
   });
 
   const product = getProductData?.getProductById;
+  const sortedVariants = useMemo(() => {
+    return [...(product?.variants || [])].sort((a: any, b: any) => {
+      const sa = String(a.size || "").toLowerCase();
+      const sb = String(b.size || "").toLowerCase();
+      if (sa < sb) return -1;
+      if (sa > sb) return 1;
+      return 0;
+    });
+  }, [product?.variants]);
 
   const productDetailsSchema = z.object({
     date: z
@@ -212,7 +221,7 @@ const ProductDetail = () => {
                   name="variants"
                   render={({ field }) => (
                     <div className="flex flex-wrap gap-4">
-                      {product.variants.map((variant: Variant) => {
+                      {sortedVariants.map((variant) => {
                         const isChecked = (
                           field.value as { id: string }[]
                         )?.some((v) => v.id === variant.id);

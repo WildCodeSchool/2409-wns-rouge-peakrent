@@ -14,7 +14,14 @@ import {
 } from "@/schemas/variantSchemas";
 import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
 import { MoreHorizontal } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Form } from "../ui";
@@ -32,6 +39,7 @@ type VariantFormType = {
   productId?: number;
   setNewVariants?: Dispatch<SetStateAction<ProductFormSchema["variants"]>>;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
+  existingPairs?: { color: string; size: string }[];
 };
 
 export const VariantForm = ({
@@ -39,6 +47,7 @@ export const VariantForm = ({
   productId,
   setNewVariants,
   refetchProduct,
+  existingPairs = [],
 }: VariantFormType) => {
   const { closeModal } = useModal();
   const [availableColors, setAvailableColors] = useState<string[]>([]);
@@ -60,11 +69,19 @@ export const VariantForm = ({
   const isEdit = Boolean(variant?.id);
   const isNewLocalVariant = !productId && setNewVariants;
 
+  const normalizedPairs = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of existingPairs) {
+      const key = `${(p.color || "").toLowerCase()}__${(p.size || "").toLowerCase()}`;
+      set.add(key);
+    }
+    return set;
+  }, [existingPairs]);
+
   const {
     data: getVariantsData,
     loading: loadingVariants,
     error: errorVariants,
-    refetch,
   } = useQuery(gql(GET_VARIANTS));
 
   useEffect(() => {
@@ -88,16 +105,76 @@ export const VariantForm = ({
     }
   }, [getVariantsData]);
 
+  // Filter size options based on selected color to avoid duplicates (color+size)
+  const selectedColor = form.watch("color") as string | undefined;
+  const selectedColorLower = (selectedColor || "").toLowerCase();
+  const filteredSizeGroups = useMemo(() => {
+    const disallowed = new Set<string>();
+    for (const p of existingPairs) {
+      if ((p.color || "").toLowerCase() === selectedColorLower) {
+        disallowed.add((p.size || "").toLowerCase());
+      }
+    }
+    // Allow currently edited size when editing and color matches
+    if (isEdit) {
+      const currentColorLower = (variant?.color || "").toLowerCase();
+      const currentSizeLower = (variant?.size || "").toLowerCase();
+      if (currentColorLower === selectedColorLower && currentSizeLower) {
+        disallowed.delete(currentSizeLower);
+      }
+    }
+    return sizeGroups.map((group) => ({
+      ...group,
+      options: group.options.filter(
+        (opt: { label: string; value: string }) =>
+          !disallowed.has((opt.value || opt.label || "").toLowerCase())
+      ),
+    }));
+  }, [
+    existingPairs,
+    selectedColorLower,
+    isEdit,
+    variant?.color,
+    variant?.size,
+  ]);
+
+  // When color changes, clear sizes to avoid stale selections (but not on initial mount)
+  const prevColorLowerRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (prevColorLowerRef.current === undefined) {
+      prevColorLowerRef.current = selectedColorLower;
+      return;
+    }
+    if (prevColorLowerRef.current !== selectedColorLower) {
+      form.setValue("sizes", [] as any);
+      prevColorLowerRef.current = selectedColorLower;
+    }
+  }, [selectedColorLower]);
+
   const onSubmit = async (values: VariantCreateSchema) => {
     setUploading(true);
     try {
       const priceInCents = Math.round((Number(values.pricePerDay) || 0) * 100);
 
-      const selectedSizes =
+      const color = (values.color || "").toLowerCase();
+      const incoming =
         values.sizes && values.sizes.length > 0 ? values.sizes : [""];
+      const filteredSizes = incoming.filter((s) => {
+        const sLower = (s || "").toLowerCase();
+        // Allow current pair during edit so it's not skipped
+        if (isEdit) {
+          const currentColorLower = (variant?.color || "").toLowerCase();
+          const currentSizeLower = (variant?.size || "").toLowerCase();
+          if (color === currentColorLower && sLower === currentSizeLower) {
+            return true;
+          }
+        }
+        return !normalizedPairs.has(`${color}__${sLower}`);
+      });
+      const skipped = incoming.length - filteredSizes.length;
 
       const results = await Promise.all(
-        selectedSizes.map(async (size) => {
+        filteredSizes.map(async (size) => {
           try {
             const commonData = {
               productId,
@@ -137,11 +214,17 @@ export const VariantForm = ({
 
       const success = results.filter(Boolean).length;
       const failed = results.length - success;
-      if (failed > 0) {
-        toast.error(`${success} réussi(s), ${failed} échoué(s)`);
-      } else {
-        toast.success(`${success} réussi(s), ${failed} échoué(s)`);
-      }
+
+      const messages: string[] = [];
+      if (skipped > 0)
+        messages.push(
+          `${skipped} combinaison(s) ignorée(s) (couleur+taille déjà présente)`
+        );
+      messages.push(`${success} réussite(s), ${failed} échec(s)`);
+
+      const message = messages.join(" • ");
+      if (failed > 0 || skipped > 0) toast.error(message);
+      else toast.success(message);
 
       if (refetchProduct) await refetchProduct();
       closeModal();
@@ -152,6 +235,8 @@ export const VariantForm = ({
       setUploading(false);
     }
   };
+
+  const sizesDisabled = !selectedColor || selectedColor.trim() === "";
 
   return (
     <Form {...form}>
@@ -230,7 +315,7 @@ export const VariantForm = ({
                 label="Taille"
                 form={form}
                 name="sizes"
-                isPending={uploading}
+                isPending={uploading || sizesDisabled}
                 placeholder="Ex: S"
                 className="h-10"
                 required
@@ -240,9 +325,13 @@ export const VariantForm = ({
                 form={form}
                 name="sizes"
                 label="Taille"
-                groups={sizeGroups}
-                isPending={uploading}
-                placeholder="Sélectionner une taille"
+                groups={filteredSizeGroups}
+                isPending={uploading || sizesDisabled}
+                placeholder={
+                  sizesDisabled
+                    ? "Choisir une couleur d'abord"
+                    : "Sélectionner une taille"
+                }
                 maxSelections={1}
                 columns={4}
                 enableSelectAll
@@ -255,8 +344,12 @@ export const VariantForm = ({
               label="Taille"
               form={form}
               name="sizes"
-              isPending={uploading}
-              placeholder="Ex: S, M, L, XL"
+              isPending={uploading || sizesDisabled}
+              placeholder={
+                sizesDisabled
+                  ? "Choisir une couleur d'abord"
+                  : "Ex: S, M, L, XL"
+              }
               required
               className="h-10"
             />
@@ -265,9 +358,13 @@ export const VariantForm = ({
               form={form}
               name="sizes"
               label="Taille"
-              groups={sizeGroups}
-              isPending={uploading}
-              placeholder="Sélectionner les tailles"
+              groups={filteredSizeGroups}
+              isPending={uploading || sizesDisabled}
+              placeholder={
+                sizesDisabled
+                  ? "Choisir une couleur d'abord"
+                  : "Sélectionner les tailles"
+              }
               maxSelections={50}
               columns={4}
               enableSelectAll
@@ -287,7 +384,11 @@ export const VariantForm = ({
         />
 
         {/* Bouton Submit */}
-        <Button type="submit" disabled={uploading} className="mt-4 w-full">
+        <Button
+          type="submit"
+          disabled={uploading || sizesDisabled}
+          className="mt-4 w-full"
+        >
           {uploading ? (
             <LoadIcon size={20} className="animate-spin" />
           ) : variant?.id ? (
