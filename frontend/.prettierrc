@@ -2,12 +2,5 @@
   "semi": true,
   "singleQuote": false,
   "tabWidth": 2,
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
-    "source.addMissingImports": "always",
-    "source.organizeImports": "always"
-  },
-  "trailingComma": "es5",
-  "importOrderMergeDuplicateImports": true
+  "trailingComma": "es5"
 }
