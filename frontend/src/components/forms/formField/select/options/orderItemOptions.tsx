@@ -7,6 +7,7 @@ export const orderItemStatusEnum = [
   "recovered",
   "cancelled",
   "refunded",
+  "confirmed",
 ];
 
 export const orderItemStatusOptions = orderItemStatusEnum.map((value) => ({

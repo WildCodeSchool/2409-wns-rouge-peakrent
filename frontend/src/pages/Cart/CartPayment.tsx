@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { GET_MY_ORDERS } from "@/graphQL";
 import { VALIDATE_CART } from "@/graphQL/carts";
 import { GET_STORE_BY_ID } from "@/graphQL/stores";
 import { useCartStoreUser } from "@/stores/user/cart.store";
@@ -25,7 +26,10 @@ export function CartPayment() {
     { name: "card", key: "card", icon: <CreditCard className="size-10" /> },
     { name: "sur place", key: "onSite", icon: <Store className="size-10" /> },
   ];
-  const [validateOrder] = useMutation(gql(VALIDATE_CART));
+  const [validateOrder] = useMutation(gql(VALIDATE_CART), {
+    refetchQueries: [{ query: gql(GET_MY_ORDERS) }],
+    awaitRefetchQueries: true,
+  });
 
   const stripe = useStripe();
   const elements = useElements();

@@ -29,16 +29,22 @@ export enum RoleType {
 
 export enum OrderItemStatusType {
   pending = "pending",
+  confirmed = "confirmed",
   cancelled = "cancelled",
   refunded = "refunded",
   distributed = "distributed",
   recovered = "recovered",
 }
 
-registerEnumType(OrderItemStatusType, {
-  name: "OrderItemStatusType",
-  description: "Status of order Items",
-});
+export enum OrderStatusType {
+  pending = "pending",
+  inProgress = "in_progress",
+  confirmed = "confirmed",
+  cancelled = "cancelled",
+  refunded = "refunded",
+  completed = "completed",
+  failed = "failed",
+}
 
 export enum SortOrder {
   ASC = "ASC",
@@ -49,15 +55,6 @@ registerEnumType(RoleType, {
   name: "RoleType",
   description: "The role of the user",
 });
-
-export enum OrderStatusType {
-  pending = "pending",
-  confirmed = "confirmed",
-  completed = "completed",
-  cancelled = "cancelled",
-  refunded = "refunded",
-  failed = "failed",
-}
 
 export enum OrderPaymentType {
   card = "card",
@@ -85,4 +82,9 @@ registerEnumType(OrderStatusType, {
 
 registerEnumType(OrderPaymentType, {
   name: "orderPaymentType",
+});
+
+registerEnumType(OrderItemStatusType, {
+  name: "OrderItemStatusType",
+  description: "Status of order Items",
 });

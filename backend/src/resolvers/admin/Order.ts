@@ -9,7 +9,12 @@ import { Profile } from "@/entities/Profile";
 import { Variant } from "@/entities/Variant";
 import { Voucher } from "@/entities/Voucher";
 import { generateOrderReference } from "@/helpers/generateOrderReference";
-import { AuthContextType, OrderItemStatusType, RoleType } from "@/types";
+import {
+  AuthContextType,
+  OrderItemStatusType,
+  OrderStatusType,
+  RoleType,
+} from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
 import {
@@ -133,6 +138,7 @@ export class OrderResolverAdmin {
       return newOrder;
     }
   }
+
   @Mutation(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
   async updateOrderAdmin(
@@ -151,7 +157,7 @@ export class OrderResolverAdmin {
     }
     const order = await Order.findOne({
       where: { id },
-      relations: { profile: true, voucher: true },
+      relations: { profile: true, voucher: true, orderItems: true },
     });
     if (order !== null) {
       if (
@@ -173,7 +179,40 @@ export class OrderResolverAdmin {
         }
       }
 
+      let status = order.status;
+      // si le paidAt change, alors le status de l'order et de ses items change
+      if (order.paidAt !== data.paidAt) {
+        if (data.paidAt) {
+          if (order.status === OrderStatusType.pending) {
+            status = OrderStatusType.confirmed;
+          }
+          if (order.orderItems?.length > 0) {
+            await Promise.all(
+              order.orderItems.map(async (item) => {
+                if (item.status === OrderItemStatusType.pending) {
+                  item.status = OrderItemStatusType.confirmed;
+                  await item.save();
+                }
+              })
+            );
+          }
+        } else if (!data.paidAt && order.status === OrderStatusType.confirmed) {
+          status = OrderStatusType.pending;
+          if (order.orderItems?.length > 0) {
+            await Promise.all(
+              order.orderItems.map(async (item) => {
+                if (item.status === OrderItemStatusType.confirmed) {
+                  item.status = OrderItemStatusType.pending;
+                  await item.save();
+                }
+              })
+            );
+          }
+        }
+      }
+
       Object.assign(order, data, {
+        status,
         profile: data.profileId ?? order.profile,
         voucher: typeof data.voucherId === "number" ? voucherU : order.voucher,
         discountAmount: data.discountAmount ?? order.discountAmount,
@@ -190,6 +229,7 @@ export class OrderResolverAdmin {
       throw new Error("Order not found.");
     }
   }
+
   @Mutation(() => Order, { nullable: true })
   @Authorized([RoleType.admin, RoleType.superadmin])
   async deleteOrderAdmin(
