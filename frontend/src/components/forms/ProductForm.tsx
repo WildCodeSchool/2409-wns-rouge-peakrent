@@ -103,9 +103,6 @@ export const ProductForm = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [initialVariants, setInitialVariants] = useState<
-    ProductFormSchema["variants"]
-  >([]);
   const [variants, setVariants] = useState<ProductFormSchema["variants"]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | undefined>(undefined);
@@ -147,8 +144,6 @@ export const ProductForm = () => {
         color: (variant.color as string | null) ?? undefined,
         isPublished: variant.isPublished ?? false,
       })) ?? [];
-
-    setInitialVariants(mappedVariants);
     setVariants(mappedVariants);
     form.setValue("variants", mappedVariants);
   }, []);
@@ -187,19 +182,6 @@ export const ProductForm = () => {
   }, [product?.id]);
 
   const { errors } = form.formState;
-
-  const variantItemCustomError = errors.variants?.[0]
-    ? JSON.stringify(
-        Object.values(errors.variants[0])
-          .map((error) =>
-            error && typeof error === "object" && "message" in error
-              ? error.message
-              : error
-          )
-          .join(", ")
-      )
-    : undefined;
-
   const imageError = errors.image?.message;
 
   if (loadingProduct || loadingCategories || loadingActivities)
@@ -381,210 +363,213 @@ export const ProductForm = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {variantItemCustomError && (
-                    <div className="pb-4 text-sm font-bold text-red-500">
-                      Variants erreur: {variantItemCustomError}
-                    </div>
-                  )}
-                  <div className="grid space-y-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Nom */}
-                      <StringInput
-                        label="Nom du produit"
-                        form={form}
-                        name="name"
-                        isPending={isSubmitting}
-                        placeholder="Ex: Ski alpin"
-                        required
-                      />
+                  <fieldset disabled={isSubmitting} className="contents">
+                    <div className="grid space-y-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Nom */}
+                        <StringInput
+                          label="Nom du produit"
+                          form={form}
+                          name="name"
+                          isPending={isSubmitting}
+                          placeholder="Ex: Ski alpin"
+                          required
+                        />
 
-                      {/* SKU */}
-                      <StringInput
-                        label="SKU"
-                        form={form}
-                        name="sku"
-                        isPending={isSubmitting}
-                        placeholder="SKU"
-                        required
-                      />
-                    </div>
+                        {/* SKU */}
+                        <StringInput
+                          label="SKU"
+                          form={form}
+                          name="sku"
+                          isPending={isSubmitting}
+                          placeholder="SKU"
+                          required
+                        />
+                      </div>
 
-                    {/* Description */}
-                    <div className="grid grid-cols-1 gap-6">
-                      <TextAreaInput
-                        label="Description"
-                        form={form}
-                        name="description"
-                        isPending={isSubmitting}
-                        className="h-[100px]"
-                        placeholder="Ex: Skis performants pour la descente"
-                      />
-                    </div>
+                      {/* Description */}
+                      <div className="grid grid-cols-1 gap-6">
+                        <TextAreaInput
+                          label="Description"
+                          form={form}
+                          name="description"
+                          isPending={isSubmitting}
+                          className="h-[100px]"
+                          placeholder="Ex: Skis performants pour la descente"
+                        />
+                      </div>
 
-                    {/* Catégories */}
-                    {/* Gérer les groupes de categorie. Pouvoir ajouter les categories enfants. */}
-                    <div className="flex flex-col gap-2">
-                      <h2 className="text-lg font-bold">Catégories :</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                        {categories?.map((category) => {
-                          if (category.childrens?.length === 0) {
-                            return null;
-                          }
-                          return (
-                            <div key={category.id} className="mb-2">
-                              <h3 className="font-semibold">
-                                {category.name} :
-                              </h3>
-                              <div className="ml-4 space-y-1">
-                                {category.childrens?.map((child) => (
-                                  <Label
-                                    key={child.id}
-                                    className="flex items-center gap-2"
+                      {/* Catégories */}
+                      {/* Gérer les groupes de categorie. Pouvoir ajouter les categories enfants. */}
+                      <div className="flex flex-col gap-2">
+                        <h2 className="text-lg font-bold">Catégories :</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                          {categories?.map((category) => {
+                            if (category.childrens?.length === 0) {
+                              return null;
+                            }
+                            return (
+                              <div key={category.id} className="mb-2">
+                                <h3 className="font-semibold">
+                                  {category.name} :
+                                </h3>
+                                <div className="ml-4 space-y-1">
+                                  {category.childrens?.map((child) => (
+                                    <Label
+                                      key={child.id}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <Checkbox
+                                        id={`child-${child.id}`}
+                                        checked={form
+                                          .watch("categories")
+                                          .includes(Number(child.id))}
+                                        onCheckedChange={() =>
+                                          handleCategoryToggle(Number(child.id))
+                                        }
+                                        disabled={isSubmitting}
+                                      />
+                                      {child.name}
+                                    </Label>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <Separator />
+                      {/* Activities */}
+                      <div className="flex flex-col gap-2">
+                        <h2 className="text-lg font-bold">Activités :</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                          {activities?.map((activity) => (
+                            <Label
+                              key={activity.id}
+                              htmlFor={`activity-${activity.id}`}
+                              className="flex items-center gap-2"
+                            >
+                              <Checkbox
+                                id={`activity-${activity.id}`}
+                                checked={form
+                                  .watch("activities")
+                                  .includes(Number(activity.id))}
+                                onCheckedChange={() =>
+                                  handleActivityToggle(Number(activity.id))
+                                }
+                                disabled={isSubmitting}
+                              />
+                              {activity.name}
+                            </Label>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Variants */}
+                      <div className="flex justify-between items-center">
+                        <h2 className="text-lg font-bold">Variants :</h2>
+                        <CreateButton
+                          type="button"
+                          modalContent={renderVariantForm()}
+                          ariaLabel="createVariantAriaLabel"
+                          variant="primary"
+                          modalTitle="Créer un variant"
+                        />
+                      </div>
+
+                      {displayedVariants.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {displayedVariants.map((variant, index) => (
+                            <div
+                              key={variant.id ?? index}
+                              className={cn(
+                                "flex items-center justify-between p-4 border border-red-700 rounded-lg shadow-sm bg-destructive/10 relative",
+                                (variant as Variant).isPublished &&
+                                  "bg-green-500/20 border-green-700"
+                              )}
+                            >
+                              <div className="flex flex-col gap-2">
+                                <p>
+                                  <strong>Taille :</strong> {variant.size}
+                                </p>
+                                <p>
+                                  <strong>Couleur :</strong> {variant.color}
+                                </p>
+                                <p>
+                                  <strong>Prix :</strong>{" "}
+                                  {Number(variant.pricePerDay / 100).toFixed(2)}{" "}
+                                  €/J
+                                </p>
+                              </div>
+                              {product?.id && (
+                                <div className="flex items-center gap-2 absolute right-3 top-3">
+                                  <Switch
+                                    checked={(variant as Variant).isPublished}
+                                    onCheckedChange={() =>
+                                      handleToggleVariant(Number(variant.id))
+                                    }
+                                    className={
+                                      (variant as Variant).isPublished
+                                        ? "data-[state=checked]:bg-primary"
+                                        : "data-[state=unchecked]:bg-destructive"
+                                    }
+                                    aria-label="toggleVariantPublication"
+                                  />
+                                  <span className="text-xs font-medium">
+                                    {(variant as Variant).isPublished
+                                      ? "Publié"
+                                      : "Dépublié"}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="flex gap-2">
+                                {product?.id && (variant as Variant).id && (
+                                  <UpdateButton
+                                    type="button"
+                                    size="icon"
+                                    modalContent={renderVariantForm(
+                                      variant as Variant
+                                    )}
+                                    ariaLabel="updateVariantAriaLabel"
+                                    variant="primary"
+                                    modalTitle="Modifier un variant"
+                                  />
+                                )}
+                                {!product?.id ? (
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="size-8 min-h-8 min-w-8"
+                                    onClick={() =>
+                                      handleDeleteLocalVariant(index)
+                                    }
                                   >
-                                    <Checkbox
-                                      id={`child-${child.id}`}
-                                      checked={form
-                                        .watch("categories")
-                                        .includes(Number(child.id))}
-                                      onCheckedChange={() =>
-                                        handleCategoryToggle(Number(child.id))
-                                      }
-                                    />
-                                    {child.name}
-                                  </Label>
-                                ))}
+                                    <Trash2 size={18} />
+                                  </Button>
+                                ) : (
+                                  <DeleteButton
+                                    ariaLabel="deleteVariantAriaLabel"
+                                    variant="destructive"
+                                    onDeleteFunction={handleDeleteVariant}
+                                    elementIds={[
+                                      Number((variant as Variant).id),
+                                    ]}
+                                    modalTitle="Supprimer le variant?"
+                                    modalDescription="Cette action est irréversible."
+                                    confirmButtonValue="Supprimer"
+                                  />
+                                )}
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-
-                    <Separator />
-                    {/* Activities */}
-                    <div className="flex flex-col gap-2">
-                      <h2 className="text-lg font-bold">Activités :</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                        {activities?.map((activity) => (
-                          <Label
-                            key={activity.id}
-                            htmlFor={`activity-${activity.id}`}
-                            className="flex items-center gap-2"
-                          >
-                            <Checkbox
-                              id={`activity-${activity.id}`}
-                              checked={form
-                                .watch("activities")
-                                .includes(Number(activity.id))}
-                              onCheckedChange={() =>
-                                handleActivityToggle(Number(activity.id))
-                              }
-                            />
-                            {activity.name}
-                          </Label>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Variants */}
-                    <div className="flex justify-between items-center">
-                      <h2 className="text-lg font-bold">Variants :</h2>
-                      <CreateButton
-                        type="button"
-                        modalContent={renderVariantForm()}
-                        ariaLabel="createVariantAriaLabel"
-                        variant="primary"
-                        modalTitle="Créer un variant"
-                      />
-                    </div>
-
-                    {displayedVariants.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {displayedVariants.map((variant, index) => (
-                          <div
-                            key={variant.id ?? index}
-                            className={cn(
-                              "flex items-center justify-between p-4 border border-red-700 rounded-lg shadow-sm bg-destructive/10 relative",
-                              variant.isPublished &&
-                                "bg-green-500/20 border-green-700"
-                            )}
-                          >
-                            <div className="flex flex-col gap-2">
-                              <p>
-                                <strong>Taille :</strong> {variant.size}
-                              </p>
-                              <p>
-                                <strong>Couleur :</strong> {variant.color}
-                              </p>
-                              <p>
-                                <strong>Prix :</strong>{" "}
-                                {Number(variant.pricePerDay / 100).toFixed(2)}{" "}
-                                €/J
-                              </p>
-                            </div>
-                            {product?.id && (
-                              <div className="flex items-center gap-2 absolute right-3 top-3">
-                                <Switch
-                                  checked={variant.isPublished}
-                                  onCheckedChange={() =>
-                                    handleToggleVariant(Number(variant.id))
-                                  }
-                                  className={
-                                    variant.isPublished
-                                      ? "data-[state=checked]:bg-primary"
-                                      : "data-[state=unchecked]:bg-destructive"
-                                  }
-                                  aria-label="toggleVariantPublication"
-                                />
-                                <span className="text-xs font-medium">
-                                  {variant.isPublished ? "Publié" : "Dépublié"}
-                                </span>
-                              </div>
-                            )}
-                            <div className="flex gap-2">
-                              {product?.id && (variant as Variant).id && (
-                                <UpdateButton
-                                  type="button"
-                                  size="icon"
-                                  modalContent={renderVariantForm(
-                                    variant as Variant
-                                  )}
-                                  ariaLabel="updateVariantAriaLabel"
-                                  variant="primary"
-                                  modalTitle="Modifier un variant"
-                                />
-                              )}
-                              {!product?.id ? (
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="size-8 min-h-8 min-w-8"
-                                  onClick={() =>
-                                    handleDeleteLocalVariant(index)
-                                  }
-                                >
-                                  <Trash2 size={18} />
-                                </Button>
-                              ) : (
-                                <DeleteButton
-                                  ariaLabel="deleteVariantAriaLabel"
-                                  variant="destructive"
-                                  onDeleteFunction={handleDeleteVariant}
-                                  elementIds={[Number((variant as Variant).id)]}
-                                  modalTitle="Supprimer le variant?"
-                                  modalDescription="Cette action est irréversible."
-                                  confirmButtonValue="Supprimer"
-                                />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  </fieldset>
 
                   <div className="flex justify-end gap-2">
                     <Button
@@ -614,59 +599,61 @@ export const ProductForm = () => {
                   <CardTitle>Image du produit</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-hidden border">
-                    {!removeImage && (product?.urlImage || watchedImage) ? (
-                      <div className="relative">
-                        <img
-                          id="reference-image"
-                          alt="Product image"
-                          className="aspect-video w-full h-auto max-h-64 sm:max-h-80 object-contain"
-                          src={imageSrc}
-                          onError={() => setImageSrc(placeholderImage)}
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          type="button"
-                          className="absolute right-2 top-2 size-8 min-h-8 min-w-8"
-                          aria-label="remove-image"
-                          onClick={() => {
-                            form.setValue("image", null);
-                            form.setValue("removeImage", true);
-                            setRemoveImage(true);
-                            setImageSrc(placeholderImage);
-                            if (fileInputRef.current) {
-                              fileInputRef.current.value = "";
-                            }
-                          }}
-                        >
-                          <Trash2 size={18} />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="p-4">
-                        <FileUploaderInput
-                          multiple={false}
-                          setFilesFunction={(files) => {
-                            const file = files?.[0] || null;
-                            form.setValue("image", file);
-                            if (file) {
-                              form.setValue("removeImage", false);
-                              setRemoveImage(false);
-                            }
-                          }}
-                          formFiles={null}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-4">
-                    {imageError && (
-                      <div className="pb-4 text-sm font-bold text-red-500">
-                        {imageError}
-                      </div>
-                    )}
-                  </div>
+                  <fieldset disabled={isSubmitting} className="contents">
+                    <div className="overflow-hidden border">
+                      {!removeImage && (product?.urlImage || watchedImage) ? (
+                        <div className="relative">
+                          <img
+                            id="reference-image"
+                            alt="Product image"
+                            className="aspect-video w-full h-auto max-h-64 sm:max-h-80 object-contain"
+                            src={imageSrc}
+                            onError={() => setImageSrc(placeholderImage)}
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            type="button"
+                            className="absolute right-2 top-2 size-8 min-h-8 min-w-8"
+                            aria-label="remove-image"
+                            onClick={() => {
+                              form.setValue("image", null);
+                              form.setValue("removeImage", true);
+                              setRemoveImage(true);
+                              setImageSrc(placeholderImage);
+                              if (fileInputRef.current) {
+                                fileInputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="p-4">
+                          <FileUploaderInput
+                            multiple={false}
+                            setFilesFunction={(files) => {
+                              const file = files?.[0] || null;
+                              form.setValue("image", file);
+                              if (file) {
+                                form.setValue("removeImage", false);
+                                setRemoveImage(false);
+                              }
+                            }}
+                            formFiles={null}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      {imageError && (
+                        <div className="pb-4 text-sm font-bold text-red-500">
+                          {imageError}
+                        </div>
+                      )}
+                    </div>
+                  </fieldset>
                 </CardContent>
               </Card>
             </div>
