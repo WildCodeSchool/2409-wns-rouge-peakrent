@@ -188,17 +188,21 @@ const ProductDetail = () => {
             ))}
           </div>
           <p className="text-base leading-relaxed">{product.description}</p>
-
-          <p className="text-xl my-5 font-semibold">
+          <p
+            className={
+              selectedVariantsPrice
+                ? "text-xl my-5 font-semibold"
+                : "text-gray-500 italic my-5"
+            }
+          >
             {selectedVariantsPrice
               ? (
                   (Number(selectedVariantsPrice) *
                     watchedQuantity *
                     (numberOfDays || 1)) /
                   100
-                ).toFixed(2)
-              : 0}{" "}
-            €
+                ).toFixed(2) + "€"
+              : "Veuillez sélectionner un produit avant de l'ajouter au panier"}{" "}
           </p>
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
