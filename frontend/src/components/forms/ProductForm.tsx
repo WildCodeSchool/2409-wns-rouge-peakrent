@@ -38,6 +38,7 @@ import {
   Separator,
   Switch,
 } from "../ui";
+import FileUploaderInput from "../ui/FileUploaderInput";
 import ProductHeader from "./ProductHeader";
 import { VariantForm } from "./VariantForm";
 import { StringInput, SwitchInput, TextAreaInput } from "./formField";
@@ -614,15 +615,46 @@ export const ProductForm = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-hidden border">
-                    <img
-                      id="reference-image"
-                      alt="Product image"
-                      className="aspect-video w-full object-contain"
-                      height="242"
-                      src={imageSrc}
-                      onError={() => setImageSrc(placeholderImage)}
-                      width="152"
-                    />
+                    {product?.urlImage || watchedImage ? (
+                      <div className="relative">
+                        <img
+                          id="reference-image"
+                          alt="Product image"
+                          className="aspect-video w-full h-auto max-h-64 sm:max-h-80 object-contain"
+                          src={imageSrc}
+                          onError={() => setImageSrc(placeholderImage)}
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          type="button"
+                          className="absolute right-2 top-2 size-8 min-h-8 min-w-8"
+                          aria-label="remove-image"
+                          onClick={() => {
+                            form.setValue("image", null);
+                            setRemoveImage(true);
+                            setImageSrc(placeholderImage);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                        >
+                          <Trash2 size={18} />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="p-4">
+                        <FileUploaderInput
+                          multiple={false}
+                          setFilesFunction={(files) => {
+                            const file = files?.[0] || null;
+                            form.setValue("image", file);
+                            if (file) setRemoveImage(false);
+                          }}
+                          formFiles={null}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="mt-4">
                     {imageError && (
@@ -630,41 +662,6 @@ export const ProductForm = () => {
                         {imageError}
                       </div>
                     )}
-                    <label className="block text-sm font-medium mb-2">
-                      Ajouter / Modifier l&rsquo;image
-                    </label>
-                    <div className="flex items-center gap-2 justify-between w-full">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        disabled={isSubmitting}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          form.setValue("image", file);
-                          if (file) setRemoveImage(false);
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        className="size-8 min-h-8 min-w-8"
-                        size="icon"
-                        disabled={
-                          (!product?.urlImage && !watchedImage) || removeImage
-                        }
-                        onClick={() => {
-                          form.setValue("image", null);
-                          setRemoveImage(true);
-                          setImageSrc(placeholderImage);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = "";
-                          }
-                        }}
-                      >
-                        <Trash2 size={18} />
-                      </Button>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
