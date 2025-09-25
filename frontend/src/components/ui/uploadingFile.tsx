@@ -289,7 +289,7 @@ export const FileUploaderItem = forwardRef<
       ref={ref}
       className={cn(
         buttonVariants({ variant: "ghost" }),
-        "relative h-6 cursor-pointer justify-between p-1",
+        "relative h-6 cursor-default justify-between p-1 hover:bg-background",
         className,
         isSelected ? "bg-muted" : ""
       )}
@@ -306,8 +306,7 @@ export const FileUploaderItem = forwardRef<
         )}
         onClick={() => removeFileFromSet(index)}
       >
-        <span className="sr-only">remove item {index}</span>
-        <RemoveIcon className="hover:stroke-destructive size-4 duration-200 ease-in-out" />
+        <RemoveIcon className="hover:stroke-destructive size-4 duration-200 ease-in-out hover:cursor-pointer" />
       </button>
     </div>
   );

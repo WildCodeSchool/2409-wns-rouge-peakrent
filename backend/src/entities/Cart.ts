@@ -1,4 +1,4 @@
-import { IsString, Length } from "class-validator";
+import { IsString, Length, ValidateIf } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -6,11 +6,15 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { OrderItem } from "./OrderItem";
 import { Profile } from "./Profile";
+import { Voucher } from "./Voucher";
 
 @ObjectType()
 @Entity()
@@ -19,7 +23,7 @@ export class Cart extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile, (profile) => profile.id, {
     onDelete: "CASCADE",
     nullable: true,
@@ -58,66 +62,56 @@ export class Cart extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.cart, {
+    cascade: true,
+  })
+  orderItems?: OrderItem[];
+
+  @Field(() => Voucher, { nullable: true })
+  @ManyToOne(() => Voucher, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "voucher_id" })
+  voucher?: Voucher;
 }
-
 @InputType()
-export class CartCreateInput {
-  @Field(() => Int)
-  profileId!: number;
-
+export class CartUpdateInput {
   @Field({ nullable: true })
+  @ValidateIf((request) => request.address1 !== "")
   @IsString()
   @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
   address1?: string;
 
   @Field({ nullable: true })
+  @ValidateIf((request) => request.address2 !== "")
   @IsString()
   @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
   address2?: string;
 
   @Field({ nullable: true })
+  @ValidateIf((request) => request.country !== "")
   @IsString()
   @Length(1, 100, { message: "country must be between 1 and 100 chars." })
   country?: string;
 
   @Field({ nullable: true })
+  @ValidateIf((request) => request.city !== "")
   @IsString()
   @Length(1, 100, { message: "city must be between 1 and 100 chars." })
   city?: string;
 
   @Field({ nullable: true })
+  @ValidateIf((request) => request.zipCode !== "")
   @IsString()
   @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
   zipCode?: string;
 }
 
 @InputType()
-export class CartUpdateInput {
+export class CartUpdateInputAdmin extends CartUpdateInput {
   @Field(() => Int, { nullable: true })
   profileId?: number;
 
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 255, { message: "address1 must be between 1 and 255 chars." })
-  address1?: string;
-
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 255, { message: "address2 must be between 1 and 255 chars." })
-  address2?: string;
-
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 100, { message: "country must be between 1 and 100 chars." })
-  country?: string;
-
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 100, { message: "city must be between 1 and 100 chars." })
-  city?: string;
-
-  @Field({ nullable: true })
-  @IsString()
-  @Length(1, 20, { message: "zipCode must be between 1 and 20 chars." })
-  zipCode?: string;
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
 }

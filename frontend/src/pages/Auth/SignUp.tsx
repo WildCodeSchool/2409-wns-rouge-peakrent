@@ -1,54 +1,89 @@
+import {
+  CheckboxInput,
+  PasswordValidation,
+  StringInput,
+} from "@/components/forms/formField";
+import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
-import { useMutation, gql } from "@apollo/client";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { CREATE_USER } from "@/graphQL";
+import {
+  SignUpFormValuesType,
+  createSignUpFormSchema,
+} from "@/schemas/authSchemas";
+import { gql, useMutation } from "@apollo/client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { CREATE_USER } from "../../GraphQL/createUser";
+import { useForm } from "react-hook-form";
+import { Link, NavLink } from "react-router-dom";
+import { toast } from "sonner";
 
 export function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [signupError, setSignupError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeToPolicy, setAgreeToPolicy] = useState(false);
   const [doCreateUser, { data }] = useMutation(gql(CREATE_USER));
+  const [isPending, setIsPending] = useState(false);
 
-  async function doSubmitSignup() {
-    if (!agreeToPolicy) {
-      setSignupError("Vous devez accepter les conditions d'utilisation");
+  const form = useForm<SignUpFormValuesType>({
+    resolver: zodResolver(createSignUpFormSchema()),
+    defaultValues: {
+      firstname: "",
+      lastname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      agreeToPolicy: false,
+    },
+  });
+
+  const onSubmit = async (formData: SignUpFormValuesType) => {
+    if (!formData.agreeToPolicy) {
+      toast.error("Vous devez accepter les conditions d'utilisation");
       return;
     }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Les mots de passe ne correspondent pas");
+      return;
+    }
+
     try {
-      await doCreateUser({
+      setIsPending(true);
+      const result = await doCreateUser({
         variables: {
           data: {
-            email,
-            password,
-            confirmPassword,
-            firstname,
-            lastname,
+            email: formData.email,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+            firstname: formData.firstname,
+            lastname: formData.lastname,
           },
         },
       });
-    } catch (e: any) {
-      console.error(e);
-      if (e.message.includes("password is not strong enough")) {
-        setSignupError("Le mot de passe n'est pas assez fort");
-      } else if (e.message.includes("email must be an email")) {
-        setSignupError("L'email est invalide");
+      if (result.data?.createUser) {
+        toast.success(
+          "Inscription réussie! Un email de confirmation vous a été envoyé",
+          {
+            duration: 7000,
+          }
+        );
       } else {
-        setSignupError(e.message);
+        toast.error("Une erreur est survenue lors de l'inscription");
       }
+    } catch (error: any) {
+      console.error("Erreur lors de la création du compte:", error);
+      if (error.message.includes("password is not strong enough")) {
+        toast.error("Le mot de passe n'est pas assez fort");
+      } else if (error.message.includes("email must be an email")) {
+        toast.error("L'email est invalide");
+      } else {
+        toast.error(
+          error.message || "Une erreur est survenue lors de l'inscription"
+        );
+      }
+    } finally {
+      setIsPending(false);
     }
-  }
+  };
 
   if (data) {
     return (
@@ -76,18 +111,20 @@ export function SignUpPage() {
                   <h2 className="text-3xl font-bold mb-6 text-black md:text-white">
                     Inscription réussie !<span className="text-3xl">🎉</span>
                   </h2>
-                  <p className="text-black md:text-white mb-8 max-w-md">
-                    Votre compte a été créé avec succès. Vous pouvez maintenant
-                    vous connecter pour accéder à votre espace.
+                  <p className="text-black md:text-white mb-8 max-w-md drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                    Votre compte a été créé avec succès. Un email de
+                    confirmation vous a été envoyé.
                   </p>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                    <Button
-                      size="lg"
-                      className="w-full text-sm text-white rounded-lg"
-                      variant="primary"
-                    >
-                      <Link to="/signin">Se connecter</Link>
-                    </Button>
+                    <NavLink to="/signin">
+                      <Button
+                        size="lg"
+                        className="w-full text-sm text-white rounded-lg"
+                        variant="primary"
+                      >
+                        Se connecter
+                      </Button>
+                    </NavLink>
                   </div>
                 </div>
               </div>
@@ -134,13 +171,15 @@ export function SignUpPage() {
                   <p className="text-sm text-white mb-4">
                     Vous avez déjà un compte ?
                   </p>
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-black rounded-lg"
-                    variant="outline"
-                  >
-                    <Link to="/signin">Se connecter</Link>
-                  </Button>
+                  <Link to="/signin">
+                    <Button
+                      size="lg"
+                      className="w-full text-sm text-black rounded-lg"
+                      variant="outline"
+                    >
+                      Se connecter
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -149,109 +188,82 @@ export function SignUpPage() {
               <h2 className="!text-3xl font-semibold mb-8 text-center">
                 Inscription
               </h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  doSubmitSignup();
-                }}
-                className="space-y-4"
-              >
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="prénom"
-                    value={firstname}
-                    onChange={(e) => setFirstname(e.target.value)}
-                    className="w-1/2"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
+                  <div className="flex gap-2 w-full">
+                    <StringInput
+                      form={form}
+                      name="firstname"
+                      label="Prénom"
+                      placeholder=" "
+                      required
+                      containerClassName="w-full"
+                      isPending={isPending}
+                    />
+                    <StringInput
+                      form={form}
+                      name="lastname"
+                      label="Nom"
+                      placeholder=" "
+                      required
+                      containerClassName="w-full"
+                      isPending={isPending}
+                    />
+                  </div>
+                  <StringInput
+                    form={form}
+                    name="email"
+                    label="Email"
+                    placeholder=" "
+                    required
+                    isPending={isPending}
                   />
-                  <Input
-                    type="text"
-                    placeholder="nom"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    className="w-1/2"
+                  <PasswordValidation
+                    form={form}
+                    label="Mot de passe"
+                    isRequired={true}
+                    name="password"
+                    needValidation={true}
+                    isPending={isPending}
                   />
-                </div>
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full"
+                  <PasswordValidation
+                    form={form}
+                    label="Confirmation du mot de passe"
+                    isRequired={true}
+                    name="confirmPassword"
+                    isPending={isPending}
                   />
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="mot de passe"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword ? (
-                      <EyeOffIcon size={20} />
-                    ) : (
-                      <EyeIcon size={20} />
-                    )}
-                  </button>
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="confirmer le mot de passe"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOffIcon size={20} />
-                    ) : (
-                      <EyeIcon size={20} />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="policy"
-                    checked={agreeToPolicy}
-                    onCheckedChange={(checked) =>
-                      setAgreeToPolicy(checked as boolean)
-                    }
-                  />
-                  <label htmlFor="policy" className="text-sm text-gray-600">
-                    J&apos;accepte les conditions d&apos;utilisation
-                  </label>
-                </div>
-                {signupError && (
-                  <p className="text-destructive text-sm">{signupError}</p>
-                )}
-                <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                  <Button
-                    size="lg"
-                    className="w-full text-sm text-white rounded-lg"
-                    variant="primary"
-                  >
-                    S&apos;inscrire
-                  </Button>
-                </div>
-                <div className="sm:block md:hidden text-center text-sm text-gray-600">
-                  Vous avez déjà un compte ?{" "}
-                  <Link to="/signin" className="text-primary hover:underline">
-                    Se connecter
-                  </Link>
-                </div>
-              </form>
+                  <div className="flex items-center space-x-2">
+                    <CheckboxInput
+                      form={form}
+                      name="agreeToPolicy"
+                      label="J'accepte les conditions d'utilisation"
+                      required
+                      isPending={isPending}
+                    />
+                  </div>
+                  <div className="flex justify-center mt-8 w-1/2 mx-auto">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full text-sm text-white rounded-lg"
+                      variant="primary"
+                      disabled={isPending}
+                    >
+                      {isPending ? <LoadIcon size={24} /> : "S'inscrire"}
+                    </Button>
+                  </div>
+                  <div className="sm:block md:hidden text-center text-sm text-muted-foreground">
+                    Vous avez déjà un compte ?{" "}
+                    <Link to="/signin" className="text-primary hover:underline">
+                      Se connecter
+                    </Link>
+                  </div>
+                </form>
+              </Form>
             </div>
           </div>
         </Card>

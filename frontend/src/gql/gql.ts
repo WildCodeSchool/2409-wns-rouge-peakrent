@@ -14,10 +14,12 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  query GetCartByProfile($profileId: Int!) {\n    getCartByProfile(profileId: $profileId) {\n      id\n    }\n  }\n": typeof types.GetCartByProfileDocument,
+    "\n  query Whoami {\n    whoami {\n      id\n    }\n  }\n": typeof types.WhoamiDocument,
+    "\n  mutation CreatePaymentIntent {\n    createPaymentIntent {\n      clientSecret\n    }\n  }\n": typeof types.CreatePaymentIntentDocument,
 };
 const documents: Documents = {
-    "\n  query GetCartByProfile($profileId: Int!) {\n    getCartByProfile(profileId: $profileId) {\n      id\n    }\n  }\n": types.GetCartByProfileDocument,
+    "\n  query Whoami {\n    whoami {\n      id\n    }\n  }\n": types.WhoamiDocument,
+    "\n  mutation CreatePaymentIntent {\n    createPaymentIntent {\n      clientSecret\n    }\n  }\n": types.CreatePaymentIntentDocument,
 };
 
 /**
@@ -37,7 +39,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query GetCartByProfile($profileId: Int!) {\n    getCartByProfile(profileId: $profileId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  query GetCartByProfile($profileId: Int!) {\n    getCartByProfile(profileId: $profileId) {\n      id\n    }\n  }\n"];
+export function gql(source: "\n  query Whoami {\n    whoami {\n      id\n    }\n  }\n"): (typeof documents)["\n  query Whoami {\n    whoami {\n      id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation CreatePaymentIntent {\n    createPaymentIntent {\n      clientSecret\n    }\n  }\n"): (typeof documents)["\n  mutation CreatePaymentIntent {\n    createPaymentIntent {\n      clientSecret\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

@@ -1,20 +1,54 @@
 import { buildSchema } from "type-graphql";
 import { authChecker } from "./auth";
-import { CartResolver } from "./resolver/Cart";
-import { CategoryResolver } from "./resolver/Categories";
-import { OrderResolver } from "./resolver/Order";
-import { OrderItemsResolver } from "./resolver/OrderItems";
-import { ProductResolver } from "./resolver/Products";
-import { ProfileResolver } from "./resolver/Profiles";
-import { SearchResolver } from "./resolver/Searchs";
-import { StoreResolver } from "./resolver/Stores";
-import { StoreVariantResolver } from "./resolver/StoresVariants";
-import { UserResolver } from "./resolver/Users";
-import { VariantResolver } from "./resolver/Variants";
+import { ErrorCatcher } from "./middlewares/errorHandler";
+import { ActivityResolver } from "./resolvers/Activities";
+import { ActivityResolverAdmin } from "./resolvers/admin/Activities";
+import { CartResolverAdmin } from "./resolvers/admin/Cart";
+import { CategoryResolverAdmin } from "./resolvers/admin/Categories";
+import { OrderResolverAdmin } from "./resolvers/admin/Order";
+import { OrderItemsResolverAdmin } from "./resolvers/admin/OrderItems";
+import { ProductResolverAdmin } from "./resolvers/admin/Products";
+import { ProfileResolverAdmin } from "./resolvers/admin/Profiles";
+import { StoreResolverAdmin } from "./resolvers/admin/Stores";
+import { StoreVariantResolverAdmin } from "./resolvers/admin/StoresVariants";
+import { UserResolverAdmin } from "./resolvers/admin/Users";
+import { VariantResolverAdmin } from "./resolvers/admin/Variants";
+import { CartResolver } from "./resolvers/Cart";
+import { CartVoucherResolver } from "./resolvers/CartVoucher";
+import { CategoryResolver } from "./resolvers/Categories";
+import { OrderResolver } from "./resolvers/Order";
+import { OrderItemsResolver } from "./resolvers/OrderItems";
+import { PaymentResolver } from "./resolvers/Payments";
+import { ProductResolver } from "./resolvers/Products";
+import { ProfileResolver } from "./resolvers/Profiles";
+import { SearchResolver } from "./resolvers/Searchs";
+import { StoreResolver } from "./resolvers/Stores";
+import { StoreVariantResolver } from "./resolvers/StoresVariants";
+import { UserResolver } from "./resolvers/Users";
+import { VariantResolver } from "./resolvers/Variants";
+import { VoucherResolverAdmin } from "./resolvers/Vouchers";
 
 export async function getSchema() {
+  // Admin resolvers
+  const adminResolvers = [
+    ActivityResolverAdmin,
+    CartResolverAdmin,
+    CategoryResolverAdmin,
+    OrderResolverAdmin,
+    OrderItemsResolverAdmin,
+    ProductResolverAdmin,
+    ProfileResolverAdmin,
+    StoreResolverAdmin,
+    UserResolverAdmin,
+    StoreVariantResolverAdmin,
+    VariantResolverAdmin,
+    PaymentResolver,
+    VoucherResolverAdmin,
+  ];
+
   const schema = await buildSchema({
     resolvers: [
+      ActivityResolver,
       CartResolver,
       CategoryResolver,
       OrderResolver,
@@ -26,8 +60,12 @@ export async function getSchema() {
       StoreVariantResolver,
       UserResolver,
       VariantResolver,
+      CartVoucherResolver,
+      ...adminResolvers,
     ],
     authChecker,
+    validate: true,
+    globalMiddlewares: [ErrorCatcher],
   });
 
   return schema;

@@ -72,7 +72,7 @@ export class Store extends BaseEntity {
 }
 
 @InputType()
-export class StoreCreateInput {
+export class StoreCreateInputAdmin {
   @Field()
   @Length(1, 255, { message: "Name must be between 1 and 255 characters." })
   name!: string;
@@ -111,7 +111,7 @@ export class StoreCreateInput {
 }
 
 @InputType()
-export class StoreUpdateInput {
+export class StoreUpdateInputAdmin {
   @Field(() => Int)
   id!: number;
 

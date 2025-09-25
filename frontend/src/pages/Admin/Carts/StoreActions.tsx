@@ -2,6 +2,7 @@ import { Row } from "@tanstack/react-table";
 
 import DeleteButton from "@/components/buttons/DeleteButton";
 import UpdateButton from "@/components/buttons/UpdateButton";
+import { Paintbrush } from "lucide-react";
 
 interface DataTableRowStoresActionsProps<TData> {
   row: Row<TData>;
@@ -12,7 +13,7 @@ export function DataTableRowStoresActions<TData>({
 }: DataTableRowStoresActionsProps<TData>) {
   const store = row.original as any;
 
-  const handleDelete = async (ids: string[] | number[]) => {
+  const handleCleanCart = async (ids: string[] | number[]) => {
     return true;
   };
 
@@ -28,12 +29,16 @@ export function DataTableRowStoresActions<TData>({
         modalDescription={store.name + " - " + store.reference}
       />
       <DeleteButton
-        onDeleteFunction={() => handleDelete([store.id])}
+        onDeleteFunction={() => handleCleanCart([store.id])}
         elementIds={[store.id]}
+        className="bg-orange-500 text-white hover:bg-orange-600"
         ariaLabel={"deleteStoreAriaLabel"}
-        modalTitle="Supprimer le magasin"
-        modalDescription="Voulez-vous vraiment supprimer ce magasin ?"
-      />
+        modalTitle="Vider le panier"
+        modalDescription="Voulez-vous vraiment vider ce panier ?"
+        confirmButtonValue="Vider le panier"
+      >
+        <Paintbrush className="w-4 h-4" />
+      </DeleteButton>
     </div>
   );
 }

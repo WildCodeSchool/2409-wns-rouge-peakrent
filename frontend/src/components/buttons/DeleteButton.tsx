@@ -5,7 +5,7 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DeleteButtonProps {
-  onDeleteFunction: (ids: string[] | number[]) => Promise<boolean>;
+  onDeleteFunction: (ids?: string[] | number[]) => Promise<boolean>;
   elementIds: string[] | number[];
   className?: string;
   size?: "default" | "sm" | "lg" | "icon" | null | undefined;
@@ -23,6 +23,8 @@ interface DeleteButtonProps {
   children?: React.ReactNode;
   modalTitle?: string;
   modalDescription?: string;
+  type?: "submit" | "reset" | "button" | undefined;
+  confirmButtonValue?: string;
 }
 
 export default function DeleteButton({
@@ -36,8 +38,11 @@ export default function DeleteButton({
   children,
   modalTitle,
   modalDescription,
+  type = "button",
+  confirmButtonValue,
 }: DeleteButtonProps) {
-  const { setDescription, setTitle, openModal } = useDeleteModal();
+  const { setDescription, setTitle, openModal, setConfirmButtonValue } =
+    useDeleteModal();
 
   const handleClick = () => {
     if (modalTitle) {
@@ -46,11 +51,15 @@ export default function DeleteButton({
     if (modalDescription) {
       setDescription(modalDescription);
     }
+    if (confirmButtonValue) {
+      setConfirmButtonValue(confirmButtonValue);
+    }
     openModal(elementIds, onDeleteFunction);
   };
 
   return (
     <Button
+      type={type}
       onClick={handleClick}
       variant={variant}
       className={cn("size-8 min-h-8 min-w-8", className)}

@@ -1,25 +1,25 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { Activity as ActivityType } from "@/gql/graphql";
+import { useWindowWidth } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { CategoryType } from "@/types/types";
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { activitiesSectionSpans } from "./homeDatas";
 
 const ActivityItem = ({
   activity,
   index,
 }: {
-  activity: CategoryType;
+  activity: ActivityType;
   index?: number;
 }) => {
-  const spans = ["col-start-2", "col-start-4", "col-start-6", "col-start-8"];
   return (
     <NavLink
       key={activity.id}
-      to={`/activities/${activity.name}`}
+      to={`/activities/${activity.normalizedName}`}
       className={cn(
         "aspect-square relative hover:cursor-pointer group overflow-hidden",
         index !== undefined && index !== null && "col-span-2",
-        index !== undefined && index !== null && spans[index]
+        index !== undefined && index !== null && activitiesSectionSpans[index]
       )}
     >
       <div className="w-full h-full overflow-hidden rounded-full border">
@@ -41,16 +41,9 @@ const ActivityItem = ({
 export function ActivitiesSection({
   activities,
 }: {
-  activities: CategoryType[];
+  activities: ActivityType[];
 }) {
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const windowWidth = useWindowWidth();
 
   const getActivitiesCount = () => {
     if (windowWidth >= 768) return 9;

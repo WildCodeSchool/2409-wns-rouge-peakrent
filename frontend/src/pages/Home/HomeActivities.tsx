@@ -1,25 +1,29 @@
 import MehSection from "@/components/section/MehSection";
-import { GET_CATEGORIES_WITH_COUNT } from "@/GraphQL/categories";
+import { GET_ACTIVITIES } from "@/graphQL/activities";
+import { useWindowWidth } from "@/hooks";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { ActivitiesBentoGrid } from "./ActivitiesBentoGrid";
 import { ActivitiesSection } from "./ActivitiesSection";
-import { ActivitiesBentoGridSkeleton } from "./Skeleton/ActivitiesBentoGridSkeleton";
-import { ActivitiesSectionSkeleton } from "./Skeleton/ActivitiesSectionSkeleton";
+import { ActivitiesBentoGridSkeleton } from "./skeleton/ActivitiesBentoGridSkeleton";
+import { ActivitiesSectionSkeleton } from "./skeleton/ActivitiesSectionSkeleton";
 
 export function HomeActivities() {
-  const [showBentoGrid, setShowBentoGrid] = useState(window.innerWidth >= 768);
+  const windowWidth = useWindowWidth();
+  const [showBentoGrid, setShowBentoGrid] = useState(windowWidth >= 768);
 
-  const { data, error, loading } = useQuery(gql(GET_CATEGORIES_WITH_COUNT));
+  const { data, error, loading } = useQuery(gql(GET_ACTIVITIES), {
+    variables: {
+      data: {
+        page: 1,
+        onPage: 7,
+      },
+    },
+  });
 
   useEffect(() => {
-    const handleResize = () => {
-      setShowBentoGrid(window.innerWidth >= 768);
-    };
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    setShowBentoGrid(windowWidth >= 768);
+  }, [windowWidth]);
 
   if (loading) {
     return showBentoGrid ? (
@@ -40,9 +44,9 @@ export function HomeActivities() {
   return (
     <>
       {showBentoGrid ? (
-        <ActivitiesBentoGrid activities={data?.getCategories.categories} />
+        <ActivitiesBentoGrid activities={data?.getActivities.activities} />
       ) : (
-        <ActivitiesSection activities={data?.getCategories.categories} />
+        <ActivitiesSection activities={data?.getActivities.activities} />
       )}
     </>
   );

@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Pagination } from "./Pagination";
+import { Pagination } from "../commonInput/Pagination";
 import { Product } from "./Product";
 import { StoreVariant } from "./StoreVariant";
 import { User } from "./User";
@@ -38,10 +38,14 @@ export class Variant extends BaseEntity {
   color?: string;
 
   @Field(() => Int)
-  @Column({ name: "price_per_hour" })
+  @Column({ name: "price_per_day" })
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour!: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
+
+  @Field()
+  @Column({ name: "is_published", default: true })
+  isPublished!: boolean;
 
   @Field()
   @CreateDateColumn({ name: "created_at" })
@@ -77,7 +81,7 @@ export class VariantWithCount {
 }
 
 @InputType()
-export class VariantCreateInput {
+export class VariantCreateInputAdmin {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
@@ -92,15 +96,15 @@ export class VariantCreateInput {
 
   @Field(() => Int)
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour!: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
 
   @Field(() => Int)
   productId!: number;
 }
 
 @InputType()
-export class VariantUpdateInput {
+export class VariantUpdateInputAdmin {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
@@ -116,9 +120,29 @@ export class VariantUpdateInput {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt()
-  @Min(0, { message: "Price per hour must be a positive number." })
-  pricePerHour?: number;
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay?: number;
 
   @Field(() => Int)
   productId!: number;
+}
+
+@InputType()
+export class VariantCreateNestedInputAdmin {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50, { message: "Size must be between 1 and 50 characters." })
+  size?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50, { message: "Color must be between 1 and 50 characters." })
+  color?: string;
+
+  @Field(() => Int)
+  @IsInt()
+  @Min(0, { message: "Price per day must be a positive number." })
+  pricePerDay!: number;
 }

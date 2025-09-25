@@ -2,23 +2,16 @@ import { ProductCard } from "@/components/cards/ProductCard";
 import { ProductCardSkeleton } from "@/components/cards/ProductCardSkeleton";
 import MehSection from "@/components/section/MehSection";
 import { Button } from "@/components/ui/button";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/GraphQL/products";
-import { ProductType } from "@/types/types";
+import { Title } from "@/components/ui/title";
+import { Product as ProductType } from "@/gql/graphql";
+import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { useWindowWidth } from "@/hooks";
 import { gql, useQuery } from "@apollo/client";
 import { Meh } from "lucide-react";
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { forwardProducts } from "./fakeData";
 
 export function ForwardProducts() {
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const windowWidth = useWindowWidth();
 
   const getProductCount = () => {
     if (windowWidth >= 1024) return 8;
@@ -42,14 +35,12 @@ export function ForwardProducts() {
 
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
-      <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
-        Produits en avant
-      </h2>
+      <Title
+        text="Produits en avant"
+        className="my-4 md:my-6 justify-center"
+        titleLevel="h2"
+      />
       <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {forwardProducts.map((product: any) => (
-          <ProductCard product={product} key={product.id} />
-        ))}
-
         {loading ? (
           [...Array(getProductCount())].map((_, index) => (
             <ProductCardSkeleton key={index} />

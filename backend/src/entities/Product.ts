@@ -21,9 +21,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { IdInput } from "../commonInput/Id";
+import { Pagination } from "../commonInput/Pagination";
+import { Activity } from "./Activity";
 import { Category } from "./Category";
-import { IdInput } from "./Id";
-import { Pagination } from "./Pagination";
 import { User } from "./User";
 import { Variant } from "./Variant";
 
@@ -52,7 +53,7 @@ export class Product extends BaseEntity {
 
   @Field()
   @Column({ name: "url_image" })
-  @IsUrl()
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
 
   @Field()
@@ -76,6 +77,11 @@ export class Product extends BaseEntity {
   @JoinTable({ name: "products_categories" })
   categories!: Category[];
 
+  @Field(() => [Activity], { nullable: true })
+  @ManyToMany(() => Activity, (activity) => activity.products)
+  @JoinTable({ name: "products_activities" })
+  activities!: Activity[];
+
   @Field(() => [Variant], { nullable: true })
   @OneToMany(() => Variant, (variant) => variant.product, { cascade: true })
   variants!: Variant[];
@@ -96,7 +102,7 @@ export class ProductWithCount {
 }
 
 @InputType()
-export class ProductCreateInput {
+export class ProductCreateInputAdmin {
   @Field()
   @IsString()
   @IsNotEmpty({ message: "Name is required." })
@@ -110,7 +116,7 @@ export class ProductCreateInput {
   description?: string;
 
   @Field()
-  @IsUrl({}, { message: "URL must be a valid URL." })
+  @IsUrl({ require_tld: false }, { message: "urlImage must be a valid URL" })
   urlImage!: string;
 
   @Field()
@@ -125,11 +131,15 @@ export class ProductCreateInput {
   @Field(() => [IdInput], { nullable: true })
   @IsOptional()
   categories?: IdInput[];
+
+  @Field(() => [IdInput], { nullable: true })
+  @IsOptional()
+  activities?: IdInput[];
 }
 
 @InputType()
-export class ProductUpdateInput {
-  @Field()
+export class ProductUpdateInputAdmin {
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   @IsNotEmpty({ message: "Name is required." })
@@ -142,17 +152,17 @@ export class ProductUpdateInput {
   @MaxLength(500, { message: "Description must be at most 500 chars." })
   description?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
-  @IsUrl({}, { message: "URL must be a valid URL." })
+  @IsUrl({ require_tld: false }, { message: "URL must be a valid URL." })
   urlImage?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsBoolean({ message: "is_published must be a boolean value." })
   isPublished?: boolean;
 
-  @Field()
+  @Field({ nullable: true })
   @IsOptional()
   @IsString({ message: "SKU must be an string." })
   @Length(1, 100, { message: "SKU must be at most 100 chars." })
@@ -161,4 +171,8 @@ export class ProductUpdateInput {
   @Field(() => [IdInput], { nullable: true })
   @IsOptional()
   categories?: IdInput[];
+
+  @Field(() => [IdInput], { nullable: true })
+  @IsOptional()
+  activities?: IdInput[];
 }

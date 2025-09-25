@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_PRODUCTS } from "@/GraphQL/products";
+import { GET_PRODUCTS } from "@/graphQL/products";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
@@ -83,7 +83,6 @@ export default function ProductsTable() {
       hideColumns={{
         sku: false,
       }}
-      rowLink="id"
       hideExport
       onDeleteMultipleFunction={onDeleteMultipleFunction}
     />

@@ -1,6 +1,8 @@
+import { updateOrderStatusFromOrderItem } from "../services/orderItemService";
 import { IsDate, IsNotEmpty, Min } from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
+  AfterUpdate,
   BaseEntity,
   Check,
   Column,
@@ -9,8 +11,11 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from "typeorm";
+import { DateRangeInput } from "../commonInput/Date";
+import { OrderItemStatusType } from "../types";
 import { Cart } from "./Cart";
 import { Order } from "./Order";
 import { Variant } from "./Variant";
@@ -25,7 +30,7 @@ export class OrderItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field({ nullable: true })
+  @Field(() => Cart, { nullable: true })
   @ManyToOne(() => Cart, (cart) => cart.id, {
     onDelete: "SET NULL",
     nullable: true,
@@ -33,23 +38,39 @@ export class OrderItem extends BaseEntity {
   @JoinColumn({ name: "cart_id" })
   cart?: Cart;
 
-  @Field({ nullable: true })
-  @ManyToOne(() => Order, (order) => order.id, { nullable: true })
+  @Field(() => Order, { nullable: true })
+  @ManyToOne(() => Order, (order) => order.id, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "order_id" })
   order?: Order;
 
-  @Field({ nullable: true })
-  @ManyToOne(() => Variant, (variant) => variant.id, { nullable: true })
+  @RelationId((orderItem: OrderItem) => orderItem.order)
+  orderId?: number;
+
+  @Field(() => Variant)
+  @ManyToOne(() => Variant, (variant) => variant.id)
   @JoinColumn({ name: "variant_id" })
-  variant?: Variant;
+  variant!: Variant;
 
   @Field()
   @Column()
   quantity!: number;
 
+  @Field(() => OrderItemStatusType, {
+    defaultValue: OrderItemStatusType.pending,
+  })
+  @Column({
+    type: "enum",
+    enum: OrderItemStatusType,
+    default: OrderItemStatusType.pending,
+  })
+  status!: OrderItemStatusType;
+
   @Field()
-  @Column({ name: "price_per_hour" })
-  pricePerHour!: number;
+  @Column({ name: "price_per_day" })
+  pricePerDay!: number;
 
   @Field()
   @Column({ name: "starts_at", type: "timestamptz" })
@@ -70,14 +91,15 @@ export class OrderItem extends BaseEntity {
   @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @AfterUpdate()
+  async updateOrderStatus() {
+    await updateOrderStatusFromOrderItem(this);
+  }
 }
 
 @InputType()
 export class OrderItemsCreateInput {
-  @Field(() => Int)
-  @IsNotEmpty({ message: "profileId must not be empty." })
-  profileId!: number;
-
   @Field(() => Int, { nullable: true })
   orderId?: number;
 
@@ -95,8 +117,8 @@ export class OrderItemsCreateInput {
 
   @Field(() => Int)
   @Min(0, { message: "Price should be positive" })
-  @IsNotEmpty({ message: "price_per_hour must not be empty." })
-  pricePerHour!: number;
+  @IsNotEmpty({ message: "price_per_day must not be empty." })
+  pricePerDay!: number;
 
   @Field()
   @IsDate()
@@ -110,7 +132,14 @@ export class OrderItemsCreateInput {
 }
 
 @InputType()
-export class OrderItemsUpdateInput {
+export class OrderItemsCreateInputAdmin extends OrderItemsCreateInput {
+  @Field(() => Int)
+  @IsNotEmpty({ message: "profileId must not be empty." })
+  profileId!: number;
+}
+
+@InputType()
+export class OrderItemsUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   orderId?: number;
 
@@ -122,11 +151,11 @@ export class OrderItemsUpdateInput {
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "quantity should be positive" })
-  quantity: number;
+  quantity?: number;
 
   @Field(() => Int, { nullable: true })
   @Min(0, { message: "Price should be positive" })
-  pricePerHour?: number;
+  pricePerDay?: number;
 
   @Field({ nullable: true })
   @IsDate()
@@ -135,4 +164,46 @@ export class OrderItemsUpdateInput {
   @Field({ nullable: true })
   @IsDate()
   endsAt?: Date;
+
+  @Field({ nullable: true })
+  status?: OrderItemStatusType;
+}
+
+@InputType()
+export class OrderItemsUpdateInput {
+  @Field(() => Int, { nullable: true })
+  @Min(0, { message: "quantity should be positive" })
+  quantity?: number;
+
+  @Field({ nullable: true })
+  @IsDate()
+  startsAt?: Date;
+
+  @Field({ nullable: true })
+  @IsDate()
+  endsAt?: Date;
+}
+
+// Input for the create order form on back office
+@InputType()
+export class OrderItemsFormInputAdmin {
+  @Field(() => OrderItemStatusType, { nullable: true })
+  status?: OrderItemStatusType;
+
+  @Field(() => Int)
+  @Min(0, { message: "Price should be positive" })
+  @IsNotEmpty({ message: "pricPerDay must not be empty." })
+  pricePerDay!: number;
+
+  @Field(() => Int)
+  @Min(0, { message: "Quantity should be positive" })
+  @IsNotEmpty({ message: "Quantity must not be empty." })
+  quantity!: number;
+
+  @Field(() => Int)
+  @IsNotEmpty({ message: "Variant ID must not be empty." })
+  variant!: number;
+
+  @Field(() => DateRangeInput)
+  date_range!: DateRangeInput;
 }

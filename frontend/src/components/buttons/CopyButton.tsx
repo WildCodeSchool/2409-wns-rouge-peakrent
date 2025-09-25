@@ -19,6 +19,7 @@ interface CopyButtonProps {
     | "primary"
     | null
     | undefined;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 export default function CopyButton({
@@ -28,6 +29,7 @@ export default function CopyButton({
   size = "icon",
   className = "",
   variant = "outline",
+  type = "button",
 }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
@@ -44,6 +46,7 @@ export default function CopyButton({
   };
   return (
     <Button
+      type={type}
       size={size}
       variant={variant}
       className={cn("relative size-6", className)}

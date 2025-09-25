@@ -21,7 +21,7 @@ interface StringInputProps {
   readOnly?: boolean;
 }
 
-export const String = ({
+export const StringInput = ({
   form,
   name = "string",
   label = "String",
@@ -48,6 +48,7 @@ export const String = ({
                 className={
                   (cn("hover:ring-ring border hover:ring-1"), className)
                 }
+                data-testid={name}
                 readOnly={readOnly}
                 {...field}
                 value={field.value ?? ""}

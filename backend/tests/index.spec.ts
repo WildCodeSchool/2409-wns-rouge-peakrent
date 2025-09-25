@@ -1,11 +1,11 @@
+import { dataSource } from "@/config/db";
+import { Profile } from "@/entities/Profile";
+import { User } from "@/entities/User";
+import { getSchema } from "@/schema";
+import { RoleType } from "@/types";
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { DataSource } from "typeorm";
-import { CREATE_USER } from "../../frontend/src/GraphQL/createUser";
-import { dataSource } from "../src/config/db";
-import { Profile } from "../src/entities/Profile";
-import { User } from "../src/entities/User";
-import { getSchema } from "../src/schema";
-import { RoleType } from "../src/types";
+import { CREATE_USER } from "../../frontend/src/graphQL/user";
 import { CategoriesResolverTest } from "./resolvers/CategoriesResolver";
 import { OrderResolverTest } from "./resolvers/OrderResolver";
 import { StoresResolverTest } from "./resolvers/StoresResolver";
@@ -61,7 +61,6 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
 
   assert(userResponse.body.kind === "single");
   testArgs.data.user = userResponse.body.singleResult.data?.createUser;
-  console.log("2", testArgs.data.user);
 
   assert(adminResponse.body.kind === "single");
   testArgs.data.admin = adminResponse.body.singleResult.data?.createUser;
@@ -70,10 +69,26 @@ export const setupTestUsers = async (testArgs: TestArgsType) => {
     where: { id: testArgs.data.admin.id },
   });
 
-  adminProfile.role = RoleType.ADMIN;
+  adminProfile.role = RoleType.admin;
   await adminProfile.save();
 
-  testArgs.data.admin.role = RoleType.ADMIN;
+  const adminUser = await User.findOne({
+    where: { id: testArgs.data.admin.id },
+  });
+  adminUser.emailVerifiedAt = new Date();
+  adminUser.emailToken = null;
+  adminUser.emailSentAt = null;
+  await adminUser.save();
+
+  const userUser = await User.findOne({
+    where: { id: testArgs.data.user.id },
+  });
+  userUser.emailVerifiedAt = new Date();
+  userUser.emailToken = null;
+  userUser.emailSentAt = null;
+  await userUser.save();
+
+  testArgs.data.admin.role = RoleType.admin;
 };
 
 beforeAll(async () => {

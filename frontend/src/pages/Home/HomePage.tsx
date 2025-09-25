@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/ui/carousel/Carousel";
 import { NavLink } from "react-router-dom";
-import { carousselImages } from "./fakeData";
 import { ForwardProducts } from "./ForwardProducts";
 import { HomeActivities } from "./HomeActivities";
+import { carousselImages } from "./homeDatas";
 import { RentalProcessFlow } from "./RentalProcess";
 
 export function HomePage() {

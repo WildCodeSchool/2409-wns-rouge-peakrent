@@ -1,6 +1,6 @@
 import { dataSource } from "../src/config/db";
-import { User } from "../src/entities/User";
 import { Profile } from "../src/entities/Profile";
+import { User } from "../src/entities/User";
 import { hashPassword } from "../src/helpers/helpers";
 import { RoleType } from "../src/types";
 
@@ -10,17 +10,17 @@ export const seedUsers = async () => {
   const users = [
     {
       email: "admin@peakrent.com",
-      password: "Aadmin123!",
+      password: "Aadmin12345!",
       firstname: "Admin",
       lastname: "User",
-      role: RoleType.ADMIN,
+      role: RoleType.admin,
     },
     {
       email: "client@example.com",
-      password: "Client123!",
+      password: "Client12345!",
       firstname: "Jean",
       lastname: "Dupont",
-      role: RoleType.USER,
+      role: RoleType.user,
     },
   ];
 
@@ -31,6 +31,7 @@ export const seedUsers = async () => {
       const newUser = userRepo.create({
         ...user,
         password: hashedPassword,
+        emailVerifiedAt: new Date(),
       });
       await userRepo.save(newUser);
 

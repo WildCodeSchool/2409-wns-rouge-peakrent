@@ -1,7 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { Product } from "@/gql/graphql";
+import { UPDATE_PRODUCT } from "@/graphQL/products";
+import { gql, useMutation } from "@apollo/client";
 import { Row } from "@tanstack/react-table";
-
-import DeleteButton from "@/components/buttons/DeleteButton";
-import UpdateButton from "@/components/buttons/UpdateButton";
+import { Eye, EyeOff, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface DataTableRowProductsActionsProps<TData> {
   row: Row<TData>;
@@ -10,30 +14,49 @@ interface DataTableRowProductsActionsProps<TData> {
 export function DataTableRowProductsActions<TData>({
   row,
 }: DataTableRowProductsActionsProps<TData>) {
-  const product = row.original as any;
+  const navigate = useNavigate();
+  const product = row.original as Product;
+  const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
 
-  const handleDelete = async (ids: string[] | number[]) => {
-    return true;
+  const handleTogglePublish = async () => {
+    const next = !product.isPublished;
+    try {
+      await updateProduct({
+        variables: {
+          updateProductId: String(product.id),
+          data: { isPublished: next },
+        },
+        refetchQueries: ["getProducts", "GetProducts"],
+        awaitRefetchQueries: true,
+      });
+      toast.success(next ? "Produit publié" : "Produit dépublié");
+    } catch (e) {
+      toast.error("Impossible de changer la publication");
+    }
   };
-
-  const formContent = <div>Form content</div>;
 
   return (
     <div className="col-span-2 flex items-center justify-center gap-2 p-2">
-      <UpdateButton
-        modalContent={formContent}
-        ariaLabel={"editProductAriaLabel"}
+      <Button
         variant="primary"
-        modalTitle="Modifier le produit"
-        modalDescription={product.name}
-      />
-      <DeleteButton
-        onDeleteFunction={() => handleDelete([product.id])}
-        elementIds={[product.id]}
-        ariaLabel={"deleteProductAriaLabel"}
-        modalTitle="Supprimer le produit"
-        modalDescription="Voulez-vous vraiment supprimer ce produit ?"
-      />
+        size="icon"
+        className="hover:border-input size-8 min-h-8 min-w-8 hover:ring-0"
+        onClick={() => navigate(`edit/${product.id}`)}
+      >
+        <Pencil size={18} />
+      </Button>
+      <Button
+        variant={product.isPublished ? "destructive" : "secondary"}
+        size="icon"
+        className="hover:border-input size-8 min-h-8 min-w-8 hover:ring-0"
+        onClick={handleTogglePublish}
+        aria-label={
+          product.isPublished ? "Unpublish product" : "Publish product"
+        }
+        title={product.isPublished ? "Dépublier" : "Publier"}
+      >
+        {product.isPublished ? <EyeOff size={18} /> : <Eye size={18} />}
+      </Button>
     </div>
   );
 }

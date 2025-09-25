@@ -1,20 +1,26 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import express from "express";
+import path from "path";
 import "reflect-metadata";
 import { dataSource } from "./config/db";
 import { getUserFromContext } from "./helpers/helpers";
+import app from "./rest/express";
+import "./rest/stripeWebhook";
 import { getSchema } from "./schema";
 import { ContextType } from "./types";
 
-const port = 4000;
+const GRAPHQL_PORT = 4000;
+const UPLOAD_PORT = 4001;
+const UPLOADS_DIR = path.join(__dirname, "../uploads");
 
 const initialize = async () => {
+  await dataSource.initialize();
   const schema = await getSchema();
   const server = new ApolloServer({ schema });
-  await dataSource.initialize();
 
   const { url } = await startStandaloneServer(server, {
-    listen: { port: port },
+    listen: { port: GRAPHQL_PORT },
     context: async ({ req, res }) => {
       const context: ContextType = {
         req,
@@ -27,6 +33,13 @@ const initialize = async () => {
     },
   });
   console.log(`Server ready at: ${url} 🚀`);
+
+  app.use("/uploads", express.static(UPLOADS_DIR));
+  app.listen(UPLOAD_PORT, () => {
+    console.log(
+      `📤 Upload server ready at http://localhost:${UPLOAD_PORT}/upload`
+    );
+  });
 };
 
 initialize();

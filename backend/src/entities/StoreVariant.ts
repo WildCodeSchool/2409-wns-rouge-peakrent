@@ -1,6 +1,13 @@
 import { Min } from "class-validator";
 import { Field, InputType, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from "typeorm";
 import { Store } from "./Store";
 import { Variant } from "./Variant";
 
@@ -16,22 +23,25 @@ export class StoreVariant extends BaseEntity {
   storeId!: number;
 
   @Field(() => Int)
+  @Column()
   @Min(0, { message: "Quantity must be at least 0" })
   quantity!: number;
 
   @ManyToOne(() => Store, (store) => store.storeVariants, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "store_id" })
   store!: Store;
 
   @ManyToOne(() => Variant, (variant) => variant.storeVariants, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "variant_id" })
   variant!: Variant;
 }
 
 @InputType()
-export class StoreVariantCreateInput {
+export class StoreVariantCreateInputAdmin {
   @Field(() => Int)
   storeId!: number;
 
@@ -44,7 +54,7 @@ export class StoreVariantCreateInput {
 }
 
 @InputType()
-export class StoreVariantUpdateInput {
+export class StoreVariantUpdateInputAdmin {
   @Field(() => Int)
   storeId!: number;
 

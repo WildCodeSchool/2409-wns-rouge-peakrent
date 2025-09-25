@@ -1,4 +1,11 @@
-import { IsDate, IsEnum, IsNotEmpty, IsString, Length } from "class-validator";
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from "class-validator";
 import { Field, ID, InputType, Int, ObjectType } from "type-graphql";
 import {
   BaseEntity,
@@ -7,11 +14,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { OrderPaymentType, OrderStatusType } from "../types";
+import { OrderItem } from "./OrderItem";
+import { Payment } from "./Payment";
 import { Profile } from "./Profile";
+import { Voucher } from "./Voucher";
 
 @ObjectType()
 @Entity()
@@ -28,7 +39,7 @@ export class Order extends BaseEntity {
   @Column({
     type: "enum",
     enum: OrderStatusType,
-    default: OrderStatusType.confirmed,
+    default: OrderStatusType.pending,
   })
   status!: OrderStatusType;
 
@@ -65,6 +76,17 @@ export class Order extends BaseEntity {
   @Column("varchar", { name: "zip_code", length: 20 })
   zipCode!: string;
 
+  @Field({ nullable: true })
+  @Column("varchar", { name: "phone", length: 100, nullable: true })
+  phone?: string;
+
+  @Field(() => [OrderItem], { nullable: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
+    cascade: true,
+    nullable: true,
+  })
+  orderItems?: OrderItem[];
+
   @Field()
   @CreateDateColumn({
     name: "created_at",
@@ -74,27 +96,48 @@ export class Order extends BaseEntity {
   createdAt!: Date;
 
   @Field()
+  @Column({ name: "date", type: "timestamptz" })
+  date!: Date;
+
+  @Field()
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 
-  @Field()
+  @Field(() => Profile)
   @ManyToOne(() => Profile, (profile) => profile.id, {
     onDelete: "SET NULL",
     nullable: true,
   })
   @JoinColumn({ name: "profile_id" })
   profile?: Profile;
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, (payment) => payment.order, { cascade: true })
+  payments: Payment[];
+
+  @Field(() => Voucher, { nullable: true })
+  @ManyToOne(() => Voucher, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "voucher_id" })
+  voucher?: Voucher;
+
+  @Field({ nullable: true })
+  @Column("int", { name: "discount_amount", nullable: true })
+  discountAmount?: number;
+
+  @Field({ nullable: true })
+  @Column("int", { name: "charged_amount", nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()
-export class OrderCreateInput {
+export class OrderCreateInputAdmin {
   @Field(() => Int)
   profileId!: number;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
-  reference!: string;
+  reference?: string;
 
   @Field()
   @IsEnum(OrderPaymentType, { message: "text must be of OrderPaymentType" })
@@ -107,6 +150,7 @@ export class OrderCreateInput {
   address1!: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   @IsString()
   @Length(1, 255, { message: "address_2 must be between 1 and 255 chars." })
   address2?: string;
@@ -131,11 +175,30 @@ export class OrderCreateInput {
 
   @Field({ nullable: true })
   @IsDate()
-  paidAt!: Date;
+  paidAt?: Date;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(1, 100, { message: "phone must be between 1 and 100 chars." })
+  phone?: string;
+
+  @Field()
+  @IsDate()
+  date!: Date;
+
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
+
+  @Field(() => Int, { nullable: true })
+  discountAmount?: number;
+
+  @Field(() => Int, { nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()
-export class OrderUpdateInput {
+export class OrderUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   profileId?: number;
 
@@ -175,7 +238,16 @@ export class OrderUpdateInput {
 
   @Field({ nullable: true })
   @IsDate()
-  paidAt!: Date;
+  paidAt?: Date;
+
+  @Field(() => Int, { nullable: true })
+  voucherId?: number;
+
+  @Field(() => Int, { nullable: true })
+  discountAmount?: number;
+
+  @Field(() => Int, { nullable: true })
+  chargedAmount?: number;
 }
 
 @InputType()
@@ -186,6 +258,5 @@ export class ValidateCartInput {
 
   @Field()
   @IsString()
-  @Length(1, 100, { message: "reference must be between 1 and 255 chars." })
-  reference!: string;
+  clientSecret: string;
 }

@@ -11,7 +11,8 @@
     "test": "vitest",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen",
+    "generate-barrels": "node generate-barrels.js"
   },
   "dependencies": {
     "@apollo/client": "^3.11.10",
@@ -42,8 +43,12 @@
     "@radix-ui/react-toggle": "^1.1.2",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-table": "^8.21.2",
+    "axios": "^1.8.4",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",

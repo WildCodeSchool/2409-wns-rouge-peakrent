@@ -1,18 +1,18 @@
-import { Category } from "@/gql/graphql";
+import { Category as CategoryType } from "@/gql/graphql";
 import { create } from "zustand";
 
 export interface CategoryStoreState {
-  categories: Category[];
+  categories: CategoryType[];
   categoriesFetched: boolean;
 
-  setCategories: (categories: Category[]) => void;
+  setCategories: (categories: CategoryType[]) => void;
   setCategoriesFetched: (fetched: boolean) => void;
 
   deleteCategory: (id: number) => void;
   deleteMultipleCategories: (ids: number[]) => void;
 
-  updateCategory: (id: number, category: Partial<Category>) => void;
-  addCategory: (category: Category) => void;
+  updateCategory: (id: number, category: Partial<CategoryType>) => void;
+  addCategory: (category: CategoryType) => void;
 }
 
 export const useCategoryStore = create<CategoryStoreState>((set, get) => ({
@@ -51,23 +51,22 @@ export const useCategoryStore = create<CategoryStoreState>((set, get) => ({
     })),
 }));
 
-export const deleteCategory = (ids: (string | number)[]) => {
-  const id = ids[0];
+export const deleteCategory = (id: number) => {
   const { deleteCategory } = useCategoryStore.getState();
-  deleteCategory(id as number);
+  deleteCategory(id);
 };
 
-export const deleteMultipleCategories = (ids: (string | number)[]) => {
+export const deleteMultipleCategories = (ids: number[]) => {
   const { deleteMultipleCategories } = useCategoryStore.getState();
-  deleteMultipleCategories(ids as number[]);
+  deleteMultipleCategories(ids);
 };
 
-export const updateCategory = (id: number, category: Partial<Category>) => {
+export const updateCategory = (id: number, category: Partial<CategoryType>) => {
   const { updateCategory } = useCategoryStore.getState();
   updateCategory(id, category);
 };
 
-export const addCategory = (category: Category) => {
+export const addCategory = (category: CategoryType) => {
   const { addCategory } = useCategoryStore.getState();
   addCategory(category);
 };

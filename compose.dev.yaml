@@ -3,21 +3,28 @@ services:
     build: ./backend
     ports:
       - 5050:4000
+      - "4001:4001"
     env_file:
       - database.env
       - variables.env
     volumes:
+      - ./backend/migrations:/app/migrations
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
+      - ./backend/uploads:/app/uploads
     command: npm start
     depends_on:
       - db
+    networks:
+      - dev
 
   frontend:
     build: ./frontend
     ports:
       - 3000:5173
     command: npm run dev
+    env_file:
+      - front.variables.env
     depends_on:
       - backend
     volumes:
@@ -25,6 +32,8 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
       - ./frontend/vite.config.ts:/app/vite.config.ts
+    networks:
+      - dev
 
   db:
     image: postgres
@@ -35,17 +44,38 @@ services:
       - database.env
     volumes:
       - dbdata:/var/lib/postgresql/data
+    networks:
+      - dev
 
   nginx:
     image: nginx
     volumes:
-      - ./nginx:/etc/nginx
+      - ./nginx-staging:/etc/nginx
     ports:
       - "8080:80"
     depends_on:
       - backend
       - frontend
+    networks:
+      - dev
+
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    environment:
+      - STRIPE_API_KEY=${STRIPE_KEY}
+    command: listen --forward-to http://backend:4001/stripe/webhook
+    depends_on:
+      - backend
+    volumes:
+      - stripe-cli-data:/root/.config/stripe
+    networks:
+      - dev
 
 volumes:
   dbdata:
     driver: local
+  stripe-cli-data:
+    driver: local
+
+networks:
+  dev:

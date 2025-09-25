@@ -1,25 +1,17 @@
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
+import { Activity as ActivityType } from "@/gql/graphql";
 import { cn } from "@/lib/utils";
-import { CategoryType } from "@/types/types";
 import { Meh } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { bentoGridSpans } from "./homeDatas";
 
 export function ActivitiesBentoGrid({
   activities,
 }: {
-  activities: CategoryType[];
+  activities: ActivityType[];
 }) {
-  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
-  const spans = [
-    "row-span-2 col-span-3",
-    "col-span-3",
-    "col-span-2",
-    "col-span-2",
-    "col-span-2",
-    "col-span-2",
-    "col-span-3",
-  ];
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
       <h2 className="!text-2xl md:!text-3xl font-bold my-4 md:my-6 text-center">
@@ -28,11 +20,11 @@ export function ActivitiesBentoGrid({
       <div className="grid grid-cols-10 gap-4 auto-rows-[250px]">
         {activities?.slice(0, 7).map((activity, index) => (
           <NavLink
-            to={`/activities/${activity.name}`}
+            to={`/activities/${activity.normalizedName}`}
             key={activity.id}
             className={cn(
               "relative overflow-hidden rounded-xl border hover:cursor-pointer",
-              spans[index] || ""
+              bentoGridSpans[index] || ""
             )}
             onMouseEnter={() => setHoveredItem(activity.id)}
             onMouseLeave={() => setHoveredItem(null)}
