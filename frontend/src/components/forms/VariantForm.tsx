@@ -1,6 +1,5 @@
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useModal } from "@/context/modalProvider";
 import { Product, Variant } from "@/gql/graphql";
 import {
@@ -9,12 +8,24 @@ import {
   UPDATE_VARIANT,
 } from "@/graphQL/variants";
 import { ProductFormSchema } from "@/schemas/productSchemas";
+import {
+  variantCreateSchema,
+  VariantCreateSchema,
+} from "@/schemas/variantSchemas";
 import { ApolloQueryResult, gql, useMutation, useQuery } from "@apollo/client";
 import { MoreHorizontal } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Label } from "../ui/label";
-import { MultiSelect } from "../ui/multiple-selector";
+import { Form } from "../ui";
+import {
+  MultipleSelectorInput,
+  Price,
+  SingleSelectorInput,
+  StringInput,
+} from "./formField";
+import { sizeGroups } from "./formField/select/options/sizeOptions";
+import { getFormDefaultValues } from "./utils/getFormDefaultValues";
 
 type VariantFormType = {
   variant?: Variant;
@@ -33,24 +44,20 @@ export const VariantForm = ({
   const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
-  const [color, setColor] = useState<string>(variant?.color ?? "");
-  const [sizes, setSizes] = useState<string[]>(
-    variant?.size ? [variant.size] : []
-  );
+  const [isCustomColor, setIsCustomColor] = useState(false);
+  const [isCustomSize, setIsCustomSize] = useState(false);
   const [customSizesInput, setCustomSizesInput] = useState<string>(
     variant?.size ? variant.size : ""
   );
-  // price in euros in the UI
-  const [pricePerDay, setpricePerDay] = useState<number>(
-    variant ? (variant.pricePerDay ?? 0) / 100 : 0
-  );
+
+  const formSchema = variantCreateSchema(variant);
+  const defaultValues = getFormDefaultValues(formSchema);
+  const form = useForm<VariantCreateSchema>({ defaultValues });
 
   const [createVariant] = useMutation(gql(CREATE_VARIANT));
   const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
 
-  const [isCustomColor, setIsCustomColor] = useState(false);
-  const [isCustomSize, setIsCustomSize] = useState(false);
-
+  const isEdit = Boolean(variant?.id);
   const isNewLocalVariant = !productId && setNewVariants;
 
   const {
@@ -64,37 +71,41 @@ export const VariantForm = ({
     if (getVariantsData?.getVariants) {
       const colors: string[] = Array.from(
         new Set(
-          getVariantsData.getVariants.map((variant: Variant) => variant.color)
+          getVariantsData.getVariants
+            .map((v: Variant) => v.color)
+            .filter(Boolean)
         )
-      );
+      ) as string[];
       setAvailableColors(colors);
       const sizes: string[] = Array.from(
         new Set(
-          getVariantsData.getVariants.map((variant: Variant) => variant.size)
+          getVariantsData.getVariants
+            .map((v: Variant) => v.size)
+            .filter(Boolean)
         )
-      );
+      ) as string[];
       setAvailableSizes(sizes);
     }
   }, [getVariantsData]);
 
-  const handleVariantFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: VariantCreateSchema) => {
     setUploading(true);
-
     try {
-      const priceInCents = Math.round((Number(pricePerDay) || 0) * 100);
+      const priceInCents = Math.round((Number(values.pricePerDay) || 0) * 100);
 
-      const tasks = sizes.map(async (size) => {
+      const selectedSizes =
+        values.sizes && values.sizes.length > 0 ? values.sizes : [""];
+      const tasks = selectedSizes.map(async (size) => {
         const commonData = {
           productId,
-          color,
+          color: values.color,
           size,
           pricePerDay: priceInCents,
-        };
+        } as const;
 
         if (isNewLocalVariant) {
-          setNewVariants((prevVariants) => [
-            ...prevVariants,
+          setNewVariants!((prev) => [
+            ...prev,
             { ...commonData, isPublished: true },
           ]);
           toast.success("Variant ajouté avec succès !");
@@ -119,11 +130,7 @@ export const VariantForm = ({
       });
 
       await Promise.all(tasks);
-
-      if (refetchProduct) {
-        await refetchProduct();
-      }
-
+      if (refetchProduct) await refetchProduct();
       closeModal();
     } catch (error) {
       console.error("Error:", error);
@@ -133,60 +140,53 @@ export const VariantForm = ({
   };
 
   return (
-    <form
-      onSubmit={handleVariantFormSubmit}
-      className="flex flex-col gap-6 p-4"
-    >
-      {/* Couleur */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Couleur :</Label>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-6 p-4"
+      >
+        {/* Couleur */}
+        <div className="flex flex-col gap-2 relative">
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => setIsCustomColor((prev) => !prev)}
+            className="absolute right-0 -top-4 hover:bg-transparent group"
           >
-            <MoreHorizontal size={20} className="text-muted-foreground" />
+            <MoreHorizontal
+              size={20}
+              className="text-muted-foreground group-hover:font-bold group-hover:text-foreground"
+            />
           </Button>
+          {isCustomColor ? (
+            <StringInput
+              label="Couleur"
+              form={form}
+              name="color"
+              isPending={uploading}
+              placeholder="Ex: Rouge, Bleu, Vert"
+              className="h-10"
+              required
+            />
+          ) : (
+            <SingleSelectorInput
+              options={availableColors.map((color) => ({
+                label: color ?? "",
+                value: color ?? "",
+              }))}
+              form={form}
+              name="color"
+              label="Couleur"
+              isPending={uploading}
+              placeholder="Couleur"
+              required
+            />
+          )}
         </div>
-        {isCustomColor ? (
-          <Input
-            type="text"
-            placeholder="Ex: Rouge, Bleu, Vert"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            required
-          />
-        ) : (
-          <select
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            required
-            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="" disabled>
-              Choisir une couleur
-            </option>
-            {loadingVariants ? (
-              <option disabled>Chargement...</option>
-            ) : errorVariants ? (
-              <option disabled>Erreur de chargement</option>
-            ) : (
-              availableColors.map((color) => (
-                <option key={color} value={color}>
-                  {color}
-                </option>
-              ))
-            )}
-          </select>
-        )}
-      </div>
 
-      {/* Taille */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Tailles :</Label>
+        {/* Tailles */}
+        <div className="flex flex-col gap-2 relative">
           <Button
             type="button"
             variant="ghost"
@@ -194,79 +194,95 @@ export const VariantForm = ({
             onClick={() =>
               setIsCustomSize((prev) => {
                 const next = !prev;
-                if (next) setCustomSizesInput(sizes.join(", "));
+                if (next)
+                  setCustomSizesInput(
+                    (form.getValues("sizes") || []).join(", ")
+                  );
                 return next;
               })
             }
+            className="absolute right-0 -top-4 hover:bg-transparent group"
           >
-            <MoreHorizontal size={20} className="text-muted-foreground" />
+            <MoreHorizontal
+              size={20}
+              className="text-muted-foreground group-hover:font-bold group-hover:text-foreground"
+            />
           </Button>
-        </div>
-        {isCustomSize ? (
-          <Input
-            type="text"
-            placeholder="Ex: S, M, L, XL"
-            value={customSizesInput}
-            onChange={(e) => {
-              const raw = e.target.value;
-              setCustomSizesInput(raw);
-              const parsed = raw
-                .split(",")
-                .map((s) => s.trim())
-                .filter((s) => s.length > 0);
-              setSizes(parsed);
-            }}
-            required
-          />
-        ) : (
-          <div className="w-full">
-            {loadingVariants ? (
-              <p className="text-sm text-muted-foreground">
-                Chargement des tailles...
-              </p>
-            ) : errorVariants ? (
-              <p className="text-sm text-destructive">Erreur de chargement.</p>
-            ) : (
-              <MultiSelect
-                options={availableSizes.map((size) => ({
-                  label: size ?? "",
-                  value: size ?? "",
-                }))}
-                defaultValue={sizes}
-                onValueChange={(newSelected) => setSizes(newSelected)}
-                placeholder="Sélectionner les tailles"
-                maxCount={5}
-                enableSelectAll={false}
+
+          {/* Edit mode: single select or single custom input */}
+          {isEdit ? (
+            isCustomSize ? (
+              <StringInput
+                label="Taille"
+                form={form}
+                name="sizes"
+                isPending={uploading}
+                placeholder="Ex: S"
+                className="h-10"
+                required
               />
-            )}
-          </div>
-        )}
-      </div>
+            ) : (
+              <MultipleSelectorInput
+                form={form}
+                name="sizes"
+                label="Taille"
+                groups={sizeGroups}
+                isPending={uploading}
+                placeholder="Sélectionner une taille"
+                maxSelections={1}
+                columns={4}
+                enableSelectAll
+                required
+              />
+            )
+          ) : // Create mode: multiselect or multi custom input
+          isCustomSize ? (
+            <StringInput
+              label="Taille"
+              form={form}
+              name="sizes"
+              isPending={uploading}
+              placeholder="Ex: S, M, L, XL"
+              required
+              className="h-10"
+            />
+          ) : (
+            <MultipleSelectorInput
+              form={form}
+              name="sizes"
+              label="Taille"
+              groups={sizeGroups}
+              isPending={uploading}
+              placeholder="Sélectionner les tailles"
+              maxSelections={50}
+              columns={4}
+              enableSelectAll
+              required
+            />
+          )}
+        </div>
 
-      {/* Prix par jour (en €) */}
-      <div className="flex flex-col gap-2">
-        <Label className="text-sm font-medium">Prix par jour (en €) :</Label>
-        <Input
-          type="number"
-          step="1"
-          placeholder="Ex: 10,00"
-          value={pricePerDay}
-          onChange={(e) => setpricePerDay(Number(e.target.value))}
+        {/* Prix par jour (en €) */}
+        <Price
+          form={form}
+          isPending={uploading}
+          name="pricePerDay"
+          label="Prix par jour"
+          withCents
           required
-          min={0}
         />
-      </div>
 
-      {/* Bouton Submit */}
-      <Button type="submit" disabled={uploading} className="mt-4 w-full">
-        {uploading ? (
-          <LoadIcon size={20} className="animate-spin" />
-        ) : variant?.id ? (
-          "Modifier le variant"
-        ) : (
-          "Créer le variant"
-        )}
-      </Button>
-    </form>
+        {/* Bouton Submit */}
+        <Button type="submit" disabled={uploading} className="mt-4 w-full">
+          {uploading ? (
+            <LoadIcon size={20} className="animate-spin" />
+          ) : variant?.id ? (
+            "Modifier le variant"
+          ) : (
+            "Créer le variant"
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 };

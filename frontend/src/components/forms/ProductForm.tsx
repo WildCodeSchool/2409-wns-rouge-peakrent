@@ -500,7 +500,7 @@ export const ProductForm = () => {
                     </div>
 
                     {displayedVariants.length > 0 && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                         {displayedVariants.map((variant, index) => (
                           <div
                             key={variant.id ?? index}
@@ -617,7 +617,7 @@ export const ProductForm = () => {
                     <img
                       id="reference-image"
                       alt="Product image"
-                      className="s:scale-125 aspect-video w-full scale-110 object-contain"
+                      className="aspect-video w-full object-contain"
                       height="242"
                       src={imageSrc}
                       onError={() => setImageSrc(placeholderImage)}
