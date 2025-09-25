@@ -95,45 +95,59 @@ export const VariantForm = ({
 
       const selectedSizes =
         values.sizes && values.sizes.length > 0 ? values.sizes : [""];
-      const tasks = selectedSizes.map(async (size) => {
-        const commonData = {
-          productId,
-          color: values.color,
-          size,
-          pricePerDay: priceInCents,
-        } as const;
 
-        if (isNewLocalVariant) {
-          setNewVariants!((prev) => [
-            ...prev,
-            { ...commonData, isPublished: true },
-          ]);
-          toast.success("Variant ajouté avec succès !");
-        } else {
-          if (variant?.id) {
-            await updateVariant({
-              variables: {
-                updateVariantId: variant.id,
-                data: commonData,
-              },
-            });
-            toast.success("Variant modifié avec succès !");
-          } else {
-            await createVariant({
-              variables: {
-                data: commonData,
-              },
-            });
-            toast.success("Variant créé avec succès !");
+      const results = await Promise.all(
+        selectedSizes.map(async (size) => {
+          try {
+            const commonData = {
+              productId,
+              color: values.color,
+              size,
+              pricePerDay: priceInCents,
+            } as const;
+
+            if (isNewLocalVariant) {
+              setNewVariants!((prev) => [
+                ...prev,
+                { ...commonData, isPublished: true },
+              ]);
+              return true;
+            }
+
+            if (variant?.id) {
+              await updateVariant({
+                variables: {
+                  updateVariantId: variant.id,
+                  data: commonData,
+                },
+              });
+            } else {
+              await createVariant({
+                variables: {
+                  data: commonData,
+                },
+              });
+            }
+            return true;
+          } catch {
+            return false;
           }
-        }
-      });
+        })
+      );
 
-      await Promise.all(tasks);
+      const success = results.filter(Boolean).length;
+      const failed = results.length - success;
+      if (failed > 0) {
+        toast.error(`${success} réussi(s), ${failed} échoué(s)`);
+      } else {
+        toast.success(`${success} réussi(s), ${failed} échoué(s)`);
+      }
+
       if (refetchProduct) await refetchProduct();
       closeModal();
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Une erreur est survenue.");
     } finally {
       setUploading(false);
     }
