@@ -12,13 +12,18 @@ import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+type AppliedFilters = {
+  categoryIds?: number[];
+  startingDate?: string;
+  endingDate?: string;
+};
+
 const ProductsPage = () => {
-  // TODO export if used on activityPage
   const [itemsOnPage, setItemsOnPage] = useState(15);
   const [pageIndex, setPageIndex] = useState(1);
   const [maxPage, setMaxPage] = useState<number>(0);
+
   const [categories, setCategories] = useState<CategoryType[]>([]);
-  // TODO rename this in selectedCategoryIds (change FilterList props too )
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedStartingDate, setSelectedStartingDate] = useState<
     string | undefined
@@ -27,17 +32,8 @@ const ProductsPage = () => {
     string | undefined
   >(undefined);
 
-  // const [activities, setActivities] = useState<ActivityType[]>([]);
-  // const [selectedActivityIds, setSelectedActivityIds] = useState<number[]>([]);
   const [products, setProducts] = useState<ProductType[]>([]);
-
-  const {
-    data: initialData,
-    loading: initialLoading,
-    error: initialError,
-  } = useQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
-    variables: { onPage: itemsOnPage, page: pageIndex },
-  });
+  const [applied, setApplied] = useState<AppliedFilters>({});
 
   const {
     data: getCategoriesData,
@@ -48,23 +44,11 @@ const ProductsPage = () => {
   });
 
   const [
-    fetchFilteredProducts,
-    { data: filteredData, loading: filterLoading, error: filterError },
-  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING));
-
-  useEffect(() => {
-    if (!filteredData && initialData?.getPublishedProducts?.products) {
-      setProducts(initialData.getPublishedProducts.products);
-      setMaxPage(initialData.getPublishedProducts.pagination.totalPages);
-    }
-  }, [initialData]);
-
-  useEffect(() => {
-    if (filteredData?.getPublishedProducts?.products) {
-      setProducts(filteredData.getPublishedProducts.products);
-      setMaxPage(filteredData.getPublishedProducts.pagination.totalPages);
-    }
-  }, [filteredData]);
+    fetchProducts,
+    { data, loading: productsLoading, error: productsError },
+  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
+    fetchPolicy: "network-only",
+  });
 
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
@@ -72,113 +56,102 @@ const ProductsPage = () => {
     }
   }, [getCategoriesData?.getCategories.categories]);
 
-  // const {
-  //   data: getActivitiesData,
-  //   loading: getActivitiesLoading,
-  //   error: getActivitiesError,
-  // } = useQuery(gql(GET_ACTIVITIES));
+  useEffect(() => {
+    const vars = {
+      onPage: itemsOnPage,
+      page: pageIndex,
+      categoryIds: applied.categoryIds,
+      startingDate: applied.startingDate
+        ? new Date(applied.startingDate).toISOString()
+        : undefined,
+      endingDate: applied.endingDate
+        ? new Date(applied.endingDate).toISOString()
+        : undefined,
+    };
+    fetchProducts({ variables: vars });
+  }, [pageIndex, itemsOnPage, applied, fetchProducts]);
 
-  // useEffect(() => {
-  //   if (getActivitiesData?.getActivities) {
-  //     setActivities(getActivitiesData?.getActivities);
-  //   }
-  // }, [getActivitiesData?.getActivities]);
+  useEffect(() => {
+    if (data?.getPublishedProducts?.products) {
+      setProducts(data.getPublishedProducts.products);
+      setMaxPage(data.getPublishedProducts.pagination.totalPages);
+    }
+  }, [data]);
 
-  const handleFilter = () => {
-    setPageIndex(1);
+  const applyFilters = ({
+    categoryIds,
+    startingDate,
+    endingDate,
+  }: {
+    categoryIds: number[];
+    startingDate?: string;
+    endingDate?: string;
+  }) => {
     if (
-      selectedStartingDate &&
-      selectedEndingDate &&
-      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+      startingDate &&
+      endingDate &&
+      new Date(startingDate) > new Date(endingDate)
     ) {
       return toast.error(
         `La date de fin ne peut pas être inférieure à celle de début`
       );
     }
-    fetchFilteredProducts({
-      variables: {
-        onPage: itemsOnPage,
-        page: 1,
-        categoryIds: selectedCategories,
-        startingDate: selectedStartingDate
-          ? new Date(selectedStartingDate).toISOString()
-          : undefined,
-        endingDate: selectedEndingDate
-          ? new Date(selectedEndingDate).toISOString()
-          : undefined,
-        // activitiesId: selectedActivityIds,
-      },
-    });
+
+    setSelectedCategories(categoryIds);
+    setSelectedStartingDate(startingDate);
+    setSelectedEndingDate(endingDate);
+
+    setApplied({ categoryIds, startingDate, endingDate });
+    setPageIndex(1);
   };
 
-  const modal = {
-    description: "Filtre",
-    content: (
-      <FilterList
-        // activities={activities}
-        // selectedActivityIds={selectedActivityIds}
-        // setSelectedActivityIds={setSelectedActivityIds}
-        categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-        handleFilter={handleFilter}
-        selectedEndingDate={selectedEndingDate}
-        selectedStartingDate={selectedStartingDate}
-        setSelectedEndingDate={setSelectedEndingDate}
-        setSelectedStartingDate={setSelectedStartingDate}
-      />
-    ),
-  };
-
-  if (initialError || filterError)
-    return <div>Erreur lors du chargement des produits.</div>;
   if (getCategoriesError)
     return <div>Erreur lors du chargement des catégories.</div>;
-  // if (getActivitiesError)
-  //   return <div>Erreur lors du chargement des catégories.</div>;
+  if (productsError) return <div>Erreur lors du chargement des produits.</div>;
 
-  if (
-    initialLoading ||
-    getCategoriesLoading ||
-    // getActivitiesLoading ||
-    filterLoading
-  ) {
+  if (getCategoriesLoading || productsLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <LoadIcon size={40} />
       </div>
     );
   }
+
   return (
     <>
+      {/* Mobile */}
       <div className="flex-row items-center justify-between h-10 px-2.5 md:hidden flex">
         <FilterButton
           text={"Filtrer"}
-          modalContent={modal.content}
+          modalContent={() => (
+            <FilterList
+              categories={categories}
+              selectedCategories={selectedCategories}
+              selectedEndingDate={selectedEndingDate}
+              selectedStartingDate={selectedStartingDate}
+              onApply={applyFilters}
+            />
+          )}
           ariaLabel={"editCategoryAriaLabel"}
           variant="primary"
           modalTitle="Filtrer les produits"
-          modalDescription={modal.description}
+          modalDescription={"Filtrer"}
           className="flex md:hidden text-base w-fit px-3"
         />
       </div>
 
       <div className="flex">
+        {/* Desktop */}
         <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
           <FilterList
-            // activities={activities}
-            // selectedActivityIds={selectedActivityIds}
-            // setSelectedActivityIds={setSelectedActivityIds}
             categories={categories}
             selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            handleFilter={handleFilter}
             selectedEndingDate={selectedEndingDate}
             selectedStartingDate={selectedStartingDate}
-            setSelectedEndingDate={setSelectedEndingDate}
-            setSelectedStartingDate={setSelectedStartingDate}
+            onApply={applyFilters}
           />
         </aside>
+
         <div className="flex-1 px-4 pb-4">
           {products.length > 0 ? (
             <ProductsList

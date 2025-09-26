@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
 interface FilterButtonProps {
-  modalContent: ReactNode;
+  modalContent: ReactNode | (() => ReactNode);
   ariaLabel: string;
   title?: string;
   modalDescription?: string;
@@ -48,7 +48,11 @@ export default function FilterButton({
     setDescription(modalDescription ?? "");
     setTitle(modalTitle ?? "ModalTitleEdit");
     setMaxWidth(modalMaxWidth);
-    openModal(modalContent);
+    const content =
+      typeof modalContent === "function"
+        ? (modalContent as () => ReactNode)()
+        : modalContent;
+    openModal(content);
   };
 
   return (

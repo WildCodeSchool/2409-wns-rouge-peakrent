@@ -4,7 +4,6 @@ import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
 import { ActivityCard } from "@/components/cards/ActivityCard";
 import {
-  Activity as ActivityType,
   Category as CategoryType,
   Product as ProductType,
 } from "@/gql/graphql";
@@ -16,10 +15,16 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useParams } from "react-router-dom";
 
+type AppliedFilters = {
+  categoryIds?: number[];
+  startingDate?: string;
+  endingDate?: string;
+  activityIds?: number[];
+};
+
 const ActivityDetail = () => {
   const { normalizedName } = useParams<{ normalizedName: string }>();
 
-  // États pour la pagination et les filtres
   const [itemsOnPage, setItemsOnPage] = useState(15);
   const [pageIndex, setPageIndex] = useState(1);
   const [maxPage, setMaxPage] = useState<number>(0);
@@ -27,23 +32,24 @@ const ActivityDetail = () => {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedStartingDate, setSelectedStartingDate] = useState<
     string | undefined
-  >("");
+  >(undefined);
   const [selectedEndingDate, setSelectedEndingDate] = useState<
     string | undefined
-  >("");
+  >(undefined);
   const [products, setProducts] = useState<ProductType[]>([]);
 
-  // Récupération de l'activité
+  const [applied, setApplied] = useState<AppliedFilters>({});
+
   const {
     data: activityData,
     loading: activityLoading,
     error: activityError,
   } = useQuery(gql(GET_ACTIVITY_BY_NORMALIZED_NAME), {
     variables: { normalizedName },
-    skip: normalizedName === undefined || normalizedName.trim() === "",
+    skip: !normalizedName?.trim(),
   });
+  const activity = activityData?.getActivityByNormalizedName;
 
-  // Récupération des catégories pour les filtres
   const {
     data: getCategoriesData,
     loading: getCategoriesLoading,
@@ -52,99 +58,95 @@ const ActivityDetail = () => {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  // Requête pour les produits filtrés
   const [
-    fetchFilteredProducts,
-    { data: filteredData, loading: filterLoading, error: filterError },
-  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING));
+    fetchProducts,
+    { data, loading: productsLoading, error: productsError },
+  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
+    fetchPolicy: "network-only",
+  });
 
-  // Initialisation des produits de l'activité
   useEffect(() => {
-    if (activityData?.getActivityByNormalizedName?.products) {
-      setProducts(activityData.getActivityByNormalizedName.products);
-      setMaxPage(1); // Une seule page pour les produits de l'activité
-    }
-  }, [activityData]);
+    if (!activity?.id) return;
+    setApplied({ activityIds: [Number(activity.id)] });
+    setPageIndex(1);
+  }, [activity?.id]);
 
-  // Mise à jour des produits filtrés
   useEffect(() => {
-    if (filteredData?.getPublishedProducts?.products) {
-      setProducts(filteredData.getPublishedProducts.products);
-      setMaxPage(filteredData.getPublishedProducts.pagination.totalPages);
+    if (data?.getPublishedProducts?.products) {
+      setProducts(data.getPublishedProducts.products);
+      setMaxPage(data.getPublishedProducts.pagination.totalPages);
     }
-  }, [filteredData]);
+  }, [data]);
 
-  // Mise à jour des catégories
   useEffect(() => {
     if (getCategoriesData?.getCategories?.categories) {
       setCategories(getCategoriesData.getCategories.categories);
     }
   }, [getCategoriesData?.getCategories.categories]);
 
-  // Fonction de filtrage
-  const handleFilter = () => {
-    setPageIndex(1);
+  useEffect(() => {
+    if (!activity?.id) return;
+    const vars = {
+      onPage: itemsOnPage,
+      page: pageIndex,
+      categoryIds: applied.categoryIds,
+      activityIds: applied.activityIds ?? [Number(activity.id)],
+      startingDate: applied.startingDate
+        ? new Date(applied.startingDate).toISOString()
+        : undefined,
+      endingDate: applied.endingDate
+        ? new Date(applied.endingDate).toISOString()
+        : undefined,
+    };
+    fetchProducts({ variables: vars });
+  }, [pageIndex, itemsOnPage, applied, activity?.id, fetchProducts]);
+
+  const applyFilters = ({
+    categoryIds,
+    startingDate,
+    endingDate,
+  }: {
+    categoryIds: number[];
+    startingDate?: string;
+    endingDate?: string;
+  }) => {
     if (
-      selectedStartingDate &&
-      selectedEndingDate &&
-      new Date(selectedStartingDate) > new Date(selectedEndingDate)
+      startingDate &&
+      endingDate &&
+      new Date(startingDate) > new Date(endingDate)
     ) {
       return toast.error(
         "La date de fin ne peut pas être inférieure à celle de début"
       );
     }
-    fetchFilteredProducts({
-      variables: {
-        onPage: itemsOnPage,
-        page: 1,
-        categoryIds: selectedCategories,
-        activityIds: activityData?.getActivityByNormalizedName?.id
-          ? [parseInt(activityData.getActivityByNormalizedName.id)]
-          : undefined,
-        startingDate: selectedStartingDate
-          ? new Date(selectedStartingDate).toISOString()
-          : undefined,
-        endingDate: selectedEndingDate
-          ? new Date(selectedEndingDate).toISOString()
-          : undefined,
-      },
-    });
+    setSelectedCategories(categoryIds);
+    setSelectedStartingDate(startingDate);
+    setSelectedEndingDate(endingDate);
+
+    setApplied((prev) => ({
+      ...prev,
+      categoryIds,
+      startingDate,
+      endingDate,
+      activityIds:
+        prev.activityIds ?? (activity?.id ? [Number(activity.id)] : undefined),
+    }));
+    setPageIndex(1);
   };
 
-  // Configuration du modal de filtres
-  const modal = {
-    description: "Filtre",
-    content: (
-      <FilterList
-        categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-        handleFilter={handleFilter}
-        selectedEndingDate={selectedEndingDate}
-        selectedStartingDate={selectedStartingDate}
-        setSelectedEndingDate={setSelectedEndingDate}
-        setSelectedStartingDate={setSelectedStartingDate}
-      />
-    ),
-  };
-
-  // Gestion des erreurs
   if (activityError)
     return <div>Erreur lors du chargement de l&apos;activité.</div>;
   if (getCategoriesError)
     return <div>Erreur lors du chargement des catégories.</div>;
-  if (filterError) return <div>Erreur lors du filtrage des produits.</div>;
+  if (productsError) return <div>Erreur lors du chargement des produits.</div>;
 
-  // Gestion du chargement
-  if (activityLoading || getCategoriesLoading || filterLoading) {
+  if (activityLoading || getCategoriesLoading || productsLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <LoadIcon size={40} />
       </div>
     );
   }
-
-  const activity = activityData?.getActivityByNormalizedName;
 
   if (!activity) {
     return (
@@ -163,30 +165,23 @@ const ActivityDetail = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header avec breadcrumb */}
       <div className="px-4 md:px-8 py-4 border-b">
         <h1 className="text-xl md:text-2xl font-bold">
           Activités / {activity.name}
         </h1>
       </div>
 
-      {/* Section des produits associés avec sidebar */}
       <div className="flex flex-col md:flex-row">
-        {/* Filtres sur desktop */}
         <aside className="hidden md:block w-[280px] bg-gray-50 border-r p-6">
           <FilterList
             categories={categories}
             selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            handleFilter={handleFilter}
             selectedEndingDate={selectedEndingDate}
             selectedStartingDate={selectedStartingDate}
-            setSelectedEndingDate={setSelectedEndingDate}
-            setSelectedStartingDate={setSelectedStartingDate}
+            onApply={applyFilters}
           />
         </aside>
 
-        {/* Liste des produits */}
         <div className="flex-1">
           <div className="">
             <ActivityCard
@@ -195,15 +190,24 @@ const ActivityDetail = () => {
               className="rounded-t-none mb-4"
             />
           </div>
-          {/* Bouton filtre mobile */}
+
+          {/* Mobile */}
           <div className="md:hidden mb-4 px-4 md:px-8">
             <FilterButton
               text={"Filtrer"}
-              modalContent={modal.content}
+              modalContent={
+                <FilterList
+                  categories={categories}
+                  selectedCategories={selectedCategories}
+                  selectedEndingDate={selectedEndingDate}
+                  selectedStartingDate={selectedStartingDate}
+                  onApply={applyFilters}
+                />
+              }
               ariaLabel={"filterProductsAriaLabel"}
               variant="primary"
               modalTitle="Filtrer les produits"
-              modalDescription={modal.description}
+              modalDescription={"Filtrer"}
               className="w-full text-base"
             />
           </div>
