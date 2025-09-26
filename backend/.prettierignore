@@ -1,0 +1,22 @@
+# Dossiers à ignorer
+.cursor
+.vscode
+node_modules
+migrations
+templates
+src/gql/
+
+# Fichiers à ignorer
+.next
+build
+dist
+coverage
+
+cache
+.cache
+package.json
+package-lock.json
+public
+CHANGELOG.md
+.yarn
+.contentlayer

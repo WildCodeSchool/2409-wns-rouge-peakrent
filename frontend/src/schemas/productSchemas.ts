@@ -97,11 +97,14 @@ export const productFormSchema = (datas?: ProductType | null) =>
         const hasFile = data.image instanceof File;
         const hasUrl =
           typeof data.urlImage === "string" && data.urlImage.trim() !== "";
-        return data.removeImage || hasFile || hasUrl;
+        // If user chose to remove current image, require a new file
+        if (data.removeImage) return hasFile;
+        // Otherwise accept existing url or a new file
+        return hasFile || hasUrl;
       },
       {
-        message: "Une image ou une URL est requise",
-        path: ["urlImage"],
+        message: "Une image est requise",
+        path: ["image"],
       }
     );
 
