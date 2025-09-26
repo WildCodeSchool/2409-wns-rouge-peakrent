@@ -10,7 +10,7 @@ import {
   deleteMultipleFormOrderItemsStore,
   useOrderStore,
 } from "@/stores/admin/order.store";
-import { getDurationInDays } from "@/utils/getDurationInDays";
+import { getItemPriceByDates } from "@/utils";
 import { createColumns } from "./orderItemsColumns";
 
 export default function OrderItemsTable() {
@@ -22,14 +22,7 @@ export default function OrderItemsTable() {
   };
 
   const totalTTC =
-    orderItems?.reduce(
-      (acc, item) =>
-        acc +
-        item.pricePerDay *
-          item.quantity *
-          getDurationInDays(item.startsAt, item.endsAt),
-      0
-    ) || 0;
+    orderItems?.reduce((acc, item) => acc + getItemPriceByDates(item), 0) || 0;
 
   return (
     <Card className="px-0 py-4 md:col-span-6 xl:col-span-7">

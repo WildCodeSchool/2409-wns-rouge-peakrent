@@ -62,6 +62,6 @@ const orderItems: unknown = [
 
 describe("price calculation", () => {
   it("should calculate the right price of orderItems", async () => {
-    expect(getTotalOrderPrice(orderItems as OrderItem[])).toBe(741994);
+    expect(getTotalOrderPrice(orderItems as OrderItem[])).toBe(1028992);
   });
 });

@@ -18,6 +18,7 @@ import {
   productFormSchema,
   type ProductFormSchema,
 } from "@/schemas/productSchemas";
+import { getPriceFixed } from "@/utils";
 import { uploadImage } from "@/utils/uploadImages";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -493,7 +494,7 @@ export const ProductForm = () => {
                           modalTitle="Créer un variant"
                         />
                       </div>
-
+                      
                       {sortedDisplayedVariants.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                           {sortedDisplayedVariants.map((variant, index) => (
