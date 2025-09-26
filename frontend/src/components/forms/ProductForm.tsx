@@ -494,7 +494,7 @@ export const ProductForm = () => {
                           modalTitle="Créer un variant"
                         />
                       </div>
-                      
+
                       {sortedDisplayedVariants.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                           {sortedDisplayedVariants.map((variant, index) => (
@@ -515,8 +515,7 @@ export const ProductForm = () => {
                                 </p>
                                 <p>
                                   <strong>Prix :</strong>{" "}
-                                  {Number(variant.pricePerDay / 100).toFixed(2)}{" "}
-                                  €/J
+                                  {getPriceFixed(variant.pricePerDay)} €/J
                                 </p>
                               </div>
                               {product?.id && (
