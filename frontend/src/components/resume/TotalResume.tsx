@@ -1,6 +1,6 @@
 import { OrderItem } from "@/gql/graphql";
 import { useCartStoreUser } from "@/stores/user/cart.store";
-import { getDurationInDays } from "@/utils";
+import { getItemPriceByDates } from "@/utils";
 import { computeDiscountUI, formatEUR } from "@/utils/PriceAndDays/cartTotals";
 
 type VoucherLike =
@@ -29,12 +29,8 @@ const TotalResume = ({
   discountCentsOverride,
   totalCentsOverride,
 }: Props) => {
-  const subTotal = orderItems.reduce((acc, it) => {
-    const days =
-      it.startsAt && it.endsAt ? getDurationInDays(it.startsAt, it.endsAt) : 1;
-    const pricePerDay = it.pricePerDay ?? 0;
-    const qty = it.quantity ?? 1;
-    return acc + days * qty * pricePerDay;
+  const subTotal = orderItems.reduce((acc: number, it: OrderItem) => {
+    return acc + getItemPriceByDates(it);
   }, 0);
 
   const cart = useCartStoreUser((s) => s.cart);
