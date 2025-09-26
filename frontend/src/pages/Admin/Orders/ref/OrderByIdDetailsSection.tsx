@@ -77,7 +77,7 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
               </div>
             </div>
             <div className="flex justify-between ">
-              <span>TTC avec coucher:</span>
+              <span>TTC avec voucher:</span>
               <div className="flex gap-2">
                 <span>{getPriceFixed(Number(totalTTC) - voucherAmount)} €</span>
               </div>
