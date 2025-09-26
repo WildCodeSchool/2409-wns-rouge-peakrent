@@ -1,115 +1,93 @@
+import { gql, useQuery } from "@apollo/client";
+import { useMemo, useCallback, useState, startTransition } from "react";
 import FilterButton from "@/components/buttons/FilterButton";
 import FilterList from "@/components/filterList/FilterList";
-import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
-import {
-  Category as CategoryType,
-  Product as ProductType,
-} from "@/gql/graphql";
+import { LoadIcon } from "@/components/icons/LoadIcon";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import type { Category as CategoryType } from "@/gql/graphql";
 import { toast } from "sonner";
 
-type AppliedFilters = {
-  categoryIds?: number[];
+type Filters = {
+  categoryIds: number[];
   startingDate?: string;
   endingDate?: string;
 };
 
-const ProductsPage = () => {
-  const [itemsOnPage, setItemsOnPage] = useState(15);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [maxPage, setMaxPage] = useState<number>(0);
+export default function ProductsPage() {
+  const [filters, setFilters] = useState<Filters>({ categoryIds: [] });
+  const [paging, setPaging] = useState({ page: 1, onPage: 15 });
 
-  const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedStartingDate, setSelectedStartingDate] = useState<
-    string | undefined
-  >(undefined);
-  const [selectedEndingDate, setSelectedEndingDate] = useState<
-    string | undefined
-  >(undefined);
-
-  const [products, setProducts] = useState<ProductType[]>([]);
-  const [applied, setApplied] = useState<AppliedFilters>({});
+  const variables = useMemo(
+    () => ({
+      page: paging.page,
+      onPage: paging.onPage,
+      categoryIds: filters.categoryIds.length ? filters.categoryIds : undefined,
+      startingDate: filters.startingDate,
+      endingDate: filters.endingDate,
+    }),
+    [paging.page, paging.onPage, filters]
+  );
 
   const {
-    data: getCategoriesData,
-    loading: getCategoriesLoading,
-    error: getCategoriesError,
+    data: catData,
+    loading: catLoading,
+    error: catError,
   } = useQuery(gql(GET_CATEGORIES), {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const [
-    fetchProducts,
-    { data, loading: productsLoading, error: productsError },
-  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
-    fetchPolicy: "network-only",
+  const {
+    data: prodData,
+    loading: prodLoading,
+    error: prodError,
+    networkStatus,
+  } = useQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
+    variables,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
   });
 
-  useEffect(() => {
-    if (getCategoriesData?.getCategories?.categories) {
-      setCategories(getCategoriesData.getCategories.categories);
-    }
-  }, [getCategoriesData?.getCategories.categories]);
+  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
 
-  useEffect(() => {
-    const vars = {
-      onPage: itemsOnPage,
-      page: pageIndex,
-      categoryIds: applied.categoryIds,
-      startingDate: applied.startingDate
-        ? new Date(applied.startingDate).toISOString()
-        : undefined,
-      endingDate: applied.endingDate
-        ? new Date(applied.endingDate).toISOString()
-        : undefined,
-    };
-    fetchProducts({ variables: vars });
-  }, [pageIndex, itemsOnPage, applied, fetchProducts]);
+  const products = prodData?.getPublishedProducts?.products ?? [];
+  const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
 
-  useEffect(() => {
-    if (data?.getPublishedProducts?.products) {
-      setProducts(data.getPublishedProducts.products);
-      setMaxPage(data.getPublishedProducts.pagination.totalPages);
-    }
-  }, [data]);
+  const applyFilters = useCallback(
+    (params: {
+      categoryIds: number[];
+      startingDate?: string;
+      endingDate?: string;
+    }) => {
+      const { categoryIds, startingDate, endingDate } = params;
+      if (
+        startingDate &&
+        endingDate &&
+        new Date(startingDate) > new Date(endingDate)
+      ) {
+        toast.error(
+          "La date de fin ne peut pas être inférieure à celle de début"
+        );
+        return;
+      }
+      setFilters({
+        categoryIds,
+        startingDate: startingDate
+          ? new Date(startingDate).toISOString()
+          : undefined,
+        endingDate: endingDate ? new Date(endingDate).toISOString() : undefined,
+      });
+      startTransition(() => setPaging((p) => ({ ...p, page: 1 })));
+    },
+    []
+  );
 
-  const applyFilters = ({
-    categoryIds,
-    startingDate,
-    endingDate,
-  }: {
-    categoryIds: number[];
-    startingDate?: string;
-    endingDate?: string;
-  }) => {
-    if (
-      startingDate &&
-      endingDate &&
-      new Date(startingDate) > new Date(endingDate)
-    ) {
-      return toast.error(
-        `La date de fin ne peut pas être inférieure à celle de début`
-      );
-    }
+  if (catError) return <div>Erreur lors du chargement des catégories.</div>;
+  if (prodError) return <div>Erreur lors du chargement des produits.</div>;
 
-    setSelectedCategories(categoryIds);
-    setSelectedStartingDate(startingDate);
-    setSelectedEndingDate(endingDate);
-
-    setApplied({ categoryIds, startingDate, endingDate });
-    setPageIndex(1);
-  };
-
-  if (getCategoriesError)
-    return <div>Erreur lors du chargement des catégories.</div>;
-  if (productsError) return <div>Erreur lors du chargement des produits.</div>;
-
-  if (getCategoriesLoading || productsLoading) {
+  if (catLoading || (prodLoading && networkStatus === 1)) {
     return (
       <div className="flex items-center justify-center h-screen">
         <LoadIcon size={40} />
@@ -122,20 +100,20 @@ const ProductsPage = () => {
       {/* Mobile */}
       <div className="flex-row items-center justify-between h-10 px-2.5 md:hidden flex">
         <FilterButton
-          text={"Filtrer"}
+          text="Filtrer"
           modalContent={() => (
             <FilterList
               categories={categories}
-              selectedCategories={selectedCategories}
-              selectedEndingDate={selectedEndingDate}
-              selectedStartingDate={selectedStartingDate}
+              selectedCategories={filters.categoryIds}
+              selectedStartingDate={filters.startingDate}
+              selectedEndingDate={filters.endingDate}
               onApply={applyFilters}
             />
           )}
-          ariaLabel={"editCategoryAriaLabel"}
+          ariaLabel="editCategoryAriaLabel"
           variant="primary"
           modalTitle="Filtrer les produits"
-          modalDescription={"Filtrer"}
+          modalDescription="Filtrer"
           className="flex md:hidden text-base w-fit px-3"
         />
       </div>
@@ -145,9 +123,9 @@ const ProductsPage = () => {
         <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
           <FilterList
             categories={categories}
-            selectedCategories={selectedCategories}
-            selectedEndingDate={selectedEndingDate}
-            selectedStartingDate={selectedStartingDate}
+            selectedCategories={filters.categoryIds}
+            selectedStartingDate={filters.startingDate}
+            selectedEndingDate={filters.endingDate}
             onApply={applyFilters}
           />
         </aside>
@@ -157,10 +135,10 @@ const ProductsPage = () => {
             <ProductsList
               title="Tous les produits"
               items={products}
-              itemsOnPage={itemsOnPage}
-              setItemsOnPage={setItemsOnPage}
-              pageIndex={pageIndex}
-              setPageIndex={setPageIndex}
+              itemsOnPage={paging.onPage}
+              setItemsOnPage={(n) => setPaging((p) => ({ ...p, onPage: n }))}
+              pageIndex={paging.page}
+              setPageIndex={(n) => setPaging((p) => ({ ...p, page: n }))}
               maxPage={maxPage}
             />
           ) : (
@@ -172,6 +150,4 @@ const ProductsPage = () => {
       </div>
     </>
   );
-};
-
-export default ProductsPage;
+}

@@ -174,7 +174,7 @@ export class ProductResolver {
         relations: { variant: { product: true } },
       });
 
-      let ok = false;
+      let hasQuantity = false;
       for (const sv of storeVariants) {
         const qty = await checkStockByVariantAndStore(
           sv.storeId,
@@ -183,11 +183,11 @@ export class ProductResolver {
           endingDate!
         );
         if (qty > 0) {
-          ok = true;
+          hasQuantity = true;
           break;
         }
       }
-      if (ok) availableIds.push(id);
+      if (hasQuantity) availableIds.push(id);
     }
 
     const total = availableIds.length;

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState } from "react";
+import React, { useMemo, useCallback, useEffect, useState, memo } from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { DateRangeSelector } from "../ui/dateRangeSelector";
@@ -178,4 +178,4 @@ const FilterList = ({
   );
 };
 
-export default FilterList;
+export default memo(FilterList);
