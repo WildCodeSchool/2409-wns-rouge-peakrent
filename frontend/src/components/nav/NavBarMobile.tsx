@@ -7,77 +7,92 @@ const NavBarMobile = () => {
   const { data: whoamiData } = useQuery(gql(WHOAMI));
   const me = whoamiData?.whoami;
 
-  const navItems = [
+  const items = [
+    { to: "/", label: "Accueil", Icon: Home, aria: "Aller à l'accueil" },
     {
-      path: "/",
-      name: "Accueil",
-      icon: <Home size={20} />,
-      ariaLabel: "Navigation vers la page d'accueil",
+      to: "/products",
+      label: "Produits",
+      Icon: Box,
+      aria: "Aller aux produits",
     },
     {
-      path: "/products",
-      name: "Produits",
-      icon: <Box size={20} />,
-      ariaLabel: "Navigation vers la page produit",
+      to: "/cart",
+      label: "Panier",
+      Icon: ShoppingCart,
+      aria: "Aller au panier",
     },
     {
-      path: "/cart",
-      name: "Panier",
-      icon: <ShoppingCart size={20} />,
-      ariaLabel: "Navigation vers la page panier",
+      to: "/activities",
+      label: "Activités",
+      Icon: Activity,
+      aria: "Aller aux activités",
     },
-    {
-      path: "/activities",
-      name: "Activités",
-      icon: <Activity size={20} />,
-      ariaLabel: "Navigation vers la page activité",
-    },
+    me
+      ? { to: "/profile", label: "Profil", Icon: User, aria: "Aller au profil" }
+      : {
+          to: "/signin",
+          label: "Connexion",
+          Icon: LogIn,
+          aria: "Aller à la connexion",
+        },
   ];
 
   return (
-    <nav className="flex justify-evenly bg-white items-center fixed bottom-0 w-full md:hidden z-50">
-      {navItems.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.path}
-          aria-label={item.ariaLabel}
-          className={({ isActive }) =>
-            `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3 text-sm ${
-              isActive && "bg-black translate-y-[-20px] text-white"
-            }`
-          }
-        >
-          {item.icon}
-          {item.name}
-        </NavLink>
-      ))}
-      {me ? (
-        <NavLink
-          to="/profile"
-          aria-label="Navigation vers la page profil"
-          className={({ isActive }) =>
-            `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3 text-sm ${
-              isActive && "bg-black translate-y-[-20px] text-white"
-            }`
-          }
-        >
-          <User size={20} />
-          Profil
-        </NavLink>
-      ) : (
-        <NavLink
-          to="/signin"
-          aria-label="Navigation vers la page de connexion"
-          className={({ isActive }) =>
-            `flex flex-col justify-center items-center transition-all duration-200 rounded-4xl p-3 text-sm ${
-              isActive && "bg-black translate-y-[-20px] text-white"
-            }`
-          }
-        >
-          <LogIn size={20} />
-          Connexion
-        </NavLink>
-      )}
+    <nav
+      className="
+        fixed inset-x-0 bottom-2 z-50 md:hidden
+        flex justify-center
+        pb-[env(safe-area-inset-bottom)]
+      "
+      aria-label="Navigation mobile"
+    >
+      <div
+        className="
+          mx-auto w-[min(640px,96vw)]
+          rounded-xl border border-zinc-200/70
+          bg-white/90 backdrop-blur-md
+          shadow-[0_6px_20px_rgba(0,0,0,0.08)]
+          px-2 py-1
+        "
+      >
+        <ul className="grid grid-cols-5">
+          {items.map(({ to, label, Icon, aria }) => (
+            <li key={to} className="flex">
+              <NavLink
+                to={to}
+                aria-label={aria}
+                className={({ isActive }) =>
+                  [
+                    "group mx-auto flex h-14 w-full flex-col items-center justify-center gap-1",
+                    "transition-all duration-200 ease-out rounded-lg",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/15",
+                    isActive
+                      ? "bg-zinc-200/70 text-zinc-900 -translate-y-0.5"
+                      : "text-zinc-500 hover:text-zinc-800 active:scale-[0.98]",
+                  ].join(" ")
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      size={isActive ? 24 : 20}
+                      className="transition-all duration-200 ease-out"
+                    />
+                    <span
+                      className={[
+                        "text-[11px] font-medium leading-none transition-colors",
+                        isActive ? "text-zinc-900" : "text-zinc-500",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </span>
+                  </>
+                )}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   );
 };

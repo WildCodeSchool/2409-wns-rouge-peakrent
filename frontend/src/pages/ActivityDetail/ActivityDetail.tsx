@@ -10,7 +10,7 @@ import {
 } from "@/gql/graphql";
 import { GET_ACTIVITY_BY_NORMALIZED_NAME } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -56,7 +56,7 @@ const ActivityDetail = () => {
   const [
     fetchFilteredProducts,
     { data: filteredData, loading: filterLoading, error: filterError },
-  ] = useLazyQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING));
+  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING));
 
   // Initialisation des produits de l'activité
   useEffect(() => {
@@ -68,9 +68,9 @@ const ActivityDetail = () => {
 
   // Mise à jour des produits filtrés
   useEffect(() => {
-    if (filteredData?.getProducts?.products) {
-      setProducts(filteredData.getProducts.products);
-      setMaxPage(filteredData.getProducts.pagination.totalPages);
+    if (filteredData?.getPublishedProducts?.products) {
+      setProducts(filteredData.getPublishedProducts.products);
+      setMaxPage(filteredData.getPublishedProducts.pagination.totalPages);
     }
   }, [filteredData]);
 

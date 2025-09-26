@@ -7,7 +7,7 @@ import {
   Product as ProductType,
 } from "@/gql/graphql";
 import { GET_CATEGORIES } from "@/graphQL/categories";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -22,10 +22,10 @@ const ProductsPage = () => {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedStartingDate, setSelectedStartingDate] = useState<
     string | undefined
-  >("");
+  >(undefined);
   const [selectedEndingDate, setSelectedEndingDate] = useState<
     string | undefined
-  >("");
+  >(undefined);
 
   // const [activities, setActivities] = useState<ActivityType[]>([]);
   // const [selectedActivityIds, setSelectedActivityIds] = useState<number[]>([]);
@@ -35,7 +35,7 @@ const ProductsPage = () => {
     data: initialData,
     loading: initialLoading,
     error: initialError,
-  } = useQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING), {
+  } = useQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
     variables: { onPage: itemsOnPage, page: pageIndex },
   });
 
@@ -50,19 +50,19 @@ const ProductsPage = () => {
   const [
     fetchFilteredProducts,
     { data: filteredData, loading: filterLoading, error: filterError },
-  ] = useLazyQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING));
+  ] = useLazyQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING));
 
   useEffect(() => {
-    if (!filteredData && initialData?.getProducts?.products) {
-      setProducts(initialData.getProducts.products);
-      setMaxPage(initialData.getProducts.pagination.totalPages);
+    if (!filteredData && initialData?.getPublishedProducts?.products) {
+      setProducts(initialData.getPublishedProducts.products);
+      setMaxPage(initialData.getPublishedProducts.pagination.totalPages);
     }
   }, [initialData]);
 
   useEffect(() => {
-    if (filteredData?.getProducts?.products) {
-      setProducts(filteredData.getProducts.products);
-      setMaxPage(filteredData.getProducts.pagination.totalPages);
+    if (filteredData?.getPublishedProducts?.products) {
+      setProducts(filteredData.getPublishedProducts.products);
+      setMaxPage(filteredData.getPublishedProducts.pagination.totalPages);
     }
   }, [filteredData]);
 
