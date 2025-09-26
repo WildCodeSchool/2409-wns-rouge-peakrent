@@ -17,7 +17,10 @@ import type {
   Product as ProductType,
   Variant as VariantType,
 } from "@/gql/graphql";
-import { GET_PRODUCT_BY_VARIANT_ID, GET_PRODUCTS } from "@/graphQL/products";
+import {
+  GET_PRODUCT_BY_VARIANT_ID,
+  GET_PRODUCTS_ADMIN,
+} from "@/graphQL/products";
 import { cn } from "@/lib/utils";
 import {
   generateOrderItemSchema,
@@ -57,10 +60,10 @@ export function OrderItemForm() {
     });
 
   const [fetchProducts, { loading: productsLoadingLazy }] = useLazyQuery(
-    gql(GET_PRODUCTS),
+    gql(GET_PRODUCTS_ADMIN),
     {
       onCompleted: (data) => {
-        return data?.getProducts?.products ?? [];
+        return data?.getProductsAdmin?.products ?? [];
       },
     }
   );
@@ -189,11 +192,11 @@ export function OrderItemForm() {
       },
     });
 
-    if (result.data?.getProducts?.products) {
+    if (result.data?.getProductsAdmin?.products) {
       return {
         success: true,
         message: "Produits récupérés avec succès",
-        data: result.data?.getProducts?.products,
+        data: result.data?.getProductsAdmin?.products,
       };
     }
 

@@ -34,9 +34,25 @@ export const GET_PRODUCTS = `
   }
 `;
 
-export const GET_MINIMAL_PRODUCTS_WITH_PAGING = `
-query GetProducts($endingDate: DateTimeISO, $startingDate: DateTimeISO, $categoryIds: [Int!], $onPage: Int!, $page: Int!) {
-  getProducts(endingDate: $endingDate, startingDate: $startingDate, categoryIds: $categoryIds, onPage: $onPage, page: $page) {
+export const GET_PUBLISHED_PRODUCTS_WITH_PAGING = `
+  query GetPublishedProducts(
+    $endingDate: DateTimeISO
+    $startingDate: DateTimeISO
+    $categoryIds: [Int!]
+    $activityIds: [Int!]
+    $onPage: Int!
+    $page: Int!
+    $search: String
+  ) {
+    getPublishedProducts(
+      endingDate: $endingDate
+      startingDate: $startingDate
+      categoryIds: $categoryIds
+      activityIds: $activityIds
+      onPage: $onPage
+      page: $page
+      search: $search
+    ) {
       products {
         id
         isPublished
@@ -45,14 +61,41 @@ query GetProducts($endingDate: DateTimeISO, $startingDate: DateTimeISO, $categor
         urlImage
         description
         createdAt
-        categories {
-          id
-          name
-          variant
-        }
-        variants {
-          pricePerDay
-        }
+        categories { id name variant }
+        activities { id name }
+        variants { id size color pricePerDay isPublished }
+      }
+      pagination {
+        total
+        currentPage
+        totalPages
+      }
+    }
+  }
+`;
+
+export const GET_PRODUCTS_ADMIN = `
+  query GetProductsAdmin(
+    $page: Int, $onPage: Int,
+    $categoryIds: [Int!], $activityIds: [Int!],
+    $search: String
+  ) {
+    getProductsAdmin(
+      page: $page, onPage: $onPage,
+      categoryIds: $categoryIds, activityIds: $activityIds,
+      search: $search
+    ) {
+      products {
+        id
+        isPublished
+        name
+        sku
+        urlImage
+        description
+        createdAt
+        categories { id name variant }
+        activities { id name }
+        variants { id size color pricePerDay isPublished }
       }
       pagination {
         total
