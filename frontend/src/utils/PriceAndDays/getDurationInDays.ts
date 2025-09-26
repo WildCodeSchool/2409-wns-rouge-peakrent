@@ -31,7 +31,7 @@ export function getDurationInDays(
 
   const msInDay = 1000 * 60 * 60 * 24;
   const diffInMs = endDate.getTime() - startDate.getTime();
-  const rawDays = diffInMs / msInDay;
+  const rawDays = diffInMs / msInDay + 1;
 
   if (options?.floor) {
     return Math.max(Math.floor(rawDays), 0);

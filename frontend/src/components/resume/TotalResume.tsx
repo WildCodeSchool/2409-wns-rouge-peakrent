@@ -1,7 +1,7 @@
 import { OrderItem } from "@/gql/graphql";
 import { useCartStoreUser } from "@/stores/user/cart.store";
-import { totalDays } from "@/utils";
-import { computeDiscountUI, formatEUR } from "@/utils/cartTotals";
+import { getDurationInDays } from "@/utils";
+import { computeDiscountUI, formatEUR } from "@/utils/PriceAndDays/cartTotals";
 
 type VoucherLike =
   | {
@@ -31,7 +31,7 @@ const TotalResume = ({
 }: Props) => {
   const subTotal = orderItems.reduce((acc, it) => {
     const days =
-      it.startsAt && it.endsAt ? totalDays(it.startsAt, it.endsAt) : 1;
+      it.startsAt && it.endsAt ? getDurationInDays(it.startsAt, it.endsAt) : 1;
     const pricePerDay = it.pricePerDay ?? 0;
     const qty = it.quantity ?? 1;
     return acc + days * qty * pricePerDay;

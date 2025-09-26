@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useModal } from "@/context/modalProvider";
 import type { Cart as CartType } from "@/gql/graphql";
-import { getDurationInDays } from "@/utils/getDurationInDays";
+import { getDurationInDays } from "@/utils/PriceAndDays/getDurationInDays";
 import { Home } from "lucide-react";
 
 export function CartResume({ cart }: { cart: CartType }) {
