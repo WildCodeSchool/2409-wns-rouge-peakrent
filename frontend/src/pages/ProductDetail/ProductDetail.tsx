@@ -8,7 +8,7 @@ import { useUser } from "@/context/userProvider";
 import { OrderItem, Variant } from "@/gql/graphql";
 import { CREATE_ORDER_ITEM_USER } from "@/graphQL/orderItems";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { getPriceFixed } from "@/utils";
+import { getDurationInDays, getPriceFixed } from "@/utils";
 import { getItemPriceByDates } from "@/utils/PriceAndDays/getPriceByDates";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -87,6 +87,11 @@ const ProductDetail = () => {
   const watchedQuantity = form.watch("quantity");
   const { from: selectedStartingDate, to: selectedEndingDate } =
     form.watch("date") || {};
+
+  const numberOfDays = getDurationInDays(
+    selectedStartingDate,
+    selectedEndingDate
+  );
 
   const isDisabled =
     !selectedStartingDate ||
@@ -232,7 +237,7 @@ const ProductDetail = () => {
                         role="radiogroup"
                         aria-label="Variantes disponibles"
                       >
-                        {product.variants.map((variant: Variant) => {
+                        {sortedVariants.map((variant: Variant) => {
                           const isChecked =
                             Number(variant.id) === selectedVariantId;
                           return (
@@ -269,10 +274,7 @@ const ProductDetail = () => {
                                       : "bg-primary text-white"
                                   }`}
                                 >
-                                  {(Number(variant.pricePerDay) / 100).toFixed(
-                                    2
-                                  )}{" "}
-                                  €/J
+                                  {getPriceFixed(variant.pricePerDay)} €/J
                                 </p>
                               </div>
                             </label>
@@ -323,17 +325,12 @@ const ProductDetail = () => {
                       }
                     >
                       {selectedVariantsPrice
-                        ? (
-                            (Number(selectedVariantsPrice) *
-                              watchedQuantity *
-                              (numberOfDays || 1)) /
-                            100
-                          ).toFixed(2) + "€"
+                        ? price.toFixed(2) + "€"
                         : "Sélectionnez une variante"}
                     </p>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Calcul: prix/jour × quantité × {numberOfDays || 1} jour
+                    Calcul: prix/jour x quantité x {numberOfDays || 1} jour
                     {(numberOfDays || 1) > 1 ? "s" : ""}.
                   </p>
                 </div>
