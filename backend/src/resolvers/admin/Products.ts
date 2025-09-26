@@ -5,6 +5,7 @@ import {
   ProductCreateInputAdmin,
   ProductUpdateInputAdmin,
 } from "@/entities/Product";
+import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant, VariantCreateNestedInputAdmin } from "@/entities/Variant";
 import { normalizeString } from "@/helpers/helpers";
 import { AuthContextType, RoleType } from "@/types";
@@ -73,6 +74,22 @@ export class ProductResolverAdmin {
             `Variant validation error: ${JSON.stringify(errors)}`
           );
         }
+        await variant.save();
+        const storeId = 1;
+        const quantity = 100;
+
+        const storeVariant = StoreVariant.create({
+          variantId: variant.id,
+          storeId,
+          quantity,
+        });
+
+        await storeVariant.save();
+        variant.storeVariants = [
+          ...(variant.storeVariants ?? []),
+          storeVariant,
+        ];
+
         await variant.save();
       }
     }

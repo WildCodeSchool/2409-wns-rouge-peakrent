@@ -1,5 +1,6 @@
 import { OrderItem } from "@/entities/OrderItem";
 import { Product } from "@/entities/Product";
+import { StoreVariant } from "@/entities/StoreVariant";
 import {
   Variant,
   VariantCreateInputAdmin,
@@ -60,6 +61,23 @@ export class VariantResolverAdmin {
     }
 
     await variant.save();
+
+    const storeId = 1;
+    const quantity = 100;
+
+    const storeVariant = StoreVariant.create({
+      variantId: variant.id,
+      storeId,
+      quantity,
+    });
+
+    await storeVariant.save();
+
+    await storeVariant.save();
+    variant.storeVariants = [...(variant.storeVariants ?? []), storeVariant];
+
+    await variant.save();
+
     return variant;
   }
 
