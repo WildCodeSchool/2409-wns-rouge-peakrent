@@ -17,15 +17,18 @@ export function subtotalFromItems(items: OrderItem[]) {
 
 export function computeDiscountUI(
   subtotalCents: number,
-  voucher?: VoucherLike | null
+  voucher?: VoucherLike | null,
+  passedOrder: boolean = false
 ) {
-  if (!voucher || !voucher.isActive) return 0;
-
-  const now = new Date();
-  const starts = voucher.startsAt ? new Date(voucher.startsAt) : null;
-  const ends = voucher.endsAt ? new Date(voucher.endsAt) : null;
-  if (starts && now < starts) return 0;
-  if (ends && now > ends) return 0;
+  if (!voucher) return 0;
+  if (!passedOrder) {
+    if (!voucher.isActive) return 0;
+    const now = new Date();
+    const starts = voucher.startsAt ? new Date(voucher.startsAt) : null;
+    const ends = voucher.endsAt ? new Date(voucher.endsAt) : null;
+    if (starts && now < starts) return 0;
+    if (ends && now > ends) return 0;
+  }
 
   if (voucher.type === "percentage") {
     const pct = Math.min(Math.max(Number(voucher.amount) || 0, 1), 100);

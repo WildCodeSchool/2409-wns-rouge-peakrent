@@ -9,7 +9,8 @@ export const getTotalOrderPrice = (
     ? orderItems.filter((item) => item.status !== "cancelled")
     : orderItems;
 
-  return orderItemsFiltered
-    .reduce((acc, item) => acc + getItemPriceByDates(item), 0)
-    ?.toFixed(2);
+  return orderItemsFiltered.reduce(
+    (acc, item) => acc + getItemPriceByDates(item),
+    0
+  );
 };

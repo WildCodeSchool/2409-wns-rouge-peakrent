@@ -325,7 +325,7 @@ const ProductDetail = () => {
                       }
                     >
                       {selectedVariantsPrice
-                        ? price.toFixed(2) + "€"
+                        ? getPriceFixed(price) + "€"
                         : "Sélectionnez une variante"}
                     </p>
                   </div>
