@@ -89,6 +89,11 @@ export const GET_PRODUCT_BY_ID = `
           variant
         }
       }
+      activities {
+        id
+        name
+        variant
+      }
     }
   }
 `;
