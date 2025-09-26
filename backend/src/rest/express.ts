@@ -5,7 +5,7 @@ import multer from "multer";
 import path from "path";
 import sharp from "sharp";
 
-const UPLOADS_DIR = path.join(__dirname, "../../uploads");
+const UPLOADS_DIR = path.join(__dirname, "../../uploads/images");
 
 const app = express();
 app.use(cors());
@@ -48,7 +48,7 @@ app.post(
         .webp({ quality: 80 })
         .toFile(outputPath);
 
-      const url = `${req.protocol}://${process.env.NGINX_URL}/rest/uploads/${filename}`;
+      const url = `${process.env.NGINX_URL}/rest/uploads/images/${filename}`;
       res.json({ url });
     } catch (error) {
       console.error("Sharp error:", error);
