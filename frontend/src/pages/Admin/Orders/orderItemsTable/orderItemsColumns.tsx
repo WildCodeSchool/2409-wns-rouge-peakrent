@@ -1,7 +1,7 @@
 import * as column from "@/components/ui/tables/columns";
 import { ColumnDef, FilterFn } from "@tanstack/react-table";
 
-import { getDurationInDays } from "@/utils/getDurationInDays";
+import { getDurationInDays } from "@/utils/PriceAndDays/getDurationInDays";
 import { DataTableRowOrderByIdActions } from "./orderItemActions";
 
 // import { DataTableRowOrderByIdActions } from "./NewOrderByIdActions";

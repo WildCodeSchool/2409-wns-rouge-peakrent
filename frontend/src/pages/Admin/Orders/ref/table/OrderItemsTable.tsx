@@ -8,7 +8,7 @@ import {
   UPDATE_ORDER_ITEM_ADMIN,
 } from "@/graphQL";
 import { useOrderStore } from "@/stores/admin/order.store";
-import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+import { getTotalOrderPrice } from "@/utils";
 import { gql, useMutation } from "@apollo/client";
 import { useEffect } from "react";
 import { toast } from "sonner";

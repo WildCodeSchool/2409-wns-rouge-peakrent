@@ -62,6 +62,7 @@ export class OrderResolverAdmin {
             product: true,
           },
         },
+        voucher: true,
         profile: true,
       },
     });
@@ -87,6 +88,7 @@ export class OrderResolverAdmin {
           },
         },
         profile: true,
+        voucher: true,
       },
     });
     if (!order) {

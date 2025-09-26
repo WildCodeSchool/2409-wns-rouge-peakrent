@@ -8,14 +8,16 @@ import {
   GET_ORDER_BY_REF_ADMIN,
   UPDATE_ORDER_ADMIN,
 } from "@/graphQL/order";
-import { formatLocaleDate } from "@/utils";
-import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+import { computeDiscountUI, formatLocaleDate } from "@/utils";
+
+import { getTotalOrderPrice } from "@/utils/PriceAndDays/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
 export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
   const totalTTC = getTotalOrderPrice(order.orderItems ?? [], true);
   const { date, time } = formatLocaleDate(order.paidAt as string);
+  const voucherAmount = computeDiscountUI(Number(totalTTC), order.voucher);
 
   const [updateOrderAdmin, { loading: updating }] = useMutation(
     gql(UPDATE_ORDER_ADMIN),
@@ -60,6 +62,18 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
               <span>TTC:</span>
               <div className="flex gap-2">
                 <span>{totalTTC} €</span>
+              </div>
+            </div>
+            <div className="flex justify-between ">
+              <span>Montant du voucher:</span>
+              <div className="flex gap-2">
+                <span>{voucherAmount.toFixed(2)} €</span>
+              </div>
+            </div>
+            <div className="flex justify-between ">
+              <span>TTC avec Voucher:</span>
+              <div className="flex gap-2">
+                <span>{(Number(totalTTC) - voucherAmount).toFixed(2)} €</span>
               </div>
             </div>
             {/* <div className="flex justify-between">

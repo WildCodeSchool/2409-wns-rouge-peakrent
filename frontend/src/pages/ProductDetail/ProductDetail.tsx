@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useUser } from "@/context/userProvider";
-import { Variant } from "@/gql/graphql";
+import { OrderItem, Variant } from "@/gql/graphql";
 import { CREATE_ORDER_ITEM_USER } from "@/graphQL/orderItems";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
-import { totalDays } from "@/utils/getNumberOfDays";
+import { getPriceFixed } from "@/utils";
+import { getItemPriceByDates } from "@/utils/PriceAndDays/getPriceByDates";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -85,7 +86,14 @@ const ProductDetail = () => {
     watchedQuantity < 0 ||
     !userData?.id;
 
-  const numberOfDays = totalDays(selectedStartingDate, selectedEndingDate);
+  const orderItem = {
+    pricePerDay: Number(selectedVariantsPrice),
+    quantity: Number(watchedQuantity),
+    startsAt: new Date(selectedStartingDate),
+    endsAt: new Date(selectedEndingDate),
+  };
+
+  const price = getItemPriceByDates(orderItem as OrderItem);
 
   if (getProductError) {
     return <div>Impossible de charger l&apos;annonce.</div>;
@@ -191,7 +199,6 @@ const ProductDetail = () => {
               </p>
             </div>
           </div>
-
           {/* Colonne droite : configuration & panier */}
           <div className="md:sticky md:top-6 bg-[#F1F2F4] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-6 border border-black/5">
             {/* Configuration */}

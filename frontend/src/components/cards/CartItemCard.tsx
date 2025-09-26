@@ -10,8 +10,8 @@ import {
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useModal } from "@/context/modalProvider";
 import { OrderItem as OrderItemType } from "@/gql/graphql";
+import { getDurationInDays, getPriceFixed } from "@/utils";
 import { formatLocaleDate } from "@/utils/getLocaleDateAndTime";
-import { totalDays } from "@/utils/getNumberOfDays";
 import { ChevronsRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -49,7 +49,7 @@ export function CartItemCard({
 
   const variant = item.variant;
   const product = variant?.product;
-  const numberOfDays = totalDays(item.startsAt, item.endsAt);
+  const numberOfDays = getDurationInDays(item.startsAt, item.endsAt);
   return (
     <Card className="grid grid-cols-[1fr_2fr] rounded-md border shadow-sm p-0 gap-2 max-w-screen-sm">
       <ImageHandler
@@ -133,16 +133,11 @@ export function CartItemCard({
           <div className="flex flex-col items-end justify-end text-sm md:text-base gap-1">
             <p className="text-sm font-normal sm:gap-1 flex flex-col sm:flex-row items-center order-1 sm:order-2">
               <span className="text-muted-foreground">
-                ({item.quantity} x {(item.pricePerDay / 100)?.toFixed(2)}€ x{" "}
+                ({item.quantity} x {getPriceFixed(item.pricePerDay)}€ x{" "}
                 {numberOfDays}j)
               </span>
               <span className="font-bold text-lg self-end">
-                {(
-                  (item.pricePerDay / 100) *
-                  item.quantity *
-                  numberOfDays
-                )?.toFixed(2)}
-                €
+                {getPriceFixed(item.pricePerDay, item.quantity, numberOfDays)} €
               </span>
             </p>
             <Select
