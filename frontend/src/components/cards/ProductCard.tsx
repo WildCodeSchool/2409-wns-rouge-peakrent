@@ -53,6 +53,7 @@ export function ProductCard({ product }: { product: any }) {
               to={`/products?activities=${category.name}`}
               key={category.id}
               onClick={(e) => e.stopPropagation()}
+              aria-label={`Voir les produits de la catégorie ${category.name}`}
             >
               <Badge
                 className="rounded-lg text-xs md:text-sm px-2 py-1"
@@ -92,19 +93,21 @@ export function ProductCard({ product }: { product: any }) {
       </CardContent>
 
       <CardFooter className="p-3 pt-2">
-        <NavLink
-          to={`/products/${product.id}`}
-          className="w-full"
-          onClick={(e) => e.stopPropagation()}
+        <Button
+          asChild
+          size="sm"
+          className="w-full text-sm text-white md:text-base rounded-lg"
+          variant="primary"
         >
-          <Button
-            size="sm"
-            className="w-full text-sm text-white md:text-base rounded-lg"
-            variant="primary"
+          <NavLink
+            to={`/products/${product.id}`}
+            className="w-full"
+            onClick={(e) => e.stopPropagation()}
+            aria-label={`Réserver le produit ${product.name}`}
           >
             Réserver
-          </Button>
-        </NavLink>
+          </NavLink>
+        </Button>
       </CardFooter>
     </Card>
   );

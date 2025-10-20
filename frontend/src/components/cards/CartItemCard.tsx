@@ -79,6 +79,7 @@ export function CartItemCard({
               onClick={() => {
                 setIsOpen(false);
               }}
+              aria-label={`Voir les détails du produit ${product?.name ?? ""}`}
             >
               <h3 className="font-semibold text-lg truncate">
                 {product?.name ?? ""}

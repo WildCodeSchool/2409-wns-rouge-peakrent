@@ -47,15 +47,19 @@ export function ActivityCard({
 
           {showButton && (
             <div className="flex justify-center">
-              <NavLink to={`/activities/${activity.normalizedName}`}>
-                <Button
-                  size="lg"
-                  className="w-full md:w-auto text-sm md:text-base text-black rounded-lg relative z-10 px-6 py-3"
-                  variant="outline"
+              <Button
+                asChild
+                size="lg"
+                className="w-full md:w-auto text-sm md:text-base text-black rounded-lg relative z-10 px-6 py-3"
+                variant="outline"
+              >
+                <NavLink
+                  to={`/activities/${activity.normalizedName}`}
+                  aria-label={`Découvrir l'activité ${activity.name}`}
                 >
                   Découvrir
-                </Button>
-              </NavLink>
+                </NavLink>
+              </Button>
             </div>
           )}
         </div>

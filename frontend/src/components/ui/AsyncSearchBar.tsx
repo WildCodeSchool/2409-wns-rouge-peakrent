@@ -127,7 +127,11 @@ export default function AsyncSearchBar<T extends Identifiable>({
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <div className="relative ml-auto flex-1 md:grow-0">
+        <div
+          className="relative ml-auto flex-1 md:grow-0"
+          aria-label="Rechercher un produit"
+          role="combobox"
+        >
           <Search className="text-muted-foreground absolute left-2.5 top-2.5 size-4" />
           <Input
             ref={inputRef}
@@ -150,6 +154,7 @@ export default function AsyncSearchBar<T extends Identifiable>({
         onOpenAutoFocus={(e) => e.preventDefault()}
         side="bottom"
         align="start"
+        aria-label="Résultats de recherche"
       >
         <Command
           shouldFilter={false}
@@ -174,7 +179,11 @@ export default function AsyncSearchBar<T extends Identifiable>({
                 )}
 
                 {visibleItems.map((item) => (
-                  <CommandItem key={item.id as string} className="gap-2">
+                  <CommandItem
+                    key={item.id as string}
+                    className="gap-2"
+                    role="option"
+                  >
                     <div
                       className="flex w-full items-center justify-between gap-2"
                       onClick={() => {

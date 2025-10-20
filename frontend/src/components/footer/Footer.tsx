@@ -66,6 +66,7 @@ const Footer = () => {
               </Link>
               <Link
                 to="/products"
+                aria-label="Aller sur la page produits"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Produits

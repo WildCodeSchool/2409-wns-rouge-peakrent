@@ -59,7 +59,10 @@ export const SearchBar = () => {
           </>
         }
         renderItem={(item) => (
-          <Link to={`/products/${item.id}`}>
+          <Link
+            to={`/products/${item.id}`}
+            aria-label={`Voir les détails du produit ${item.name}`}
+          >
             <div className="grid w-full min-w-[300px] max-w-[300px] grid-cols-12 items-center">
               {item.urlImage && (
                 <img

@@ -69,6 +69,7 @@ const NavBar = () => {
         <img
           src="/LogoPeakrent.svg"
           className="h-full w-auto max-h-full object-contain"
+          alt="Logo peakrent"
         />
         <p className="hidden xl:block text-white font-logo text-[2.3vw] ml-1">
           PeakRent

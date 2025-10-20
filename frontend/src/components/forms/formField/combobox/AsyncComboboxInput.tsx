@@ -101,7 +101,8 @@ export function AsyncComboboxInput<T extends Identifiable>({
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    role="combobox"
+                    aria-haspopup="listbox"
+                    aria-expanded={isOpen}
                     className={cn(
                       "w-full justify-between truncate",
                       !field.value && "text-muted-foreground"
@@ -127,7 +128,7 @@ export function AsyncComboboxInput<T extends Identifiable>({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0">
+                <PopoverContent className="w-full p-0" role="listbox">
                   <DynamicSearchTemplate
                     form={form}
                     name={name}

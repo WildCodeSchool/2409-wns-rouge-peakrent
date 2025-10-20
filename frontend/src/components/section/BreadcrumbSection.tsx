@@ -49,7 +49,7 @@ export default function BreadcrumbSection({
         {currentPathNames.length > 0 && (
           <>
             <BreadcrumbItem>
-              <Link to={homePath}>
+              <Link to={homePath} aria-label="Retour à la page d'accueil">
                 <Home className="size-4" />
               </Link>
             </BreadcrumbItem>
@@ -73,6 +73,7 @@ export default function BreadcrumbSection({
                         <Link
                           to={generateFullPath(index)}
                           className="w-full capitalize"
+                          aria-label={`Aller à ${name}`}
                         >
                           {name}
                         </Link>
@@ -100,7 +101,9 @@ export default function BreadcrumbSection({
                 {isLastItem ? (
                   <BreadcrumbPage>{name}</BreadcrumbPage>
                 ) : (
-                  <Link to={href}>{name}</Link>
+                  <Link to={href} aria-label={`Aller à ${name}`}>
+                    {name}
+                  </Link>
                 )}
               </BreadcrumbItem>
             </React.Fragment>

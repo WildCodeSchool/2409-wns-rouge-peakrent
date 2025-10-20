@@ -90,7 +90,7 @@ export function SignUpPage() {
       <div className="relative min-h-screen bg-background">
         <ImageHandler
           className="block md:hidden absolute w-full h-full object-cover"
-          src="/image-8.jpg"
+          src="/image-8.webp"
           alt="Image de fond"
         />
         <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
@@ -99,12 +99,13 @@ export function SignUpPage() {
               <div
                 className="w-full p-8 relative md:bg-cover md:bg-center rounded-lg"
                 style={{
-                  backgroundImage: 'url("/image-10.jpg")',
+                  backgroundImage: 'url("/image-10.webp")',
                 }}
               >
                 <div
                   className="bg-white absolute inset-0 md:bg-black/40 rounded-lg"
-                  role="decorative"
+                  role="presentation"
+                  aria-hidden="true"
                 />
 
                 <div className="flex flex-col items-center justify-center text-center h-full relative z-10">
@@ -116,15 +117,19 @@ export function SignUpPage() {
                     confirmation vous a été envoyé.
                   </p>
                   <div className="flex justify-center mt-8 w-1/2 mx-auto">
-                    <NavLink to="/signin">
-                      <Button
-                        size="lg"
-                        className="w-full text-sm text-white rounded-lg"
-                        variant="primary"
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full text-sm text-white rounded-lg"
+                      variant="primary"
+                    >
+                      <NavLink
+                        to="/signin"
+                        aria-label="Se connecter à votre compte"
                       >
                         Se connecter
-                      </Button>
-                    </NavLink>
+                      </NavLink>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -139,7 +144,7 @@ export function SignUpPage() {
     <div className="relative min-h-screen bg-background">
       <ImageHandler
         className="block md:hidden absolute w-full h-full object-cover"
-        src="/image-8.jpg"
+        src="/image-8.webp"
         alt="Image de fond"
       />
       <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
@@ -148,12 +153,13 @@ export function SignUpPage() {
             <div
               className="hidden md:block w-1/2 bg-white p-8 relative bg-cover bg-center rounded-lg"
               style={{
-                backgroundImage: 'url("/image-6.jpg")',
+                backgroundImage: 'url("/image-6.webp")',
               }}
             >
               <div
                 className="absolute inset-0 bg-black/60 rounded-lg"
-                role="decorative"
+                role="presentation"
+                aria-hidden="true"
               />
 
               <div className="flex flex-col items-center justify-center text-center h-full relative z-10">

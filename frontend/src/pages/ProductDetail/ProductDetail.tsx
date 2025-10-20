@@ -258,7 +258,6 @@ const ProductDetail = () => {
                                 checked={isChecked}
                                 onChange={() => handleVariantSelect(variant)}
                                 className="accent-primary w-5 h-5"
-                                aria-label={`Sélectionner la variante taille ${variant.size} couleur ${variant.color}`}
                               />
                               <div className="flex flex-col gap-1">
                                 <p className="text-sm">
