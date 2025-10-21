@@ -58,6 +58,7 @@ export const PasswordValidation = ({
                   {...field}
                   data-testid={name}
                   value={field.value ?? ""}
+                  aria-label="Mot de passe"
                   disabled={isPending}
                 />
                 <Box

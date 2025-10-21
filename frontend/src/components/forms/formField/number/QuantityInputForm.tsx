@@ -121,6 +121,7 @@ export function Quantity({
                 type="button"
                 onClick={() => handleDecrease(field, 10)}
                 disabled={isPending || field.value - 10 < min}
+                aria-label="Retirer 10"
               >
                 - 10
               </Button>
@@ -132,6 +133,7 @@ export function Quantity({
                 "hover:bg-primary hover:text-primary-foreground rounded-lg p-2 text-xs",
                 buttonsClassName
               )}
+              aria-label="Retirer 1"
               type="button"
               onClick={() => handleDecrease(field)}
               disabled={isPending}
@@ -150,6 +152,7 @@ export function Quantity({
                 value={field.value}
                 placeholder={placeholder || "0"}
                 disabled={isPending}
+                aria-label="Quantité"
               />
             </FormControl>
             <Button
@@ -162,6 +165,7 @@ export function Quantity({
               type="button"
               onClick={() => handleIncrease(field)}
               disabled={isPending}
+              aria-label="Ajouter 1"
             >
               {withDozen ? "+1" : <Plus />}
             </Button>
@@ -176,6 +180,7 @@ export function Quantity({
                 type="button"
                 onClick={() => handleIncrease(field, 10)}
                 disabled={isPending || field.value + 10 > max}
+                aria-label="Ajouter 10"
               >
                 + 10
               </Button>

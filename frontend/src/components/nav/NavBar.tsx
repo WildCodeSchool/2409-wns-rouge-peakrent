@@ -114,6 +114,8 @@ const NavBar = () => {
                     buttonVariants({ variant: "primary", size: "icon" }),
                     "py-2 px-4 cursor-pointer text-center"
                   )}
+                  aria-label="Ouvrir le menu déroulant de l'utilisateur"
+                  role="button"
                 >
                   <User size={20} className="flex-none" />
                 </span>

@@ -48,9 +48,9 @@ const Footer = () => {
 
           {/* Navigation */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-foreground">
               Navigation
-            </h3>
+            </div>
             <nav className="flex flex-col space-y-2">
               <Link
                 to="/"
@@ -82,9 +82,9 @@ const Footer = () => {
 
           {/* Compte */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-foreground">
               Mon Compte
-            </h3>
+            </div>
             <nav className="flex flex-col space-y-2">
               {userData ? (
                 <>
@@ -122,7 +122,7 @@ const Footer = () => {
 
           {/* Contact et réseaux sociaux */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Contact</h3>
+            <div className="text-sm font-semibold text-foreground">Contact</div>
             <div className="flex space-x-4">
               <Link
                 to="#"
@@ -162,7 +162,7 @@ const Footer = () => {
 
           {/* Légal */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Légal</h3>
+            <div className="text-sm font-semibold text-foreground">Légal</div>
             <nav className="flex flex-col space-y-2">
               <Link
                 to="/cgu"

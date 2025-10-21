@@ -118,6 +118,7 @@ export function CartPage() {
           type="button"
           className="mb-4"
           variant="outline"
+          aria-label="Vider le panier"
         >
           Vider mon panier
         </Button>
