@@ -18,6 +18,7 @@ export const ImageHandler: React.FC<ImageHandlerProps> = ({
     <img
       {...props}
       src={imageSrc}
+      loading="lazy"
       alt={alt}
       onError={() => setImageSrc(placeholderImage)}
     />

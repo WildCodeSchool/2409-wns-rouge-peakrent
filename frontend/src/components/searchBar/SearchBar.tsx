@@ -68,6 +68,7 @@ export const SearchBar = () => {
                 <img
                   src={item.urlImage}
                   alt={item.name}
+                  loading="lazy"
                   className="col-span-2 size-8"
                   width={32}
                   height={32}

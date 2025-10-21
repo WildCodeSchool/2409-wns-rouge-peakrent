@@ -97,6 +97,7 @@ export function Carousel({
                 `absolute block w-full h-full object-cover`,
                 imageClassName
               )}
+              loading="lazy"
               alt={image.alt}
             />
           </div>
