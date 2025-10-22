@@ -132,7 +132,7 @@ export class VariantUpdateInputAdmin {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt({ message: "Quantity must be an integer." })
-  @Min(1, { message: "Price per day must be a positive number." })
+  @Min(1, { message: "Quantity must be greater than or equal to 1." })
   quantity?: number;
 
   @Field(() => Int)
@@ -161,6 +161,6 @@ export class VariantCreateNestedInputAdmin {
   @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt({ message: "Quantity must be an integer." })
-  @Min(1, { message: "Price per day must be a positive number." })
+  @Min(1, { message: "Quantity must be greater than or equal to 1." })
   quantity?: number;
 }

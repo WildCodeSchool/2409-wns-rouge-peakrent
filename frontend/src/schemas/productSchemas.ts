@@ -36,8 +36,8 @@ const variantCreateSchema = () =>
     quantity: createNumberSchema({
       required: true,
       min: 1,
-      requiredError: "Le prix par jour est requis",
-      minError: "Le prix par jour doit être supérieure ou égal à 1",
+      requiredError: "La quantité est requise",
+      minError: "La quantité doit être supérieure ou égal à 1",
     }),
     id: z.string().optional(),
   });
@@ -98,7 +98,7 @@ export const productFormSchema = (
           color: (v.color as string | null) ?? null,
           pricePerDay: Number(v.pricePerDay ?? 0),
           isPublished: v.isPublished ?? false,
-          quantity: Number(v.quantity ?? 0),
+          quantity: Number(v.quantity ?? 100),
         }))
       ),
       id: z.coerce.number().int().positive().optional(),
