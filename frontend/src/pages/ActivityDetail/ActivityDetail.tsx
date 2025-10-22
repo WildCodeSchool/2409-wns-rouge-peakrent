@@ -7,25 +7,13 @@ import type { Category as CategoryType } from "@/gql/graphql";
 import { GET_ACTIVITY_BY_NORMALIZED_NAME } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { useProductFilters } from "@/hooks/useProductFilters";
 import { gql, useQuery } from "@apollo/client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
-
-type Filters = {
-  categoryIds: number[];
-  categoryNames?: string[];
-  activityIds?: number[];
-  startingDate?: string;
-  endingDate?: string;
-};
+import { useMemo } from "react";
+import { useParams } from "react-router-dom";
 
 const ActivityDetail = () => {
   const { normalizedName } = useParams<{ normalizedName: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [filters, setFilters] = useState<Filters>({ categoryIds: [] });
-  const [paging, setPaging] = useState({ page: 1, onPage: 15 });
 
   const {
     data: activityData,
@@ -37,16 +25,6 @@ const ActivityDetail = () => {
   });
   const activity = activityData?.getActivityByNormalizedName;
 
-  useEffect(() => {
-    if (!activity?.id) return;
-    setFilters((f) =>
-      f.activityIds?.[0] === Number(activity.id)
-        ? f
-        : { ...f, activityIds: [Number(activity.id)] }
-    );
-    setPaging((p) => (p.page === 1 ? p : { ...p, page: 1 }));
-  }, [activity?.id]);
-
   const {
     data: catData,
     loading: catLoading,
@@ -55,17 +33,24 @@ const ActivityDetail = () => {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const variables = useMemo(
-    () => ({
-      page: paging.page,
-      onPage: paging.onPage,
-      categoryIds: filters.categoryIds.length ? filters.categoryIds : undefined,
-      activityIds: filters.activityIds,
-      startingDate: filters.startingDate,
-      endingDate: filters.endingDate,
-    }),
-    [paging, filters]
+  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
+
+  // Créer activityIds à partir de l'activité courante
+  const activityIds = useMemo(
+    () => (activity?.id ? [Number(activity.id)] : undefined),
+    [activity?.id]
   );
+
+  const {
+    filters,
+    categoryIds,
+    paging,
+    variables,
+    applyFilters,
+    clearFilters,
+    setPage,
+    setItemsPerPage,
+  } = useProductFilters({ categories, activityIds });
 
   const {
     data: prodData,
@@ -77,126 +62,11 @@ const ActivityDetail = () => {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
-    skip: !filters.activityIds?.length,
+    skip: !activityIds?.length,
   });
 
-  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
   const products = prodData?.getPublishedProducts?.products ?? [];
   const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
-
-  useEffect(() => {
-    const categoryNames =
-      searchParams.get("categories")?.split(",").filter(Boolean) || [];
-    const startingDate = searchParams.get("startDate") || undefined;
-    const endingDate = searchParams.get("endDate") || undefined;
-    const page = parseInt(searchParams.get("page") || "1");
-    const onPage = parseInt(searchParams.get("onPage") || "15");
-
-    setFilters((prev) => ({
-      ...prev,
-      categoryIds: [],
-      categoryNames,
-      startingDate,
-      endingDate,
-    }));
-    setPaging({ page, onPage });
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (
-      filters.categoryNames &&
-      filters.categoryNames.length > 0 &&
-      categories.length > 0
-    ) {
-      const categoryIds = filters.categoryNames.flatMap((name) => {
-        const id = categories.find((cat) => cat.normalizedName === name)?.id;
-        return id !== undefined ? [Number(id)] : [];
-      });
-      setFilters((prev) => ({ ...prev, categoryIds }));
-    }
-  }, [categories, filters.categoryNames]);
-
-  const updateURL = useCallback(
-    (newFilters: Filters, newPaging: { page: number; onPage: number }) => {
-      const params = new URLSearchParams();
-
-      if (newFilters.categoryIds.length > 0) {
-        const categoryNames = newFilters.categoryIds
-          .map(
-            (id) =>
-              categories.find((cat) => Number(cat.id) === id)?.normalizedName
-          )
-          .filter(Boolean);
-        if (categoryNames.length > 0) {
-          params.set("categories", categoryNames.join(","));
-        }
-      }
-      if (newFilters.startingDate) {
-        params.set("startDate", newFilters.startingDate);
-      }
-      if (newFilters.endingDate) {
-        params.set("endDate", newFilters.endingDate);
-      }
-      if (newPaging.page > 1) {
-        params.set("page", newPaging.page.toString());
-      }
-      if (newPaging.onPage !== 15) {
-        params.set("onPage", newPaging.onPage.toString());
-      }
-
-      setSearchParams(params);
-    },
-    [setSearchParams, categories]
-  );
-
-  const applyFilters = useCallback(
-    (params: {
-      categoryIds: number[];
-      startingDate?: string;
-      endingDate?: string;
-    }) => {
-      const { categoryIds, startingDate, endingDate } = params;
-      if (
-        startingDate &&
-        endingDate &&
-        new Date(startingDate) > new Date(endingDate)
-      ) {
-        toast.error(
-          "La date de fin ne peut pas être inférieure à celle de début"
-        );
-        return;
-      }
-      const newFilters = {
-        ...filters,
-        categoryIds,
-        startingDate: startingDate
-          ? new Date(startingDate).toISOString()
-          : undefined,
-        endingDate: endingDate ? new Date(endingDate).toISOString() : undefined,
-      };
-
-      const newPaging = { page: 1, onPage: paging.onPage };
-
-      setFilters(newFilters);
-      setPaging(newPaging);
-      updateURL(newFilters, newPaging);
-    },
-    [filters, paging.onPage, updateURL]
-  );
-
-  const clearFilters = useCallback(() => {
-    const newFilters = {
-      ...filters,
-      categoryIds: [],
-      startingDate: undefined,
-      endingDate: undefined,
-    };
-    const newPaging = { page: 1, onPage: paging.onPage };
-
-    setFilters(newFilters);
-    setPaging(newPaging);
-    updateURL(newFilters, newPaging);
-  }, [filters, paging.onPage, updateURL]);
 
   if (activityError)
     return <div>Erreur lors du chargement de l&apos;activité.</div>;
@@ -238,7 +108,7 @@ const ActivityDetail = () => {
         <aside className="hidden md:block w-[280px] bg-gray-50 border-r p-6">
           <FilterList
             categories={categories}
-            selectedCategories={filters.categoryIds}
+            selectedCategories={categoryIds}
             selectedStartingDate={filters.startingDate}
             selectedEndingDate={filters.endingDate}
             onApply={applyFilters}
@@ -262,7 +132,7 @@ const ActivityDetail = () => {
               modalContent={
                 <FilterList
                   categories={categories}
-                  selectedCategories={filters.categoryIds}
+                  selectedCategories={categoryIds}
                   selectedStartingDate={filters.startingDate}
                   selectedEndingDate={filters.endingDate}
                   onApply={applyFilters}
@@ -283,17 +153,9 @@ const ActivityDetail = () => {
                 title="Produits associés"
                 items={products}
                 itemsOnPage={paging.onPage}
-                setItemsOnPage={(n) => {
-                  const newPaging = { ...paging, onPage: n, page: 1 };
-                  setPaging(newPaging);
-                  updateURL(filters, newPaging);
-                }}
+                setItemsOnPage={setItemsPerPage}
                 pageIndex={paging.page}
-                setPageIndex={(n) => {
-                  const newPaging = { ...paging, page: n };
-                  setPaging(newPaging);
-                  updateURL(filters, newPaging);
-                }}
+                setPageIndex={setPage}
                 maxPage={maxPage}
               />
             ) : (
