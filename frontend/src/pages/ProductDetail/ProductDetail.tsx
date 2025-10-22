@@ -1,6 +1,7 @@
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
@@ -14,7 +15,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GET_PRODUCT_BY_ID } from "../../graphQL/products";
@@ -205,12 +206,20 @@ const ProductDetail = () => {
               </h1>
               <div className="flex flex-wrap items-center gap-2">
                 {product?.categories?.map((category: any) => (
-                  <span
-                    className="px-2 py-1 text-white bg-primary rounded text-xs md:text-sm"
+                  <NavLink
+                    to={`/products?activities=${category.name}`}
                     key={category.id}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {category.name}
-                  </span>
+                    <Badge
+                      className="rounded-lg text-xs px-2 py-1"
+                      variant={
+                        (category.variant as BadgeVariantType) ?? "neutral"
+                      }
+                    >
+                      {category.name}
+                    </Badge>
+                  </NavLink>
                 ))}
               </div>
               <p className="text-sm md:text-base leading-relaxed text-gray-700">
