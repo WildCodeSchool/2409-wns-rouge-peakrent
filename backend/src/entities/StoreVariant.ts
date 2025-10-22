@@ -24,7 +24,7 @@ export class StoreVariant extends BaseEntity {
 
   @Field(() => Int)
   @Column()
-  @Min(1, { message: "Quantity must be at least 1" })
+  @Min(0, { message: "Quantity must be positive" })
   quantity!: number;
 
   @Field(() => Store)
@@ -50,8 +50,8 @@ export class StoreVariantCreateInputAdmin {
   @Field(() => Int)
   variantId!: number;
 
-  @Field(() => Int, { defaultValue: 1 })
-  @Min(1, { message: "Quantity must be at least 1" })
+  @Field(() => Int, { defaultValue: 0 })
+  @Min(0, { message: "Quantity must be positive" })
   quantity!: number;
 }
 
@@ -64,6 +64,6 @@ export class StoreVariantUpdateInputAdmin {
   variantId!: number;
 
   @Field(() => Int, { nullable: true })
-  @Min(1, { message: "Quantity must be at least 1" })
+  @Min(0, { message: "Quantity must be positive" })
   quantity!: number;
 }

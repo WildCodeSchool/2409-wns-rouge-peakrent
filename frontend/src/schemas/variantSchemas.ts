@@ -22,8 +22,8 @@ export const variantCreateSchema = (datas?: Partial<VariantWithQuantityType>) =>
     quantity: createNumberSchema({
       requiredError: "Veuillez indiquer une quantité.",
       invalidTypeError: "Veuillez saisir une valeur numérique valide.",
-      min: 1,
-      minError: "La quantité ne peut pas être inférieure à 1.",
+      min: 0,
+      minError: "La quantité doit être positive",
       defaultValue: datas?.quantity ?? 100,
     }),
     reference: createStringSchema({

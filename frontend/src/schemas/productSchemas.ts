@@ -35,9 +35,9 @@ const variantCreateSchema = () =>
     }),
     quantity: createNumberSchema({
       required: true,
-      min: 1,
+      min: 0,
       requiredError: "La quantité est requise",
-      minError: "La quantité doit être supérieure ou égal à 1",
+      minError: "La quantité doit être positive",
     }),
     id: z.string().optional(),
   });

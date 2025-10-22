@@ -402,6 +402,7 @@ export const VariantForm = ({
           dozenClassName="bg-primary/90 text-primary-foreground disabled:bg-primary/10 disabled:text-primary-foreground hover:bg-primary min-w-12 p-2 hover:ring-0 "
           withDozen
           max={9999}
+          min={0}
         />
 
         {/* Bouton Submit */}
