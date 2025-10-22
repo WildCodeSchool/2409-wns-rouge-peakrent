@@ -7,6 +7,7 @@ import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { useProductFilters } from "@/hooks/useProductFilters";
 import { gql, useQuery } from "@apollo/client";
+import { useMemo } from "react";
 
 export default function ProductsPage() {
   const {
@@ -17,7 +18,12 @@ export default function ProductsPage() {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
+  const categories: CategoryType[] = useMemo(
+    () => catData?.getCategories?.categories ?? [],
+    [catData?.getCategories?.categories]
+  );
+
+  const filterOptions = useMemo(() => ({ categories }), [categories]);
 
   const {
     filters,
@@ -28,7 +34,7 @@ export default function ProductsPage() {
     clearFilters,
     setPage,
     setItemsPerPage,
-  } = useProductFilters({ categories });
+  } = useProductFilters(filterOptions);
 
   const {
     data: prodData,

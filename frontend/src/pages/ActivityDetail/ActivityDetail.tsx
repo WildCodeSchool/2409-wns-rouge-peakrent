@@ -33,12 +33,20 @@ const ActivityDetail = () => {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
+  const categories: CategoryType[] = useMemo(
+    () => catData?.getCategories?.categories ?? [],
+    [catData?.getCategories?.categories]
+  );
 
   // Créer activityIds à partir de l'activité courante
   const activityIds = useMemo(
     () => (activity?.id ? [Number(activity.id)] : undefined),
     [activity?.id]
+  );
+
+  const filterOptions = useMemo(
+    () => ({ categories, activityIds }),
+    [categories, activityIds]
   );
 
   const {
@@ -50,7 +58,7 @@ const ActivityDetail = () => {
     clearFilters,
     setPage,
     setItemsPerPage,
-  } = useProductFilters({ categories, activityIds });
+  } = useProductFilters(filterOptions);
 
   const {
     data: prodData,
