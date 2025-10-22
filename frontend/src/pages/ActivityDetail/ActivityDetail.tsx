@@ -1,24 +1,19 @@
 import FilterButton from "@/components/buttons/FilterButton";
+import { ActivityCard } from "@/components/cards/ActivityCard";
 import FilterList from "@/components/filterList/FilterList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
-import { ActivityCard } from "@/components/cards/ActivityCard";
 import { GET_ACTIVITY_BY_NORMALIZED_NAME } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { gql, useQuery } from "@apollo/client";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useParams } from "react-router-dom";
 
 type Filters = {
   categoryIds: number[];
+  categoryNames?: string[];
   activityIds?: number[];
   startingDate?: string;
   endingDate?: string;
@@ -26,6 +21,7 @@ type Filters = {
 
 const ActivityDetail = () => {
   const { normalizedName } = useParams<{ normalizedName: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [filters, setFilters] = useState<Filters>({ categoryIds: [] });
   const [paging, setPaging] = useState({ page: 1, onPage: 15 });
@@ -87,6 +83,75 @@ const ActivityDetail = () => {
   const products = prodData?.getPublishedProducts?.products ?? [];
   const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
 
+  useEffect(() => {
+    const categoryNames =
+      searchParams.get("categories")?.split(",").filter(Boolean) || [];
+    const startingDate = searchParams.get("startDate") || undefined;
+    const endingDate = searchParams.get("endDate") || undefined;
+    const page = parseInt(searchParams.get("page") || "1");
+    const onPage = parseInt(searchParams.get("onPage") || "15");
+
+    setFilters((prev) => ({
+      ...prev,
+      categoryIds: [],
+      categoryNames,
+      startingDate,
+      endingDate,
+    }));
+    setPaging({ page, onPage });
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (
+      filters.categoryNames &&
+      filters.categoryNames.length > 0 &&
+      categories.length > 0
+    ) {
+      const categoryIds = filters.categoryNames
+        .map(
+          (name) =>
+            categories.find((cat: any) => cat.normalizedName === name)?.id
+        )
+        .filter(Boolean)
+        .map(Number);
+      setFilters((prev) => ({ ...prev, categoryIds }));
+    }
+  }, [categories, filters.categoryNames]);
+
+  const updateURL = useCallback(
+    (newFilters: Filters, newPaging: { page: number; onPage: number }) => {
+      const params = new URLSearchParams();
+
+      if (newFilters.categoryIds.length > 0) {
+        const categoryNames = newFilters.categoryIds
+          .map(
+            (id) =>
+              categories.find((cat: any) => Number(cat.id) === id)
+                ?.normalizedName
+          )
+          .filter(Boolean);
+        if (categoryNames.length > 0) {
+          params.set("categories", categoryNames.join(","));
+        }
+      }
+      if (newFilters.startingDate) {
+        params.set("startDate", newFilters.startingDate);
+      }
+      if (newFilters.endingDate) {
+        params.set("endDate", newFilters.endingDate);
+      }
+      if (newPaging.page > 1) {
+        params.set("page", newPaging.page.toString());
+      }
+      if (newPaging.onPage !== 15) {
+        params.set("onPage", newPaging.onPage.toString());
+      }
+
+      setSearchParams(params);
+    },
+    [setSearchParams, categories]
+  );
+
   const applyFilters = useCallback(
     (params: {
       categoryIds: number[];
@@ -104,18 +169,37 @@ const ActivityDetail = () => {
         );
         return;
       }
-      setFilters((prev) => ({
-        ...prev,
+      const newFilters = {
+        ...filters,
         categoryIds,
         startingDate: startingDate
           ? new Date(startingDate).toISOString()
           : undefined,
         endingDate: endingDate ? new Date(endingDate).toISOString() : undefined,
-      }));
-      startTransition(() => setPaging((p) => ({ ...p, page: 1 })));
+      };
+
+      const newPaging = { page: 1, onPage: paging.onPage };
+
+      setFilters(newFilters);
+      setPaging(newPaging);
+      updateURL(newFilters, newPaging);
     },
-    []
+    [filters, paging.onPage, updateURL]
   );
+
+  const clearFilters = useCallback(() => {
+    const newFilters = {
+      ...filters,
+      categoryIds: [],
+      startingDate: undefined,
+      endingDate: undefined,
+    };
+    const newPaging = { page: 1, onPage: paging.onPage };
+
+    setFilters(newFilters);
+    setPaging(newPaging);
+    updateURL(newFilters, newPaging);
+  }, [filters, paging.onPage, updateURL]);
 
   if (activityError)
     return <div>Erreur lors du chargement de l&apos;activité.</div>;
@@ -161,6 +245,7 @@ const ActivityDetail = () => {
             selectedStartingDate={filters.startingDate}
             selectedEndingDate={filters.endingDate}
             onApply={applyFilters}
+            onClear={clearFilters}
           />
         </aside>
 
@@ -184,6 +269,7 @@ const ActivityDetail = () => {
                   selectedStartingDate={filters.startingDate}
                   selectedEndingDate={filters.endingDate}
                   onApply={applyFilters}
+                  onClear={clearFilters}
                 />
               }
               ariaLabel="filterProductsAriaLabel"
@@ -200,9 +286,17 @@ const ActivityDetail = () => {
                 title="Produits associés"
                 items={products}
                 itemsOnPage={paging.onPage}
-                setItemsOnPage={(n) => setPaging((p) => ({ ...p, onPage: n }))}
+                setItemsOnPage={(n) => {
+                  const newPaging = { ...paging, onPage: n, page: 1 };
+                  setPaging(newPaging);
+                  updateURL(filters, newPaging);
+                }}
                 pageIndex={paging.page}
-                setPageIndex={(n) => setPaging((p) => ({ ...p, page: n }))}
+                setPageIndex={(n) => {
+                  const newPaging = { ...paging, page: n };
+                  setPaging(newPaging);
+                  updateURL(filters, newPaging);
+                }}
                 maxPage={maxPage}
               />
             ) : (

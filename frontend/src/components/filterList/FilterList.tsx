@@ -23,6 +23,7 @@ interface CategoryFilterProps {
   selectedEndingDate?: string | undefined;
 
   onApply: (params: ApplyParams) => void;
+  onClear?: () => void;
 }
 
 const FilterList = ({
@@ -31,6 +32,7 @@ const FilterList = ({
   selectedStartingDate,
   selectedEndingDate,
   onApply,
+  onClear,
 }: CategoryFilterProps) => {
   const [localSelectedCategories, setLocalSelectedCategories] = useState<
     number[]
@@ -136,6 +138,12 @@ const FilterList = ({
     [childrenByParent]
   );
 
+  const clearAllFilters = useCallback(() => {
+    setLocalSelectedCategories([]);
+    setLocalStartingDate(undefined);
+    setLocalEndingDate(undefined);
+  }, []);
+
   return (
     <>
       <DateRangeSelector
@@ -192,7 +200,18 @@ const FilterList = ({
         })}
       </div>
 
-      <div className="flex justify-center pt-2">
+      <div className="flex justify-center gap-2 pt-2">
+        <Button
+          variant="destructive"
+          onClick={() => {
+            clearAllFilters();
+            if (onClear) {
+              onClear();
+            }
+          }}
+        >
+          Effacer
+        </Button>
         <Button
           onClick={() =>
             onApply({
