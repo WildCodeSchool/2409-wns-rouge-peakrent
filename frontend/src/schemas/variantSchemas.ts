@@ -1,4 +1,4 @@
-import { Variant as VariantType } from "@/gql/graphql";
+import { VariantWithQuantityType } from "@/types";
 import { z } from "zod";
 import {
   createArraySchema,
@@ -7,7 +7,7 @@ import {
   createStringSchema,
 } from "./utils";
 
-export const variantCreateSchema = (datas?: VariantType) =>
+export const variantCreateSchema = (datas?: Partial<VariantWithQuantityType>) =>
   z.object({
     sizes: createArraySchema(
       createStringSchema({
@@ -19,6 +19,16 @@ export const variantCreateSchema = (datas?: VariantType) =>
       50,
       "La taille est requise"
     ).default(datas?.size ? [datas.size] : []),
+    quantity: createNumberSchema({
+      requiredError: "Veuillez indiquer une quantité.",
+      invalidTypeError: "Veuillez saisir une valeur numérique valide.",
+      min: 1,
+      minError: "La quantité ne peut pas être inférieure à 1.",
+      defaultValue: datas?.quantity ?? 100,
+    }),
+    reference: createStringSchema({
+      required: false,
+    }),
     color: createStringSchema({
       required: false,
       minLength: 1,

@@ -67,6 +67,7 @@ export class Variant extends BaseEntity {
   @JoinColumn({ name: "created_by" })
   createdBy!: User;
 
+  @Field(() => [StoreVariant])
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.variant)
   storeVariants!: StoreVariant[];
 }
@@ -100,6 +101,11 @@ export class VariantCreateInputAdmin {
   pricePerDay!: number;
 
   @Field(() => Int)
+  @IsInt({ message: "Quantity must be an integer." })
+  @Min(1, { message: "Quantity must be greater than or equal to 1." })
+  quantity!: number;
+
+  @Field(() => Int)
   productId!: number;
 }
 
@@ -123,6 +129,12 @@ export class VariantUpdateInputAdmin {
   @Min(0, { message: "Price per day must be a positive number." })
   pricePerDay?: number;
 
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt({ message: "Quantity must be an integer." })
+  @Min(1, { message: "Price per day must be a positive number." })
+  quantity?: number;
+
   @Field(() => Int)
   productId!: number;
 }
@@ -145,4 +157,10 @@ export class VariantCreateNestedInputAdmin {
   @IsInt()
   @Min(0, { message: "Price per day must be a positive number." })
   pricePerDay!: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt({ message: "Quantity must be an integer." })
+  @Min(1, { message: "Price per day must be a positive number." })
+  quantity?: number;
 }

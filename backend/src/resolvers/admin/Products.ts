@@ -118,18 +118,20 @@ export class ProductResolverAdmin {
         });
         const errors = await validate(variant);
         if (errors.length > 0) {
-          throw new Error(
-            `Variant validation error: ${JSON.stringify(errors)}`
-          );
+          throw new GraphQLError("Variant validation error", {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              errors,
+            },
+          });
         }
         await variant.save();
         const storeId = 1;
-        const quantity = 100;
 
         const storeVariant = StoreVariant.create({
           variantId: variant.id,
           storeId,
-          quantity,
+          quantity: variantInput.quantity,
         });
 
         await storeVariant.save();

@@ -2,6 +2,7 @@ import { Product, ProductWithCount } from "@/entities/Product";
 import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { ProductWithVariants } from "@/objectTypes";
 import { GraphQLError } from "graphql";
 import { Arg, ID, Int, Query, Resolver } from "type-graphql";
 import { ILike, In } from "typeorm";
@@ -233,11 +234,13 @@ export class ProductResolver {
     };
   }
 
-  @Query(() => Product, { nullable: true })
+  @Query(() => ProductWithVariants, { nullable: true })
   async getProductById(
     @Arg("param", () => String) param: string
-  ): Promise<Product | null> {
+  ): Promise<{ product: Product; variants: StoreVariant[] } | null> {
     let product: Product | null = null;
+
+    const storeId = 1;
 
     if (!isNaN(Number(param))) {
       const id = Number(param);
@@ -262,7 +265,12 @@ export class ProductResolver {
       });
     }
 
-    return product;
+    const variants = await StoreVariant.find({
+      where: { variant: { product: { id: product.id } }, storeId },
+      relations: { variant: true },
+    });
+
+    return { product: product, variants: variants };
   }
 
   @Query(() => Product, { nullable: true })
