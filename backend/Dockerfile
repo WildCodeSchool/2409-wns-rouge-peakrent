@@ -13,5 +13,6 @@ COPY tsconfig.json tsconfig.json
 COPY src src
 COPY migrations migrations
 COPY seed seed
+COPY uploads/static uploads/static
 
 CMD ["npm", "start"]

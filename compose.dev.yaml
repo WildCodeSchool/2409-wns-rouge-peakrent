@@ -11,7 +11,7 @@ services:
       - ./backend/migrations:/app/migrations
       - ./backend/src:/app/src
       - ./backend/tsconfig.json:/app/tsconfig.json
-      - ./backend/uploads:/app/uploads
+      - ./backend/uploads/images:/app/uploads/images
     command: npm start
     depends_on:
       - db
