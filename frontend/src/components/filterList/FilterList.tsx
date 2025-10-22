@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useState, memo } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { DateRangeSelector } from "../ui/dateRangeSelector";
@@ -88,22 +88,53 @@ const FilterList = ({
 
       setLocalSelectedCategories((prev) => {
         const parentSelected = prev.includes(parentId);
-        return parentSelected
-          ? prev.filter((id) => id !== parentId && !childrenIds.includes(id))
-          : [...prev, parentId];
+        if (parentSelected) {
+          // Décocher le parent et tous ses enfants
+          return prev.filter(
+            (id) => id !== parentId && !childrenIds.includes(id)
+          );
+        } else {
+          // Cocher le parent et tous ses enfants
+          return [...prev, parentId, ...childrenIds];
+        }
       });
     },
     [childrenByParent]
   );
 
-  const toggleChild = useCallback((_: number, childId: number) => {
-    setLocalSelectedCategories((prev) => {
-      const hasChild = prev.includes(childId);
-      return hasChild
-        ? prev.filter((id) => id !== childId)
-        : [...prev, childId];
-    });
-  }, []);
+  const toggleChild = useCallback(
+    (parentId: number, childId: number) => {
+      const children = childrenByParent.get(parentId) ?? [];
+      const childrenIds = children.map((c) => Number(c.id));
+
+      setLocalSelectedCategories((prev) => {
+        const hasChild = prev.includes(childId);
+        let newSelection: number[];
+
+        if (hasChild) {
+          // Décocher l'enfant
+          newSelection = prev.filter((id) => id !== childId);
+          // Décocher aussi le parent si l'enfant était sélectionné
+          newSelection = newSelection.filter((id) => id !== parentId);
+        } else {
+          // Cocher l'enfant
+          newSelection = [...prev, childId];
+
+          // Vérifier si tous les enfants sont maintenant sélectionnés
+          const allChildrenSelected = childrenIds.every((id) =>
+            newSelection.includes(id)
+          );
+          if (allChildrenSelected && !newSelection.includes(parentId)) {
+            // Cocher le parent si tous les enfants sont sélectionnés
+            newSelection = [...newSelection, parentId];
+          }
+        }
+
+        return newSelection;
+      });
+    },
+    [childrenByParent]
+  );
 
   return (
     <>
