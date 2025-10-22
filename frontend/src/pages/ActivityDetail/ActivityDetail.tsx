@@ -3,6 +3,7 @@ import { ActivityCard } from "@/components/cards/ActivityCard";
 import FilterList from "@/components/filterList/FilterList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
+import type { Category as CategoryType } from "@/gql/graphql";
 import { GET_ACTIVITY_BY_NORMALIZED_NAME } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
@@ -79,7 +80,7 @@ const ActivityDetail = () => {
     skip: !filters.activityIds?.length,
   });
 
-  const categories = catData?.getCategories?.categories ?? [];
+  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
   const products = prodData?.getPublishedProducts?.products ?? [];
   const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
 
@@ -107,13 +108,10 @@ const ActivityDetail = () => {
       filters.categoryNames.length > 0 &&
       categories.length > 0
     ) {
-      const categoryIds = filters.categoryNames
-        .map(
-          (name) =>
-            categories.find((cat: any) => cat.normalizedName === name)?.id
-        )
-        .filter(Boolean)
-        .map(Number);
+      const categoryIds = filters.categoryNames.flatMap((name) => {
+        const id = categories.find((cat) => cat.normalizedName === name)?.id;
+        return id !== undefined ? [Number(id)] : [];
+      });
       setFilters((prev) => ({ ...prev, categoryIds }));
     }
   }, [categories, filters.categoryNames]);
@@ -126,8 +124,7 @@ const ActivityDetail = () => {
         const categoryNames = newFilters.categoryIds
           .map(
             (id) =>
-              categories.find((cat: any) => Number(cat.id) === id)
-                ?.normalizedName
+              categories.find((cat) => Number(cat.id) === id)?.normalizedName
           )
           .filter(Boolean);
         if (categoryNames.length > 0) {

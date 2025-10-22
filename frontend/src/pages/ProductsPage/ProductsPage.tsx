@@ -50,12 +50,10 @@ export default function ProductsPage() {
       filters.categoryNames.length > 0 &&
       categories.length > 0
     ) {
-      const categoryIds = filters.categoryNames
-        .map(
-          (name) => categories.find((cat) => cat.normalizedName === name)?.id
-        )
-        .filter(Boolean)
-        .map(Number);
+      const categoryIds = filters.categoryNames.flatMap((name) => {
+        const id = categories.find((cat) => cat.normalizedName === name)?.id;
+        return id !== undefined ? [Number(id)] : [];
+      });
       setFilters((prev) => ({ ...prev, categoryIds }));
     }
   }, [categories, filters.categoryNames]);
