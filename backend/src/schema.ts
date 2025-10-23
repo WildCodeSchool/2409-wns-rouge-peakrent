@@ -30,7 +30,7 @@ import { VoucherResolverAdmin } from "./resolvers/Vouchers";
 
 export async function getSchema() {
   // Admin resolvers
-  const adminResolvers = [
+  const adminResolvers: any[] = [
     ActivityResolverAdmin,
     CartResolverAdmin,
     CategoryResolverAdmin,
@@ -45,6 +45,11 @@ export async function getSchema() {
     PaymentResolver,
     VoucherResolverAdmin,
   ];
+
+  if (process.env.NODE_ENV === "dev") {
+    const { TestResolver } = await import("./resolvers/admin/TestResolver");
+    adminResolvers.push(TestResolver);
+  }
 
   const schema = await buildSchema({
     resolvers: [
