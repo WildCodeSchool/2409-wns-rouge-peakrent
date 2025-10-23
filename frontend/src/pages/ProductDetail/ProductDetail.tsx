@@ -356,6 +356,7 @@ const ProductDetail = () => {
                 </div>
 
                 <Button
+                  data-testid="add-to-cart"
                   type="submit"
                   variant="primary"
                   size="lg"
