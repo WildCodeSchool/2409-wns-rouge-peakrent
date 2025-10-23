@@ -18,12 +18,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 export function ProductCard({ product }: { product: any }) {
   const { discountColor, discountBorder } = getDiscountStyles(product.discount);
   const navigate = useNavigate();
+  const maxCategoryNumber = 2;
 
   return (
     <Card
       className={cn(
         "overflow-hidden bg-white cursor-pointer flex flex-col",
-        "w-[260px] h-[460px] py-0 gap-0",
+        "w-[260px] h-[480px] py-0 gap-0",
         discountBorder
       )}
       onClick={() => navigate(`/products/${product.id}`)}
@@ -42,27 +43,34 @@ export function ProductCard({ product }: { product: any }) {
         <ImageHandler
           src={product.urlImage ?? ""}
           alt={product.name ?? ""}
-          className="w-full h-[240px] object-cover border-b"
+          className="w-full h-[230px] object-cover border-b"
         />
       </CardHeader>
 
-      <CardContent className="px-3 py-2 flex-1 flex flex-col">
-        <div className="flex items-center gap-2 capitalize mb-1">
-          {getCategories(product)?.map((category: Category) => (
-            <NavLink
-              to={`/products?activities=${category.name}`}
-              key={category.id}
-              onClick={(e) => e.stopPropagation()}
-              aria-label={`Voir les produits de la catégorie ${category.name}`}
-            >
-              <Badge
-                className="rounded-lg text-xs md:text-sm px-2 py-1"
-                variant={(category.variant as BadgeVariantType) ?? "neutral"}
+      <CardContent className="px-3 py-2 flex-1 flex flex-col flex-wrap">
+        <div className="flex items-center gap-2 capitalize mb-1 flex-wrap">
+          {getCategories(product)
+            ?.slice(0, maxCategoryNumber)
+            .map((category: Category) => (
+              <NavLink
+                to={`/products?activities=${category.name}`}
+                key={category.id}
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Voir les produits de la catégorie ${category.name}`}
               >
-                {category.name}
-              </Badge>
-            </NavLink>
-          ))}
+                <Badge
+                  className="rounded-lg text-xs px-2 py-1"
+                  variant={(category.variant as BadgeVariantType) ?? "neutral"}
+                >
+                  {category.name}
+                </Badge>
+              </NavLink>
+            ))}
+          {getCategories(product).length > maxCategoryNumber && (
+            <Badge className="rounded-lg text-xs px-2 py-1" variant="neutral">
+              ...
+            </Badge>
+          )}
         </div>
 
         <CardTitle

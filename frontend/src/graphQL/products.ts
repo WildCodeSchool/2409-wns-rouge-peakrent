@@ -107,36 +107,41 @@ export const GET_PRODUCTS_ADMIN = `
 `;
 
 export const GET_PRODUCT_BY_ID = `
-  query Query($param: String!) {
+  query GetProductById($param: String!) {
     getProductById(param: $param) {
-      id
-      name
-      description
-      urlImage
-      isPublished
-      sku
-      variants {
-        id
-        size
-        color
-        pricePerDay
-        isPublished
-      }
-      categories {
+      product {
         id
         name
-        variant
-        parentCategory {
+        description
+        urlImage
+        isPublished
+        sku
+        categories {
+          id
+          name
+          variant
+          parentCategory {
+            id
+            name
+            variant
+          }
+        }
+        activities {
           id
           name
           variant
         }
       }
-      activities {
-        id
-        name
-        variant
-      }
+        variants {
+        quantity
+          variant {
+            id
+            size
+            color
+            pricePerDay
+            isPublished
+          }
+        }
     }
   }
 `;

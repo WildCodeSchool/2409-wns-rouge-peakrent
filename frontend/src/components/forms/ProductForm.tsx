@@ -3,7 +3,13 @@ import placeholderImage from "@/components/icons/emptyImage2.svg";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Activity, Category, Product, Variant } from "@/gql/graphql";
+import {
+  Activity,
+  Category,
+  Product,
+  StoreVariant,
+  Variant,
+} from "@/gql/graphql";
 import { GET_ACTIVITIES } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import {
@@ -100,7 +106,9 @@ export const ProductForm = () => {
     gql(TOGGLE_VARIANT_PUBLICATION)
   );
 
-  const product: Product | null = getProductData?.getProductById;
+  const product: Product | null = getProductData?.getProductById?.product;
+  const storeVariants: StoreVariant[] | null =
+    getProductData?.getProductById?.variants;
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -117,9 +125,7 @@ export const ProductForm = () => {
     defaultValues,
   });
 
-  const displayedVariants = product?.id
-    ? product?.variants || []
-    : variants || [];
+  const displayedVariants = variants || [];
 
   const sortedDisplayedVariants = useMemo(() => {
     return [...displayedVariants].sort((a: any, b: any) => {
@@ -148,16 +154,17 @@ export const ProductForm = () => {
 
   useEffect(() => {
     const mappedVariants: ProductFormSchema["variants"] =
-      product?.variants?.map((variant) => ({
-        pricePerDay: variant.pricePerDay ?? 0,
-        id: String(variant.id),
-        size: (variant.size as string | null) ?? undefined,
-        color: (variant.color as string | null) ?? undefined,
-        isPublished: variant.isPublished ?? false,
+      storeVariants?.map((storeVariant) => ({
+        pricePerDay: storeVariant.variant.pricePerDay ?? 0,
+        id: String(storeVariant.variant.id),
+        size: (storeVariant.variant.size as string | null) ?? undefined,
+        color: (storeVariant.variant.color as string | null) ?? undefined,
+        isPublished: storeVariant.variant.isPublished ?? false,
+        quantity: storeVariant.quantity,
       })) ?? [];
     setVariants(mappedVariants);
     form.setValue("variants", mappedVariants);
-  }, []);
+  }, [storeVariants]);
 
   useEffect(() => {
     const preview = watchedImage
@@ -183,14 +190,14 @@ export const ProductForm = () => {
   // Ensure fields are populated when product data arrives on edit page
   useEffect(() => {
     if (product?.id) {
-      const newSchema = productFormSchema(product);
+      const newSchema = productFormSchema(product, variants);
       const newDefaults = getFormDefaultValues(newSchema);
       form.reset(newDefaults);
       setRemoveImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
       setImageSrc(product?.urlImage || placeholderImage);
     }
-  }, [product?.id]);
+  }, [product?.id, variants]);
 
   const { errors } = form.formState;
   const imageError = errors.image?.message;
@@ -243,10 +250,11 @@ export const ProductForm = () => {
             variables: {
               productData: commonData,
               variants: formData.variants.map(
-                ({ color, size, pricePerDay }) => ({
+                ({ color, size, pricePerDay, quantity }) => ({
                   color,
                   size,
                   pricePerDay,
+                  quantity,
                 })
               ),
             },
@@ -296,13 +304,13 @@ export const ProductForm = () => {
     form.setValue("activities", next);
   };
 
-  const renderVariantForm = (variant?: Variant) =>
+  const renderVariantForm = (variant?: Partial<Variant>) =>
     product?.id ? (
       <VariantForm
         productId={Number(product.id)}
         variant={variant}
         refetchProduct={refetch}
-        existingPairs={(product?.variants || []).map((v) => ({
+        existingPairs={(variants || []).map((v) => ({
           color: v.color || "",
           size: v.size || "",
         }))}
@@ -502,7 +510,7 @@ export const ProductForm = () => {
                               key={variant.id ?? index}
                               className={cn(
                                 "flex items-center justify-between p-4 border border-red-700 rounded-lg shadow-sm bg-destructive/10 relative",
-                                (variant as Variant).isPublished &&
+                                variant.isPublished &&
                                   "bg-green-500/20 border-green-700"
                               )}
                             >
@@ -514,6 +522,9 @@ export const ProductForm = () => {
                                   <strong>Couleur :</strong> {variant.color}
                                 </p>
                                 <p>
+                                  <strong>Quantité :</strong> {variant.quantity}
+                                </p>
+                                <p>
                                   <strong>Prix :</strong>{" "}
                                   {getPriceFixed(variant.pricePerDay)} €/J
                                 </p>
@@ -521,32 +532,30 @@ export const ProductForm = () => {
                               {product?.id && (
                                 <div className="flex items-center gap-2 absolute right-3 top-3">
                                   <Switch
-                                    checked={(variant as Variant).isPublished}
+                                    checked={variant.isPublished}
                                     onCheckedChange={() =>
                                       handleToggleVariant(Number(variant.id))
                                     }
                                     className={
-                                      (variant as Variant).isPublished
+                                      variant.isPublished
                                         ? "data-[state=checked]:bg-primary"
                                         : "data-[state=unchecked]:bg-destructive"
                                     }
                                     aria-label="toggleVariantPublication"
                                   />
                                   <span className="text-xs font-medium">
-                                    {(variant as Variant).isPublished
+                                    {variant.isPublished
                                       ? "Publié"
                                       : "Dépublié"}
                                   </span>
                                 </div>
                               )}
                               <div className="flex gap-2">
-                                {product?.id && (variant as Variant).id && (
+                                {product?.id && variant.id && (
                                   <UpdateButton
                                     type="button"
                                     size="icon"
-                                    modalContent={renderVariantForm(
-                                      variant as Variant
-                                    )}
+                                    modalContent={renderVariantForm(variant)}
                                     ariaLabel="updateVariantAriaLabel"
                                     variant="primary"
                                     modalTitle="Modifier un variant"
@@ -569,9 +578,7 @@ export const ProductForm = () => {
                                     ariaLabel="deleteVariantAriaLabel"
                                     variant="destructive"
                                     onDeleteFunction={handleDeleteVariant}
-                                    elementIds={[
-                                      Number((variant as Variant).id),
-                                    ]}
+                                    elementIds={[Number(variant.id)]}
                                     modalTitle="Supprimer le variant?"
                                     modalDescription="Cette action est irréversible."
                                     confirmButtonValue="Supprimer"

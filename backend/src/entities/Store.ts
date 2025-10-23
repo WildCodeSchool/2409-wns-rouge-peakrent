@@ -67,6 +67,7 @@ export class Store extends BaseEntity {
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 
+  @Field(() => [StoreVariant])
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.store)
   storeVariants!: StoreVariant[];
 }

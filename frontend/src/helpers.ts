@@ -8,7 +8,6 @@ export const handleMutation = async <T, V>(
   try {
     const result = await mutation({ variables });
     if (result.data !== null && result.data !== undefined) {
-      console.log(successMessage, result.data);
       return result.data;
     } else {
       console.warn("No data returned from mutation.");

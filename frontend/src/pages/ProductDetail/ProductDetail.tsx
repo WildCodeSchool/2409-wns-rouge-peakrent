@@ -1,11 +1,12 @@
 import { Quantity } from "@/components/forms/formField";
 import { DateRangePickerInput } from "@/components/forms/formField/date/DateRangePickerInput";
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import { Badge, BadgeVariantType } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form";
 import { ImageHandler } from "@/components/ui/tables/columns/components/ImageHandler";
 import { useUser } from "@/context/userProvider";
-import { OrderItem, Variant } from "@/gql/graphql";
+import { OrderItem, Product, StoreVariant, Variant } from "@/gql/graphql";
 import { CREATE_ORDER_ITEM_USER } from "@/graphQL/orderItems";
 import { useOrderItemStore } from "@/stores/user/orderItems.store";
 import { getDurationInDays, getPriceFixed } from "@/utils";
@@ -14,7 +15,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { GET_PRODUCT_BY_ID } from "../../graphQL/products";
@@ -43,16 +44,21 @@ const ProductDetail = () => {
     variables: { param: params.id },
   });
 
-  const product = getProductData?.getProductById;
+  const product: Product | null = getProductData?.getProductById?.product;
+  const storeVariants: StoreVariant[] | null =
+    getProductData?.getProductById?.variants;
+
   const sortedVariants = useMemo(() => {
-    return [...(product?.variants || [])].sort((a: any, b: any) => {
-      const sa = String(a.size || "").toLowerCase();
-      const sb = String(b.size || "").toLowerCase();
-      if (sa < sb) return -1;
-      if (sa > sb) return 1;
-      return 0;
-    });
-  }, [product?.variants]);
+    return [...(storeVariants || [])].sort(
+      (a: StoreVariant, b: StoreVariant) => {
+        const sa = String(a.variant.size || "").toLowerCase();
+        const sb = String(b.variant.size || "").toLowerCase();
+        if (sa < sb) return -1;
+        if (sa > sb) return 1;
+        return 0;
+      }
+    );
+  }, [storeVariants]);
 
   const productDetailsSchema = z.object({
     date: z
@@ -176,7 +182,7 @@ const ProductDetail = () => {
     form.setValue("variants", [variant]);
   };
 
-  return getProductLoading || userLoading ? (
+  return getProductLoading || userLoading || !product ? (
     <div className="flex items-center justify-center h-screen">
       <LoadIcon size={60} />
     </div>
@@ -189,27 +195,35 @@ const ProductDetail = () => {
             <div className="flex items-center justify-center">
               <ImageHandler
                 className="h-full w-auto max-h-[420px] object-contain"
-                src={product.urlImage}
-                alt={product.name}
+                src={product?.urlImage}
+                alt={product?.name ?? ""}
               />
             </div>
             {/* Carte blanche avec titre/description */}
             <div className="bg-[#eeeeee] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-3 border border-black/5">
               <h1 className="text-2xl font-semibold tracking-tight">
-                {product.name}
+                {product?.name}
               </h1>
               <div className="flex flex-wrap items-center gap-2">
-                {product.categories.map((category: any) => (
-                  <span
-                    className="px-2 py-1 text-white bg-primary rounded text-xs md:text-sm"
+                {product?.categories?.map((category: any) => (
+                  <NavLink
+                    to={`/products?activities=${category.name}`}
                     key={category.id}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {category.name}
-                  </span>
+                    <Badge
+                      className="rounded-lg text-xs px-2 py-1"
+                      variant={
+                        (category.variant as BadgeVariantType) ?? "neutral"
+                      }
+                    >
+                      {category.name}
+                    </Badge>
+                  </NavLink>
                 ))}
               </div>
               <p className="text-sm md:text-base leading-relaxed text-gray-700">
-                {product.description}
+                {product?.description}
               </p>
             </div>
           </div>
@@ -237,13 +251,14 @@ const ProductDetail = () => {
                         role="radiogroup"
                         aria-label="Variantes disponibles"
                       >
-                        {sortedVariants.map((variant: Variant) => {
+                        {sortedVariants?.map((storeVariant: StoreVariant) => {
                           const isChecked =
-                            Number(variant.id) === selectedVariantId;
+                            Number(storeVariant.variant.id) ===
+                            selectedVariantId;
                           return (
                             <label
-                              key={variant.id}
-                              htmlFor={`variant-${variant.id}`}
+                              key={storeVariant.variant.id}
+                              htmlFor={`variant-${storeVariant.variant.id}`}
                               className={`flex items-center gap-4 border rounded-2xl p-4 transition duration-200 cursor-pointer hover:border-primary ${
                                 isChecked
                                   ? "bg-primary text-white border-primary ring-2 ring-primary"
@@ -252,19 +267,22 @@ const ProductDetail = () => {
                             >
                               <input
                                 type="radio"
-                                id={`variant-${variant.id}`}
+                                id={`variant-${storeVariant.variant.id}`}
                                 name="variant"
-                                value={variant.id}
+                                value={storeVariant.variant.id}
                                 checked={isChecked}
-                                onChange={() => handleVariantSelect(variant)}
+                                onChange={() =>
+                                  handleVariantSelect(storeVariant.variant)
+                                }
                                 className="accent-primary w-5 h-5"
+                                aria-label={`Sélectionner la variante taille ${storeVariant.variant.size} couleur ${storeVariant.variant.color}`}
                               />
                               <div className="flex flex-col gap-1">
                                 <p className="text-sm">
-                                  Taille : {variant.size}
+                                  Taille : {storeVariant.variant.size}
                                 </p>
                                 <p className="text-sm">
-                                  Couleur : {variant.color}
+                                  Couleur : {storeVariant.variant.color}
                                 </p>
                                 <p
                                   className={`px-2 py-0.5 rounded text-xs w-fit ${
@@ -273,7 +291,10 @@ const ProductDetail = () => {
                                       : "bg-primary text-white"
                                   }`}
                                 >
-                                  {getPriceFixed(variant.pricePerDay)} €/J
+                                  {getPriceFixed(
+                                    storeVariant.variant.pricePerDay
+                                  )}{" "}
+                                  €/J
                                 </p>
                               </div>
                             </label>

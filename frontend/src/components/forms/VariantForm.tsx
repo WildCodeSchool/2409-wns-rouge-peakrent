@@ -28,6 +28,7 @@ import { Form } from "../ui";
 import {
   MultipleSelectorInput,
   Price,
+  Quantity,
   SingleSelectorInput,
   StringInput,
 } from "./formField";
@@ -35,7 +36,7 @@ import { sizeGroups } from "./formField/select/options/sizeOptions";
 import { getFormDefaultValues } from "./utils/getFormDefaultValues";
 
 type VariantFormType = {
-  variant?: Variant;
+  variant?: Partial<Variant>;
   productId?: number;
   setNewVariants?: Dispatch<SetStateAction<ProductFormSchema["variants"]>>;
   refetchProduct?: () => Promise<ApolloQueryResult<Product>>;
@@ -157,9 +158,16 @@ export const VariantForm = ({
       const priceInCents = Math.round((Number(values.pricePerDay) || 0) * 100);
 
       const color = (values.color || "").toLowerCase();
-      const incoming =
-        values.sizes && values.sizes.length > 0 ? values.sizes : [""];
-      const filteredSizes = incoming.filter((s) => {
+      let incoming;
+
+      if (Array.isArray(values.sizes)) {
+        incoming = values.sizes.length > 0 ? values.sizes : [""];
+      } else if (values.sizes) {
+        incoming = [values.sizes];
+      } else {
+        incoming = [""];
+      }
+      const filteredSizes = incoming?.filter((s) => {
         const sLower = (s || "").toLowerCase();
         // Allow current pair during edit so it's not skipped
         if (isEdit) {
@@ -181,6 +189,7 @@ export const VariantForm = ({
               color: values.color,
               size,
               pricePerDay: priceInCents,
+              quantity: values.quantity,
             } as const;
 
             if (isNewLocalVariant) {
@@ -381,6 +390,19 @@ export const VariantForm = ({
           label="Prix par jour"
           withCents
           required
+        />
+        <Quantity
+          form={form}
+          isPending={uploading}
+          containerClassName="border-0 w-full max-w-full p-0 h-fit gap-1"
+          itemClassName="flex-col w-full items-start"
+          label="Quantité"
+          inputClassName="w-full max-w-full h-10"
+          buttonsClassName="bg-primary/70 text-primary-foreground disabled:bg-primary/10 disabled:text-primary-foreground hover:bg-primary min-w-12 p-2 hover:ring-0 "
+          dozenClassName="bg-primary/90 text-primary-foreground disabled:bg-primary/10 disabled:text-primary-foreground hover:bg-primary min-w-12 p-2 hover:ring-0 "
+          withDozen
+          max={9999}
+          min={0}
         />
 
         {/* Bouton Submit */}

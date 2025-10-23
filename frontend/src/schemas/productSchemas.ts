@@ -1,4 +1,5 @@
-import { Product as ProductType, Variant as VariantType } from "@/gql/graphql";
+import { Product as ProductType } from "@/gql/graphql";
+import { VariantWithQuantityType } from "@/types";
 import { z } from "zod";
 import {
   createBooleanSchema,
@@ -32,10 +33,19 @@ const variantCreateSchema = () =>
       required: false,
       defaultValue: true,
     }),
+    quantity: createNumberSchema({
+      required: true,
+      min: 0,
+      requiredError: "La quantité est requise",
+      minError: "La quantité doit être positive",
+    }),
     id: z.string().optional(),
   });
 
-export const productFormSchema = (datas?: ProductType | null) =>
+export const productFormSchema = (
+  datas?: ProductType | null,
+  variants?: Partial<VariantWithQuantityType>[] | null
+) =>
   z
     .object({
       name: createStringSchema({
@@ -82,12 +92,13 @@ export const productFormSchema = (datas?: ProductType | null) =>
         .array(z.number().int().positive())
         .default((datas?.activities || []).map((a) => Number(a.id))),
       variants: z.array(variantCreateSchema()).default(
-        (datas?.variants || []).map((v: VariantType) => ({
+        (variants || []).map((v: Partial<VariantWithQuantityType>) => ({
           id: String(v.id),
           size: (v.size as string | null) ?? null,
           color: (v.color as string | null) ?? null,
           pricePerDay: Number(v.pricePerDay ?? 0),
           isPublished: v.isPublished ?? false,
+          quantity: Number(v.quantity ?? 100),
         }))
       ),
       id: z.coerce.number().int().positive().optional(),
