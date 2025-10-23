@@ -16,6 +16,7 @@ import {
   CREATE_PRODUCT,
   CREATE_PRODUCT_WITH_VARIANT,
   GET_PRODUCT_BY_ID,
+  GET_PRODUCTS_ADMIN,
   UPDATE_PRODUCT,
 } from "@/graphQL/products";
 import { DELETE_VARIANT, TOGGLE_VARIANT_PUBLICATION } from "@/graphQL/variants";
@@ -96,14 +97,26 @@ export const ProductForm = () => {
     },
   });
 
-  const [updateProduct] = useMutation(gql(UPDATE_PRODUCT));
-  const [createProduct] = useMutation(gql(CREATE_PRODUCT));
+  const [updateProduct] = useMutation(gql(UPDATE_PRODUCT), {
+    refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+  });
+  const [createProduct] = useMutation(gql(CREATE_PRODUCT), {
+    refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+  });
   const [createProductWithVariant] = useMutation(
-    gql(CREATE_PRODUCT_WITH_VARIANT)
+    gql(CREATE_PRODUCT_WITH_VARIANT),
+    {
+      refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+    }
   );
-  const [deleteVariantMutation] = useMutation(gql(DELETE_VARIANT));
+  const [deleteVariantMutation] = useMutation(gql(DELETE_VARIANT), {
+    refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+  });
   const [toggleVariantPublication] = useMutation(
-    gql(TOGGLE_VARIANT_PUBLICATION)
+    gql(TOGGLE_VARIANT_PUBLICATION),
+    {
+      refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+    }
   );
 
   const product: Product | null = getProductData?.getProductById?.product;
