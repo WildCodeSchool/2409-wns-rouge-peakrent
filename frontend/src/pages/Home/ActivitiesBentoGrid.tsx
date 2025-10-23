@@ -28,10 +28,11 @@ export function ActivitiesBentoGrid({
             )}
             onMouseEnter={() => setHoveredItem(activity.id)}
             onMouseLeave={() => setHoveredItem(null)}
+            aria-label={`Voir les détails de l'activité ${activity.name}`}
           >
             <ImageHandler
               src={activity.urlImage}
-              alt={activity.name}
+              alt={"Image de l'activité " + activity.name}
               className="object-cover transition-transform duration-500 hover:scale-110 h-full w-full"
             />
             <div

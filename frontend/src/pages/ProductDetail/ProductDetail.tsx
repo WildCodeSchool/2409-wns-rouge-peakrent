@@ -194,7 +194,7 @@ const ProductDetail = () => {
               />
             </div>
             {/* Carte blanche avec titre/description */}
-            <div className="bg-[#F1F2F4] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-3 border border-black/5">
+            <div className="bg-[#eeeeee] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-3 border border-black/5">
               <h1 className="text-2xl font-semibold tracking-tight">
                 {product.name}
               </h1>
@@ -214,7 +214,7 @@ const ProductDetail = () => {
             </div>
           </div>
           {/* Colonne droite : configuration & panier */}
-          <div className="md:sticky md:top-6 bg-[#F1F2F4] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-6 border border-black/5">
+          <div className="md:sticky md:top-6 bg-[#eeeeee] rounded-xl drop-shadow-xl p-4 md:p-6 flex flex-col gap-6 border border-black/5">
             {/* Configuration */}
             <FormProvider {...form}>
               <form
@@ -258,7 +258,6 @@ const ProductDetail = () => {
                                 checked={isChecked}
                                 onChange={() => handleVariantSelect(variant)}
                                 className="accent-primary w-5 h-5"
-                                aria-label={`Sélectionner la variante taille ${variant.size} couleur ${variant.color}`}
                               />
                               <div className="flex flex-col gap-1">
                                 <p className="text-sm">
@@ -306,7 +305,7 @@ const ProductDetail = () => {
                     />
                   </div>
                   {selectedStartingDate && selectedEndingDate && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs">
                       {numberOfDays || 1} jour
                       {(numberOfDays || 1) > 1 ? "s" : ""} sélectionné
                       {(numberOfDays || 1) > 1 ? "s" : ""}.
@@ -346,7 +345,7 @@ const ProductDetail = () => {
                     ? "Se connecter pour ajouter au panier"
                     : "Ajouter au panier"}
                 </Button>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs">
                   Le total est une estimation. Le prix final est confirmé au
                   panier.
                 </p>

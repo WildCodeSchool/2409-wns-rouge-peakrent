@@ -79,6 +79,7 @@ export function CartItemCard({
               onClick={() => {
                 setIsOpen(false);
               }}
+              aria-label={`Voir les détails du produit ${product?.name ?? ""}`}
             >
               <h3 className="font-semibold text-lg truncate">
                 {product?.name ?? ""}
@@ -98,11 +99,16 @@ export function CartItemCard({
                   <time
                     className="text-sm font-normal"
                     dateTime={item.startsAt}
+                    aria-label="Date de début"
                   >
                     {formatLocaleDate(item.startsAt).date}
                   </time>
                   <ChevronsRight className="size-4" />
-                  <time className="text-sm font-normal" dateTime={item.endsAt}>
+                  <time
+                    className="text-sm font-normal"
+                    dateTime={item.endsAt}
+                    aria-label="Date de fin"
+                  >
                     {formatLocaleDate(item.endsAt).date}
                   </time>
                 </>
@@ -114,6 +120,7 @@ export function CartItemCard({
                     value={new Date(item.startsAt).toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange?.(true, e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
+                    aria-label="Date de début"
                   />
                   <ChevronsRight className="size-4" />
                   <input
@@ -122,6 +129,7 @@ export function CartItemCard({
                     value={new Date(item.endsAt).toLocaleDateString("en-CA")}
                     onChange={(e) => handleDateChange?.(false, e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
+                    aria-label="Date de fin"
                   />
                 </>
               )}
@@ -148,6 +156,7 @@ export function CartItemCard({
               <SelectTrigger
                 className="w-16 hover:cursor-pointer order-2 sm:order-1"
                 disabled={!onQuantityChange}
+                aria-label="Sélectionner la quantité"
               >
                 <SelectValue className="text-sm md:text-base" />
               </SelectTrigger>

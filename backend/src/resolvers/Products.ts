@@ -2,14 +2,16 @@ import { Product, ProductWithCount } from "@/entities/Product";
 import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { ContextType, RoleType } from "@/types";
 import { GraphQLError } from "graphql";
-import { Arg, ID, Int, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Int, Query, Resolver } from "type-graphql";
 import { ILike, In } from "typeorm";
 
 @Resolver(Product)
 export class ProductResolver {
   @Query(() => ProductWithCount)
   async getProducts(
+    @Ctx() context: ContextType,
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
     @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
@@ -31,13 +33,17 @@ export class ProductResolver {
       where.name = ILike(`%${search}%`);
     }
 
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
     const [products, total] = await Product.findAndCount({
       skip: itemsToSkip,
       take: onPage,
       where,
       relations: {
         categories: true,
-        createdBy: true,
+        createdBy: isAdmin,
         variants: true,
       },
       order: { createdAt: "DESC" },
@@ -103,6 +109,7 @@ export class ProductResolver {
 
   @Query(() => ProductWithCount)
   async getPublishedProducts(
+    @Ctx() context: ContextType,
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
     @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
@@ -113,6 +120,9 @@ export class ProductResolver {
   ): Promise<ProductWithCount> {
     if (!startingDate && !endingDate) {
       const where: any = { isPublished: true };
+      const isAdmin =
+        context.user?.role === RoleType.admin ||
+        context.user?.role === RoleType.superadmin;
 
       if (categoryIds?.length) {
         where.categories = { id: In(categoryIds) };
@@ -131,7 +141,7 @@ export class ProductResolver {
         relations: {
           categories: true,
           activities: true,
-          createdBy: true,
+          createdBy: isAdmin,
           variants: true,
         },
         order: { createdAt: "DESC" },
@@ -152,6 +162,10 @@ export class ProductResolver {
     }
 
     const baseWhere: any = { isPublished: true };
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
     if (categoryIds?.length) baseWhere.categories = { id: In(categoryIds) };
     if (activityIds?.length) baseWhere.activities = { id: In(activityIds) };
     if (search && search.trim() !== "") baseWhere.name = ILike(`%${search}%`);
@@ -210,7 +224,7 @@ export class ProductResolver {
       relations: {
         categories: true,
         activities: true,
-        createdBy: true,
+        createdBy: isAdmin,
         variants: true,
       },
     });
@@ -235,9 +249,13 @@ export class ProductResolver {
 
   @Query(() => Product, { nullable: true })
   async getProductById(
-    @Arg("param", () => String) param: string
+    @Arg("param", () => String) param: string,
+    @Ctx() context: ContextType
   ): Promise<Product | null> {
     let product: Product | null = null;
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
 
     if (!isNaN(Number(param))) {
       const id = Number(param);
@@ -245,7 +263,7 @@ export class ProductResolver {
         where: { id },
         relations: {
           categories: true,
-          createdBy: true,
+          createdBy: isAdmin,
           variants: true,
           activities: true,
         },
@@ -255,7 +273,7 @@ export class ProductResolver {
         where: { name: param },
         relations: {
           categories: true,
-          createdBy: true,
+          createdBy: isAdmin,
           variants: true,
           activities: true,
         },
@@ -267,7 +285,8 @@ export class ProductResolver {
 
   @Query(() => Product, { nullable: true })
   async getProductByVariantId(
-    @Arg("id", () => ID) id: number
+    @Arg("id", () => ID) id: number,
+    @Ctx() context: ContextType
   ): Promise<Product | null> {
     const variant = await Variant.findOne({
       where: { id },
@@ -283,9 +302,13 @@ export class ProductResolver {
       });
     }
 
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
     const product = await Product.findOne({
       where: { id: variant.product.id },
-      relations: { categories: true, createdBy: true, variants: true },
+      relations: { categories: true, createdBy: isAdmin, variants: true },
     });
 
     if (!product) {

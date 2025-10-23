@@ -71,6 +71,7 @@ export function ForwardProducts() {
         <Button
           variant="primary"
           size="lg"
+          aria-label="Voir plus de produits"
           className="px-4 mx-auto block mt-6 rounded-lg w-full max-w-[300px]"
         >
           Voir Plus

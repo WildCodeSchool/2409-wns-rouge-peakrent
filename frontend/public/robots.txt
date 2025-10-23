@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive routes (si présentes)
+Disallow: /admin/

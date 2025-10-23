@@ -122,7 +122,7 @@ const FilterList = ({
           const children = childrenByParent.get(pid) ?? [];
 
           return (
-            <div key={parent.id} className="space-y-1">
+            <div key={parent.id} className="space-y-2">
               <Label
                 htmlFor={`category-${parent.id}`}
                 className="flex items-center gap-2"
@@ -136,7 +136,7 @@ const FilterList = ({
               </Label>
 
               {children.length > 0 && (
-                <div className="pl-6 mt-1 space-y-1 border-l border-border">
+                <div className="pl-6 mt-1 space-y-2 border-l border-border">
                   {children.map((child) => {
                     const cid = Number(child.id);
                     return (

@@ -82,6 +82,7 @@ export function FavItemCard({
                   to={`/products?activities=${category.name}`}
                   key={category.id}
                   onClick={(e) => e.stopPropagation()}
+                  aria-label={`Voir les produits de la catégorie ${category.name}`}
                 >
                   <Badge
                     className="rounded-lg text-xs md:text-sm px-2 py-1"

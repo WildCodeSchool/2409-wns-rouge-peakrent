@@ -48,6 +48,7 @@ export const DateRangePickerInput = ({
           <FormControl className={cn(formClassName)}>
             <div className="flex gap-2 flex-wrap">
               <Input
+                aria-label="Date de début"
                 type="date"
                 disabled={isPending}
                 min={localToday}
@@ -59,6 +60,7 @@ export const DateRangePickerInput = ({
                 className={cn("w-full max-w-[200px]", inputClassName)}
               />
               <Input
+                aria-label="Date de fin"
                 type="date"
                 disabled={isPending}
                 min={localToday}
