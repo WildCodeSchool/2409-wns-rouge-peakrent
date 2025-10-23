@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, ScrollRestoration } from "react-router-dom";
 
 // Components
 import { ProductForm } from "./components/forms/ProductForm";
@@ -87,6 +87,7 @@ const checkAuth = (
 function App() {
   return (
     <UserProvider>
+      <ScrollRestoration />
       <Routes>
         <Route path="/" element={<PageLayout />}>
           <Route index element={<HomePage />} />

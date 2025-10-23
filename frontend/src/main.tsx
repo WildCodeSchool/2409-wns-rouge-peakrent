@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App.tsx";
 import { AdminProvider } from "./context/adminProvider.tsx";
 import { DeleteModalProvider } from "./context/deleteModalProvider.tsx";
@@ -17,20 +17,27 @@ const client = new ApolloClient({
   credentials: "same-origin",
 });
 
+const router = createBrowserRouter([
+  {
+    path: "*",
+    element: (
+      <ModalProvider>
+        <DeleteModalProvider>
+          <AdminProvider>
+            <App />
+            <Toaster richColors />
+          </AdminProvider>
+        </DeleteModalProvider>
+        <TailwindIndicator />
+      </ModalProvider>
+    ),
+  },
+]);
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <ModalProvider>
-          <DeleteModalProvider>
-            <AdminProvider>
-              <App />
-              <Toaster richColors />
-            </AdminProvider>
-          </DeleteModalProvider>
-        </ModalProvider>
-        <TailwindIndicator />
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </ApolloProvider>
   </StrictMode>
 );
