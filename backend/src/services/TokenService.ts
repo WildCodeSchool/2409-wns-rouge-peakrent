@@ -95,12 +95,14 @@ export function setCookies(
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
+    sameSite: "lax",
   });
 
   cookies.set("refresh_token", refreshToken, {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    sameSite: "lax",
   });
 }
 
