@@ -47,6 +47,7 @@ export async function getSchema() {
   ];
 
   if (process.env.NODE_ENV === "dev") {
+    // extend base Entity
     const { TestResolver } = await import("./resolvers/admin/TestResolver");
     adminResolvers.push(TestResolver);
   }
