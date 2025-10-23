@@ -10,20 +10,22 @@ services:
 
   frontend:
     image: charlotter678/peakrentfrontend:latest
+    environment:
+      VITE_PUBLIC_STRIPE_KEY: ${VITE_PUBLIC_STRIPE_KEY}
+      URL_REST: ${URL_REST}
     command: ["npx", "serve", "dist", "--single"]
-    env_file:
-      - front.variables.env
     depends_on:
       - backend
 
   db:
     image: postgres
+    container_name: postgres-production
     ports:
-      - 5555:5432
+      - "3030:5432"
     env_file:
       - database.env
     volumes:
-      - dbdata:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql
 
   nginx:
     image: nginx
