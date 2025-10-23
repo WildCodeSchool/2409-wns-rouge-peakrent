@@ -45,6 +45,12 @@
 
 ---
 
+## Diagramme CI/CD :
+
+![Diagramme CI/CD](/diagram_CI.CD.png "Diagramme CI/CD")
+
+---
+
 ## 🐋 Docker & Docker Compose
 
 ### Conteneurs principaux :

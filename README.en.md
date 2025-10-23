@@ -45,6 +45,12 @@
 
 ---
 
+## Diagram CI/CD :
+
+![Diagram CI/CD](/diagram_CI.CD.png "Diagram CI/CD")
+
+---
+
 ## 🐋 Docker & Docker Compose
 
 ### Main containers:
