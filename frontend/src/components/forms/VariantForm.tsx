@@ -2,6 +2,7 @@ import { LoadIcon } from "@/components/icons/LoadIcon";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/context/modalProvider";
 import { Product, Variant } from "@/gql/graphql";
+import { GET_PRODUCTS_ADMIN } from "@/graphQL";
 import {
   CREATE_VARIANT,
   GET_VARIANTS,
@@ -64,8 +65,12 @@ export const VariantForm = ({
   const defaultValues = getFormDefaultValues(formSchema);
   const form = useForm<VariantCreateSchema>({ defaultValues });
 
-  const [createVariant] = useMutation(gql(CREATE_VARIANT));
-  const [updateVariant] = useMutation(gql(UPDATE_VARIANT));
+  const [createVariant] = useMutation(gql(CREATE_VARIANT), {
+    refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+  });
+  const [updateVariant] = useMutation(gql(UPDATE_VARIANT), {
+    refetchQueries: [gql(GET_PRODUCTS_ADMIN)],
+  });
 
   const isEdit = Boolean(variant?.id);
   const isNewLocalVariant = !productId && setNewVariants;
