@@ -12,7 +12,10 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "codegen": "graphql-codegen",
-    "generate-barrels": "node generate-barrels.js"
+    "generate-barrels": "node generate-barrels.js",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "e2e": "cross-env CYPRESS_BASE_URL=http://localhost:8080 CYPRESS_API_URL=http://localhost:5050 cypress run"
   },
   "dependencies": {
     "@apollo/client": "^3.11.10",
@@ -76,6 +79,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
+    "@testing-library/cypress": "^10.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -85,6 +89,7 @@
     "@types/react": "^18.3.20",
     "@types/react-dom": "^18.3.6",
     "@vitejs/plugin-react": "^4.3.1",
+    "cypress": "^15.5.0",
     "eslint": "^9.20.1",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",

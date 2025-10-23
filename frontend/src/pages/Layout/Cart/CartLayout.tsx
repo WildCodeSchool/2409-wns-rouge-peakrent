@@ -163,14 +163,16 @@ export default function CartLayout() {
                 />
               )}
 
-              <CartVoucherBox
-                currentCode={
-                  isRecap && order?.voucher
-                    ? order.voucher.code
-                    : (appliedVoucher?.code ?? null)
-                }
-                onChanged={() => refetchCartQuery()}
-              />
+              {((isRecap && order?.voucher) || !isRecap) && (
+                <CartVoucherBox
+                  currentCode={
+                    isRecap && order?.voucher
+                      ? order.voucher.code
+                      : (appliedVoucher?.code ?? null)
+                  }
+                  onChanged={() => refetchCartQuery()}
+                />
+              )}
               <TotalResume
                 orderItems={
                   isRecap && order ? order.orderItems : orderItemsStore

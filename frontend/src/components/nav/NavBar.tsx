@@ -69,6 +69,7 @@ const NavBar = () => {
         <img
           src="/LogoPeakrent.svg"
           className="h-full w-auto max-h-full object-contain"
+          alt="Logo peakrent"
         />
         <p className="hidden xl:block text-white font-logo text-[2.3vw] ml-1">
           PeakRent
@@ -113,6 +114,8 @@ const NavBar = () => {
                     buttonVariants({ variant: "primary", size: "icon" }),
                     "py-2 px-4 cursor-pointer text-center"
                   )}
+                  aria-label="Ouvrir le menu déroulant de l'utilisateur"
+                  role="button"
                 >
                   <User size={20} className="flex-none" />
                 </span>

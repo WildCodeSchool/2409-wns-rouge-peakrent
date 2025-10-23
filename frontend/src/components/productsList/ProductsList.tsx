@@ -29,8 +29,13 @@ const ProductsList = ({
         <div className="flex flex-row items-center justify-center gap-2.5">
           <p className="text-center text-[15px]">Produits par pages :</p>
           <select
+            aria-label="Nombre de produits par page"
             name="itemsOnPage"
-            onChange={(event) => setItemsOnPage(Number(event.target.value))}
+            onChange={(event) => {
+              const next = Number(event.target.value);
+              setItemsOnPage(next);
+              setPageIndex(1);
+            }}
             value={itemsOnPage}
             className="border-none text-[16px] px-[10px] pl-[5px] text-primary"
           >
@@ -41,8 +46,14 @@ const ProductsList = ({
         </div>
       </div>
 
-      <section className="grid grid-cols-[repeat(auto-fit,_minmax(260px,_1fr))] gap-4 auto-rows-min items-start">
-        {/* <section className="grid grid-cols-[repeat(auto-fill,_minmax(250px,_250px))] justify-start gap-4"> */}
+      <section
+        className="
+    grid gap-4 auto-rows-min items-start
+    grid-cols-1 justify-items-center
+    sm:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]
+  "
+        aria-label="Liste des produits"
+      >
         {items.map((item) => (
           <ProductCard key={item.id} product={item} />
         ))}
@@ -52,6 +63,7 @@ const ProductsList = ({
         <Button
           onClick={() => pageIndex > 1 && setPageIndex(pageIndex - 1)}
           disabled={pageIndex <= 1}
+          aria-label="Page précédente"
         >
           <ArrowLeft size={20} />
         </Button>
@@ -61,6 +73,7 @@ const ProductsList = ({
         <Button
           onClick={() => pageIndex < maxPage && setPageIndex(pageIndex + 1)}
           disabled={pageIndex >= maxPage}
+          aria-label="Page suivante"
         >
           <ArrowRight size={20} />
         </Button>

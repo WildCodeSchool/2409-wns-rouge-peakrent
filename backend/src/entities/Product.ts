@@ -88,8 +88,8 @@ export class Product extends BaseEntity {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
-  @Field(() => User)
-  createdBy!: User;
+  @Field(() => User, { nullable: true })
+  createdBy?: User;
 }
 
 @ObjectType()

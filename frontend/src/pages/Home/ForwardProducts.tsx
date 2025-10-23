@@ -4,7 +4,7 @@ import MehSection from "@/components/section/MehSection";
 import { Button } from "@/components/ui/button";
 import { Title } from "@/components/ui/title";
 import { Product as ProductType } from "@/gql/graphql";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
 import { useWindowWidth } from "@/hooks";
 import { gql, useQuery } from "@apollo/client";
 import { Meh } from "lucide-react";
@@ -19,7 +19,7 @@ export function ForwardProducts() {
   };
 
   const { data, loading, error } = useQuery(
-    gql(GET_MINIMAL_PRODUCTS_WITH_PAGING),
+    gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING),
     {
       variables: {
         page: 1,
@@ -28,10 +28,8 @@ export function ForwardProducts() {
     }
   );
 
-  const products = data?.getProducts?.products || [];
-  const displayedProducts = products
-    .filter((product: ProductType) => product.isPublished)
-    .slice(0, getProductCount());
+  const products = data?.getPublishedProducts?.products || [];
+  const displayedProducts = products.slice(0, getProductCount());
 
   return (
     <section className="container mx-auto sm:px-4 max-w-screen-xl">
@@ -40,7 +38,13 @@ export function ForwardProducts() {
         className="my-4 md:my-6 justify-center"
         titleLevel="h2"
       />
-      <div className="mt-4 grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        className="
+    grid gap-4 auto-rows-min items-start 
+    grid-cols-1 justify-items-center
+    sm:[grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]
+  "
+      >
         {loading ? (
           [...Array(getProductCount())].map((_, index) => (
             <ProductCardSkeleton key={index} />
@@ -57,13 +61,17 @@ export function ForwardProducts() {
             <ProductCard product={product} key={product.id} />
           ))
         ) : (
-          <MehSection text="Aucun produit" />
+          <div className="col-span-full">
+            <MehSection text="Aucun produit" />
+          </div>
         )}
       </div>
+
       <NavLink to="/products">
         <Button
           variant="primary"
           size="lg"
+          aria-label="Voir plus de produits"
           className="px-4 mx-auto block mt-6 rounded-lg w-full max-w-[300px]"
         >
           Voir Plus

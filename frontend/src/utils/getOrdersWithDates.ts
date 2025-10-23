@@ -1,5 +1,7 @@
 import { Order as OrderType } from "@/gql/graphql";
-import { getTotalOrderPrice } from "./getTotalOrderPrice";
+import { computeDiscountUI } from "./PriceAndDays/cartTotals";
+import { getPriceFixed } from "./PriceAndDays/getPriceFixed";
+import { getTotalOrderPrice } from "./PriceAndDays/getTotalOrderPrice";
 
 export const getOrdersWithDatesAndTotalPrice = (orders: OrderType[]) => {
   return orders.map((order) => {
@@ -29,11 +31,16 @@ export const getOrdersWithDatesAndTotalPrice = (orders: OrderType[]) => {
       getTotalOrderPrice(order.orderItems ?? [], true)
     );
 
+    const totalPriceWithVoucher = Number(
+      totalPriceTTC - computeDiscountUI(totalPriceTTC, order.voucher, true)
+    );
+
     return {
       ...order,
       startsAt,
       endsAt,
-      totalPriceTTC,
+      totalPriceTTC: getPriceFixed(totalPriceTTC),
+      totalPriceWithVoucher: getPriceFixed(totalPriceWithVoucher),
     };
   });
 };

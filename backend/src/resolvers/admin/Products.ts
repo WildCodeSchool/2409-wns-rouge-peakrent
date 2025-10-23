@@ -4,17 +4,66 @@ import {
   Product,
   ProductCreateInputAdmin,
   ProductUpdateInputAdmin,
+  ProductWithCount,
 } from "@/entities/Product";
+import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant, VariantCreateNestedInputAdmin } from "@/entities/Variant";
 import { normalizeString } from "@/helpers/helpers";
 import { AuthContextType, RoleType } from "@/types";
 import { validate, ValidationError } from "class-validator";
 import { GraphQLError } from "graphql";
-import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
-import { In } from "typeorm";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
+import { ILike, In } from "typeorm";
 
 @Resolver(Product)
 export class ProductResolverAdmin {
+  @Authorized([RoleType.admin, RoleType.superadmin])
+  @Query(() => ProductWithCount)
+  async getProductsAdmin(
+    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
+    @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
+    @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
+    @Arg("activityIds", () => [Int], { nullable: true }) activityIds?: number[],
+    @Arg("search", () => String, { nullable: true }) search?: string
+  ): Promise<ProductWithCount> {
+    const where: any = {};
+
+    if (categoryIds?.length) where.categories = { id: In(categoryIds) };
+    if (activityIds?.length) where.activities = { id: In(activityIds) };
+    if (search && search.trim() !== "") where.name = ILike(`%${search}%`);
+
+    const [products, total] = await Product.findAndCount({
+      skip: (page - 1) * onPage,
+      take: onPage,
+      where,
+      relations: {
+        categories: true,
+        activities: true,
+        createdBy: true,
+        variants: true,
+      },
+      order: { createdAt: "DESC" },
+    });
+
+    return {
+      products,
+      pagination: {
+        total,
+        currentPage: page,
+        totalPages: Math.max(1, Math.ceil(total / onPage)),
+      },
+    };
+  }
+
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Product)
   async createProductAdmin(
@@ -69,10 +118,28 @@ export class ProductResolverAdmin {
         });
         const errors = await validate(variant);
         if (errors.length > 0) {
-          throw new Error(
-            `Variant validation error: ${JSON.stringify(errors)}`
-          );
+          throw new GraphQLError("Variant validation error", {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              errors,
+            },
+          });
         }
+        await variant.save();
+        const storeId = 1;
+
+        const storeVariant = StoreVariant.create({
+          variantId: variant.id,
+          storeId,
+          quantity: variantInput.quantity,
+        });
+
+        await storeVariant.save();
+        variant.storeVariants = [
+          ...(variant.storeVariants ?? []),
+          storeVariant,
+        ];
+
         await variant.save();
       }
     }
@@ -82,6 +149,7 @@ export class ProductResolverAdmin {
       relations: {
         variants: true,
         categories: true,
+        activities: true,
         createdBy: true,
       },
     });

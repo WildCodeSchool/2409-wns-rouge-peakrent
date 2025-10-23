@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { DataTableSkeleton } from "@/components/ui/tables/DataTableSkeleton";
 import Table from "@/components/ui/tables/Table";
-import { GET_PRODUCTS } from "@/graphQL/products";
+import { GET_PRODUCTS_ADMIN } from "@/graphQL/products";
 import { ColumnConfig } from "@/types/datasTable";
 import { gql, useQuery } from "@apollo/client";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
@@ -19,7 +19,7 @@ export default function ProductsTable() {
     (state) => state.setProductsFetched
   );
 
-  const { data, error, loading } = useQuery(gql(GET_PRODUCTS), {
+  const { data, error, loading } = useQuery(gql(GET_PRODUCTS_ADMIN), {
     variables: {
       page: 1,
       onPage: 100,
@@ -47,8 +47,8 @@ export default function ProductsTable() {
       return;
     }
 
-    if (data?.getProducts?.products) {
-      setProducts(data.getProducts.products);
+    if (data?.getProductsAdmin?.products) {
+      setProducts(data.getProductsAdmin.products);
       setProductsFetched(true);
     }
   }, [data, error, setProducts, setProductsFetched]);

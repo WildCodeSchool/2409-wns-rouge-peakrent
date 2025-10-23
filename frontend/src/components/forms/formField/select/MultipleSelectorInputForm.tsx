@@ -374,6 +374,7 @@ export const MultipleSelectorInput = React.forwardRef<
                   type="button"
                   onClick={handleTogglePopover}
                   className={cn("flex w-full justify-between", className)}
+                  disabled={isPending}
                   {...field}
                   ref={ref}
                 >

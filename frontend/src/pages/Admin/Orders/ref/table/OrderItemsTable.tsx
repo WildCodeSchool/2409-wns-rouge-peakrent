@@ -8,7 +8,7 @@ import {
   UPDATE_ORDER_ITEM_ADMIN,
 } from "@/graphQL";
 import { useOrderStore } from "@/stores/admin/order.store";
-import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+import { getPriceFixed, getTotalOrderPrice } from "@/utils";
 import { gql, useMutation } from "@apollo/client";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -69,7 +69,7 @@ export default function OrderItemsTable({ order }: { order?: OrderType }) {
 
   const orderItemsWithTotalPrice = orderItems.map((item) => ({
     ...item,
-    totalPrice: Number(getTotalOrderPrice([item])),
+    totalPrice: getPriceFixed(Number(getTotalOrderPrice([item]))),
   }));
 
   return (

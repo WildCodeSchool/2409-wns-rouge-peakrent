@@ -46,6 +46,11 @@ export async function getSchema() {
     VoucherResolverAdmin,
   ];
 
+  const testResolvers =
+    process.env.NODE_ENV === "dev"
+      ? [(await import("./resolvers/admin/TestResolver")).TestResolver]
+      : [];
+
   const schema = await buildSchema({
     resolvers: [
       ActivityResolver,
@@ -62,6 +67,7 @@ export async function getSchema() {
       VariantResolver,
       CartVoucherResolver,
       ...adminResolvers,
+      ...testResolvers,
     ],
     authChecker,
     validate: true,

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { DateRangeSelector } from "../ui/dateRangeSelector";
@@ -10,52 +10,57 @@ interface Category {
   parentCategory?: { id: string | number } | null;
 }
 
-interface CategoryFilterProps {
-  activities?: Array<{ id: string | number; name: string }>;
-  selectedActivities?: number[];
-  setSelectedActivities?: React.Dispatch<React.SetStateAction<number[]>>;
+interface ApplyParams {
+  categoryIds: number[];
+  startingDate?: string;
+  endingDate?: string;
+}
 
+interface CategoryFilterProps {
   categories?: Category[];
   selectedCategories?: number[];
-  setSelectedCategories?: React.Dispatch<React.SetStateAction<number[]>>;
-
   selectedStartingDate?: string | undefined;
-  setSelectedStartingDate: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
-
   selectedEndingDate?: string | undefined;
-  setSelectedEndingDate: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
 
-  handleFilter: () => void;
-  autoFilter?: boolean;
+  onApply: (params: ApplyParams) => void;
+  onClear?: () => void;
 }
 
 const FilterList = ({
-  activities = [],
-  selectedActivities = [],
-  setSelectedActivities,
   categories = [],
   selectedCategories = [],
-  setSelectedCategories,
-  handleFilter,
   selectedStartingDate,
-  setSelectedStartingDate,
   selectedEndingDate,
-  setSelectedEndingDate,
-  autoFilter = false,
+  onApply,
+  onClear,
 }: CategoryFilterProps) => {
+  const [localSelectedCategories, setLocalSelectedCategories] = useState<
+    number[]
+  >(selectedCategories ?? []);
+  const [localStartingDate, setLocalStartingDate] = useState<
+    string | undefined
+  >(selectedStartingDate);
+  const [localEndingDate, setLocalEndingDate] = useState<string | undefined>(
+    selectedEndingDate
+  );
+
+  useEffect(() => {
+    setLocalSelectedCategories(selectedCategories ?? []);
+  }, [selectedCategories]);
+  useEffect(() => {
+    setLocalStartingDate(selectedStartingDate);
+  }, [selectedStartingDate]);
+  useEffect(() => {
+    setLocalEndingDate(selectedEndingDate);
+  }, [selectedEndingDate]);
+
   const { parents, childrenByParent } = useMemo(() => {
     const parents = categories.filter(
       (c) => !c.parentCategory || !c.parentCategory.id
     );
 
     const childrenByParent = new Map<number, Category[]>();
-
     parents.forEach((p) => childrenByParent.set(Number(p.id), []));
-
     categories.forEach((c) => {
       const pid = c.parentCategory?.id;
       if (pid != null) {
@@ -74,128 +79,89 @@ const FilterList = ({
   }, [categories]);
 
   const isCatChecked = useCallback(
-    (idNum: number) => selectedCategories.includes(idNum),
-    [selectedCategories]
-  );
-
-  const toggleActivity = useCallback(
-    (idNum: number) => {
-      if (!setSelectedActivities) return;
-      setSelectedActivities((prev) =>
-        prev.includes(idNum)
-          ? prev.filter((id) => id !== idNum)
-          : [...prev, idNum]
-      );
-    },
-    [setSelectedActivities]
+    (idNum: number) => localSelectedCategories.includes(idNum),
+    [localSelectedCategories]
   );
 
   const toggleParent = useCallback(
     (parentId: number) => {
-      if (!setSelectedCategories) return;
-
       const children = childrenByParent.get(parentId) ?? [];
       const childrenIds = children.map((c) => Number(c.id));
 
-      setSelectedCategories((prev) => {
+      setLocalSelectedCategories((prev) => {
         const parentSelected = prev.includes(parentId);
         if (parentSelected) {
+          // Décocher le parent et tous ses enfants
           return prev.filter(
             (id) => id !== parentId && !childrenIds.includes(id)
           );
         } else {
-          return [...prev, parentId];
+          // Cocher le parent et tous ses enfants
+          return [...prev, parentId, ...childrenIds];
         }
       });
     },
-    [childrenByParent, setSelectedCategories]
+    [childrenByParent]
   );
 
   const toggleChild = useCallback(
     (parentId: number, childId: number) => {
-      if (!setSelectedCategories) return;
+      const children = childrenByParent.get(parentId) ?? [];
+      const childrenIds = children.map((c) => Number(c.id));
 
-      setSelectedCategories((prev) => {
+      setLocalSelectedCategories((prev) => {
         const hasChild = prev.includes(childId);
+        let newSelection: number[];
+
         if (hasChild) {
-          return prev.filter((id) => id !== childId);
+          // Décocher l'enfant
+          newSelection = prev.filter((id) => id !== childId);
+          // Décocher aussi le parent si l'enfant était sélectionné
+          newSelection = newSelection.filter((id) => id !== parentId);
+        } else {
+          // Cocher l'enfant
+          newSelection = [...prev, childId];
+
+          // Vérifier si tous les enfants sont maintenant sélectionnés
+          const allChildrenSelected = childrenIds.every((id) =>
+            newSelection.includes(id)
+          );
+          if (allChildrenSelected && !newSelection.includes(parentId)) {
+            // Cocher le parent si tous les enfants sont sélectionnés
+            newSelection = [...newSelection, parentId];
+          }
         }
-        if (!prev.includes(parentId)) {
-          return [...prev, parentId, childId];
-        }
-        return [...prev, childId];
+
+        return newSelection;
       });
     },
-    [setSelectedCategories]
+    [childrenByParent]
   );
 
-  const handleFilterRef = useRef(handleFilter);
-
-  useEffect(() => {
-    handleFilterRef.current = handleFilter;
-  }, [handleFilter]);
-
-  const activitiesKey = selectedActivities.join(",");
-  const categoriesKey = selectedCategories.join(",");
-
-  useEffect(() => {
-    if (!autoFilter) return;
-    const id = setTimeout(() => {
-      handleFilterRef.current();
-    }, 150);
-    return () => clearTimeout(id);
-  }, [
-    activitiesKey,
-    categoriesKey,
-    selectedStartingDate,
-    selectedEndingDate,
-    autoFilter,
-  ]);
+  const clearAllFilters = useCallback(() => {
+    setLocalSelectedCategories([]);
+    setLocalStartingDate(undefined);
+    setLocalEndingDate(undefined);
+  }, []);
 
   return (
     <>
       <DateRangeSelector
-        selectedStartingDate={selectedStartingDate}
-        selectedEndingDate={selectedEndingDate}
-        setSelectedEndingDate={setSelectedEndingDate}
-        setSelectedStartingDate={setSelectedStartingDate}
+        selectedStartingDate={localStartingDate}
+        selectedEndingDate={localEndingDate}
+        setSelectedStartingDate={setLocalStartingDate}
+        setSelectedEndingDate={setLocalEndingDate}
       />
-
-      {activities.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="font-semibold">Activités :</h2>
-          {activities.map((activity) => {
-            const idNum = Number(activity.id);
-            return (
-              <Label
-                key={activity.id}
-                htmlFor={`activity-${activity.id}`}
-                className="flex items-center gap-2"
-              >
-                <Checkbox
-                  id={`activity-${activity.id}`}
-                  checked={selectedActivities.includes(idNum)}
-                  onCheckedChange={(next) => {
-                    toggleActivity(idNum);
-                  }}
-                />
-                {activity.name}
-              </Label>
-            );
-          })}
-        </div>
-      )}
 
       <div className="space-y-2">
         <h2 className="font-semibold">Catégories :</h2>
-
         {parents.map((parent) => {
           const pid = Number(parent.id);
           const parentChecked = isCatChecked(pid);
           const children = childrenByParent.get(pid) ?? [];
 
           return (
-            <div key={parent.id} className="space-y-1">
+            <div key={parent.id} className="space-y-2">
               <Label
                 htmlFor={`category-${parent.id}`}
                 className="flex items-center gap-2"
@@ -203,15 +169,13 @@ const FilterList = ({
                 <Checkbox
                   id={`category-${parent.id}`}
                   checked={parentChecked}
-                  onCheckedChange={(next) => {
-                    toggleParent(pid);
-                  }}
+                  onCheckedChange={() => toggleParent(pid)}
                 />
                 {parent.name}
               </Label>
 
-              {parentChecked && children.length > 0 && (
-                <div className="pl-6 mt-1 space-y-1 border-l border-border">
+              {children.length > 0 && (
+                <div className="pl-6 mt-1 space-y-2 border-l border-border">
                   {children.map((child) => {
                     const cid = Number(child.id);
                     return (
@@ -223,9 +187,7 @@ const FilterList = ({
                         <Checkbox
                           id={`category-${child.id}`}
                           checked={isCatChecked(cid)}
-                          onCheckedChange={(next) => {
-                            toggleChild(pid, cid);
-                          }}
+                          onCheckedChange={() => toggleChild(pid, cid)}
                         />
                         {child.name}
                       </Label>
@@ -238,13 +200,32 @@ const FilterList = ({
         })}
       </div>
 
-      {!autoFilter && (
-        <div className="flex justify-center pt-2">
-          <Button onClick={handleFilter}>Filtrer</Button>
-        </div>
-      )}
+      <div className="flex justify-center gap-2 pt-2">
+        <Button
+          variant="destructive"
+          onClick={() => {
+            clearAllFilters();
+            if (onClear) {
+              onClear();
+            }
+          }}
+        >
+          Effacer
+        </Button>
+        <Button
+          onClick={() =>
+            onApply({
+              categoryIds: localSelectedCategories,
+              startingDate: localStartingDate,
+              endingDate: localEndingDate,
+            })
+          }
+        >
+          Filtrer
+        </Button>
+      </div>
     </>
   );
 };
 
-export default FilterList;
+export default memo(FilterList);

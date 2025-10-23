@@ -2,14 +2,17 @@ import { Product, ProductWithCount } from "@/entities/Product";
 import { StoreVariant } from "@/entities/StoreVariant";
 import { Variant } from "@/entities/Variant";
 import { checkStockByVariantAndStore } from "@/helpers/checkStockByVariantAndStore";
+import { ProductWithVariants } from "@/objectTypes";
+import { ContextType, RoleType } from "@/types";
 import { GraphQLError } from "graphql";
-import { Arg, ID, Int, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Int, Query, Resolver } from "type-graphql";
 import { ILike, In } from "typeorm";
 
 @Resolver(Product)
 export class ProductResolver {
   @Query(() => ProductWithCount)
   async getProducts(
+    @Ctx() context: ContextType,
     @Arg("page", () => Int, { defaultValue: 1 }) page: number,
     @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
     @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
@@ -18,7 +21,7 @@ export class ProductResolver {
     @Arg("search", () => String, { nullable: true }) search?: string
   ): Promise<ProductWithCount> {
     const itemsToSkip = (page - 1) * onPage;
-    const where: any = {};
+    const where: any = { isPublished: true };
     const availableProductsByDates = [];
 
     if (categoryIds && categoryIds.length > 0) {
@@ -31,16 +34,25 @@ export class ProductResolver {
       where.name = ILike(`%${search}%`);
     }
 
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
     const [products, total] = await Product.findAndCount({
       skip: itemsToSkip,
       take: onPage,
       where,
       relations: {
         categories: true,
-        createdBy: true,
+        createdBy: isAdmin,
         variants: true,
       },
+      order: { createdAt: "DESC" },
     });
+
+    for (const p of products) {
+      p.variants = (p.variants ?? []).filter((v) => v?.isPublished === true);
+    }
 
     if ((startingDate || endingDate) && products.length > 0) {
       for (const product of products) {
@@ -96,31 +108,193 @@ export class ProductResolver {
     };
   }
 
-  @Query(() => Product, { nullable: true })
+  @Query(() => ProductWithCount)
+  async getPublishedProducts(
+    @Ctx() context: ContextType,
+    @Arg("page", () => Int, { defaultValue: 1 }) page: number,
+    @Arg("onPage", () => Int, { defaultValue: 15 }) onPage: number,
+    @Arg("categoryIds", () => [Int], { nullable: true }) categoryIds?: number[],
+    @Arg("activityIds", () => [Int], { nullable: true }) activityIds?: number[],
+    @Arg("startingDate", () => Date, { nullable: true }) startingDate?: Date,
+    @Arg("endingDate", () => Date, { nullable: true }) endingDate?: Date,
+    @Arg("search", () => String, { nullable: true }) search?: string
+  ): Promise<ProductWithCount> {
+    if (!startingDate && !endingDate) {
+      const where: any = { isPublished: true };
+      const isAdmin =
+        context.user?.role === RoleType.admin ||
+        context.user?.role === RoleType.superadmin;
+
+      if (categoryIds?.length) {
+        where.categories = { id: In(categoryIds) };
+      }
+      if (activityIds?.length) {
+        where.activities = { id: In(activityIds) };
+      }
+      if (search && search.trim() !== "") {
+        where.name = ILike(`%${search}%`);
+      }
+
+      const [products, total] = await Product.findAndCount({
+        skip: (page - 1) * onPage,
+        take: onPage,
+        where,
+        relations: {
+          categories: true,
+          activities: true,
+          createdBy: isAdmin,
+          variants: true,
+        },
+        order: { createdAt: "DESC" },
+      });
+
+      for (const p of products) {
+        p.variants = (p.variants ?? []).filter((v) => v?.isPublished === true);
+      }
+
+      return {
+        products,
+        pagination: {
+          total,
+          currentPage: page,
+          totalPages: Math.max(1, Math.ceil(total / onPage)),
+        },
+      };
+    }
+
+    const baseWhere: any = { isPublished: true };
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
+    if (categoryIds?.length) baseWhere.categories = { id: In(categoryIds) };
+    if (activityIds?.length) baseWhere.activities = { id: In(activityIds) };
+    if (search && search.trim() !== "") baseWhere.name = ILike(`%${search}%`);
+
+    const candidates = await Product.find({
+      select: { id: true, createdAt: true },
+      where: baseWhere,
+      relations: {
+        categories: !!categoryIds?.length,
+        activities: !!activityIds?.length,
+      },
+      order: { createdAt: "DESC" },
+    });
+    const candidateIds = candidates.map((c) => c.id);
+
+    const availableIds: number[] = [];
+    for (const id of candidateIds) {
+      const storeVariants = await StoreVariant.find({
+        where: { variant: { product: { id } } },
+        relations: { variant: { product: true } },
+      });
+
+      let hasQuantity = false;
+      for (const sv of storeVariants) {
+        const qty = await checkStockByVariantAndStore(
+          sv.storeId,
+          sv.variantId,
+          startingDate!,
+          endingDate!
+        );
+        if (qty > 0) {
+          hasQuantity = true;
+          break;
+        }
+      }
+      if (hasQuantity) availableIds.push(id);
+    }
+
+    const total = availableIds.length;
+    const start = (page - 1) * onPage;
+    const pageIds = availableIds.slice(start, start + onPage);
+
+    if (pageIds.length === 0) {
+      return {
+        products: [],
+        pagination: {
+          total,
+          currentPage: page,
+          totalPages: Math.max(1, Math.ceil(total / onPage)),
+        },
+      };
+    }
+
+    const productsPage = await Product.find({
+      where: { id: In(pageIds) },
+      relations: {
+        categories: true,
+        activities: true,
+        createdBy: isAdmin,
+        variants: true,
+      },
+    });
+
+    const orderIndex = new Map<number, number>();
+    pageIds.forEach((id, idx) => orderIndex.set(id, idx));
+    productsPage.sort((a, b) => orderIndex.get(a.id)! - orderIndex.get(b.id)!);
+
+    for (const p of productsPage) {
+      p.variants = (p.variants ?? []).filter((v) => v?.isPublished === true);
+    }
+
+    return {
+      products: productsPage,
+      pagination: {
+        total,
+        currentPage: page,
+        totalPages: Math.max(1, Math.ceil(total / onPage)),
+      },
+    };
+  }
+
+  @Query(() => ProductWithVariants, { nullable: true })
   async getProductById(
-    @Arg("param", () => String) param: string
-  ): Promise<Product | null> {
+    @Arg("param", () => String) param: string,
+    @Ctx() context: ContextType
+  ): Promise<{ product: Product; variants: StoreVariant[] } | null> {
     let product: Product | null = null;
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
+    const storeId = 1;
 
     if (!isNaN(Number(param))) {
       const id = Number(param);
       product = await Product.findOne({
         where: { id },
-        relations: { categories: true, createdBy: true, variants: true },
+        relations: {
+          categories: true,
+          createdBy: isAdmin,
+          variants: true,
+          activities: true,
+        },
       });
     } else {
       product = await Product.findOne({
         where: { name: param },
-        relations: { categories: true, createdBy: true, variants: true },
+        relations: {
+          categories: true,
+          createdBy: isAdmin,
+          variants: true,
+          activities: true,
+        },
       });
     }
 
-    return product;
+    const variants = await StoreVariant.find({
+      where: { variant: { product: { id: product.id } }, storeId },
+      relations: { variant: true },
+    });
+
+    return { product: product, variants: variants };
   }
 
   @Query(() => Product, { nullable: true })
   async getProductByVariantId(
-    @Arg("id", () => ID) id: number
+    @Arg("id", () => ID) id: number,
+    @Ctx() context: ContextType
   ): Promise<Product | null> {
     const variant = await Variant.findOne({
       where: { id },
@@ -136,9 +310,13 @@ export class ProductResolver {
       });
     }
 
+    const isAdmin =
+      context.user?.role === RoleType.admin ||
+      context.user?.role === RoleType.superadmin;
+
     const product = await Product.findOne({
       where: { id: variant.product.id },
-      relations: { categories: true, createdBy: true, variants: true },
+      relations: { categories: true, createdBy: isAdmin, variants: true },
     });
 
     if (!product) {

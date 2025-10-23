@@ -1,5 +1,6 @@
 import { OrderItem } from "@/entities/OrderItem";
 import { Product } from "@/entities/Product";
+import { StoreVariant } from "@/entities/StoreVariant";
 import {
   Variant,
   VariantCreateInputAdmin,
@@ -8,35 +9,10 @@ import {
 import { AuthContextType, RoleType } from "@/types";
 import { validate } from "class-validator";
 import { GraphQLError } from "graphql";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  ID,
-  Mutation,
-  Query,
-  Resolver,
-} from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 
 @Resolver(Variant)
 export class VariantResolverAdmin {
-  @Query(() => [Variant])
-  async getVariants(): Promise<Variant[]> {
-    return await Variant.find({
-      relations: { product: true, createdBy: true },
-    });
-  }
-
-  @Query(() => Variant, { nullable: true })
-  async getVariantById(
-    @Arg("id", () => ID) id: number
-  ): Promise<Variant | null> {
-    return await Variant.findOne({
-      where: { id },
-      relations: { product: true, createdBy: true },
-    });
-  }
-
   @Authorized([RoleType.admin, RoleType.superadmin])
   @Mutation(() => Variant)
   async createVariant(
@@ -60,6 +36,21 @@ export class VariantResolverAdmin {
     }
 
     await variant.save();
+
+    const storeId = 1;
+
+    const storeVariant = StoreVariant.create({
+      variantId: variant.id,
+      storeId,
+      quantity: data.quantity,
+      variant,
+    });
+
+    await storeVariant.save();
+    variant.storeVariants = [...(variant.storeVariants ?? []), storeVariant];
+
+    await variant.save();
+
     return variant;
   }
 
@@ -72,16 +63,38 @@ export class VariantResolverAdmin {
     const variant = await Variant.findOne({ where: { id } });
 
     if (!variant) {
-      throw new Error("Variant not found.");
+      throw new GraphQLError(`Variant not found`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
     }
 
     Object.assign(variant, data);
+    const storeVariant = await StoreVariant.findOne({
+      where: { variantId: variant.id },
+    });
 
-    const errors = await validate(variant);
-    if (errors.length > 0) {
+    if (!storeVariant) {
+      throw new GraphQLError(`storeVariant not found`, {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      });
+    }
+    Object.assign(storeVariant, { quantity: data.quantity });
+
+    const errorsVariant = await validate(variant);
+    const errorsStoreVariant = await validate(storeVariant);
+    if (errorsVariant.length > 0 || errorsStoreVariant.length > 0) {
+      const errors =
+        errorsVariant.length > 0 ? errorsVariant : errorsStoreVariant;
       throw new Error(`Validation error: ${JSON.stringify(errors)}`);
     }
 
+    await storeVariant.save();
     await variant.save();
     return variant;
   }

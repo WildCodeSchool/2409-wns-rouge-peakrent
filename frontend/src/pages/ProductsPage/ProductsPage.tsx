@@ -2,192 +2,112 @@ import FilterButton from "@/components/buttons/FilterButton";
 import FilterList from "@/components/filterList/FilterList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
-import {
-  Category as CategoryType,
-  Product as ProductType,
-} from "@/gql/graphql";
+import type { Category as CategoryType } from "@/gql/graphql";
 import { GET_CATEGORIES } from "@/graphQL/categories";
-import { GET_MINIMAL_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { useProductFilters } from "@/hooks/useProductFilters";
+import { gql, useQuery } from "@apollo/client";
+import { useMemo } from "react";
 
-const ProductsPage = () => {
-  // TODO export if used on activityPage
-  const [itemsOnPage, setItemsOnPage] = useState(15);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [maxPage, setMaxPage] = useState<number>(0);
-  const [categories, setCategories] = useState<CategoryType[]>([]);
-  // TODO rename this in selectedCategoryIds (change FilterList props too )
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedStartingDate, setSelectedStartingDate] = useState<
-    string | undefined
-  >("");
-  const [selectedEndingDate, setSelectedEndingDate] = useState<
-    string | undefined
-  >("");
-
-  // const [activities, setActivities] = useState<ActivityType[]>([]);
-  // const [selectedActivityIds, setSelectedActivityIds] = useState<number[]>([]);
-  const [products, setProducts] = useState<ProductType[]>([]);
-
+export default function ProductsPage() {
   const {
-    data: initialData,
-    loading: initialLoading,
-    error: initialError,
-  } = useQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING), {
-    variables: { onPage: itemsOnPage, page: pageIndex },
-  });
-
-  const {
-    data: getCategoriesData,
-    loading: getCategoriesLoading,
-    error: getCategoriesError,
+    data: catData,
+    loading: catLoading,
+    error: catError,
   } = useQuery(gql(GET_CATEGORIES), {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const [
-    fetchFilteredProducts,
-    { data: filteredData, loading: filterLoading, error: filterError },
-  ] = useLazyQuery(gql(GET_MINIMAL_PRODUCTS_WITH_PAGING));
+  const categories: CategoryType[] = useMemo(
+    () => catData?.getCategories?.categories ?? [],
+    [catData?.getCategories?.categories]
+  );
 
-  useEffect(() => {
-    if (!filteredData && initialData?.getProducts?.products) {
-      setProducts(initialData.getProducts.products);
-      setMaxPage(initialData.getProducts.pagination.totalPages);
-    }
-  }, [initialData]);
+  const filterOptions = useMemo(() => ({ categories }), [categories]);
 
-  useEffect(() => {
-    if (filteredData?.getProducts?.products) {
-      setProducts(filteredData.getProducts.products);
-      setMaxPage(filteredData.getProducts.pagination.totalPages);
-    }
-  }, [filteredData]);
+  const {
+    filters,
+    categoryIds,
+    paging,
+    variables,
+    applyFilters,
+    clearFilters,
+    setPage,
+    setItemsPerPage,
+  } = useProductFilters(filterOptions);
 
-  useEffect(() => {
-    if (getCategoriesData?.getCategories?.categories) {
-      setCategories(getCategoriesData.getCategories.categories);
-    }
-  }, [getCategoriesData?.getCategories.categories]);
+  const {
+    data: prodData,
+    loading: prodLoading,
+    error: prodError,
+    networkStatus,
+  } = useQuery(gql(GET_PUBLISHED_PRODUCTS_WITH_PAGING), {
+    variables,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-first",
+    notifyOnNetworkStatusChange: true,
+  });
 
-  // const {
-  //   data: getActivitiesData,
-  //   loading: getActivitiesLoading,
-  //   error: getActivitiesError,
-  // } = useQuery(gql(GET_ACTIVITIES));
+  const products = prodData?.getPublishedProducts?.products ?? [];
+  const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
 
-  // useEffect(() => {
-  //   if (getActivitiesData?.getActivities) {
-  //     setActivities(getActivitiesData?.getActivities);
-  //   }
-  // }, [getActivitiesData?.getActivities]);
+  if (catError) return <div>Erreur lors du chargement des catégories.</div>;
+  if (prodError) return <div>Erreur lors du chargement des produits.</div>;
 
-  const handleFilter = () => {
-    setPageIndex(1);
-    if (
-      selectedStartingDate &&
-      selectedEndingDate &&
-      new Date(selectedStartingDate) > new Date(selectedEndingDate)
-    ) {
-      return toast.error(
-        `La date de fin ne peut pas être inférieure à celle de début`
-      );
-    }
-    fetchFilteredProducts({
-      variables: {
-        onPage: itemsOnPage,
-        page: 1,
-        categoryIds: selectedCategories,
-        startingDate: selectedStartingDate
-          ? new Date(selectedStartingDate).toISOString()
-          : undefined,
-        endingDate: selectedEndingDate
-          ? new Date(selectedEndingDate).toISOString()
-          : undefined,
-        // activitiesId: selectedActivityIds,
-      },
-    });
-  };
-
-  const modal = {
-    description: "Filtre",
-    content: (
-      <FilterList
-        // activities={activities}
-        // selectedActivityIds={selectedActivityIds}
-        // setSelectedActivityIds={setSelectedActivityIds}
-        categories={categories}
-        selectedCategories={selectedCategories}
-        setSelectedCategories={setSelectedCategories}
-        handleFilter={handleFilter}
-        selectedEndingDate={selectedEndingDate}
-        selectedStartingDate={selectedStartingDate}
-        setSelectedEndingDate={setSelectedEndingDate}
-        setSelectedStartingDate={setSelectedStartingDate}
-      />
-    ),
-  };
-
-  if (initialError || filterError)
-    return <div>Erreur lors du chargement des produits.</div>;
-  if (getCategoriesError)
-    return <div>Erreur lors du chargement des catégories.</div>;
-  // if (getActivitiesError)
-  //   return <div>Erreur lors du chargement des catégories.</div>;
-
-  if (
-    initialLoading ||
-    getCategoriesLoading ||
-    // getActivitiesLoading ||
-    filterLoading
-  ) {
+  if (catLoading || (prodLoading && networkStatus === 1)) {
     return (
       <div className="flex items-center justify-center h-screen">
         <LoadIcon size={40} />
       </div>
     );
   }
+
   return (
     <>
+      {/* Mobile */}
       <div className="flex-row items-center justify-between h-10 px-2.5 md:hidden flex">
         <FilterButton
-          text={"Filtrer"}
-          modalContent={modal.content}
-          ariaLabel={"editCategoryAriaLabel"}
+          text="Filtrer"
+          modalContent={() => (
+            <FilterList
+              categories={categories}
+              selectedCategories={categoryIds}
+              selectedStartingDate={filters.startingDate}
+              selectedEndingDate={filters.endingDate}
+              onApply={applyFilters}
+              onClear={clearFilters}
+            />
+          )}
+          ariaLabel="editCategoryAriaLabel"
           variant="primary"
           modalTitle="Filtrer les produits"
-          modalDescription={modal.description}
+          modalDescription="Filtrer"
           className="flex md:hidden text-base w-fit px-3"
         />
       </div>
 
       <div className="flex">
+        {/* Desktop */}
         <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
           <FilterList
-            // activities={activities}
-            // selectedActivityIds={selectedActivityIds}
-            // setSelectedActivityIds={setSelectedActivityIds}
             categories={categories}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            handleFilter={handleFilter}
-            selectedEndingDate={selectedEndingDate}
-            selectedStartingDate={selectedStartingDate}
-            setSelectedEndingDate={setSelectedEndingDate}
-            setSelectedStartingDate={setSelectedStartingDate}
+            selectedCategories={categoryIds}
+            selectedStartingDate={filters.startingDate}
+            selectedEndingDate={filters.endingDate}
+            onApply={applyFilters}
+            onClear={clearFilters}
           />
         </aside>
+
         <div className="flex-1 px-4 pb-4">
           {products.length > 0 ? (
             <ProductsList
               title="Tous les produits"
               items={products}
-              itemsOnPage={itemsOnPage}
-              setItemsOnPage={setItemsOnPage}
-              pageIndex={pageIndex}
-              setPageIndex={setPageIndex}
+              itemsOnPage={paging.onPage}
+              setItemsOnPage={setItemsPerPage}
+              pageIndex={paging.page}
+              setPageIndex={setPage}
               maxPage={maxPage}
             />
           ) : (
@@ -199,6 +119,4 @@ const ProductsPage = () => {
       </div>
     </>
   );
-};
-
-export default ProductsPage;
+}

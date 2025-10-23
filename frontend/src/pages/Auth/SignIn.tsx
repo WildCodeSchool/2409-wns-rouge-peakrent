@@ -81,7 +81,7 @@ export function SignInPage() {
     <div className="relative min-h-screen bg-background">
       <ImageHandler
         className="block md:hidden absolute w-full h-full object-cover"
-        src="/image-9.jpg"
+        src="/image-9.webp"
         alt="Image de fond"
       />
       <div className="container relative z-10 mx-auto px-4 py-8 md:py-16">
@@ -152,7 +152,7 @@ export function SignInPage() {
             <div
               className="hidden md:block w-1/2 bg-slate-100 p-8 relative bg-cover bg-center rounded-lg"
               style={{
-                backgroundImage: 'url("/image-7.jpg")',
+                backgroundImage: 'url("/image-7.webp")',
               }}
             >
               <div className="absolute inset-0 bg-slate-900/60 rounded-lg" />
@@ -172,16 +172,17 @@ export function SignInPage() {
                   <p className="text-sm text-slate-200 mb-4">
                     Vous n&apos;avez pas de compte ?
                   </p>
-                  <NavLink to="/signup">
-                    <Button
-                      size="lg"
-                      className="w-full text-sm text-black rounded-lg"
-                      variant="outline"
-                      disabled={isPending}
-                    >
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full text-sm text-black rounded-lg"
+                    variant="outline"
+                    disabled={isPending}
+                  >
+                    <NavLink to="/signup" aria-label="Créer un nouveau compte">
                       S&apos;inscrire
-                    </Button>
-                  </NavLink>
+                    </NavLink>
+                  </Button>
                 </div>
               </div>
             </div>

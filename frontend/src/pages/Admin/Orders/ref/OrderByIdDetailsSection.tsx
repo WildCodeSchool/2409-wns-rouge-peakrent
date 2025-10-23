@@ -8,14 +8,20 @@ import {
   GET_ORDER_BY_REF_ADMIN,
   UPDATE_ORDER_ADMIN,
 } from "@/graphQL/order";
-import { formatLocaleDate } from "@/utils";
-import { getTotalOrderPrice } from "@/utils/getTotalOrderPrice";
+import { computeDiscountUI, formatLocaleDate, getPriceFixed } from "@/utils";
+
+import { getTotalOrderPrice } from "@/utils/PriceAndDays/getTotalOrderPrice";
 import { gql, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 
 export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
   const totalTTC = getTotalOrderPrice(order.orderItems ?? [], true);
   const { date, time } = formatLocaleDate(order.paidAt as string);
+  const voucherAmount = computeDiscountUI(
+    Number(totalTTC),
+    order.voucher,
+    true
+  );
 
   const [updateOrderAdmin, { loading: updating }] = useMutation(
     gql(UPDATE_ORDER_ADMIN),
@@ -54,12 +60,26 @@ export function OrderByIdDetailsHeaderSection({ order }: { order: OrderType }) {
           <div className="flex flex-col justify-between gap-4 pt-2">
             <div className="flex justify-between">
               <span>HT:</span>
-              <span>{(Number(totalTTC) / 1.2).toFixed(2)} €</span>
+              <span>{getPriceFixed(Number(totalTTC) / 1.2)} €</span>
             </div>
             <div className="flex justify-between ">
               <span>TTC:</span>
               <div className="flex gap-2">
-                <span>{totalTTC} €</span>
+                <span>{getPriceFixed(totalTTC)} €</span>
+              </div>
+            </div>
+            <div className="flex justify-between ">
+              <span>Montant du voucher:</span>
+              <div className="flex gap-2">
+                <span>
+                  {order.voucher ? getPriceFixed(voucherAmount) : 0} €
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between ">
+              <span>TTC avec voucher:</span>
+              <div className="flex gap-2">
+                <span>{getPriceFixed(Number(totalTTC) - voucherAmount)} €</span>
               </div>
             </div>
             {/* <div className="flex justify-between">
