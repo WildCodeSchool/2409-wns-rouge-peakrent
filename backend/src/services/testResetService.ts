@@ -1,7 +1,6 @@
 import { dataSource } from "../config/db";
 import { QueryRunner } from "typeorm";
 
-// Tes seeds existants
 import { seedUsers } from "../../seed/user.seed";
 import { seedActivities } from "../../seed/activity.seed";
 import { seedCategories } from "../../seed/category.seed";
@@ -21,7 +20,6 @@ export async function resetAndSeedTestData() {
   try {
     await qr.startTransaction();
 
-    // TRUNCATE toutes les tables connues de TypeORM (hors table de migrations)
     const tableNames = dataSource.entityMetadatas
       .map((m) => m.tableName)
       .filter((t) => t !== "_migrations");
@@ -33,7 +31,6 @@ export async function resetAndSeedTestData() {
 
     await qr.commitTransaction();
 
-    // Seeds (ordre cohérent)
     await seedUsers();
     await seedActivities();
     await seedCategories();

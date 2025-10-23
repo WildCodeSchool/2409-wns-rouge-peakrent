@@ -30,7 +30,6 @@ export class TestResolver {
     return { ok: !!r.ok };
   }
 
-  // Optionnel mais pratique : prépare un item dans le panier de l'utilisateur courant
   @Mutation(() => TestOk, {
     description: "⚠️ TEST ONLY: add item to current user's cart",
   })
@@ -72,7 +71,6 @@ export class TestResolver {
     return { ok: true };
   }
 
-  // Optionnel : crée un Payment "factice" pour pouvoir valider le cart (flow onSite)
   @Mutation(() => TestOk, {
     description: "⚠️ TEST ONLY: ensure a Payment exists for current user",
   })
@@ -88,7 +86,7 @@ export class TestResolver {
       payment = new Payment();
       Object.assign(payment, {
         clientSecret,
-        status: StripePaymentStatusType.ToBePaid, // suffisant si tu utilises paymentMethod: onSite
+        status: StripePaymentStatusType.ToBePaid,
         profile: ctx.user.id,
       });
       await payment.save();

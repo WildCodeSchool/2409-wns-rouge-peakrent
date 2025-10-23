@@ -30,7 +30,7 @@ import { VoucherResolverAdmin } from "./resolvers/Vouchers";
 
 export async function getSchema() {
   // Admin resolvers
-  const adminResolvers: any[] = [
+  const adminResolvers = [
     ActivityResolverAdmin,
     CartResolverAdmin,
     CategoryResolverAdmin,
@@ -46,11 +46,10 @@ export async function getSchema() {
     VoucherResolverAdmin,
   ];
 
-  if (process.env.NODE_ENV === "dev") {
-    // extend base Entity
-    const { TestResolver } = await import("./resolvers/admin/TestResolver");
-    adminResolvers.push(TestResolver);
-  }
+  const testResolvers =
+    process.env.NODE_ENV === "dev"
+      ? [(await import("./resolvers/admin/TestResolver")).TestResolver]
+      : [];
 
   const schema = await buildSchema({
     resolvers: [
@@ -68,6 +67,7 @@ export async function getSchema() {
       VariantResolver,
       CartVoucherResolver,
       ...adminResolvers,
+      ...testResolvers,
     ],
     authChecker,
     validate: true,
