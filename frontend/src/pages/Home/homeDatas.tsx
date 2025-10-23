@@ -144,11 +144,11 @@ export const forwardProducts = [
 ];
 
 export const carousselImages = [
-  { src: "/image-1.png", alt: "Slide 1" },
-  { src: "/image-2.png", alt: "Slide 2" },
-  { src: "/image-3.png", alt: "Slide 3" },
-  { src: "/image-4.png", alt: "Slide 4" },
-  { src: "/image-5.png", alt: "Slide 5" },
+  { src: "/image-1.webp", alt: "Montagne couché de soleil" },
+  { src: "/image-2.webp", alt: "Montagne enneigée" },
+  { src: "/image-3.webp", alt: "Montagne et lac" },
+  { src: "/image-4.webp", alt: "Balade vélo" },
+  { src: "/image-5.webp", alt: "Kayak sur un lac" },
 ];
 
 export const rentalProcessSteps = [

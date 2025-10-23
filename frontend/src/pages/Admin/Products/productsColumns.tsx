@@ -26,7 +26,7 @@ export const createColumns: ColumnDef<any>[] = [
         column={column}
         title=""
         className=""
-        role="decorative"
+        aria-hidden="true"
       />
     ),
     cell: ({ row }) => {
@@ -34,7 +34,8 @@ export const createColumns: ColumnDef<any>[] = [
       const active = datas.isPublished;
       return (
         <div
-          role="decorative"
+          role="presentation"
+          aria-hidden="true"
           className="flex w-4 items-center overflow-hidden p-0"
         >
           {active ? (

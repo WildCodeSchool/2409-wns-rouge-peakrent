@@ -62,10 +62,10 @@ export class Variant extends BaseEntity {
   @JoinColumn({ name: "product_id" })
   product!: Product;
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User)
   @JoinColumn({ name: "created_by" })
-  createdBy!: User;
+  createdBy?: User;
 
   @Field(() => [StoreVariant])
   @OneToMany(() => StoreVariant, (storeVariant) => storeVariant.variant)
