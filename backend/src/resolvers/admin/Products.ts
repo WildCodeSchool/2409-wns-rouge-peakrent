@@ -149,6 +149,7 @@ export class ProductResolverAdmin {
       relations: {
         variants: true,
         categories: true,
+        activities: true,
         createdBy: true,
       },
     });

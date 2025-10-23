@@ -1,35 +1,15 @@
-import { gql, useQuery } from "@apollo/client";
-import { useMemo, useCallback, useState, startTransition } from "react";
 import FilterButton from "@/components/buttons/FilterButton";
 import FilterList from "@/components/filterList/FilterList";
-import ProductsList from "@/components/productsList/ProductsList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
+import ProductsList from "@/components/productsList/ProductsList";
+import type { Category as CategoryType } from "@/gql/graphql";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
-import type { Category as CategoryType } from "@/gql/graphql";
-import { toast } from "sonner";
-
-type Filters = {
-  categoryIds: number[];
-  startingDate?: string;
-  endingDate?: string;
-};
+import { useProductFilters } from "@/hooks/useProductFilters";
+import { gql, useQuery } from "@apollo/client";
+import { useMemo } from "react";
 
 export default function ProductsPage() {
-  const [filters, setFilters] = useState<Filters>({ categoryIds: [] });
-  const [paging, setPaging] = useState({ page: 1, onPage: 15 });
-
-  const variables = useMemo(
-    () => ({
-      page: paging.page,
-      onPage: paging.onPage,
-      categoryIds: filters.categoryIds.length ? filters.categoryIds : undefined,
-      startingDate: filters.startingDate,
-      endingDate: filters.endingDate,
-    }),
-    [paging.page, paging.onPage, filters]
-  );
-
   const {
     data: catData,
     loading: catLoading,
@@ -37,6 +17,24 @@ export default function ProductsPage() {
   } = useQuery(gql(GET_CATEGORIES), {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
+
+  const categories: CategoryType[] = useMemo(
+    () => catData?.getCategories?.categories ?? [],
+    [catData?.getCategories?.categories]
+  );
+
+  const filterOptions = useMemo(() => ({ categories }), [categories]);
+
+  const {
+    filters,
+    categoryIds,
+    paging,
+    variables,
+    applyFilters,
+    clearFilters,
+    setPage,
+    setItemsPerPage,
+  } = useProductFilters(filterOptions);
 
   const {
     data: prodData,
@@ -50,39 +48,8 @@ export default function ProductsPage() {
     notifyOnNetworkStatusChange: true,
   });
 
-  const categories: CategoryType[] = catData?.getCategories?.categories ?? [];
-
   const products = prodData?.getPublishedProducts?.products ?? [];
   const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
-
-  const applyFilters = useCallback(
-    (params: {
-      categoryIds: number[];
-      startingDate?: string;
-      endingDate?: string;
-    }) => {
-      const { categoryIds, startingDate, endingDate } = params;
-      if (
-        startingDate &&
-        endingDate &&
-        new Date(startingDate) > new Date(endingDate)
-      ) {
-        toast.error(
-          "La date de fin ne peut pas être inférieure à celle de début"
-        );
-        return;
-      }
-      setFilters({
-        categoryIds,
-        startingDate: startingDate
-          ? new Date(startingDate).toISOString()
-          : undefined,
-        endingDate: endingDate ? new Date(endingDate).toISOString() : undefined,
-      });
-      startTransition(() => setPaging((p) => ({ ...p, page: 1 })));
-    },
-    []
-  );
 
   if (catError) return <div>Erreur lors du chargement des catégories.</div>;
   if (prodError) return <div>Erreur lors du chargement des produits.</div>;
@@ -104,10 +71,11 @@ export default function ProductsPage() {
           modalContent={() => (
             <FilterList
               categories={categories}
-              selectedCategories={filters.categoryIds}
+              selectedCategories={categoryIds}
               selectedStartingDate={filters.startingDate}
               selectedEndingDate={filters.endingDate}
               onApply={applyFilters}
+              onClear={clearFilters}
             />
           )}
           ariaLabel="editCategoryAriaLabel"
@@ -123,10 +91,11 @@ export default function ProductsPage() {
         <aside className="hidden md:block w-[250px] bg-gray-100 p-4">
           <FilterList
             categories={categories}
-            selectedCategories={filters.categoryIds}
+            selectedCategories={categoryIds}
             selectedStartingDate={filters.startingDate}
             selectedEndingDate={filters.endingDate}
             onApply={applyFilters}
+            onClear={clearFilters}
           />
         </aside>
 
@@ -136,9 +105,9 @@ export default function ProductsPage() {
               title="Tous les produits"
               items={products}
               itemsOnPage={paging.onPage}
-              setItemsOnPage={(n) => setPaging((p) => ({ ...p, onPage: n }))}
+              setItemsOnPage={setItemsPerPage}
               pageIndex={paging.page}
-              setPageIndex={(n) => setPaging((p) => ({ ...p, page: n }))}
+              setPageIndex={setPage}
               maxPage={maxPage}
             />
           ) : (

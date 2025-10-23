@@ -1,34 +1,19 @@
 import FilterButton from "@/components/buttons/FilterButton";
+import { ActivityCard } from "@/components/cards/ActivityCard";
 import FilterList from "@/components/filterList/FilterList";
 import { LoadIcon } from "@/components/icons/LoadIcon";
 import ProductsList from "@/components/productsList/ProductsList";
-import { ActivityCard } from "@/components/cards/ActivityCard";
+import type { Category as CategoryType } from "@/gql/graphql";
 import { GET_ACTIVITY_BY_NORMALIZED_NAME } from "@/graphQL/activities";
 import { GET_CATEGORIES } from "@/graphQL/categories";
 import { GET_PUBLISHED_PRODUCTS_WITH_PAGING } from "@/graphQL/products";
+import { useProductFilters } from "@/hooks/useProductFilters";
 import { gql, useQuery } from "@apollo/client";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { toast } from "sonner";
+import { useMemo } from "react";
 import { useParams } from "react-router-dom";
-
-type Filters = {
-  categoryIds: number[];
-  activityIds?: number[];
-  startingDate?: string;
-  endingDate?: string;
-};
 
 const ActivityDetail = () => {
   const { normalizedName } = useParams<{ normalizedName: string }>();
-
-  const [filters, setFilters] = useState<Filters>({ categoryIds: [] });
-  const [paging, setPaging] = useState({ page: 1, onPage: 15 });
 
   const {
     data: activityData,
@@ -40,16 +25,6 @@ const ActivityDetail = () => {
   });
   const activity = activityData?.getActivityByNormalizedName;
 
-  useEffect(() => {
-    if (!activity?.id) return;
-    setFilters((f) =>
-      f.activityIds?.[0] === Number(activity.id)
-        ? f
-        : { ...f, activityIds: [Number(activity.id)] }
-    );
-    setPaging((p) => (p.page === 1 ? p : { ...p, page: 1 }));
-  }, [activity?.id]);
-
   const {
     data: catData,
     loading: catLoading,
@@ -58,17 +33,32 @@ const ActivityDetail = () => {
     variables: { data: { page: 1, onPage: 1000, sort: "name", order: "ASC" } },
   });
 
-  const variables = useMemo(
-    () => ({
-      page: paging.page,
-      onPage: paging.onPage,
-      categoryIds: filters.categoryIds.length ? filters.categoryIds : undefined,
-      activityIds: filters.activityIds,
-      startingDate: filters.startingDate,
-      endingDate: filters.endingDate,
-    }),
-    [paging, filters]
+  const categories: CategoryType[] = useMemo(
+    () => catData?.getCategories?.categories ?? [],
+    [catData?.getCategories?.categories]
   );
+
+  // Créer activityIds à partir de l'activité courante
+  const activityIds = useMemo(
+    () => (activity?.id ? [Number(activity.id)] : undefined),
+    [activity?.id]
+  );
+
+  const filterOptions = useMemo(
+    () => ({ categories, activityIds }),
+    [categories, activityIds]
+  );
+
+  const {
+    filters,
+    categoryIds,
+    paging,
+    variables,
+    applyFilters,
+    clearFilters,
+    setPage,
+    setItemsPerPage,
+  } = useProductFilters(filterOptions);
 
   const {
     data: prodData,
@@ -80,42 +70,11 @@ const ActivityDetail = () => {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     notifyOnNetworkStatusChange: true,
-    skip: !filters.activityIds?.length,
+    skip: !activityIds?.length,
   });
 
-  const categories = catData?.getCategories?.categories ?? [];
   const products = prodData?.getPublishedProducts?.products ?? [];
   const maxPage = prodData?.getPublishedProducts?.pagination?.totalPages ?? 0;
-
-  const applyFilters = useCallback(
-    (params: {
-      categoryIds: number[];
-      startingDate?: string;
-      endingDate?: string;
-    }) => {
-      const { categoryIds, startingDate, endingDate } = params;
-      if (
-        startingDate &&
-        endingDate &&
-        new Date(startingDate) > new Date(endingDate)
-      ) {
-        toast.error(
-          "La date de fin ne peut pas être inférieure à celle de début"
-        );
-        return;
-      }
-      setFilters((prev) => ({
-        ...prev,
-        categoryIds,
-        startingDate: startingDate
-          ? new Date(startingDate).toISOString()
-          : undefined,
-        endingDate: endingDate ? new Date(endingDate).toISOString() : undefined,
-      }));
-      startTransition(() => setPaging((p) => ({ ...p, page: 1 })));
-    },
-    []
-  );
 
   if (activityError)
     return <div>Erreur lors du chargement de l&apos;activité.</div>;
@@ -157,10 +116,11 @@ const ActivityDetail = () => {
         <aside className="hidden md:block w-[280px] bg-gray-50 border-r p-6">
           <FilterList
             categories={categories}
-            selectedCategories={filters.categoryIds}
+            selectedCategories={categoryIds}
             selectedStartingDate={filters.startingDate}
             selectedEndingDate={filters.endingDate}
             onApply={applyFilters}
+            onClear={clearFilters}
           />
         </aside>
 
@@ -180,10 +140,11 @@ const ActivityDetail = () => {
               modalContent={
                 <FilterList
                   categories={categories}
-                  selectedCategories={filters.categoryIds}
+                  selectedCategories={categoryIds}
                   selectedStartingDate={filters.startingDate}
                   selectedEndingDate={filters.endingDate}
                   onApply={applyFilters}
+                  onClear={clearFilters}
                 />
               }
               ariaLabel="filterProductsAriaLabel"
@@ -200,9 +161,9 @@ const ActivityDetail = () => {
                 title="Produits associés"
                 items={products}
                 itemsOnPage={paging.onPage}
-                setItemsOnPage={(n) => setPaging((p) => ({ ...p, onPage: n }))}
+                setItemsOnPage={setItemsPerPage}
                 pageIndex={paging.page}
-                setPageIndex={(n) => setPaging((p) => ({ ...p, page: n }))}
+                setPageIndex={setPage}
                 maxPage={maxPage}
               />
             ) : (
