@@ -25,6 +25,8 @@ jobs:
           push: true
           context: "{{defaultContext}}:frontend"
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:latest, ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_FRONTEND_REPO }}:${{ github.sha }}
+          build-args: |
+            VITE_PUBLIC_STRIPE_KEY=${{ vars.VITE_PUBLIC_STRIPE_KEY }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
