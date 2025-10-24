@@ -4,7 +4,7 @@ import stripe from "stripe";
 import app from "./express";
 
 const endpointSecret =
-  process.env.NODE_ENV === "prod"
+  process.env.NODE_ENV === "staging" || process.env.NODE_ENV === "production"
     ? process.env.PROD_WEBHOOK_ENDPOINT
     : process.env.DEV_WEBHOOK_ENDPOINT;
 

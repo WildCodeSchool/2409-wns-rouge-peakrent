@@ -90,16 +90,20 @@ export function setCookies(
 ): void {
   if (process.env.NODE_ENV === "testing") return;
 
+  const isSecure =
+    process.env.NODE_ENV === "production" &&
+    context.req.headers["x-forwarded-proto"] === "https";
+
   const cookies = new Cookies(context.req, context.res);
   cookies.set("token", accessToken, {
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecure,
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 3, // 3 days
+    maxAge: 1000 * 60 * 60 * 12, // 12 hours
     sameSite: "lax",
   });
 
   cookies.set("refresh_token", refreshToken, {
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecure,
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     sameSite: "lax",
