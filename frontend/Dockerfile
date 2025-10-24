@@ -20,6 +20,7 @@ COPY index.html index.html
 COPY public public
 COPY codegen.ts codegen.ts
 COPY src src
+COPY .env .env
 
 RUN npm run build
 
