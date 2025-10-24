@@ -89,23 +89,21 @@ export function setCookies(
   refreshToken: string
 ): void {
   if (process.env.NODE_ENV === "testing") return;
-
-  const isSecure =
-    process.env.NODE_ENV === "production" &&
-    context.req.headers["x-forwarded-proto"] === "https";
-
-  const cookies = new Cookies(context.req, context.res);
+  const isProd = process.env.NODE_ENV === "production";
+  const cookies = new Cookies(context.req, context.res, {
+    secure: isProd,
+  });
   cookies.set("token", accessToken, {
-    secure: isSecure,
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 12, // 12 hours
+    secure: isProd,
+    maxAge: 1000 * 60 * 60 * 24 * 3,
     sameSite: "lax",
   });
 
   cookies.set("refresh_token", refreshToken, {
-    secure: isSecure,
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    secure: isProd,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: "lax",
   });
 }
