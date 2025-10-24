@@ -1,10 +1,5 @@
 FROM node:20-alpine3.21
 
-ARG VITE_PUBLIC_STRIPE_KEY
-ARG URL_REST
-
-ENV VITE_PUBLIC_STRIPE_KEY=$VITE_PUBLIC_STRIPE_KEY \
-    URL_REST=$URL_REST
 
 RUN mkdir /app
 WORKDIR /app
@@ -20,6 +15,9 @@ COPY index.html index.html
 COPY public public
 COPY codegen.ts codegen.ts
 COPY src src
+
+ARG VITE_PUBLIC_STRIPE_KEY
+ENV VITE_PUBLIC_STRIPE_KEY=${VITE_PUBLIC_STRIPE_KEY}
 
 RUN npm run build
 
